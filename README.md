@@ -12,6 +12,8 @@
 [Discord](https://discord.gg/7wDwSPde58) | [Steam](https://store.steampowered.com/app/1255460/Space_Station_14/) | [Boosty](https://boosty.to/corvaxforge) | [Вики](https://station14.ru/wiki/%D0%9F%D0%BE%D1%80%D1%82%D0%B0%D0%BB:Frontier)
 
 
+</div>
+
 ## Сборка
 
 Обратитесь к [руководству Space Wizards](https://docs.spacestation14.com/en/general-development/setup/setting-up-a-development-environment.html) по настройке среды разработки для получения общей информации, но имейте в виду, что Corvax Forge Monolith — это не то же самое, и многие вещи могут не применяться.
@@ -24,20 +26,22 @@
 
 ### Windows
 
+```
 1. Клонируйте этот репозиторий
 2. Запустите `Scripts/bat/updateEngine.bat` в терминале или в проводнике, чтобы загрузить движок
 3. Запустите `Scripts/bat/buildAllDebug.bat` после внесения любых изменений в исходный код
 4. Запустите `Scripts/bat/runQuickAll.bat`, чтобы запустить клиент и сервер
 5. Подключитесь к localhost в клиенте и играйте
+```
 
 ### Linux
-
+```
 1. Клонируйте этот репозиторий
 2. Запустите `Scripts/sh/updateEngine.sh` в терминале, чтобы загрузить движок
 3. Запустите `Scripts/sh/buildAllDebug.sh` после внесения любых изменений в исходный код
 4. Запустите `Scripts/sh/runQuickAll.sh`, чтобы запустить клиент и сервер
 5. Подключитесь к localhost в клиенте и играйте
-
+```
 ## Лицензия
 
 - **Код:** Основная лицензия — MIT.
