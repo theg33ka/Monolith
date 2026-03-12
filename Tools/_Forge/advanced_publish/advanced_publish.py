@@ -31,9 +31,9 @@ def main():
     parser.add_argument("--fork-id", required=True)
     parser.add_argument("--publish-token", required=True)
     parser.add_argument("--publish-webhook", required=False, default=None)
-    parser.add_argument("--max-workers", type=int, default=4)
-    parser.add_argument("--pool-connections", type=int, default=3)
-    parser.add_argument("--pool-maxsize", type=int, default=10)
+    parser.add_argument("--max-workers", type=int, default=2)
+    parser.add_argument("--pool-connections", type=int, default=2)
+    parser.add_argument("--pool-maxsize", type=int, default=4)
     parser.add_argument("--max-retries", type=int, default=3)
     parser.add_argument("--release_dir", default="release")
 
@@ -129,8 +129,20 @@ def main():
     logger.info("Finishing publish...")
     data = { "version": version }
     headers = { "Content-Type": "application/json" }
-    resp = session.post(f"{ROBUST_CDN_URL}fork/{fork_id}/publish/finish", json=data, headers=headers)
-    resp.raise_for_status()
+    try:
+        resp = session.post(f"{ROBUST_CDN_URL}fork/{fork_id}/publish/finish", json=data, headers=headers, timeout=(60, 300))
+        resp.raise_for_status()
+    except requests.exceptions.RetryError as e:
+        message = f"Failed to finish publish: repeated server errors from Robust CDN ({e})"
+        logger.critical(message)
+        send_discord_message(message, "Critical", "ffa500", fork_id, publish_webhook)
+        sys.exit(1)
+    except requests.exceptions.RequestException as e:
+        message = f"Failed to finish publish: network or HTTP error ({e})"
+        logger.critical(message)
+        send_discord_message(message, "Critical", "ffa500", fork_id, publish_webhook)
+        sys.exit(1)
+
     message = "Publish completed"
     logger.info(message)
     send_discord_message(message, "Info", "03b2f8", fork_id, publish_webhook)
@@ -177,7 +189,7 @@ def upload_file(file_path: str, fork_id: str, publish_token: str, pool_connectio
                 "Robust-Cdn-Publish-File": os.path.basename(file_path),
                 "Robust-Cdn-Publish-Version": version
             }
-            resp = session.post(f"{ROBUST_CDN_URL}fork/{fork_id}/publish/file", data=file, headers=headers, timeout=(15,30))
+            resp = session.post(f"{ROBUST_CDN_URL}fork/{fork_id}/publish/file", data=file, headers=headers, timeout=(60,300))
             resp.raise_for_status()
         return file_path
     except FileNotFoundError:

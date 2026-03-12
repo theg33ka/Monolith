@@ -4,7 +4,6 @@ on:
     types: [opened, edited, synchronize]
 
 env:
-  GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
   PR_NUMBER: ${{ github.event.pull_request.number }}
 
 jobs:
@@ -32,6 +31,7 @@ jobs:
       - name: Change Title
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd "Tools/prtitlecase"
           node index.js
