@@ -24,6 +24,7 @@ using Robust.Client.State;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controllers;
 using Robust.Shared.Configuration;
+using Robust.Shared.Localization; // Forge-Change
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
@@ -254,13 +255,14 @@ public sealed class LobbyUIController : UIController, IOnStateEntered<LobbyState
 
         // Company Display
         var companyId = humanoid.Company;
+        var companyLabel = Loc.GetString("lobby-character-preview-panel-company-label"); // Forge-Change
         if (_prototypeManager.TryIndex<CompanyPrototype>(companyId, out var company))
         {
-            PreviewPanel.SetCompanyText($"[color=white]Company:[/color] [color={company.Color.ToHex()}]{company.Name}[/color]");
+            PreviewPanel.SetCompanyText($"[color=white]{companyLabel}[/color] [color={company.Color.ToHex()}]{company.Name}[/color]"); // Forge-Change
         }
         else
         {
-            PreviewPanel.SetCompanyText($"[color=white]Company:[/color] [color=yellow]{companyId}[/color]");
+            PreviewPanel.SetCompanyText($"[color=white]{companyLabel}[/color] [color=yellow]{companyId}[/color]"); // Forge-Change
         }
 
         // MonoCoins Display - Request balance from server and update display
