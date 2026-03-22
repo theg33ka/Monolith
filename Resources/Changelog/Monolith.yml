@@ -18734,3 +18734,10 @@ Entries:
   id: 2066
   time: '2026-03-22T22:54:10.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3530
+- author: Redrover1760
+  changes:
+    - type: Fix
+      message: Part damage easier to heal/injure with surgery/chems
+  id: 2067
+  time: '2026-03-22T23:22:33.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3533
