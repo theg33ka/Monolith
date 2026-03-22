@@ -18598,3 +18598,10 @@ Entries:
   id: 2052
   time: '2026-03-21T22:50:51.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3513
+- author: Ilya246
+  changes:
+    - type: Remove
+      message: Movable POIs
+  id: 2053
+  time: '2026-03-22T11:03:42.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3508
