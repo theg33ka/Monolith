@@ -18782,3 +18782,12 @@ Entries:
   id: 2072
   time: '2026-03-24T11:44:39.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3549
+- author: Redrover1760
+  changes:
+    - type: Fix
+      message: >-
+        Printed contraband-type items, aka enemy faction gear, can now be sold
+        for FMCs/DCs. Frontier is so frustrating man.
+  id: 2073
+  time: '2026-03-24T12:06:49.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3548
