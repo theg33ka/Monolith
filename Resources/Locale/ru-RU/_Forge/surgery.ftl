@@ -22,7 +22,6 @@ ent-SurgeryRemoveBrain = Вынуть мозг
 ent-SurgeryRemoveBorgBrain = Вынуть позитронный мозг
 ent-SurgeryInsertBrain = Вставить мозг
 ent-SurgeryInsertBorgBrain = Вставить позитронный мозг
-ent-SurgeryRemoveHeart = Удалить сердце
 ent-SurgeryInsertHeart = Вставить сердце
 ent-SurgeryRemoveLiver = Удалить печень
 ent-SurgeryInsertLiver = Вставить печень
@@ -98,20 +97,6 @@ ent-RightHandFelinid = правое запястье фелинида
 # Юви
 ent-LeftHandYowie = левое запястье Юви
 ent-RightHandYowie = правое запястье Юви
-
-
-# Тараян
-ent-PartTajaran = часть тела Тараян
-ent-TorsoTajaran = тело Тараян
-ent-HeadTajaran = голова Тараян
-ent-LeftArmTajaran = левая рука Тараян
-ent-RightArmTajaran = правая рука Тараян
-ent-LeftHandTajaran = левое запястье Тараян
-ent-RightHandTajaran = правое запястье Тараян
-ent-LeftLegTajaran = левая нога Тараян
-ent-RightLegTajaran = правая нога Тараян
-ent-LeftFootTajaran = левая стопа Тараян
-ent-RightFootTajaran = правая стопа Тараян
 
 
 # Хитиниды

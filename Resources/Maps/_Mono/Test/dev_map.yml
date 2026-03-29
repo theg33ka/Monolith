@@ -7869,14 +7869,35 @@ entities:
       parent: 2
 - proto: ForgeSpawnPointRenegateFlunky
   entities:
-  - uid: 1878
+  - uid: 1706
     components:
     - type: Transform
       pos: -4.5,2.5
       parent: 2
 - proto: ForgeSpawnPointRenegateQuack
   entities:
-  - uid: 1879
+  - uid: 1139
+    components:
+    - type: Transform
+      pos: -4.5,2.5
+      parent: 2
+- proto: SpawnPointPrisoner
+  entities:
+  - uid: 1140
+    components:
+    - type: Transform
+      pos: -4.5,2.5
+      parent: 2
+- proto: SpawnPointPilot
+  entities:
+  - uid: 1141
+    components:
+    - type: Transform
+      pos: -4.5,2.5
+      parent: 2
+- proto: ForgeSpawnPointRenegateOverseer
+  entities:
+  - uid: 1145
     components:
     - type: Transform
       pos: -4.5,2.5
@@ -7905,55 +7926,6 @@ entities:
 - proto: ForgeSpawnPointRenegateBaron
   entities:
   - uid: 1883
-    components:
-    - type: Transform
-      pos: -4.5,2.5
-      parent: 2
-- proto: SpawnPointPilot
-  entities:
-  - uid: 1136
-    components:
-    - type: Transform
-      pos: -4.5,2.5
-      parent: 2
-- proto: SpawnPointPrisoner
-  entities:
-  - uid: 1140
-    components:
-    - type: Transform
-      pos: -4.5,2.5
-      parent: 2
-- proto: SpawnPointPilot
-  entities:
-  - uid: 1141
-    components:
-    - type: Transform
-      pos: -4.5,2.5
-      parent: 2
-- proto: SpawnPointPirate
-  entities:
-  - uid: 1142
-    components:
-    - type: Transform
-      pos: -4.5,2.5
-      parent: 2
-- proto: SpawnPointPirateCaptain
-  entities:
-  - uid: 1143
-    components:
-    - type: Transform
-      pos: -4.5,2.5
-      parent: 2
-- proto: SpawnPointPirateFirstMate
-  entities:
-  - uid: 1144
-    components:
-    - type: Transform
-      pos: -4.5,2.5
-      parent: 2
-- proto: SpawnPointPrisoner
-  entities:
-  - uid: 1145
     components:
     - type: Transform
       pos: -4.5,2.5
