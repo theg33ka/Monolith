@@ -19215,3 +19215,12 @@ Entries:
   id: 2113
   time: '2026-03-29T18:10:01.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3622
+- author: Redrover1760
+  changes:
+    - type: Add
+      message: >-
+        Spikey spinners have been detected upon the Monolith Sector. Please
+        avoid contact with hostile spikey balls.
+  id: 2114
+  time: '2026-03-29T18:37:55.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3627
