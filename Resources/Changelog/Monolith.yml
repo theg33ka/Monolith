@@ -19266,3 +19266,12 @@ Entries:
   id: 2118
   time: '2026-03-30T16:22:01.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3615
+- author: mikusssssss
+  changes:
+    - type: Add
+      message: >-
+        Ownership of most vending machines has been transferred to Yara Kameroni
+        Industries (65) :tm:
+  id: 2119
+  time: '2026-03-30T16:41:45.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3641
