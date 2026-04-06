@@ -55,6 +55,7 @@ namespace Content.Client.Lobby.UI
         private readonly JobRequirementsManager _requirements;
         private readonly LobbyUIController _controller;
         private readonly EntityWhitelistSystem _whitelist; // Frontier
+        private readonly CompanyManager _companyManager; // Mono
 
         private FlavorText.FlavorText? _flavorText;
         private TextEdit? _flavorTextEdit;
@@ -162,7 +163,8 @@ namespace Content.Client.Lobby.UI
             IPrototypeManager prototypeManager,
             IResourceManager resManager,
             JobRequirementsManager requirements,
-            MarkingManager markings)
+            MarkingManager markings,
+            CompanyManager manager) // Mono
         {
             RobustXamlLoader.Load(this);
             _sawmill = logManager.GetSawmill("profile.editor");
@@ -173,6 +175,7 @@ namespace Content.Client.Lobby.UI
             _prototypeManager = prototypeManager;
             _markingManager = markings;
             _preferencesManager = preferencesManager;
+            _companyManager = manager; // Mono
             _resManager = resManager;
             _requirements = requirements;
             _controller = UserInterfaceManager.GetUIController<LobbyUIController>();

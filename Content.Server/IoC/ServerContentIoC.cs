@@ -83,6 +83,7 @@ namespace Content.Server.IoC
             IoCManager.Register<MultiServerKickManager>();
             IoCManager.Register<CVarControlManager>();
             IoCManager.Register<MiniAuthManager>(); //Frontier
+            IoCManager.Register<CompanyManager>(); // Mono
 
             IoCManager.Register<TTSManager>(); // Corvax-TTS
             IoCManager.Register<JoinQueueManager>(); // Forge-Change

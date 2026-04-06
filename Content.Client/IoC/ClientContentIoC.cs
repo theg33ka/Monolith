@@ -28,6 +28,7 @@ using Content.Shared.Administration.Managers;
 using Content.Shared.Chat;
 using Content.Shared.Players.PlayTimeTracking;
 using Content.Shared.Players.RateLimiting;
+using Content.Client._Mono.Company; // Mono
 
 namespace Content.Client.IoC
 {
