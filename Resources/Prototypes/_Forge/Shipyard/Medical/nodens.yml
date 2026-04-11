@@ -1,0 +1,40 @@
+# Author Info
+# GitHub: Primusirius
+# Discord: Primusirius
+
+# Shuttle Notes:
+#
+- type: vessel
+  id: Nodens
+  parent: BaseVessel
+  name: GS Nodens
+  description: A extremely compact medical ship that packs a punch.
+  price: 125000 #Sell price 125k
+  category: Small
+  group: Medical
+  shuttlePath: /Maps/_Forge/Shuttles/Medical/nodens.yml
+  guidebookPage: null
+  class:
+  - Medical
+  engine:
+  - Uranium
+
+- type: gameMap
+  id: Nodens
+  mapName: 'GS Nodens'
+  mapPath: /Maps/_Forge/Shuttles/Medical/nodens.yml
+  minPlayers: 0
+  stations:
+    Nodens:
+      stationProto: StandardFrontierVessel
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: 'Nodens MED{1}'
+        nameGenerator: !type:NanotrasenNameGenerator
+          prefixCreator: '14'
+      - type: StationJobs
+        availableJobs:
+          Contractor: [ 0, 0 ]
+          MdMedic: [ 0, 0 ]
+          Pilot: [ 0, 0 ]
+          Mercenary: [ 0, 0 ]
