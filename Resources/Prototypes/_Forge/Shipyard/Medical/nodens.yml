@@ -7,7 +7,7 @@
 - type: vessel
   id: Nodens
   parent: BaseVessel
-  name: GS Nodens
+  name: GS "Ноденс"
   description: Вооружённый шаттл для работы в зонах конфликтов, имеющий на борту хим. лабораторию, операционную и набор для криогенетики.
   price: 180000 #Sell price 155k + 15%
   category: Small
@@ -21,7 +21,7 @@
 
 - type: gameMap
   id: Nodens
-  mapName: 'GS Nodens'
+  mapName: 'GS "Ноденс"'
   mapPath: /Maps/_Forge/Shuttles/Medical/nodens.yml
   minPlayers: 0
   stations:
@@ -29,7 +29,7 @@
       stationProto: StandardFrontierVessel
       components:
       - type: StationNameSetup
-        mapNameTemplate: 'Nodens MED{1}'
+        mapNameTemplate: 'Ноденс MED{1}'
         nameGenerator: !type:NanotrasenNameGenerator
           prefixCreator: '14'
       - type: StationJobs
