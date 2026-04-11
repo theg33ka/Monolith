@@ -19647,3 +19647,12 @@ Entries:
   id: 2168
   time: '2026-04-11T15:45:12.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3753
+- author: Ilya246
+  changes:
+    - type: Fix
+      message: >-
+        Explosive shipgun projectiles no longer sink their explosion into one
+        wall.
+  id: 2169
+  time: '2026-04-11T20:32:01.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3756
