@@ -9,7 +9,7 @@
   parent: BaseVessel
   name: GS Nodens
   description: A extremely compact medical ship that packs a punch.
-  price: 125000 #Sell price 125k
+  price: 202000 #Sell price 125k + 30% + 20k 2xDraupnir + 20k 2xBofors
   category: Small
   group: Medical
   shuttlePath: /Maps/_Forge/Shuttles/Medical/nodens.yml
