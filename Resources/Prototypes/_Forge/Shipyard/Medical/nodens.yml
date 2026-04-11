@@ -8,8 +8,8 @@
   id: Nodens
   parent: BaseVessel
   name: GS Nodens
-  description: A extremely compact medical ship that packs a punch.
-  price: 202000 #Sell price 125k + 30% + 20k 2xDraupnir + 20k 2xBofors
+  description: Вооружённый шаттл для работы в зонах конфликтов, имеющий на борту хим. лабораторию, криогенетику и операционную.
+  price: 180000 #Sell price 155k + 15%
   category: Small
   group: Medical
   shuttlePath: /Maps/_Forge/Shuttles/Medical/nodens.yml
