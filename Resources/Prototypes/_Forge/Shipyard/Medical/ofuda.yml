@@ -8,11 +8,11 @@
   id: Ofuda
   parent: BaseVessel
   name: G3 «Офуда»
-  description: Ранний прототип "Домры". Относительно слабовооружённый медицинский шаттл, оборудованный для проведения полного спектра операций на борту. Оборудован хим. лабораторией и медицинским фабрикатором конечностей.
+  description: Тяжеловооружённый медицинский шаттл для проведения спасательных операций в дальнем космосе. Оборудован щитом, БС приводом, хим. лабораторией и внутренней турелью, для борьбы с нежелательными гостями.
   price: 223500 #Sell price 190k + 15%
   category: Small
   group: Medical
-  shuttlePath: /Maps/_Forge/Shuttles/Medical/Ofuda.yml
+  shuttlePath: /Maps/_Forge/Shuttles/Medical/ofuda.yml
   guidebookPage: null
   class:
   - Medical
@@ -22,7 +22,7 @@
 - type: gameMap
   id: Ofuda
   mapName: 'G3 «Офуда»'
-  mapPath: /Maps/_Forge/Shuttles/Medical/Ofuda.yml
+  mapPath: /Maps/_Forge/Shuttles/Medical/ofuda.yml
   minPlayers: 0
   stations:
     Ofuda:
