@@ -17,7 +17,7 @@
   class:
   - Medical
   engine:
-  - Uranium
+  - Plasma
 
 - type: gameMap
   id: Ofuda
