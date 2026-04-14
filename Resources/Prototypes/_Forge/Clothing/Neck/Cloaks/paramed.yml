@@ -1,8 +1,8 @@
 - type: entity
   parent: ClothingNeckBase
-  id: ClothingNeckCloakParamed
-  name: Paramed
-  description: Visible LED IFF kit that consists of helmet and shoulder strobes.
+  id: ClothingNeckCloakTTIParamedic
+  name: Плащ Парамедика TTI
+  description: Уютный плащ для проведения спасательных операций. Точно не демаскирует вас кучей стробоскопов.
   components:
   - type: Item
     size: Small
