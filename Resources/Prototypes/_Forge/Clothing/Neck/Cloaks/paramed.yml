@@ -1,0 +1,23 @@
+- type: entity
+  parent: ClothingNeckBase
+  id: ClothingNeckCloakParamed
+  name: Paramed
+  description: Visible LED IFF kit that consists of helmet and shoulder strobes.
+  components:
+  - type: Item
+    size: Small
+  - type: Sprite
+    sprite: Forge/Clothing/Neck/Cloaks/paramed.rsi
+    layers:
+    - state: icon-off
+    - state: icon-on
+      color: "#a9b6bd"
+      shader: unshaded
+  - type: Clothing
+    sprite: Forge/Clothing/Neck/Cloaks/paramed.rsi
+    clothingVisuals:
+      neck:
+      - state: equipped-NECK-off
+      - state: equipped-NECK-on
+        color: "#a9b6bd"
+        shader: unshaded
