@@ -21,3 +21,8 @@
       - state: equipped-NECK-on
         color: "#a9b6bd"
         shader: unshaded
+  - type: ExplosionResistance
+    damageCoefficient: 0.93
+  - type: StaticPrice
+    price: 200
+    vendPrice: 6000
