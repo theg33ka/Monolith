@@ -1,8 +1,8 @@
 - type: entity
-  parent: ClothingUniformBase
+  parent: [ BaseC2ContrabandUnredeemable, ClothingUniformBase ]
   id: ClothingUniformJumpsuitUI
-  name: UIComb
-  description: sss
+  name: Комбинезон U.I
+  description: Удобный и стильный комбинезон. Лаконичен и универсален.
   components:
   - type: Sprite
     sprite: Forge/Clothing/Uniforms/Jumpsuits/ui.rsi

@@ -182,10 +182,10 @@
     isEquipment: true
 
 - type: entity
-  parent: [ ShowSecurityIcons, ShowMedicalIcons ]
-  id: ForgeClothingEyesUIgoogles
-  name: Стильные очки U.I.
-  description: бим бам!! 350 тысяч очков!!
+  parent: [ ClothingEyesBase, ShowSecurityIcons ]
+  id: ClothingEyesUIGoogles
+  name: Солнцезащитные очки U.I
+  description: Стильные фиолетовые очки с возможностью просмотра профессии и компаний
   components:
   - type: Sprite
     sprite: Forge/Clothing/Eyes/Goggles/uiglasses.rsi
@@ -193,5 +193,4 @@
     sprite: Forge/Clothing/Eyes/Goggles/uiglasses.rsi
   - type: FlashImmunity
   - type: EyeProtection
-  - type: StaticPrice
-    price: 30
+    protectionTime: 5
