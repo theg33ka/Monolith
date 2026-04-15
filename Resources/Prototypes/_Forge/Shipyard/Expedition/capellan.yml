@@ -30,7 +30,7 @@
       stationProto: StandardFrontierExpeditionVessel
       components:
       - type: StationNameSetup
-        mapNameTemplate: 'GS Капеллан EXP{1}'
+        mapNameTemplate: 'Капеллан EXP{1}'
         nameGenerator: !type:NanotrasenNameGenerator
           prefixCreator: '14'
       - type: StationJobs
