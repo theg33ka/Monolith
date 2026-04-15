@@ -5,7 +5,7 @@
   parent: BaseVessel
   name: G3 «Домра»
   description: рупногабаритный экспедиционно-исследовательский шаттл. На борту имеется кухня, бар, мед отсек и полу-разрушенная хим. лаборатория. Рекомендованный размер команды 2-5 человек.
-  price: 171470 #sell price 131,900$ * 1.3
+  price: 227500 #sell price 175,422$ * 1.3
   category: Large
   group: Expedition
   shuttlePath: /Maps/_Forge/Shuttles/Expedition/domra.yml
