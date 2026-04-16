@@ -19977,3 +19977,14 @@ Entries:
   id: 2205
   time: '2026-04-16T16:35:54.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3804
+- author: DieselMohawkTheSequel
+  changes:
+    - type: Tweak
+      message: Faction Access added to ID consoles
+    - type: Add
+      message: ID box added to Vizier locker
+    - type: Fix
+      message: DoC can no longer steal from the CC bank and vice versa
+  id: 2206
+  time: '2026-04-16T18:27:44.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3454
