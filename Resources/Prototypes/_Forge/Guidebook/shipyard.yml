@@ -1,4 +1,12 @@
 - type: guideEntry
+  id: ShipyardForge
+  name: guide-entry-shipyard
+  text: "/ServerInfo/_Forge/Guidebook/Shipyard.xml"
+  priority: 6
+  children:
+  - ShipyardDomra
+
+- type: guideEntry
   id: ShipyardDomra
   name: guide-entry-shipyard-domra
   text: "/ServerInfo/_Forge/Guidebook/Shipyard/Domra.xml"
