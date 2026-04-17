@@ -8,10 +8,8 @@
   - MachineDriveCTLA25sCircuitboard
   - MachineDriveCTLA50Circuitboard
   - MachineGCSLowCircuitboard
-  - GCSMediumUpgradeCircuitboard # Forge-Change
-  - GCSHighUpgradeCircuitboard # Forge-Change
-  - GCSUltraUpgradeCircuitboard # Forge-Change
-  - GCSOmegaUpgradeCircuitboard # Forge-Change
+  - MachineGCSMediumCircuitboard
+  - MachineGCSHighCircuitboard
   - AdvancedRadarConsoleCircuitboard
   - ComputerIFFCircuitboard
   - MachineShieldMS100Circuitboard

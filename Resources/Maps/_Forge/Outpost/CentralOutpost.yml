@@ -2,10 +2,10 @@ meta:
   format: 7
   category: Map
   engineVersion: 275.2.0
-  forkId: ""
-  forkVersion: ""
-  time: 04/17/2026 14:39:01
-  entityCount: 12382
+  forkId: frontier_mapping
+  forkVersion: abadba045ac6abdfa11e9fa909915e0fac296464
+  time: 04/14/2026 14:14:43
+  entityCount: 12381
 maps:
 - 786
 grids:
@@ -13666,7 +13666,7 @@ entities:
       pos: -23.5,65.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -127859.19
+      secondsUntilStateChange: -127824.77
       state: Opening
     - type: DeviceLinkSource
       lastSignals:
@@ -35173,7 +35173,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 12404
@@ -35184,7 +35184,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: computerBodyScanner
@@ -35209,7 +35209,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 80
+      startingCharge: 82.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerCommsNT
@@ -35222,7 +35222,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 70
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 12399
@@ -35234,7 +35234,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 72.5
+      startingCharge: 75
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerCommsTTI
@@ -35248,7 +35248,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 70
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerCrewMonitoring
@@ -35283,20 +35283,6 @@ entities:
       powerLoad: 5
     - type: Battery
       startingCharge: 0
-- proto: ComputerCryptoSell
-  entities:
-  - uid: 11966
-    components:
-    - type: Transform
-      rot: 3.141592653589793 rad
-      pos: -25.5,53.5
-      parent: 2
-    - type: ApcPowerReceiver
-      powerLoad: 5
-    - type: Battery
-      startingCharge: 97.5
-    - type: ApcPowerReceiverBattery
-      enabled: True
 - proto: ComputerMedicalRecords
   entities:
   - uid: 3738
@@ -35318,7 +35304,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 70
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerPalletConsoleNFLowMarket
@@ -35395,7 +35381,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 92.5
+      startingCharge: 95
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 6871
@@ -35407,7 +35393,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 7420
@@ -35419,7 +35405,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 92.5
+      startingCharge: 95
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 8862
@@ -35431,7 +35417,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 8863
@@ -35443,7 +35429,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerShipyardMedical
@@ -35489,7 +35475,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerShuttleFrontierOutpostLocal
@@ -35582,7 +35568,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 80
+      startingCharge: 82.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 9655
@@ -35594,7 +35580,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 70
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 11006
@@ -35706,7 +35692,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 80
+      startingCharge: 82.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 8497
@@ -35785,7 +35771,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 62.5
+      startingCharge: 65
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerTtiRank
@@ -35799,7 +35785,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 70
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerWallmountBankATM
@@ -35939,7 +35925,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 80
+      startingCharge: 82.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 9954
@@ -35960,7 +35946,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 70
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
   - uid: 10832
@@ -36167,7 +36153,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 60
+      startingCharge: 62.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerWallmountWithdrawBankATM
@@ -37137,7 +37123,7 @@ entities:
       pos: -12.5,59.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -42827.383
+      secondsUntilStateChange: -42792.973
       state: Opening
   - uid: 3923
     components:
@@ -44195,7 +44181,7 @@ entities:
       pos: -27.5,18.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -128147.75
+      secondsUntilStateChange: -128113.336
       state: Closing
     - type: DeviceNetwork
       deviceLists:
@@ -46498,7 +46484,7 @@ entities:
       pos: 33.5,18.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -35880.754
+      secondsUntilStateChange: -35846.344
       state: Closing
     - type: DeviceNetwork
       deviceLists:
@@ -46539,7 +46525,7 @@ entities:
       pos: 24.5,23.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -82526.414
+      secondsUntilStateChange: -82492
       state: Closing
     - type: DeviceNetwork
       deviceLists:
@@ -63614,7 +63600,7 @@ entities:
       pos: -35.5,31.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -43465.01
+      secondsUntilStateChange: -43430.6
       state: Opening
   - uid: 11915
     components:
@@ -63622,7 +63608,7 @@ entities:
       pos: -34.5,31.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -43467.91
+      secondsUntilStateChange: -43433.5
       state: Opening
   - uid: 11916
     components:
@@ -63635,7 +63621,7 @@ entities:
       pos: -43.5,39.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -43447.277
+      secondsUntilStateChange: -43412.867
       state: Opening
   - uid: 11919
     components:
@@ -63643,7 +63629,7 @@ entities:
       pos: -42.5,12.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -43438.88
+      secondsUntilStateChange: -43404.47
       state: Opening
   - uid: 11920
     components:
@@ -63668,7 +63654,7 @@ entities:
       pos: -31.5,23.5
       parent: 2
     - type: Door
-      secondsUntilStateChange: -24243.248
+      secondsUntilStateChange: -24208.838
       state: Opening
 - proto: InflatableWall
   entities:

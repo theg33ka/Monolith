@@ -67,21 +67,13 @@ public sealed class JetpackSystem : SharedJetpackSystem
 
             var gasTank = (uid, gasTankComp);
             active.TargetTime = _timing.CurTime + TimeSpan.FromSeconds(active.EffectCooldown);
-            // Forge-Change-start
-            var usage = comp.MoleUsage;
-            if (comp.JetpackUser is { } user &&
-                TryComp<JetpackUserComponent>(user, out var userComp))
-            {
-                usage *= userComp.SuitFuelUsageMultiplier;
-            }
-            // Forge-Change-end
-            var usedAir = _gasTank.RemoveAir(gasTank, usage);
+            var usedAir = _gasTank.RemoveAir(gasTank, comp.MoleUsage);
 
             if (usedAir == null)
                 continue;
 
             var usedEnoughAir =
-                MathHelper.CloseTo(usedAir.TotalMoles, usage, usage / 100); // Forge-Change
+                MathHelper.CloseTo(usedAir.TotalMoles, comp.MoleUsage, comp.MoleUsage/100);
 
             if (!usedEnoughAir)
             {
