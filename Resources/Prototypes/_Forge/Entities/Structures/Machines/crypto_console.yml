@@ -1,6 +1,6 @@
 - type: entity
   id: ComputerCryptoSell
-  parent: BaseComputerAiAccess
+  parent: [BaseStructureDisableToolUse, BaseComputerAiAccess]
   name: crypto exchange console
   description: Accepts mined bitcoins and sells them at the current station exchange rate.
   components:
