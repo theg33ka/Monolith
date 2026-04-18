@@ -1,0 +1,83 @@
+# Low-End
+- type: entity
+  id: ShieldGeneratorPrismatic #forge-g33ka
+  parent: ShieldGeneratorBase
+  name: FS-200 "Lavigny" Shield Generator #forge-g33ka
+  components:
+  - type: ShipShieldEmitter
+    healPerSecond: 80
+    damageExp: 1.2
+    baseDraw: 40000 #forge-g33ka 20,000 -> 60,000 че я жмал
+    maxDraw: 140000 #forge-g33ka 60,000 -> 140,000 че я жмал
+    unpoweredBonus: 3
+    damageLimit: 20000 #forge-g33ka
+    damageOverloadTimePunishment: 300 #forge-g33ka 80 -> 300
+    shieldColor: "#15F2FD" #forge-g33ka
+    collisionResistanceMultiplier: 0.5
+  - type: Sprite
+    sprite: _Mono/Structures/ShuttleComponents/shield.rsi
+    snapCardinals: true
+    layers:
+    - state: control
+    - state: control_on
+      shader: unshaded
+      map: [ "enum.PowerDeviceVisualLayers.Powered" ]
+      visible: false
+      color: "#15F2FD" #forge-g33ka
+  - type: Destructible
+    thresholds:
+    - trigger: !type:DamageTrigger
+        damage: 1500
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+      - !type:ExplodeBehavior ""
+      - !type:SpawnGasBehavior
+        gasMixture:
+          volume: 1600 #forge-g33ka 1000 -> 1600
+          moles:
+          - 194 # oxygen
+          - 0 # nitrogen
+          - 0 # carbon dioxide
+          - 6 # plasma
+          temperature: 752.48
+    - trigger: !type:DamageTrigger
+        damage: 500
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          SheetSteel1:
+            min: 1
+            max: 2
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+  - type: Explosive
+    explosionType: Default
+    maxIntensity: 4000
+    intensitySlope: 4
+    totalIntensity: 300
+  - type: ApcPowerReceiver
+    powerLoad: 36000 #forge-g33ka 20,000 -> 36,000
+  - type: PointLight
+    enabled: false
+    castShadows: true
+    radius: 2
+    energy: 1.5
+    color: "#15F2FD" #forge-g33ka
+  - type: Machine
+    board: MachineShieldMS100Circuitboard #forge-g33ka todo
+  - type: Construction
+    graph: Machine
+    node: machine
+    containers:
+    - machine_board
+    - machine_parts
+  - type: ContainerContainer
+    containers:
+      machine_board: !type:Container ""
+      machine_parts: !type:Container ""
+  - type: PirateBountyItem
+    id: ShipShield
+  - type: ShipRepairable
+    repairTime: 45 #forge-g33ka
+    repairCost: 300 #forge-g33ka

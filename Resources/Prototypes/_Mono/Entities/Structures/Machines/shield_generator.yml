@@ -19,7 +19,7 @@
     - state: control
     - state: control_on
       shader: unshaded
-      map: ["enum.PowerDeviceVisualLayers.Powered"]
+      map: [ "enum.PowerDeviceVisualLayers.Powered" ]
       visible: false
       color: "#FF3333"
   - type: GenericVisualizer
@@ -34,13 +34,12 @@
     noRot: true
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 1500
       behaviors:
       - !type:DoActsBehavior
-        acts: ["Destruction"]
-      - !type:ExplodeBehavior
+        acts: [ "Destruction" ]
+      - !type:ExplodeBehavior ""
       - !type:SpawnGasBehavior
         gasMixture:
           volume: 1000
@@ -50,8 +49,7 @@
           - 0 # carbon dioxide
           - 6 # plasma
           temperature: 752.48
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 1000
       behaviors:
       - !type:SpawnEntitiesBehavior
@@ -60,7 +58,7 @@
             min: 1
             max: 2
       - !type:DoActsBehavior
-        acts: ["Destruction"]
+        acts: [ "Destruction" ]
   - type: Explosive
     explosionType: Default
     maxIntensity: 4000
@@ -91,13 +89,13 @@
     shieldColor: "#FF3333"
     collisionResistanceMultiplier: 1.0
     powerUpSound: !type:SoundPathSpecifier
-        path: "/Audio/Effects/teleport_arrival.ogg"
-        params:
-          pitch: 0.5
+      path: "/Audio/Effects/teleport_arrival.ogg"
+      params:
+        pitch: 0.5
     powerDownSound: !type:SoundPathSpecifier
-        path: "/Audio/Effects/teleport_departure.ogg"
-        params:
-          pitch: 0.5
+      path: "/Audio/Effects/teleport_departure.ogg"
+      params:
+        pitch: 0.5
   - type: Machine
     board: MachineShieldMS500Circuitboard
   - type: Construction
@@ -108,8 +106,8 @@
     - machine_parts
   - type: ContainerContainer
     containers:
-      machine_board: !type:Container
-      machine_parts: !type:Container
+      machine_board: !type:Container ""
+      machine_parts: !type:Container ""
   - type: PirateBountyItem
     id: ShipShield
 
@@ -137,18 +135,17 @@
     - state: fobshield
     - state: fobshield_on
       shader: unshaded
-      map: ["enum.PowerDeviceVisualLayers.Powered"]
+      map: [ "enum.PowerDeviceVisualLayers.Powered" ]
       visible: false
       color: "#FF9933"
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 1500
       behaviors:
       - !type:DoActsBehavior
-        acts: ["Destruction"]
-      - !type:ExplodeBehavior
+        acts: [ "Destruction" ]
+      - !type:ExplodeBehavior ""
       - !type:SpawnGasBehavior
         gasMixture:
           volume: 1000
@@ -158,8 +155,7 @@
           - 0 # carbon dioxide
           - 6 # plasma
           temperature: 752.48
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 500
       behaviors:
       - !type:SpawnEntitiesBehavior
@@ -168,7 +164,7 @@
             min: 1
             max: 2
       - !type:DoActsBehavior
-        acts: ["Destruction"]
+        acts: [ "Destruction" ]
   - type: Explosive
     explosionType: Default
     maxIntensity: 4000
@@ -211,18 +207,17 @@
     - state: fobshield
     - state: fobshield_on
       shader: unshaded
-      map: ["enum.PowerDeviceVisualLayers.Powered"]
+      map: [ "enum.PowerDeviceVisualLayers.Powered" ]
       visible: false
       color: "#FF0A70"
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 1500
       behaviors:
       - !type:DoActsBehavior
-        acts: ["Destruction"]
-      - !type:ExplodeBehavior
+        acts: [ "Destruction" ]
+      - !type:ExplodeBehavior ""
       - !type:SpawnGasBehavior
         gasMixture:
           volume: 1000
@@ -232,8 +227,7 @@
           - 0 # carbon dioxide
           - 6 # plasma
           temperature: 752.48
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 500
       behaviors:
       - !type:SpawnEntitiesBehavior
@@ -242,7 +236,7 @@
             min: 1
             max: 2
       - !type:DoActsBehavior
-        acts: ["Destruction"]
+        acts: [ "Destruction" ]
   - type: Explosive
     explosionType: Default
     maxIntensity: 4000
@@ -309,18 +303,17 @@
     - state: control
     - state: control_on
       shader: unshaded
-      map: ["enum.PowerDeviceVisualLayers.Powered"]
+      map: [ "enum.PowerDeviceVisualLayers.Powered" ]
       visible: false
       color: "#9933FF"
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 1500
       behaviors:
       - !type:DoActsBehavior
-        acts: ["Destruction"]
-      - !type:ExplodeBehavior
+        acts: [ "Destruction" ]
+      - !type:ExplodeBehavior ""
       - !type:SpawnGasBehavior
         gasMixture:
           volume: 1000
@@ -330,8 +323,7 @@
           - 0 # carbon dioxide
           - 6 # plasma
           temperature: 752.48
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 750
       behaviors:
       - !type:SpawnEntitiesBehavior
@@ -340,7 +332,7 @@
             min: 1
             max: 2
       - !type:DoActsBehavior
-        acts: ["Destruction"]
+        acts: [ "Destruction" ]
   - type: Explosive
     explosionType: Default
     maxIntensity: 4000
@@ -364,8 +356,8 @@
     - machine_parts
   - type: ContainerContainer
     containers:
-      machine_board: !type:Container
-      machine_parts: !type:Container
+      machine_board: !type:Container ""
+      machine_parts: !type:Container ""
   - type: PirateBountyItem
     id: ShipShield
   - type: ShipRepairable
@@ -395,18 +387,17 @@
     - state: control
     - state: control_on
       shader: unshaded
-      map: ["enum.PowerDeviceVisualLayers.Powered"]
+      map: [ "enum.PowerDeviceVisualLayers.Powered" ]
       visible: false
       color: "#3399FF"
   - type: Destructible
     thresholds:
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 1500
       behaviors:
       - !type:DoActsBehavior
-        acts: ["Destruction"]
-      - !type:ExplodeBehavior
+        acts: [ "Destruction" ]
+      - !type:ExplodeBehavior ""
       - !type:SpawnGasBehavior
         gasMixture:
           volume: 1000
@@ -416,8 +407,7 @@
           - 0 # carbon dioxide
           - 6 # plasma
           temperature: 752.48
-    - trigger:
-        !type:DamageTrigger
+    - trigger: !type:DamageTrigger
         damage: 500
       behaviors:
       - !type:SpawnEntitiesBehavior
@@ -426,7 +416,7 @@
             min: 1
             max: 2
       - !type:DoActsBehavior
-        acts: ["Destruction"]
+        acts: [ "Destruction" ]
   - type: Explosive
     explosionType: Default
     maxIntensity: 4000
@@ -450,8 +440,8 @@
     - machine_parts
   - type: ContainerContainer
     containers:
-      machine_board: !type:Container
-      machine_parts: !type:Container
+      machine_board: !type:Container ""
+      machine_parts: !type:Container ""
   - type: PirateBountyItem
     id: ShipShield
   - type: ShipRepairable
