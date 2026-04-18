@@ -4,8 +4,8 @@ meta:
   engineVersion: 275.2.0
   forkId: ""
   forkVersion: ""
-  time: 04/18/2026 07:52:04
-  entityCount: 1127
+  time: 04/18/2026 14:44:17
+  entityCount: 1129
 maps: []
 grids:
 - 1
@@ -97,10 +97,10 @@ entities:
     - type: ThermalSignature
     - type: SpreaderGrid
       spreadQueues:
-        Puddle: []
-        Kudzu: []
         Smoke: []
         MetalFoam: []
+        Puddle: []
+        Kudzu: []
     - type: Shuttle
       dampingModifier: 0.25
     - type: GridPathfinding
@@ -3138,7 +3138,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 80
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerRadar
@@ -3152,7 +3152,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 80
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerShuttle
@@ -3165,7 +3165,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 80
+      startingCharge: 77.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerTabletopCrewMonitoring
@@ -3179,7 +3179,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 92.5
+      startingCharge: 90
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerWallmountStationRecords
@@ -3193,7 +3193,21 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 90
+      startingCharge: 87.5
+    - type: ApcPowerReceiverBattery
+      enabled: True
+- proto: ComputerWallmountWithdrawBankATM
+  entities:
+  - uid: 1128
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: 1.5,-10.5
+      parent: 1
+    - type: ApcPowerReceiver
+      powerLoad: 5
+    - type: Battery
+      startingCharge: 97.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: CurtainsBlack
@@ -3271,6 +3285,12 @@ entities:
     - type: Transform
       rot: -1.5707963267948966 rad
       pos: 3.5,-16.5
+      parent: 1
+  - uid: 1129
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: -0.5,-10.5
       parent: 1
 - proto: FaxMachineShip
   entities:
@@ -4500,7 +4520,7 @@ entities:
       pos: -1.5,-35.5
       parent: 1
     - type: Battery
-      startingCharge: 440
+      startingCharge: 430
     - type: ApcPowerReceiver
       powerLoad: 20
     - type: ApcPowerReceiverBattery
@@ -5127,7 +5147,6 @@ entities:
   - uid: 642
     components:
     - type: Transform
-      rot: -1.5707963267948966 rad
       pos: 0.5,-17.5
       parent: 1
 - proto: RadarEdgeMarkerCenter
