@@ -10,6 +10,7 @@ using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Prototypes;
 using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.Reagent;
+using Content.Shared.Labels.Components;
 using FancyWindow = Content.Client.UserInterface.Controls.FancyWindow;
 using Robust.Client.UserInterface;
 using Robust.Client.Graphics;
@@ -105,7 +106,7 @@ namespace Content.Client.VendingMachines.UI
                 if (!_prototypeManager.TryIndex(entry.ID, out var prototype))
                     continue;
 
-                var itemName = Loc.GetString(prototype.Name); // Forge-Change
+                var itemName = GetVendingItemDisplayName(prototype);
                 var cost = 0; // mono
                 if (requiresCash) // frontier
                     cost = GetPrice(entry, prototype, priceModifier);
@@ -128,6 +129,23 @@ namespace Content.Client.VendingMachines.UI
             VendingContents.PopulateList(listData);
 
             SetSizeAfterUpdate(longestEntry.Length, inventory.Count);
+        }
+
+        /// <summary>
+        /// <see cref="EntityPrototype.Name"/> is already localized; preset <see cref="LabelComponent.CurrentLabel"/> is a fluent id until map init.
+        /// </summary>
+        private string GetVendingItemDisplayName(EntityPrototype prototype)
+        {
+            var baseName = prototype.Name;
+            if (prototype.TryGetComponent<LabelComponent>(out var label, _entityManager.ComponentFactory)
+                && !string.IsNullOrEmpty(label.CurrentLabel))
+            {
+                return Loc.GetString("comp-label-format",
+                    ("baseName", baseName),
+                    ("label", Loc.GetString(label.CurrentLabel)));
+            }
+
+            return baseName;
         }
 
         // Mono: Moved out frontier pricing logic to the separate method

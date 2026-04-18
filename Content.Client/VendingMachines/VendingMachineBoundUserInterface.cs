@@ -63,6 +63,7 @@ namespace Content.Client.VendingMachines
         public void Refresh()
                 {
                     var enabled = EntMan.TryGetComponent(Owner, out VendingMachineComponent? bendy) && !bendy.Ejecting;
+                    _requiresCash = bendy?.RequiresCash ?? false;
 
                     var system = EntMan.System<VendingMachineSystem>();
                     _cachedInventory = system.GetAllInventory(Owner);
