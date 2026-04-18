@@ -44,6 +44,13 @@ public sealed partial class MaxTimeRestartRuleComponent : Component
     /// </summary>
     [DataField("lobbyDuration", required: true)]
     public TimeSpan LobbyDuration = TimeSpan.FromMinutes(3);
+
+    /// <summary>
+    /// UTC hour modulo <see cref="RestartInterval"/> that anchors restart boundaries.
+    /// For an 8-hour interval, <c>7</c> yields slots at 07:00, 15:00, and 23:00 UTC.
+    /// </summary>
+    [DataField]
+    public int UtcSlotAnchorHour = 7;
     /// Forge-Change-end
 
     public CancellationTokenSource TimerCancel = new();

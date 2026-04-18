@@ -51,7 +51,7 @@ public sealed class MaxTimeRestartRuleSystem : GameRuleSystem<MaxTimeRestartRule
 
         var now = DateTimeOffset.UtcNow;
         var cycleLeadTime = component.EvacuationCallDuration + component.PostRoundDuration + component.LobbyDuration;
-        var startAt = GetNextCycleStart(now, component.RestartInterval, cycleLeadTime);
+        var startAt = GetNextCycleStart(now, component.RestartInterval, cycleLeadTime, component.UtcSlotAnchorHour); // Forge-Change
         var delay = startAt - now;
 
         Timer.Spawn(delay, () => TimerFired(component), component.TimerCancel.Token);
@@ -97,20 +97,39 @@ public sealed class MaxTimeRestartRuleSystem : GameRuleSystem<MaxTimeRestartRule
         Timer.Spawn(delay, () => GameTicker.RestartRound());
     }
 
-    private static DateTimeOffset GetNextCycleStart(DateTimeOffset nowUtc, TimeSpan restartInterval, TimeSpan cycleLeadTime)
+    /// <summary>
+    /// Earliest UTC time to begin the evac sequence so the next round starts on a boundary
+    /// (anchor + k·interval hours each UTC day).
+    /// </summary>
+    private static DateTimeOffset GetNextCycleStart(
+        DateTimeOffset nowUtc,
+        TimeSpan restartInterval,
+        TimeSpan cycleLeadTime,
+        int utcSlotAnchorHour)
     {
         var intervalHours = Math.Max(1, (int) Math.Round(restartInterval.TotalHours));
-        var dayStart = new DateTimeOffset(nowUtc.Year, nowUtc.Month, nowUtc.Day, 0, 0, 0, TimeSpan.Zero);
-        var elapsedHours = (int) (nowUtc - dayStart).TotalHours;
-        var nextSlotHours = ((elapsedHours / intervalHours) + 1) * intervalHours;
-        var nextBoundary = dayStart.AddHours(nextSlotHours);
+        var anchor = ((utcSlotAnchorHour % intervalHours) + intervalHours) % intervalHours;
 
-        if (nextBoundary <= nowUtc)
-            nextBoundary = nextBoundary.AddHours(intervalHours);
+        DateTimeOffset NextBoundaryStrictlyAfter(DateTimeOffset t)
+        {
+            var dayStart = new DateTimeOffset(t.Year, t.Month, t.Day, 0, 0, 0, TimeSpan.Zero);
+            for (var h = anchor; h < 24; h += intervalHours)
+            {
+                var boundary = dayStart.AddHours(h);
+                if (boundary > t)
+                    return boundary;
+            }
 
+            return dayStart.AddDays(1).AddHours(anchor);
+        }
+
+        var nextBoundary = NextBoundaryStrictlyAfter(nowUtc);
         var cycleStart = nextBoundary - cycleLeadTime;
-        if (cycleStart <= nowUtc)
-            cycleStart = cycleStart.AddHours(intervalHours);
+        while (cycleStart <= nowUtc)
+        {
+            nextBoundary = NextBoundaryStrictlyAfter(nextBoundary);
+            cycleStart = nextBoundary - cycleLeadTime;
+        }
 
         return cycleStart;
     }
