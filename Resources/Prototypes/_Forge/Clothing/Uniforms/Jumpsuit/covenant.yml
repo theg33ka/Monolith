@@ -1,0 +1,10 @@
+- type: entity
+  parent: ClothingUniformBase
+  id: ClothingUniformJumpsuitCovenant
+  name: Bound Covenant Bureau jumpsuit
+  description: Базовая униформа BCB. Если вас не швыряет в пространстве, значит подавитель аномалий работает исправно.
+  components:
+  - type: Sprite
+    sprite: Forge/Clothing/Uniforms/Jumpsuits/covenant.rsi
+  - type: Clothing
+    sprite: Forge/Clothing/Uniforms/Jumpsuits/covenant.rsi
