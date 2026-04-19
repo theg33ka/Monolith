@@ -20123,3 +20123,10 @@ Entries:
   id: 2218
   time: '2026-04-19T21:42:23.0000000+00:00'
   url: https://github.com/Monolith-Station/Monolith/pull/3834
+- author: Redrover1760
+  changes:
+    - type: Fix
+      message: AI can now access multiple consoles at once again
+  id: 2219
+  time: '2026-04-19T23:08:15.0000000+00:00'
+  url: https://github.com/Monolith-Station/Monolith/pull/3840
