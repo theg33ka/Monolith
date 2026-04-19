@@ -1,0 +1,20 @@
+- type: entity
+  parent: ClothingNeckBase
+  id: ClothingNeckCloakCovenant
+  name: Накидка BCB
+  description: Даже Папа Римский... стоп, а кто это?
+  components:
+  - type: Item
+    size: Small
+  - type: Sprite
+    sprite: Forge/Clothing/Neck/Cloaks/covenant.rsi
+    layers:
+    - state: icon-off
+  - type: Clothing
+    sprite: Forge/Clothing/Neck/Cloaks/covenant.rsi
+    clothingVisuals:
+      neck:
+      - state: equipped-NECK
+  - type: StaticPrice
+    price: 200
+    vendPrice: 6000
