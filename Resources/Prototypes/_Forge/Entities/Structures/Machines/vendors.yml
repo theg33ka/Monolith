@@ -1,5 +1,5 @@
 - type: entity
-  parent: [VendingMachineAstroVend, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag]
+  parent: [ VendingMachineAstroVend, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag ]
   id: VendingMachineCompanyTL
   name: TL Vendor
   description: Sells various TL equipment.
@@ -27,7 +27,7 @@
     requiredCompany: TechnicLogistic
 
 - type: entity
-  parent: [VendingMachineAstroVend, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag]
+  parent: [ VendingMachineAstroVend, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag ]
   id: VendingMachineCompanyNSC
   name: NSC Vendor
   suffix: Нексус
@@ -54,7 +54,34 @@
     requiredCompany: Nexus
 
 - type: entity
-  parent: [VendingMachineAstroVend, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag]
+  parent: [ VendingMachineAstroVend, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag ]
+  id: VendingMachineCompanyCovenant
+  name: BCB Vendor
+  suffix: Covenant
+  description: Sells various BCB equipment.
+  components:
+  - type: VendingMachine
+    pack: CompanyVendInventoryCovenant
+    offState: off
+    brokenState: broken
+    normalState: normal-unshaded
+  - type: MarketModifier
+    mod: 8
+  - type: Sprite
+    sprite: Forge/Structures/Machines/terminal_nsc.rsi #g33ka-todo
+    layers:
+    - state: "off"
+      map: [ "enum.VendingMachineVisualLayers.Base" ]
+    - state: "off"
+      map: [ "enum.VendingMachineVisualLayers.BaseUnshaded" ]
+      shader: unshaded
+    - state: panel
+      map: [ "enum.WiresVisualLayers.MaintenancePanel" ]
+  - type: AccessReader
+    requiredCompany: Covenants
+
+- type: entity
+  parent: [ VendingMachineAstroVend, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag ]
   id: VendingMachineCompanyViper
   name: VG Vendor
   description: Sells various VG equipment.
@@ -82,7 +109,7 @@
     requiredCompany: TheViperGroup
 
 - type: entity
-  parent: [VendingMachineWallmount, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag]
+  parent: [ VendingMachineWallmount, BaseStructureDisableToolUse, BaseStructureAccessReaderImmuneToEmag ]
   id: VendingMachineCompanyUllman
   name: U.I. Vendor
   description: Sells various U.I. equipment.
@@ -100,12 +127,12 @@
     sprite: Forge/Structures/Machines/VendingMachines/wallullman.rsi
     layers:
     - state: "off"
-      map: ["enum.VendingMachineVisualLayers.Base"]
+      map: [ "enum.VendingMachineVisualLayers.Base" ]
     - state: "off"
-      map: ["enum.VendingMachineVisualLayers.BaseUnshaded"]
+      map: [ "enum.VendingMachineVisualLayers.BaseUnshaded" ]
       shader: unshaded
     - state: panel
-      map: ["enum.WiresVisualLayers.MaintenancePanel"]
+      map: [ "enum.WiresVisualLayers.MaintenancePanel" ]
   - type: AccessReader
     requiredCompany: UllmanIndustries
 

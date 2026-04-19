@@ -45,6 +45,13 @@ company-techniclogistic-description = [color=#83489d]TechnicLogistic[/color] —
 
 techniclogistic-company-note = [bold][color=#83489d]TechnicLogistic[/color] негативно относится к [color=#C97D7D]Drake Industries[/color] и [color=#92a2a1]Steel Hammer Manufacturing[/color], но их отношения ещё не перешли грань.[/bold]
 
+company-covenants-description = Bound Covenant Bureau — специализированная структура, действующая в секторе Frontier. Основная задача Бюро — поддержание допустимого состояния среды путём выявления, анализа и стабилизации нестабильных явлений.
+
+    Организация не участвует в политических, экономических и иных процессах, не связанных напрямую с её задачами. Любое вмешательство определяется исключительно необходимостью поддержания устойчивости среды. Бюро действует автономно, не декларируя
+    внутреннюю структуру и не раскрывая полный объём методов работы.
+
+company-covenants-note = Bound Covenant Bureau безразличны другие компании и политика сектора Frontier.
+
 # Faction-company
 renegate-resistance-description =
     Восставшие колонии на юге [color=#ab7a52]Империи[/color], прозванные [color=#6B2D2D]Ренегатами[/color].

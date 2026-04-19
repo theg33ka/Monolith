@@ -37,3 +37,17 @@
   description: renegate-resistance-description
   color: "#6B2D2D"
   whitelisted: true
+
+- type: company
+  id: Covenants
+  form: Protagonist
+  name: Bound Covenant Bureau
+  description: company-covenants-description
+  note: company-covenants-note
+  color: "#C1923F"
+  icon: TL
+  whitelisted: false
+  special:
+  - !type:GiveItemSpecial
+    prototype:
+    - EncryptionKeyTechnicLogistic

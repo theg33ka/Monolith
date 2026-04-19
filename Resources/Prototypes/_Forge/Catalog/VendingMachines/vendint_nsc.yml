@@ -18,3 +18,9 @@
     ClothingShoesBootsMagNexus: 3
     ClothingModsuitVanguardNexusPowerCell: 3
     TelecomServerFlatpack: 1
+
+- type: vendingMachineInventory
+  id: CompanyVendInventoryCovenant
+  startingInventory:
+    ClothingBackpackDuffelSyndicateStealthHardsuitBundle: 66
+    ClothingNeckCloakTTIParamedicAlt: 5
