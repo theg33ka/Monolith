@@ -8085,7 +8085,7 @@ entities:
       parent: 567
     - type: Physics
       canCollide: False
-- proto: WeaponTurretHades
+- proto: WeaponTurretCyrexa
   entities:
   - uid: 1120
     components:
