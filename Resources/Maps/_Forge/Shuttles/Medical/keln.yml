@@ -5072,7 +5072,7 @@ entities:
     - type: Transform
       pos: -2.5,-16.5
       parent: 1
-- proto: MachineFTLDrive25
+- proto: MachineFTLDrive
   entities:
   - uid: 711
     components:
