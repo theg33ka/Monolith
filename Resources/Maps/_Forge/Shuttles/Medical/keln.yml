@@ -4,8 +4,8 @@ meta:
   engineVersion: 275.2.0
   forkId: ""
   forkVersion: ""
-  time: 04/18/2026 18:00:03
-  entityCount: 1398
+  time: 04/21/2026 15:14:18
+  entityCount: 1399
 maps: []
 grids:
 - 1
@@ -109,9 +109,9 @@ entities:
     - type: SpreaderGrid
       spreadQueues:
         Puddle: []
-        Kudzu: []
-        Smoke: []
         MetalFoam: []
+        Smoke: []
+        Kudzu: []
     - type: Shuttle
       dampingModifier: 0.25
     - type: GridPathfinding
@@ -873,13 +873,13 @@ entities:
       parent: 1
     - type: DeviceLinkSource
       linkedPorts:
-        1387:
-        - - AmmoLoaderLoad
-          - SpaceArtilleryLoad
-        1394:
+        1388:
         - - AmmoLoaderLoad
           - SpaceArtilleryLoad
         1395:
+        - - AmmoLoaderLoad
+          - SpaceArtilleryLoad
+        1396:
         - - AmmoLoaderLoad
           - SpaceArtilleryLoad
 - proto: AmmoTechFab
@@ -3316,7 +3316,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerTabletopGunneryConsole
@@ -3329,7 +3329,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerTabletopShuttle
@@ -3342,7 +3342,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 75
+      startingCharge: 72.5
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: ComputerWallmountStationRecords
@@ -3356,7 +3356,7 @@ entities:
     - type: ApcPowerReceiver
       powerLoad: 5
     - type: Battery
-      startingCharge: 82.5
+      startingCharge: 80
     - type: ApcPowerReceiverBattery
       enabled: True
 - proto: CurtainsBlack
@@ -4756,23 +4756,11 @@ entities:
       rot: -1.5707963267948966 rad
       pos: 3.5,-5.5
       parent: 1
-  - uid: 665
-    components:
-    - type: Transform
-      rot: -1.5707963267948966 rad
-      pos: 9.5,-24.5
-      parent: 1
   - uid: 666
     components:
     - type: Transform
       rot: -1.5707963267948966 rad
       pos: 9.5,-25.5
-      parent: 1
-  - uid: 667
-    components:
-    - type: Transform
-      rot: -1.5707963267948966 rad
-      pos: -8.5,-24.5
       parent: 1
   - uid: 668
     components:
@@ -4851,6 +4839,11 @@ entities:
       parent: 1
 - proto: GrilleDiagonal
   entities:
+  - uid: 667
+    components:
+    - type: Transform
+      pos: -8.5,-24.5
+      parent: 1
   - uid: 681
     components:
     - type: Transform
@@ -4949,6 +4942,12 @@ entities:
       rot: 1.5707963267948966 rad
       pos: 1.5,-22.5
       parent: 1
+  - uid: 1399
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: 9.5,-24.5
+      parent: 1
 - proto: GunneryServerHigh
   entities:
   - uid: 698
@@ -4957,11 +4956,13 @@ entities:
       pos: 4.5,-23.5
       parent: 1
     - type: Battery
-      startingCharge: 400
+      startingCharge: 390
     - type: ApcPowerReceiver
       powerLoad: 20
     - type: ApcPowerReceiverBattery
       enabled: True
+    missingComponents:
+    - Anchorable
 - proto: GunSafe
   entities:
   - uid: 699
@@ -8597,6 +8598,12 @@ entities:
       parent: 1
 - proto: WallPlastitaniumDiagonal
   entities:
+  - uid: 665
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -8.5,-24.5
+      parent: 1
   - uid: 1324
     components:
     - type: Transform
@@ -8947,7 +8954,7 @@ entities:
       rot: 1.5707963267948966 rad
       pos: 1.5,-31.5
       parent: 1
-  - uid: 1398
+  - uid: 1385
     components:
     - type: Transform
       rot: 1.5707963267948966 rad
@@ -8955,21 +8962,21 @@ entities:
       parent: 1
 - proto: WarpPoint
   entities:
-  - uid: 1385
+  - uid: 1386
     components:
     - type: Transform
       pos: 0.5,-18.5
       parent: 1
 - proto: WaterCooler
   entities:
-  - uid: 1386
+  - uid: 1387
     components:
     - type: Transform
       pos: -1.5,-14.5
       parent: 1
 - proto: WeaponTurretCharonReload
   entities:
-  - uid: 1387
+  - uid: 1388
     components:
     - type: Transform
       rot: 3.141592653589793 rad
@@ -8977,37 +8984,37 @@ entities:
       parent: 1
 - proto: WeaponTurretDravon
   entities:
-  - uid: 1388
+  - uid: 1389
     components:
     - type: Transform
       rot: 3.141592653589793 rad
       pos: -11.5,-23.5
       parent: 1
-  - uid: 1389
+  - uid: 1390
     components:
     - type: Transform
       rot: 3.141592653589793 rad
       pos: 12.5,-23.5
       parent: 1
-  - uid: 1390
+  - uid: 1391
     components:
     - type: Transform
       rot: 3.141592653589793 rad
       pos: -2.5,-1.5
       parent: 1
-  - uid: 1391
+  - uid: 1392
     components:
     - type: Transform
       rot: 3.141592653589793 rad
       pos: -6.5,-16.5
       parent: 1
-  - uid: 1392
+  - uid: 1393
     components:
     - type: Transform
       rot: 3.141592653589793 rad
       pos: 3.5,-1.5
       parent: 1
-  - uid: 1393
+  - uid: 1394
     components:
     - type: Transform
       rot: 3.141592653589793 rad
@@ -9015,13 +9022,13 @@ entities:
       parent: 1
 - proto: WeaponTurretVanyk
   entities:
-  - uid: 1394
+  - uid: 1395
     components:
     - type: Transform
       rot: 3.141592653589793 rad
       pos: -4.5,-10.5
       parent: 1
-  - uid: 1395
+  - uid: 1396
     components:
     - type: Transform
       rot: 3.141592653589793 rad
@@ -9029,13 +9036,13 @@ entities:
       parent: 1
 - proto: WindowDirectional
   entities:
-  - uid: 1396
+  - uid: 1397
     components:
     - type: Transform
       rot: -1.5707963267948966 rad
       pos: -3.5,-21.5
       parent: 1
-  - uid: 1397
+  - uid: 1398
     components:
     - type: Transform
       rot: 1.5707963267948966 rad
