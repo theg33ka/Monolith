@@ -8,7 +8,8 @@ using Robust.Shared.Map;
 using Robust.Shared.Player; // Forge-Change
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Systems;
-using Robust.Shared.Timing; // Forge-Change
+using Robust.Shared.Timing;
+using Robust.Shared.Network; // Forge-Change
 
 namespace Content.Server._Mono.Radar;
 
