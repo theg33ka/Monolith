@@ -73,6 +73,12 @@ public sealed partial class ShuttleSystem
 
     private void OnSetMaxShuttleSpeed(EntityUid uid, ShuttleConsoleComponent component, SetMaxShuttleSpeedRequest args)
     {
+        // Forge-Change-start
+        if (_gameTiming.CurTime < component.NextSpeedSetTime)
+            return;
+
+        component.NextSpeedSetTime = _gameTiming.CurTime + TimeSpan.FromSeconds(component.SpeedSetRateLimit);
+
         // Ensure that the entity requested is a valid shuttle
         var xform = Transform(uid);
         if (!xform.GridUid.HasValue ||
@@ -82,10 +88,24 @@ public sealed partial class ShuttleSystem
             return;
         }
 
-        var maxSpeed = args.MaxSpeed;
-        if (maxSpeed is { } speed)
-            maxSpeed = Math.Max(speed, 0f);
+        var maxAllowedSpeed = Math.Max(0f, Math.Min(component.MaxPilotSetSpeed, shuttleComponent.BaseMaxLinearVelocity));
+        float maxSpeed;
+        if (args.MaxSpeed is { } speed)
+        {
+            if (!float.IsFinite(speed))
+                return;
 
+            maxSpeed = Math.Clamp(speed, 0f, maxAllowedSpeed);
+        }
+        else
+        {
+            // Empty input resets to the shuttle's safe server-side cap.
+            maxSpeed = maxAllowedSpeed;
+        }
+
+        if (pilot.SetMaxVelocity == maxSpeed)
+            return;
+        // Forge-Change-end
         pilot.SetMaxVelocity = maxSpeed;
 
         // Refresh the shuttle consoles to update the UI

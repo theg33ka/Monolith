@@ -160,12 +160,12 @@ public sealed class PlantAnalyzerSystem : EntitySystem
         {
             if (seedComp.Seed != null)
             {
-                var state = ObtainingGeneDataSeed(seedComp.Seed, target, false);
+                var state = ObtainingGeneDataSeed(seedComp.Seed, target, false, ent.Comp.Settings.ExposeAdvancedData); // Forge-Change
                 _uiSystem.ServerSendUiMessage(ent.Owner, PlantAnalyzerUiKey.Key, state);
             }
             else if (seedComp.SeedId != null && _prototypeManager.TryIndex(seedComp.SeedId, out SeedPrototype? protoSeed))
             {
-                var state = ObtainingGeneDataSeed(protoSeed, target, false);
+                var state = ObtainingGeneDataSeed(protoSeed, target, false, ent.Comp.Settings.ExposeAdvancedData); // Forge-Change
                 _uiSystem.ServerSendUiMessage(ent.Owner, PlantAnalyzerUiKey.Key, state);
             }
         }
@@ -173,7 +173,7 @@ public sealed class PlantAnalyzerSystem : EntitySystem
         {
             if (plantComp.Seed != null)
             {
-                var state = ObtainingGeneDataSeed(plantComp.Seed, target, true);
+                var state = ObtainingGeneDataSeed(plantComp.Seed, target, true, ent.Comp.Settings.ExposeAdvancedData); // Forge-Change
                 _uiSystem.ServerSendUiMessage(ent.Owner, PlantAnalyzerUiKey.Key, state);
             }
         }
@@ -182,7 +182,11 @@ public sealed class PlantAnalyzerSystem : EntitySystem
     /// <summary>
     ///     Analysis of seed from prototype.
     /// </summary>
-    public PlantAnalyzerScannedSeedPlantInformation ObtainingGeneDataSeed(SeedData seedData, EntityUid target, bool isTray)
+    public PlantAnalyzerScannedSeedPlantInformation ObtainingGeneDataSeed(
+        SeedData seedData,
+        EntityUid target,
+        bool isTray,
+        bool includeAdvancedData) // Forge-Change
     {
         // Get trickier fields first.
         AnalyzerHarvestType harvestType = AnalyzerHarvestType.Unknown;
@@ -226,21 +230,25 @@ public sealed class PlantAnalyzerSystem : EntitySystem
             Maturation = seedData.Maturation,
             Production = seedData.Production,
             GrowthStages = seedData.GrowthStages,
-            SeedPotency = seedData.Potency,
-            Speciation = mutationStrings.ToArray(),
-            NutrientConsumption = seedData.NutrientConsumption,
-            WaterConsumption = seedData.WaterConsumption,
-            IdealHeat = seedData.IdealHeat,
-            HeatTolerance = seedData.HeatTolerance,
-            IdealLight = seedData.IdealLight,
-            LightTolerance = seedData.LightTolerance,
-            ToxinsTolerance = seedData.ToxinsTolerance,
-            LowPressureTolerance = seedData.LowPressureTolerance,
-            HighPressureTolerance = seedData.HighPressureTolerance,
-            PestTolerance = seedData.PestTolerance,
-            WeedTolerance = seedData.WeedTolerance,
-            Mutations = GetMutationFlags(seedData)
+            SeedPotency = seedData.Potency // Forge-Change
         };
+
+        if (includeAdvancedData) // Forge-Change
+        {
+            ret.Speciation = mutationStrings.ToArray();
+            ret.NutrientConsumption = seedData.NutrientConsumption;
+            ret.WaterConsumption = seedData.WaterConsumption;
+            ret.IdealHeat = seedData.IdealHeat;
+            ret.HeatTolerance = seedData.HeatTolerance;
+            ret.IdealLight = seedData.IdealLight;
+            ret.LightTolerance = seedData.LightTolerance;
+            ret.ToxinsTolerance = seedData.ToxinsTolerance;
+            ret.LowPressureTolerance = seedData.LowPressureTolerance;
+            ret.HighPressureTolerance = seedData.HighPressureTolerance;
+            ret.PestTolerance = seedData.PestTolerance;
+            ret.WeedTolerance = seedData.WeedTolerance;
+            ret.Mutations = GetMutationFlags(seedData);
+        }
 
         return ret;
     }

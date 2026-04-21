@@ -15,6 +15,12 @@ public sealed partial class PlantAnalyzerComponent : Component
     {
         [DataField]
         public float ScanDelay;
+
+        /// <summary>
+        /// Whether extended seed gene information should be sent to the client.
+        /// </summary>
+        [DataField]
+        public bool ExposeAdvancedData; // Forge-Change
     }
 
     [DataField, ViewVariables]
