@@ -4372,7 +4372,7 @@ entities:
     - type: Transform
       pos: -6.5,-27.5
       parent: 1
-- proto: MachineFTLDrive25S
+- proto: MachineFTLDrive25
   entities:
   - uid: 550
     components:
