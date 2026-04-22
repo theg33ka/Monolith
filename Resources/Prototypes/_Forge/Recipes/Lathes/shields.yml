@@ -1,0 +1,29 @@
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG90Circuitboard
+  result: MachineShieldFSG90Circuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG130Circuitboard
+  result: MachineShieldFSG130Circuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG190Circuitboard
+  result: MachineShieldFSG190Circuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG260Circuitboard
+  result: MachineShieldFSG260Circuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG380Circuitboard
+  result: MachineShieldFSG380Circuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG600Circuitboard
+  result: MachineShieldFSG600Circuitboard

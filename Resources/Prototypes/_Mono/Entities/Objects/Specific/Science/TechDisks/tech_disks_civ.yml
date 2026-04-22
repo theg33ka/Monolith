@@ -113,7 +113,7 @@
   parent: TechDiskBase
   id: TechDiskCivShipComps
   name: civilian ship components tech disk
-  description: A disk capable of adding basic shields and FTL drives to a server's recipes.
+  description: A disk capable of adding entry-level shuttle shields and FTL drives to a server's recipes.
   components:
   - type: Sprite
     layers:
@@ -127,6 +127,8 @@
     recipes:
     - MachineDriveCTLA25Circuitboard
     - MachineShieldMS100Circuitboard
+    - MachineShieldFSG90Circuitboard
+    - MachineShieldFSG130Circuitboard
 
 - type: entity
   parent: TechDiskBase
@@ -151,7 +153,7 @@
   parent: TechDiskBase
   id: TechDiskCivMS250
   name: civilian MS-250 shield tech disk
-  description: A disk capable of adding MS-250/MS-100 shield boards to a server's recipes.
+  description: A disk capable of adding mid-tier shuttle shield boards to a server's recipes.
   components:
   - type: Sprite
     layers:
@@ -165,6 +167,9 @@
     recipes:
     - MachineShieldMS250Circuitboard
     - MachineShieldMS100Circuitboard
+    - MachineShieldFSG190Circuitboard
+    - MachineShieldFSG260Circuitboard
+    - MachineShieldFSG130Circuitboard
 
 - type: entity
   parent: TechDiskBase
@@ -210,7 +215,7 @@
   parent: TechDiskBase
   id: TechDiskShields
   name: pre-fracture shield technology tech disk
-  description: A disk capable of adding ship shield tech to a server's recipes.
+  description: A disk capable of adding the full Monolith and Forge shuttle shield lineup to a server's recipes.
   components:
   - type: Sprite
     layers:
@@ -226,6 +231,12 @@
     - MachineShieldMS500Circuitboard
     - MachineShieldMS250Circuitboard
     - MachineShieldMS100Circuitboard
+    - MachineShieldFSG90Circuitboard
+    - MachineShieldFSG130Circuitboard
+    - MachineShieldFSG190Circuitboard
+    - MachineShieldFSG260Circuitboard
+    - MachineShieldFSG380Circuitboard
+    - MachineShieldFSG600Circuitboard
 
 - type: entity
   parent: TechDiskBase

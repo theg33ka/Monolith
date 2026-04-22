@@ -1,0 +1,12 @@
+ent-MachineShieldFSG90Circuitboard = плата генератора щита FSG-90
+    .desc = Плата машины для генератора щита FSG-90.
+ent-MachineShieldFSG130Circuitboard = плата генератора щита FSG-130
+    .desc = Плата машины для генератора щита FSG-130.
+ent-MachineShieldFSG190Circuitboard = плата генератора щита FSG-190
+    .desc = Плата машины для генератора щита FSG-190.
+ent-MachineShieldFSG260Circuitboard = плата генератора щита FSG-260
+    .desc = Плата машины для генератора щита FSG-260.
+ent-MachineShieldFSG380Circuitboard = плата генератора щита FSG-380
+    .desc = Плата машины для генератора щита FSG-380.
+ent-MachineShieldFSG600Circuitboard = плата генератора щита FSG-600
+    .desc = Плата машины для генератора щита FSG-600.
