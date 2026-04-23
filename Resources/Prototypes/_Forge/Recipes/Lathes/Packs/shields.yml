@@ -1,9 +1,14 @@
 - type: latheRecipePack
   id: ForgeAdvancedShuttleComponents
   recipes:
-  - MachineShieldFSG90Circuitboard
-  - MachineShieldFSG130Circuitboard
-  - MachineShieldFSG190Circuitboard
-  - MachineShieldFSG260Circuitboard
-  - MachineShieldFSG380Circuitboard
-  - MachineShieldFSG600Circuitboard
+  - MachineShieldFSG90RCircuitboard
+  - MachineShieldFSG100Circuitboard
+  - MachineShieldFSG110PCircuitboard
+  - MachineShieldFSG160CCircuitboard
+  - MachineShieldFSG220Circuitboard
+  - MachineShieldFSG250CCircuitboard
+  - MachineShieldFSG330RCircuitboard
+  - MachineShieldFSG420Circuitboard
+  - MachineShieldFSG470PCircuitboard
+  - MachineShieldFSG600CCircuitboard
+  - MachineShieldFSG900PCircuitboard

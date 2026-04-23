@@ -1,29 +1,54 @@
 - type: latheRecipe
   parent: BaseGoldCircuitboardRecipe
-  id: MachineShieldFSG90Circuitboard
-  result: MachineShieldFSG90Circuitboard
+  id: MachineShieldFSG90RCircuitboard
+  result: MachineShieldFSG90RCircuitboard
 
 - type: latheRecipe
   parent: BaseGoldCircuitboardRecipe
-  id: MachineShieldFSG130Circuitboard
-  result: MachineShieldFSG130Circuitboard
+  id: MachineShieldFSG100Circuitboard
+  result: MachineShieldFSG100Circuitboard
 
 - type: latheRecipe
   parent: BaseGoldCircuitboardRecipe
-  id: MachineShieldFSG190Circuitboard
-  result: MachineShieldFSG190Circuitboard
+  id: MachineShieldFSG110PCircuitboard
+  result: MachineShieldFSG110PCircuitboard
 
 - type: latheRecipe
   parent: BaseGoldCircuitboardRecipe
-  id: MachineShieldFSG260Circuitboard
-  result: MachineShieldFSG260Circuitboard
+  id: MachineShieldFSG160CCircuitboard
+  result: MachineShieldFSG160CCircuitboard
 
 - type: latheRecipe
   parent: BaseGoldCircuitboardRecipe
-  id: MachineShieldFSG380Circuitboard
-  result: MachineShieldFSG380Circuitboard
+  id: MachineShieldFSG220Circuitboard
+  result: MachineShieldFSG220Circuitboard
 
 - type: latheRecipe
   parent: BaseGoldCircuitboardRecipe
-  id: MachineShieldFSG600Circuitboard
-  result: MachineShieldFSG600Circuitboard
+  id: MachineShieldFSG250CCircuitboard
+  result: MachineShieldFSG250CCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG330RCircuitboard
+  result: MachineShieldFSG330RCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG420Circuitboard
+  result: MachineShieldFSG420Circuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG470PCircuitboard
+  result: MachineShieldFSG470PCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG600CCircuitboard
+  result: MachineShieldFSG600CCircuitboard
+
+- type: latheRecipe
+  parent: BaseGoldCircuitboardRecipe
+  id: MachineShieldFSG900PCircuitboard
+  result: MachineShieldFSG900PCircuitboard
