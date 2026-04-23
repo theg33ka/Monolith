@@ -23,6 +23,10 @@
     slots:
     - ears
     sprite: Clothing/Ears/Headsets/base.rsi
+  - type: UserInterface
+    interfaces:
+      enum.ConfigurableEncryptionKeyUiKey.Key:
+        type: ConfigurableEncryptionKeyBoundUserInterface
   - type: GuideHelp
     guides:
     - Radio

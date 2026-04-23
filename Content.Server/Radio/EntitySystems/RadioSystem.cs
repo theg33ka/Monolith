@@ -35,6 +35,7 @@ public sealed class RadioSystem : EntitySystem
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly ChatSystem _chat = default!;
     [Dependency] private readonly LanguageSystem _language = default!; // Einstein Engines - Language
+    [Dependency] private readonly ConfigurableEncryptionKeySystem _configurableKeys = default!;
 
     // set used to prevent radio feedback loops.
     private readonly HashSet<string> _messages = new();
@@ -67,6 +68,9 @@ public sealed class RadioSystem : EntitySystem
     {
         if (TryComp<RadioMicrophoneComponent>(source, out var radioMicrophone))
             return radioMicrophone.Frequency;
+
+        if (_configurableKeys.TryGetFrequency(source, channel.ID, out var keyFrequency))
+            return keyFrequency;
 
         return channel.Frequency;
     }
@@ -204,7 +208,7 @@ public sealed class RadioSystem : EntitySystem
         var radioQuery = EntityQueryEnumerator<ActiveRadioComponent, TransformComponent>();
 
         if (frequency == null) // Nuclear-14
-            frequency = GetFrequency(messageSource, channel); // Nuclear-14
+            frequency = GetFrequency(radioSource, channel); // Nuclear-14
 
         while (canSend && radioQuery.MoveNext(out var receiver, out var radio, out var transform))
         {

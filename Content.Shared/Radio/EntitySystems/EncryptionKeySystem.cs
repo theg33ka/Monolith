@@ -79,6 +79,17 @@ public sealed partial class EncryptionKeySystem : EntitySystem
             }
         }
 
+        foreach (var ent in component.KeyContainer.ContainedEntities)
+        {
+            if (TryComp<ConfigurableEncryptionKeyComponent>(ent, out _)
+                && TryComp<EncryptionKeyComponent>(ent, out var key)
+                && key.DefaultChannel != null)
+            {
+                component.DefaultChannel = key.DefaultChannel;
+                break;
+            }
+        }
+
         RaiseLocalEvent(uid, new EncryptionChannelsChangedEvent(component));
     }
 
