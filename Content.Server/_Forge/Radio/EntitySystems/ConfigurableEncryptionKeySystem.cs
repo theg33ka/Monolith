@@ -1,15 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
 using Content.Server.Popups;
 using Content.Shared.Examine;
-using Content.Shared.Radio;
+using Content.Shared._Forge.Radio;
+using Content.Shared._Forge.Radio.Components;
 using Content.Shared.Radio.Components;
 using Content.Shared.UserInterface;
 using Content.Shared.Verbs;
 using Robust.Server.GameObjects;
-using Robust.Shared.Containers;
 using Robust.Shared.Utility;
 
-namespace Content.Server.Radio.EntitySystems;
+namespace Content.Server._Forge.Radio.EntitySystems;
 
 public sealed class ConfigurableEncryptionKeySystem : EntitySystem
 {
@@ -23,9 +23,6 @@ public sealed class ConfigurableEncryptionKeySystem : EntitySystem
         SubscribeLocalEvent<EncryptionKeyHolderComponent, GetVerbsEvent<AlternativeVerb>>(OnGetAlternativeVerbs);
         SubscribeLocalEvent<EncryptionKeyHolderComponent, BoundUIOpenedEvent>(OnUiOpened);
         SubscribeLocalEvent<EncryptionKeyHolderComponent, SelectConfigurableEncryptionKeyFrequencyMessage>(OnSelectFrequency);
-        SubscribeLocalEvent<EncryptionKeyHolderComponent, EntInsertedIntoContainerMessage>(OnContainerModified);
-        SubscribeLocalEvent<EncryptionKeyHolderComponent, EntRemovedFromContainerMessage>(OnContainerModified);
-        SubscribeLocalEvent<EncryptionKeyHolderComponent, ExaminedEvent>(OnHolderExamined);
         SubscribeLocalEvent<ConfigurableEncryptionKeyComponent, ExaminedEvent>(OnKeyExamined);
     }
 
@@ -86,7 +83,7 @@ public sealed class ConfigurableEncryptionKeySystem : EntitySystem
         if (!args.Actor.Valid)
             return;
 
-        if (!TryGetKey(uid, component, out var keyUid, out var configurable, out _))
+        if (!TryGetKey(uid, component, out _, out var configurable, out _))
         {
             _ui.CloseUi(uid, ConfigurableEncryptionKeyUiKey.Key, args.Actor);
             return;
@@ -113,7 +110,6 @@ public sealed class ConfigurableEncryptionKeySystem : EntitySystem
         if (args.Frequency != configurable.Frequency)
         {
             configurable.Frequency = args.Frequency;
-            Dirty(keyUid.Value, configurable);
 
             _popup.PopupEntity(
                 Loc.GetString("configurable-encryption-key-frequency-set", ("frequency", configurable.Frequency)),
@@ -122,28 +118,6 @@ public sealed class ConfigurableEncryptionKeySystem : EntitySystem
         }
 
         UpdateUi(uid, component);
-    }
-
-    private void OnContainerModified(EntityUid uid, EncryptionKeyHolderComponent component, ContainerModifiedMessage args)
-    {
-        if (args.Container.ID != EncryptionKeyHolderComponent.KeyContainerName)
-            return;
-
-        if (TryGetKey(uid, component, out _, out _, out _))
-            UpdateUi(uid, component);
-        else
-            _ui.CloseUi(uid, ConfigurableEncryptionKeyUiKey.Key);
-    }
-
-    private void OnHolderExamined(EntityUid uid, EncryptionKeyHolderComponent component, ExaminedEvent args)
-    {
-        if (!args.IsInDetailsRange)
-            return;
-
-        if (!TryGetKey(uid, component, out _, out var configurable, out _))
-            return;
-
-        args.PushMarkup(Loc.GetString("configurable-encryption-key-examine", ("frequency", configurable.Frequency)));
     }
 
     private void OnKeyExamined(EntityUid uid, ConfigurableEncryptionKeyComponent component, ExaminedEvent args)

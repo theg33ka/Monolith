@@ -1,8 +1,8 @@
-using Content.Shared.Radio;
+using Content.Shared._Forge.Radio;
 using JetBrains.Annotations;
 using Robust.Client.GameObjects;
 
-namespace Content.Client.Radio.Ui;
+namespace Content.Client._Forge.Radio.Ui;
 
 [UsedImplicitly]
 public sealed class ConfigurableEncryptionKeyBoundUserInterface : BoundUserInterface

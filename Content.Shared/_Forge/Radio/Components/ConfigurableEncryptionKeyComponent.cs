@@ -1,6 +1,7 @@
+using Content.Shared.Radio;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
-namespace Content.Shared.Radio.Components;
+namespace Content.Shared._Forge.Radio.Components;
 
 [RegisterComponent]
 public sealed partial class ConfigurableEncryptionKeyComponent : Component

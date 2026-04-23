@@ -1,6 +1,6 @@
 using Robust.Shared.Serialization;
 
-namespace Content.Shared.Radio;
+namespace Content.Shared._Forge.Radio;
 
 [Serializable, NetSerializable]
 public enum ConfigurableEncryptionKeyUiKey : byte

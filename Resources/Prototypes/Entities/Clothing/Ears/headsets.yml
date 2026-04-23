@@ -23,7 +23,7 @@
     slots:
     - ears
     sprite: Clothing/Ears/Headsets/base.rsi
-  - type: UserInterface
+  - type: UserInterface # Forge-Change: configurable encryption key frequency menu.
     interfaces:
       enum.ConfigurableEncryptionKeyUiKey.Key:
         type: ConfigurableEncryptionKeyBoundUserInterface
