@@ -16,7 +16,7 @@ public sealed partial class ConfigurableEncryptionKeyComponent : Component
 
     [DataField]
     [ViewVariables(VVAccess.ReadWrite)]
-    public int MaxFrequency = 3000;
+    public int MaxFrequency = 30000;
 
     [DataField(customTypeSerializer: typeof(PrototypeIdSerializer<RadioChannelPrototype>))]
     [ViewVariables(VVAccess.ReadWrite)]
