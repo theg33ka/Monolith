@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Numerics;
 using Content.Server._Forge.Sponsor; // Forge-Change
+using Content.Shared._Forge.Sponsor; // Forge-Change
 using Content.Server.Administration.Logs;
 using Content.Server.Administration.Managers; // Frontier
 using Content.Server.Cargo.Systems; // Frontier
@@ -47,42 +48,44 @@ using Content.Server.Preferences.Managers;
 
 namespace Content.Server.Ghost
 {
-    public sealed class GhostSystem : SharedGhostSystem
+    public sealed partial class GhostSystem : SharedGhostSystem
     {
-        [Dependency] private readonly SharedActionsSystem _actions = default!;
-        [Dependency] private readonly IAdminLogManager _adminLog = default!;
-        [Dependency] private readonly SharedEyeSystem _eye = default!;
-        [Dependency] private readonly FollowerSystem _followerSystem = default!;
-        [Dependency] private readonly IGameTiming _gameTiming = default!;
-        [Dependency] private readonly JobSystem _jobs = default!;
-        [Dependency] private readonly EntityLookupSystem _lookup = default!;
-        [Dependency] private readonly MindSystem _minds = default!;
-        [Dependency] private readonly MobStateSystem _mobState = default!;
-        [Dependency] private readonly SharedPhysicsSystem _physics = default!;
-        [Dependency] private readonly IPlayerManager _playerManager = default!;
-        [Dependency] private readonly TransformSystem _transformSystem = default!;
-        [Dependency] private readonly VisibilitySystem _visibilitySystem = default!;
-        [Dependency] private readonly MetaDataSystem _metaData = default!;
-        [Dependency] private readonly MobThresholdSystem _mobThresholdSystem = default!;
-        [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
-        [Dependency] private readonly IConfigurationManager _configurationManager = default!;
-        [Dependency] private readonly IChatManager _chatManager = default!;
-        [Dependency] private readonly SharedMindSystem _mind = default!;
-        [Dependency] private readonly GameTicker _gameTicker = default!;
-        [Dependency] private readonly DamageableSystem _damageable = default!;
-        [Dependency] private readonly SharedPopupSystem _popup = default!;
-        [Dependency] private readonly IRobustRandom _random = default!;
-        [Dependency] private readonly TagSystem _tag = default!;
-        [Dependency] private readonly IAdminManager _admin = default!; // Frontier
-        [Dependency] private readonly IServerPreferencesManager _preferencesManager = default!;
-        [Dependency] private readonly SponsorManager _sponsors = default!; // Forge-Change
-        [Dependency] private readonly GhostSpriteStateSystem _ghostState = default!;
-        [Dependency] private readonly PlayerRateLimitManager _rateLimit = default!; // Forge-Change
+        [Dependency] private SharedActionsSystem _actions = default!;
+        [Dependency] private IAdminLogManager _adminLog = default!;
+        [Dependency] private SharedEyeSystem _eye = default!;
+        [Dependency] private FollowerSystem _followerSystem = default!;
+        [Dependency] private IGameTiming _gameTiming = default!;
+        [Dependency] private JobSystem _jobs = default!;
+        [Dependency] private EntityLookupSystem _lookup = default!;
+        [Dependency] private MindSystem _minds = default!;
+        [Dependency] private MobStateSystem _mobState = default!;
+        [Dependency] private SharedPhysicsSystem _physics = default!;
+        [Dependency] private ISharedPlayerManager _player = default!;
+        [Dependency] private TransformSystem _transformSystem = default!;
+        [Dependency] private VisibilitySystem _visibilitySystem = default!;
+        [Dependency] private MetaDataSystem _metaData = default!;
+        [Dependency] private MobThresholdSystem _mobThresholdSystem = default!;
+        [Dependency] private IPrototypeManager _prototypeManager = default!;
+        [Dependency] private IConfigurationManager _configurationManager = default!;
+        [Dependency] private IChatManager _chatManager = default!;
+        [Dependency] private SharedMindSystem _mind = default!;
+        [Dependency] private GameTicker _gameTicker = default!;
+        [Dependency] private DamageableSystem _damageable = default!;
+        [Dependency] private SharedPopupSystem _popup = default!;
+        [Dependency] private IRobustRandom _random = default!;
+        [Dependency] private TagSystem _tag = default!;
+        [Dependency] private IAdminManager _admin = default!; // Frontier
+        [Dependency] private IServerPreferencesManager _preferencesManager = default!;
+        [Dependency] private GhostSpriteStateSystem _ghostState = default!;
+        [Dependency] private SponsorManager _sponsors = default!; // Forge-Change
+        [Dependency] private PlayerRateLimitManager _rateLimit = default!; // Forge-Change
 
         private const string InvalidGhostRequestRateLimitKey = "GhostInvalidRequests"; // Forge-Change
 
         private EntityQuery<GhostComponent> _ghostQuery;
         private EntityQuery<PhysicsComponent> _physicsQuery;
+
+        private static readonly ProtoId<TagPrototype> AllowGhostShownByEventTag = "AllowGhostShownByEvent";
 
         public override void Initialize()
         {
@@ -414,7 +417,7 @@ namespace Content.Server.Ghost
 
         private IEnumerable<GhostWarp> GetPlayerWarps(EntityUid except)
         {
-            foreach (var player in _playerManager.Sessions)
+            foreach (var player in _player.Sessions)
             {
                 if (player.AttachedEntity is not {Valid: true} attached)
                     continue;
@@ -433,7 +436,7 @@ namespace Content.Server.Ghost
 
         private IEnumerable<GhostWarp> GetAdminGhostWarps(EntityUid except)
         {
-            foreach (var player in _playerManager.Sessions)
+            foreach (var player in _player.Sessions)
             {
                 if (player.AttachedEntity is not {Valid: true} attached)
                     continue;
@@ -456,7 +459,7 @@ namespace Content.Server.Ghost
 
         private IEnumerable<GhostWarp> GetRegularGhostWarps(EntityUid except)
         {
-            foreach (var player in _playerManager.Sessions)
+            foreach (var player in _player.Sessions)
             {
                 if (player.AttachedEntity is not {Valid: true} attached)
                     continue;
@@ -520,7 +523,7 @@ namespace Content.Server.Ghost
             var entityQuery = EntityQueryEnumerator<GhostComponent, VisibilityComponent>();
             while (entityQuery.MoveNext(out var uid, out var _, out var vis))
             {
-                if (!_tag.HasTag(uid, "AllowGhostShownByEvent"))
+                if (!_tag.HasTag(uid, AllowGhostShownByEventTag))
                     continue;
 
                 if (visible)
@@ -597,10 +600,17 @@ namespace Content.Server.Ghost
             var user = mind.Comp.UserId;
             try
             {
-                if (user != null && _sponsors.TryGetSponsor(user.Value, out var level)
-                                 && _sponsors.TryGetSponsorGhost(level, out var sponsorGhost))
+                if (user != null && _sponsors.TryGetSponsor(user.Value, out var level))
                 {
-                    ghost = Spawn(sponsorGhost, spawnPosition.Value);
+                    // Forge-Change: prefer the sponsor's explicitly chosen ghost skin (validated against their level),
+                    // then fall back to the default skin tied to their level, then to the normal observer.
+                    var chosenSkin = _preferencesManager.GetPreferencesOrNull(user.Value)?.SponsorGhostSkin;
+                    if (!string.IsNullOrEmpty(chosenSkin) && SponsorData.IsGhostSkinAllowed(level, chosenSkin))
+                        ghost = Spawn(chosenSkin, spawnPosition.Value);
+                    else if (_sponsors.TryGetSponsorGhost(level, out var sponsorGhost))
+                        ghost = Spawn(sponsorGhost, spawnPosition.Value);
+                    else
+                        ghost = SpawnAtPosition(GameTicker.ObserverPrototypeName, spawnPosition.Value);
                 }
                 else
                 {
@@ -635,8 +645,8 @@ namespace Content.Server.Ghost
             // However, that should rarely happen.
             if (!string.IsNullOrWhiteSpace(mind.Comp.CharacterName))
                 _metaData.SetEntityName(ghost, mind.Comp.CharacterName);
-            else if (!string.IsNullOrWhiteSpace(mind.Comp.Session?.Name))
-                _metaData.SetEntityName(ghost, mind.Comp.Session.Name);
+            else if (mind.Comp.UserId is { } userId && _player.TryGetSessionById(userId, out var session))
+                _metaData.SetEntityName(ghost, session.Name);
 
             if (mind.Comp.TimeOfDeath.HasValue)
             {
@@ -664,18 +674,29 @@ namespace Content.Server.Ghost
         /// <param name="mindId">The mind ID of the player</param>
         public void ApplyAdminOOCColor(EntityUid ghostEntity, EntityUid mindId) // Mono
         {
-            if (!_mind.TryGetSession(mindId, out var session))
+            if (!_player.TryGetSessionByEntity(ghostEntity, out var session))
                 return;
 
             // Only apply admin OOC color if the player is actually an admin
             if (!_admin.IsAdmin(session))
                 return;
 
+            // Never tint custom ghost skins (e.g. sponsor skins) — keep their original sprite colors.
+            // Only the default observer prototypes may be recolored.
+            if (TryComp<MetaDataComponent>(ghostEntity, out var meta)
+                && meta.EntityPrototype != null
+                && meta.EntityPrototype.ID != GameTicker.ObserverPrototypeName
+                && meta.EntityPrototype.ID != GameTicker.AdminObserverPrototypeName)
+                return;
+
             if (!_preferencesManager.TryGetCachedPreferences(session.UserId, out var prefs))
                 return;
 
-            // Only apply the color if it's not transparent (the default)
-            if (prefs.AdminOOCColor == Color.Transparent)
+            // Only tint the ghost sprite when the admin explicitly chose a color.
+            // Transparent is the "unset" sentinel; Red is the legacy DB default that every admin
+            // who never ran setadminooc still has, which would otherwise turn every admin ghost red.
+            // Both are treated as "no custom color" so the original sprite color is preserved.
+            if (prefs.AdminOOCColor == Color.Transparent || prefs.AdminOOCColor == Color.Red)
                 return;
 
             // Make the color slightly transparent for ghosts
@@ -722,9 +743,9 @@ namespace Content.Server.Ghost
 
             if (mind.PreventGhosting && !forced)
             {
-                if (mind.Session != null) // Logging is suppressed to prevent spam from ghost attempts caused by movement attempts
+                if (_player.TryGetSessionById(mind.UserId, out var session)) // Logging is suppressed to prevent spam from ghost attempts caused by movement attempts
                 {
-                    _chatManager.DispatchServerMessage(mind.Session, Loc.GetString("comp-mind-ghosting-prevented"),
+                    _chatManager.DispatchServerMessage(session, Loc.GetString("comp-mind-ghosting-prevented"),
                         true);
                 }
 

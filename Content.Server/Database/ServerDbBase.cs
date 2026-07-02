@@ -68,7 +68,19 @@ namespace Content.Server.Database
                 profiles[profile.Slot] = ConvertProfiles(profile);
             }
 
-            return new PlayerPreferences(profiles, prefs.SelectedCharacterSlot, Color.FromHex(prefs.AdminOOCColor));
+            return new PlayerPreferences(
+                profiles,
+                prefs.SelectedCharacterSlot,
+                Color.FromHex(prefs.AdminOOCColor),
+                ParseColorOrTransparent(prefs.SponsorOOCColor), // Forge-Change
+                ParseColorOrTransparent(prefs.SponsorLOOCColor), // Forge-Change
+                prefs.SponsorGhostSkin ?? ""); // Forge-Change
+        }
+
+        // Forge-Change: sponsor colors may be empty ("not set"), so parse defensively.
+        private static Color ParseColorOrTransparent(string? hex)
+        {
+            return string.IsNullOrEmpty(hex) ? Color.Transparent : Color.FromHex(hex, Color.Transparent);
         }
 
         public async Task SaveSelectedCharacterIndexAsync(NetUserId userId, int index)
@@ -187,6 +199,21 @@ namespace Content.Server.Database
 
             await db.DbContext.SaveChangesAsync();
 
+        }
+
+        // Forge-Change: persist sponsor cosmetic preferences.
+        public async Task SaveSponsorPreferencesAsync(NetUserId userId, Color oocColor, Color loocColor, string ghostSkin)
+        {
+            await using var db = await GetDb();
+            var prefs = await db.DbContext
+                .Preference
+                .SingleAsync(p => p.UserId == userId.UserId);
+
+            prefs.SponsorOOCColor = oocColor == Color.Transparent ? "" : oocColor.ToHex();
+            prefs.SponsorLOOCColor = loocColor == Color.Transparent ? "" : loocColor.ToHex();
+            prefs.SponsorGhostSkin = ghostSkin ?? "";
+
+            await db.DbContext.SaveChangesAsync();
         }
 
         private static async Task SetSelectedCharacterSlotAsync(NetUserId userId, int newSlot, ServerDbContext db)
@@ -436,17 +463,17 @@ namespace Content.Server.Database
 
         #region MonoCoins
 
-        public async Task<int> GetMonoCoinsAsync(NetUserId userId, CancellationToken cancel = default)
+        public async Task<long> GetMonoCoinsAsync(NetUserId userId, CancellationToken cancel = default)
         {
             await using var db = await GetDb(cancel);
 
             var prefs = await db.DbContext.Preference
                 .SingleOrDefaultAsync(p => p.UserId == userId.UserId, cancel);
 
-            return prefs?.MonoCoins ?? 0;
+            return prefs?.MonoCoins ?? 0l;
         }
 
-        public async Task SetMonoCoinsAsync(NetUserId userId, int balance, CancellationToken cancel = default)
+        public async Task SetMonoCoinsAsync(NetUserId userId, long balance, CancellationToken cancel = default)
         {
             await using var db = await GetDb(cancel);
 
@@ -455,12 +482,12 @@ namespace Content.Server.Database
 
             if (prefs != null)
             {
-                prefs.MonoCoins = Math.Max(0, balance); // Ensure balance is never negative
+                prefs.MonoCoins = Math.Max(0l, balance); // Ensure balance is never negative
                 await db.DbContext.SaveChangesAsync(cancel);
             }
         }
 
-        public async Task<int> AddMonoCoinsAsync(NetUserId userId, int amount, CancellationToken cancel = default)
+        public async Task<long> AddMonoCoinsAsync(NetUserId userId, long amount, CancellationToken cancel = default)
         {
             await using var db = await GetDb(cancel);
 
@@ -470,29 +497,12 @@ namespace Content.Server.Database
             if (prefs != null)
             {
                 prefs.MonoCoins += amount;
-                prefs.MonoCoins = Math.Max(0, prefs.MonoCoins); // Ensure balance is never negative
+                prefs.MonoCoins = Math.Max(0l, prefs.MonoCoins); // Ensure balance is never negative
                 await db.DbContext.SaveChangesAsync(cancel);
                 return prefs.MonoCoins;
             }
 
             return 0;
-        }
-
-        public async Task<bool> TrySubtractMonoCoinsAsync(NetUserId userId, int amount, CancellationToken cancel = default)
-        {
-            await using var db = await GetDb(cancel);
-
-            var prefs = await db.DbContext.Preference
-                .SingleOrDefaultAsync(p => p.UserId == userId.UserId, cancel);
-
-            if (prefs != null && prefs.MonoCoins >= amount)
-            {
-                prefs.MonoCoins -= amount;
-                await db.DbContext.SaveChangesAsync(cancel);
-                return true;
-            }
-
-            return false;
         }
 
         #endregion
