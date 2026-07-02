@@ -16,6 +16,7 @@
     - Diona
     - Dwarf
     - Demon # Wega
+    - Skrell # Wega
     - Human
     - Moth
     - Reptilian
@@ -32,6 +33,7 @@
     - Yowie # Goob
     - Tajaran # Goob
     - Hydrakin # Mono
+    - Ariral # Forge-Change wega ariral
 
 - type: loadoutEffectGroup
   id: ShoesCapableNF
@@ -58,7 +60,9 @@
     - Tajaran # Goob
     - Diona # Mono
     - Demon # Wega
+    - Skrell # Wega
     - Hydrakin # Mono
+    - Ariral # Forge-Change wega ariral
 
 - type: loadoutEffectGroup
   id: NFNotDocOrStc

@@ -774,13 +774,28 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("admin_ooc_color");
 
-                    b.Property<int>("MonoCoins")
+                    b.Property<long>("MonoCoins")
                         .HasColumnType("INTEGER")
                         .HasColumnName("mono_coins");
 
                     b.Property<int>("SelectedCharacterSlot")
                         .HasColumnType("INTEGER")
                         .HasColumnName("selected_character_slot");
+
+                    b.Property<string>("SponsorGhostSkin")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("sponsor_ghost_skin");
+
+                    b.Property<string>("SponsorLOOCColor")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("sponsor_looc_color");
+
+                    b.Property<string>("SponsorOOCColor")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("sponsor_ooc_color");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT")
@@ -1680,7 +1695,7 @@ namespace Content.Server.Database.Migrations.Sqlite
 
                             b1.HasKey("ConnectionLogId");
 
-                            b1.ToTable("connection_log", (string)null);
+                            b1.ToTable("connection_log");
 
                             b1.WithOwner()
                                 .HasForeignKey("ConnectionLogId")
@@ -1725,7 +1740,7 @@ namespace Content.Server.Database.Migrations.Sqlite
 
                             b1.HasKey("PlayerId");
 
-                            b1.ToTable("player", (string)null);
+                            b1.ToTable("player");
 
                             b1.WithOwner()
                                 .HasForeignKey("PlayerId")
@@ -1848,7 +1863,7 @@ namespace Content.Server.Database.Migrations.Sqlite
 
                             b1.HasKey("ServerBanId");
 
-                            b1.ToTable("server_ban", (string)null);
+                            b1.ToTable("server_ban");
 
                             b1.WithOwner()
                                 .HasForeignKey("ServerBanId")
@@ -1925,7 +1940,7 @@ namespace Content.Server.Database.Migrations.Sqlite
 
                             b1.HasKey("ServerRoleBanId");
 
-                            b1.ToTable("server_role_ban", (string)null);
+                            b1.ToTable("server_role_ban");
 
                             b1.WithOwner()
                                 .HasForeignKey("ServerRoleBanId")

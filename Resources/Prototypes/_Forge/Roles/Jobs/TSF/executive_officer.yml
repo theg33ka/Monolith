@@ -15,6 +15,7 @@
   weight: 150
   displayWeight: 60
   assignedCompany: TSF
+  assignedNationality: TransSolarFederation
   canBeAntag: false
  # guides: [ BasicLore, TransSolarFederation ] # Forge-Change-delete
   access:
@@ -24,6 +25,7 @@
   - Medical
   - Chemistry
   - TsfmcEngineering
+  - TsfSecApartment
   accessGroups:
   - TsfGeneralAccess
   special:
@@ -33,7 +35,7 @@
       factions:
       - TSFMC
   - !type:AddImplantSpecial
-    implants: [ MindShieldImplant, TrackingImplant ]
+    implants: [ MindShieldImplant, TSFTrackingImplant ]
   - !type:AddLanguageSpecial
     languagesSpoken:
     - SolCommon
@@ -52,3 +54,4 @@
     - Magazine45_ACPPistolFMJ
     - BaseSecurityUplinkRadioCaptain
     - RadioHandheldNF
+    - TSFSecApartmentTablet
