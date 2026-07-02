@@ -1,0 +1,16 @@
+- type: trait
+  id: ChronicPain
+  name: trait-chronicpain-name
+  description: trait-chronicpain-desc
+  category: Physical
+  cost: -5
+  speciesBlacklist:
+  - IPC
+  blacklist:
+    components:
+    - BorgChassis
+  traitGear: PillCanisterCodeine
+  components:
+    - type: StartSyndrome
+      syndrome: ChronicPain
+      severity: 90
