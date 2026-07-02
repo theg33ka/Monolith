@@ -2,7 +2,6 @@ using System.Linq;
 using Content.Server.Administration;
 using Content.Server.GameTicking;
 using Content.Shared.Administration;
-using Content.Shared.CCVar;
 using Robust.Shared.Configuration;
 using Robust.Shared.Console;
 using Robust.Shared.ContentPack;
@@ -15,11 +14,11 @@ using Robust.Shared.Utility;
 namespace Content.Server.Mapping
 {
     [AdminCommand(AdminFlags.Server | AdminFlags.Mapping)]
-    sealed class MappingCommand : IConsoleCommand
+    sealed partial class MappingCommand : IConsoleCommand
     {
-        [Dependency] private readonly IEntityManager _entities = default!;
-        [Dependency] private readonly IMapManager _map = default!;
-        [Dependency] private readonly IConfigurationManager _cfg = default!;
+        [Dependency] private IEntityManager _entities = default!;
+        [Dependency] private IMapManager _map = default!;
+        [Dependency] private IConfigurationManager _cfg = default!;
 
         public string Command => "mapping";
         public string Description => Loc.GetString("cmd-mapping-desc");
@@ -157,10 +156,6 @@ namespace Content.Server.Mapping
             {
                 shell.ExecuteCommand("aghost");
             }
-
-            // don't interrupt mapping with events or auto-shuttle
-            shell.ExecuteCommand("changecvar events.enabled false");
-            shell.ExecuteCommand("changecvar shuttle.auto_call_time 0");
 
             var auto = _entities.System<MappingSystem>();
             if (grid != null)
