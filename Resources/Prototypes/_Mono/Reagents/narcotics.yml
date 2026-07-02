@@ -21,6 +21,13 @@
             Burn: -3
             Brute: -6 # its a painkiller
             Toxin: -1
+      # Forge-change: yea, painkiller
+      - !type:SuppressEffect
+        syndrome: PainSyndrome
+        duration: 600
+      - !type:SuppressEffect
+        syndrome: ChronicPain
+        duration: 540
     Narcotic:
       metabolismRate: 1
       effects:
@@ -87,6 +94,44 @@
         visualType: Medium
         messages: [ "generic-reagent-effect-nauseous" ]
         probability: 0.5
+      # Forge-change-start
+      - !type:ToleranceEffect
+        # hidden: true
+        reagent: Fentanyl
+        amount: 0.03
+        target: Brain
+      - !type:SyndromeEffect
+        hidden: true
+        conditions:
+          - !type:ToleranceCondition
+            source: Brain
+            reagent: Fentanyl
+            min: 0.3
+            max: 1.0
+        syndrome: OpioidAddiction
+        severity: 0.7
+      - !type:HealthChange
+        hidden: true
+        conditions:
+        - !type:TotalDamage
+          min: 5
+        - !type:ReagentThreshold
+          max: 5
+        - !type:ToleranceCondition
+          source: Brain
+          reagent: Fentanyl
+          min: 0.6
+          max: 1.0
+        damage:
+          groups:
+            Burn: 1.5
+            Brute: 3
+            Toxin: 0.5
+      - !type:GenericDescEffect
+        description: forge-reagent-tolerance-addiction
+      - !type:GenericDescEffect
+        description: forge-reagent-tolerance-badhealth
+      # Forge-change-end
 
 # Monolithic
 

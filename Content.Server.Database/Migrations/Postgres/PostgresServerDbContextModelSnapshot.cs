@@ -820,13 +820,28 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("text")
                         .HasColumnName("admin_ooc_color");
 
-                    b.Property<int>("MonoCoins")
-                        .HasColumnType("integer")
+                    b.Property<long>("MonoCoins")
+                        .HasColumnType("bigint")
                         .HasColumnName("mono_coins");
 
                     b.Property<int>("SelectedCharacterSlot")
                         .HasColumnType("integer")
                         .HasColumnName("selected_character_slot");
+
+                    b.Property<string>("SponsorGhostSkin")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sponsor_ghost_skin");
+
+                    b.Property<string>("SponsorLOOCColor")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sponsor_looc_color");
+
+                    b.Property<string>("SponsorOOCColor")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sponsor_ooc_color");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
