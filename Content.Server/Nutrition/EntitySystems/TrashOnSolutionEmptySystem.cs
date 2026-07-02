@@ -3,13 +3,19 @@ using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Tag;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Nutrition.EntitySystems
 {
-    public sealed class TrashOnSolutionEmptySystem : EntitySystem
+    public sealed partial class TrashOnSolutionEmptySystem : EntitySystem
     {
-        [Dependency] private readonly SharedSolutionContainerSystem _solutionContainerSystem = default!;
-        [Dependency] private readonly TagSystem _tagSystem = default!;
+        [Dependency] private SharedSolutionContainerSystem _solutionContainerSystem = default!;
+        [Dependency] private TagSystem _tagSystem = default!;
+
+        /// <summary>
+        ///  Передел на массив чтобы все расходники использующие эту систему могли быть использованы гоблинами в качестве компонентов для крафта как газировка, медипены и т.п.
+        /// </summary>
+        private static readonly ProtoId<TagPrototype>[] TrashTags = { "Trash", "GoblinPreciousTrash" }; /// Forge-Change
 
         public override void Initialize()
         {
@@ -41,11 +47,11 @@ namespace Content.Server.Nutrition.EntitySystems
         {
             if (solution.Volume <= 0)
             {
-                _tagSystem.AddTag(entity.Owner, "Trash");
+                _tagSystem.AddTags(entity.Owner, TrashTags); /// Forge-Change
                 return;
             }
-            if (_tagSystem.HasTag(entity.Owner, "Trash"))
-                _tagSystem.RemoveTag(entity.Owner, "Trash");
+
+            _tagSystem.RemoveTags(entity.Owner, TrashTags); /// Forge-Change
         }
     }
 }

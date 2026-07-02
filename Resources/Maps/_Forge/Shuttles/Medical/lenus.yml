@@ -106,6 +106,7 @@ entities:
       spreadQueues:
         MetalFoam: []
         Smoke: []
+        Kudzu: []
         Puddle: []
         Kudzu: []
     - type: Shuttle
@@ -2367,6 +2368,11 @@ entities:
     components:
     - type: Transform
       pos: 10.5,-12.5
+      parent: 1
+  - uid: 1579
+    components:
+    - type: Transform
+      pos: 0.5,1.5
       parent: 1
 - proto: Beaker
   entities:
@@ -7108,7 +7114,7 @@ entities:
     - type: Transform
       pos: 6.5,-9.5
       parent: 1
-- proto: MachineFTLDrive25S
+- proto: MachineFTLDrive
   entities:
   - uid: 911
     components:
@@ -7252,7 +7258,7 @@ entities:
       parent: 1
     - type: Physics
       bodyType: Static
-- proto: PaperBin20
+- proto: Paper
   entities:
   - uid: 926
     components:
@@ -10909,6 +10915,118 @@ entities:
     - type: Transform
       rot: 3.141592653589793 rad
       pos: 0.5,1.5
+      parent: 1
+- proto: WeaponTurretL85Autocannon
+  entities:
+  - uid: 1545
+    components:
+    - type: Transform
+      pos: -8.5,-0.5
+      parent: 1
+  - uid: 1546
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: 9.5,-0.5
+      parent: 1
+  - uid: 1547
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -7.5,-5.5
+      parent: 1
+  - uid: 1548
+    components:
+    - type: Transform
+      pos: -3.5,20.5
+      parent: 1
+  - uid: 1530
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: 4.5,20.5
+      parent: 1
+  - uid: 1531
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: 10.5,-10.5
+      parent: 1
+  - uid: 1532
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -4.5,-4.5
+      parent: 1
+  - uid: 1533
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 5.5,-4.5
+      parent: 1
+  - uid: 1534
+    components:
+    - type: Transform
+      rot: -1.5707963267948966 rad
+      pos: -3.5,5.5
+      parent: 1
+  - uid: 1535
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -3.5,12.5
+      parent: 1
+  - uid: 1536
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 4.5,12.5
+      parent: 1
+  - uid: 1537
+    components:
+    - type: Transform
+      pos: 4.5,5.5
+      parent: 1
+  - uid: 1538
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -3.5,-0.5
+      parent: 1
+  - uid: 1539
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 4.5,-0.5
+      parent: 1
+- proto: WallWeaponCapacitorRechargerOmnidirectional
+  entities:
+  - uid: 1540
+    components:
+    - type: Transform
+      pos: -5.5,-10.5
+      parent: 1
+- proto: WarpPoint
+  entities:
+  - uid: 1541
+    components:
+    - type: Transform
+      rot: 1.5707963267948966 rad
+      pos: 0.5,-3.5
+      parent: 1
+- proto: WeaponCapacitorRecharger
+  entities:
+  - uid: 1542
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: -3.5,6.5
+      parent: 1
+  - uid: 1543
+    components:
+    - type: Transform
+      rot: 3.141592653589793 rad
+      pos: 4.5,6.5
       parent: 1
 - proto: WeaponTurretL85Autocannon
   entities:

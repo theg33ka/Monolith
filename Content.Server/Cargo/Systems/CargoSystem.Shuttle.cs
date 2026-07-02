@@ -19,6 +19,8 @@ using Content.Shared._NF.Bank.BUI;
 using Content.Shared._NF.Trade;
 using Content.Shared.Mech.Components;
 using Robust.Shared.Toolshed.Commands.Math; // Mono
+using Content.Shared._Forge.Crypto.Components; // Forge-Change
+using Content.Shared._Forge.CCVar;
 
 
 namespace Content.Server.Cargo.Systems;
@@ -378,6 +380,9 @@ public sealed partial class CargoSystem
                 if (_blacklistQuery.HasComponent(ent))
                     continue;
 
+                if (HasComp<CryptoCoinComponent>(ent)) // Forge-Change: bitcoin can only be sold in crypto console.
+                    continue;
+
                 // Mono: Use vending machine discount pricing for cargo sales
                 var price = _pricing.GetPriceWithVendingDiscount(ent, gridUid);
                 if (price == 0)
@@ -516,7 +521,17 @@ public sealed partial class CargoSystem
         }
         // Mono End
         var stackPrototype = _protoMan.Index<StackPrototype>(component.CashType);
-        _stack.Spawn((int)price, stackPrototype, xform.Coordinates);
+        var payout = (int) price;
+        var poiTaxRate = _cfgManager.GetCVar(ForgeCVars.PoiCaptureSalesTaxRate);
+        if (poiTaxRate > 0f)
+        {
+            var poiTax = (int) Math.Floor(price * poiTaxRate);
+            if (poiTax > 0 && _poiTreasury.TryDepositCash(uid, poiTax, component.CashType))
+                payout -= poiTax;
+        }
+
+        if (payout > 0)
+            _stack.Spawn(payout, stackPrototype, xform.Coordinates);
         _audio.PlayPvs(ApproveSound, uid);
         UpdatePalletConsoleInterface((uid, component)); // Frontier: EntityUid<Entity
     }

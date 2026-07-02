@@ -13,6 +13,8 @@
     - state: unlit
       shader: unshaded
       map: ["enum.PowerDeviceVisualLayers.Powered"]
+    - state: panel # Forge-Change
+      map: ["enum.WiresVisualLayers.MaintenancePanel"] # Forge-Change
   - type: ExtensionCableReceiver
   - type: Appearance
   - type: AmbientOnPowered
@@ -27,6 +29,8 @@
         enum.PowerDeviceVisualLayers.Powered:
           True: { visible: true }
           False: { visible: false }
+  - type: WiresVisuals # Forge-Change
+  - type: WiresPanel # Forge-Change
   - type: Construction # Mono
     graph: Machine
     node: machine
@@ -37,6 +41,7 @@
     containers:
       machine_board: !type:Container
       machine_parts: !type:Container
+      upgrade_parts: !type:Container # Forge-Change
   - type: ExaminableBattery
   - type: BatterySelfRecharger
   - type: PirateBountyItem
@@ -51,11 +56,11 @@
   components:
   - type: Machine
     board: MachineGCSLowCircuitboard
+  - type: GunneryServerUpgrade # Forge-Change
+    tier: Low # Forge-Change
   - type: FireControlServer
     processingPower: 24
-  - type: PassiveThermalSignature # no cheesing it by unanchoring
-    signature: 100000 # ~630m
-  - type: ThermalSignature
+    maxWeapons: 12
   - type: Battery
     maxCharge: 125
     startingCharge: 125
@@ -76,11 +81,11 @@
   components:
   - type: Machine
     board: MachineGCSMediumCircuitboard
+  - type: GunneryServerUpgrade # Forge-Change
+    tier: Medium
   - type: FireControlServer
     processingPower: 42
-  - type: PassiveThermalSignature
-    signature: 250000 # ~1km
-  - type: ThermalSignature
+    maxWeapons: 16
   - type: Battery
     maxCharge: 250
     startingCharge: 250
@@ -101,11 +106,11 @@
   components:
   - type: Machine
     board: MachineGCSHighCircuitboard
+  - type: GunneryServerUpgrade # Forge-Change
+    tier: High
   - type: FireControlServer
     processingPower: 60
-  - type: PassiveThermalSignature
-    signature: 1000000 # ~2km
-  - type: ThermalSignature
+    maxWeapons: 20
   - type: Battery
     maxCharge: 500
     startingCharge: 500
@@ -126,11 +131,11 @@
   components:
   - type: Machine
     board: MachineGCSUltraCircuitboard
+  - type: GunneryServerUpgrade # Forge-Change
+    tier: Ultra
   - type: FireControlServer
     processingPower: 90
-  - type: PassiveThermalSignature
-    signature: 4000000 # ~4km
-  - type: ThermalSignature
+    maxWeapons: 24
   - type: Battery
     maxCharge: 1000
     startingCharge: 1000
@@ -152,9 +157,12 @@
   name: omega-high-power gunnery control server
   components:
   - type: Machine
-    board: MachineGCSUltraCircuitboard
+    board: MachineGCSOmegaCircuitboard # Forge-Change
+  - type: GunneryServerUpgrade # Forge-Change
+    tier: Omega
   - type: FireControlServer
-    processingPower: 500
+    processingPower: 250 # Forge-Change: 500
+    maxWeapons: 28
   - type: PassiveThermalSignature
     signature: 8000000 # ~5.6km
   - type: ThermalSignature
@@ -182,6 +190,7 @@
     board: MachineGCSStationCircuitboard
   - type: FireControlServer
     processingPower: 3000
+    maxWeapons: 40
   # no thermal sig
   # TODO: nuke this off ships
   - type: Battery
@@ -209,6 +218,7 @@
     board: MachineGCSStationCircuitboard
   - type: FireControlServer
     processingPower: 3000
+    maxWeapons: 40
     enforceMaxConsoles: true
     maxConsoles: 2
   - type: Battery
@@ -253,6 +263,7 @@
     - map: [ "enum.WiresVisualLayers.MaintenancePanel" ]
       state: generic_panel_open
   - type: FireControlConsole
+  - type: ShuttleConsoleLock # Forge-Change
   - type: ShipNpcTarget
     needPower: true
   - type: TargetSeekingTarget

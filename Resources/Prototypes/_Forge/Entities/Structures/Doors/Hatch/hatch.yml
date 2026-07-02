@@ -53,6 +53,21 @@
   id: AirlockHatchRemnant
   suffix: Forge, Remnant
   components:
+  - type: Sprite
+    sprite: Forge/Structures/Doors/Airlocks/Standard/remnant_hatch.rsi
   - type: ContainerFill
     containers:
       board: [ DoorElectronicsRemnant ]
+  - type: WiresPanelSecurity
+    securityLevel: superMaxSecurity
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 7000
+      behaviors:
+      - !type:DoActsBehavior
+        acts: ["Destruction"]
+      - !type:PlaySoundBehavior
+        sound:
+          collection: MetalSlam

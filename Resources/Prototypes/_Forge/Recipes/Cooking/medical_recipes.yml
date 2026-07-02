@@ -1,0 +1,83 @@
+- type: microwaveMealRecipe
+  id: RecipeHMEElasticGaugePack
+  name: elastic gauge pack
+  result: HMEElasticGaugePack
+  time: 20
+  group: Medicinal
+  solids:
+    MedicatedSuture: 1
+    FoodPoppy: 3
+    MaterialDurathread1: 15
+  reagents:
+    Traumoxadone: 30
+    Dermaline: 15
+    Bicaridine: 15
+  recipeType: MedicalAssembler
+
+- type: microwaveMealRecipe
+  id: RecipeHMESynthFleshPack
+  name: synthetic flesh pack
+  result: HMESynthFleshPack
+  time: 20
+  group: Medicinal
+  solids:
+    RegenerativeMesh: 1
+    FoodAloe: 3
+    MaterialDurathread1: 15
+  reagents:
+    Sigynate: 30
+    Peranol: 15
+    Arithrazine: 15
+  recipeType: MedicalAssembler
+
+- type: microwaveMealRecipe
+  id: RecipeHMESynthBloodpack
+  name: synthetic blood pack
+  result: HMESynthBloodpack
+  time: 20
+  group: Medicinal
+  solids:
+    Bloodpack: 1
+    FoodLingzhi: 6
+    MaterialDurathread1: 15
+  reagents:
+    Saline: 45
+    Celoxradine: 15
+    DexalinPlus: 15
+  recipeType: MedicalAssembler
+
+- type: microwaveMealRecipe
+  id: RecipeNaloxoneMedipen
+  name: naloxone medipen
+  result: NaloxoneMedipen
+  time: 5
+  group: Medicinal
+  solids:
+    BlankMediPen: 1
+  reagents:
+    Naloxone: 9
+  recipeType: MedicalAssembler
+
+- type: microwaveMealRecipe
+  id: RecipeMethadoneMedipen
+  name: methadon medipen
+  result: MethadoneMedipen
+  time: 5
+  group: Medicinal
+  solids:
+    BlankMediPen: 1
+  reagents:
+    Methadone: 9
+  recipeType: MedicalAssembler
+
+- type: microwaveMealRecipe
+  id: RecipeMorphineMedipen
+  name: methadon medipen
+  result: MorphineMedipen
+  time: 5
+  group: Medicinal
+  solids:
+    BlankMediPen: 1
+  reagents:
+    Morphine: 9
+  recipeType: MedicalAssembler
