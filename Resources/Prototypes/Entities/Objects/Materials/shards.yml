@@ -51,6 +51,9 @@
   - type: Tag
     tags:
     - Trash
+    - GoblinPreciousTrash # Forge-Change
+  - type: TimedDespawn
+    lifetime: 600
   - type: SpaceGarbage
   - type: Damageable
     damageContainer: Inorganic

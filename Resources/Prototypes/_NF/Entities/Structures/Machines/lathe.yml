@@ -83,6 +83,7 @@
     # Mono End
     dynamicPacks:
     - NFEngineeringTechfabDeprecated
+    - AtmosTools
     - RCD # Mono
   - type: PirateBountyItem # Mono
     id: Techfab
@@ -116,6 +117,8 @@
     - NFSalvageTechfabDeprecatedStatic
     dynamicPacks:
     - NFSalvageTechfabDeprecated
+    - DrakeIndustriesRecipes # Forge-Change
+    - ForgeSalvageTechfabDrakeTools # Forge-Change
   - type: EmagLatheRecipes
     emagStaticPacks:
     - NFSalvageTechfabDeprecatedEmag
@@ -150,6 +153,7 @@
     - NFNfsdTechfabDeprecatedStatic
     - StaticAmmoRecipePack
     - RoundstartShipgunAmmo # Mono
+    - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFNfsdTechfabDeprecated
     - DynamicAmmoRecipePack
@@ -198,6 +202,7 @@
     - StaticAmmoRecipePack
     - MonoRestraintsStatic # Mono
     - RoundstartShipgunAmmo # Mono
+    - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFMercenaryTechfabDeprecated
     - DynamicAmmoRecipePack
@@ -208,6 +213,7 @@
     - MonoRogueWeaponsDynamicMelee
     - MonoRogueWeaponsDynamicRanged
     - MonoRogueMiscDynamic
+    - MonoUSSPArmorDynamic
     - MonoUSSPMiscDynamic
     - MonoUSSPWeaponsDynamicRanged
     - MonoViperGroupDynamic
@@ -219,6 +225,7 @@
     - SecurityEquipment
     - SmartGun #Smart SMG
     # Mono end
+    - UllmanForgeRecipes # Forge-change
   - type: EmagLatheRecipes
     emagStaticPacks:
     - NFMercenaryTechfabDeprecatedEmag
@@ -267,6 +274,7 @@
     - StaticAmmoRecipePack
     - MonoRestraintsStatic
     - RoundstartShipgunAmmo # Mono
+    - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFHackedMercenaryTechfabDeprecated
     - DynamicAmmoRecipePack
@@ -278,6 +286,7 @@
     - MonoRogueWeaponsDynamicMelee
     - MonoRogueWeaponsDynamicRanged
     - MonoRogueMiscDynamic
+    - MonoUSSPArmorDynamic
     - MonoUSSPMiscDynamic
     - MonoViperGroupDynamic
     - MonoUSSPWeaponsDynamicRanged
@@ -365,6 +374,7 @@
     - PowerCellsStatic
     dynamicPacks:
     - NFBlueprints
+    - ForgeBlueprints # Forge-change
   - type: RequireProjectileTarget
 
 - type: entity

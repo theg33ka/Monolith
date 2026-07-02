@@ -1,7 +1,6 @@
 using System.Numerics;
 using Content.Server.Access.Systems;
 using Content.Server.DeviceNetwork.Systems;
-using Content.Server.Emp;
 using Content.Server.Medical.CrewMonitoring;
 using Content.Server.Popups;
 //using Content.Server.Station.Systems; //Frontier Modification
@@ -10,6 +9,7 @@ using Content.Shared.Clothing;
 using Content.Shared.Damage;
 using Content.Shared.DeviceNetwork;
 using Content.Shared.DoAfter;
+using Content.Shared.Emp;
 using Content.Shared.Examine;
 using Content.Shared.GameTicking;
 using Content.Shared.Interaction;
@@ -22,6 +22,8 @@ using Robust.Shared.Containers;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
+using Content.Shared.DeviceNetwork.Components;
+using Content.Shared.Medical.SuitSensor;
 using Robust.Shared.Timing;
 using System.Numerics; //Frontier modification
 using Content.Server.Salvage.Expeditions;
@@ -29,26 +31,27 @@ using Content.Server._Mono.Radar; // Monolith
 using Content.Server.Explosion.EntitySystems;
 using Content.Server._NF.Medical.SuitSensors; // Frontier modification
 using Content.Shared.DeviceNetwork.Components;
+using Content.Server.DeviceNetwork.Components; // Forge-Change
 
 namespace Content.Server.Medical.SuitSensors;
 
-public sealed class SuitSensorSystem : EntitySystem
+public sealed partial class SuitSensorSystem : EntitySystem
 {
-    [Dependency] private readonly IGameTiming _gameTiming = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly DeviceNetworkSystem _deviceNetworkSystem = default!;
-    [Dependency] private readonly IdCardSystem _idCardSystem = default!;
-    [Dependency] private readonly MobStateSystem _mobStateSystem = default!;
-    [Dependency] private readonly PopupSystem _popupSystem = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
-    // [Dependency] private readonly StationSystem _stationSystem = default!; // Frontier
-    [Dependency] private readonly MetaDataSystem _metaData = default!; // Frontier
-    [Dependency] private readonly SingletonDeviceNetServerSystem _singletonServerSystem = default!;
-    [Dependency] private readonly MobThresholdSystem _mobThresholdSystem = default!;
-    [Dependency] private readonly SharedInteractionSystem _interactionSystem = default!;
-    [Dependency] private readonly SharedDoAfterSystem _doAfterSystem = default!;
-    [Dependency] private readonly ActionBlockerSystem _actionBlocker = default!;
-    [Dependency] private readonly IPrototypeManager _proto = default!;
+    [Dependency] private IGameTiming _gameTiming = default!;
+    [Dependency] private IRobustRandom _random = default!;
+    [Dependency] private DeviceNetworkSystem _deviceNetworkSystem = default!;
+    [Dependency] private IdCardSystem _idCardSystem = default!;
+    [Dependency] private MobStateSystem _mobStateSystem = default!;
+    [Dependency] private PopupSystem _popupSystem = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
+    // [Dependency] private StationSystem _stationSystem = default!; // Frontier
+    [Dependency] private MetaDataSystem _metaData = default!; // Frontier
+    [Dependency] private SingletonDeviceNetServerSystem _singletonServerSystem = default!;
+    [Dependency] private MobThresholdSystem _mobThresholdSystem = default!;
+    [Dependency] private SharedInteractionSystem _interactionSystem = default!;
+    [Dependency] private SharedDoAfterSystem _doAfterSystem = default!;
+    [Dependency] private ActionBlockerSystem _actionBlocker = default!;
+    [Dependency] private IPrototypeManager _proto = default!;
 
     public override void Initialize()
     {
@@ -62,8 +65,9 @@ public sealed class SuitSensorSystem : EntitySystem
         SubscribeLocalEvent<SuitSensorComponent, EntGotInsertedIntoContainerMessage>(OnInsert);
         SubscribeLocalEvent<SuitSensorComponent, EntGotRemovedFromContainerMessage>(OnRemove);
         SubscribeLocalEvent<SuitSensorComponent, EmpPulseEvent>(OnEmpPulse);
-        SubscribeLocalEvent<SuitSensorComponent, EmpDisabledRemoved>(OnEmpFinished);
+        SubscribeLocalEvent<SuitSensorComponent, EmpDisabledRemovedEvent>(OnEmpFinished);
         SubscribeLocalEvent<SuitSensorComponent, SuitSensorChangeDoAfterEvent>(OnSuitSensorDoAfter);
+        SubscribeLocalEvent<SingletonDeviceNetServerComponent, DeviceNetServerDisconnectedEvent>(OnServerDisconnected); // Forge-Change
     }
 
     public override void Update(float frameTime)
@@ -101,7 +105,7 @@ public sealed class SuitSensorSystem : EntitySystem
             {
                 // Frontier - PR 1053 QoL changes to coordinates display
                 // if (!_singletonServerSystem.TryGetActiveServerAddress<CrewMonitoringServerComponent>(sensor.StationId!.Value, out var address))
-                if (!_singletonServerSystem.TryGetActiveServerAddress<CrewMonitoringServerComponent>(xform.MapID, out var address))
+                if (!_singletonServerSystem.TryGetActiveServerAddress<CrewMonitoringServerComponent>(xform.MapID, device.TransmitFrequency, out var address)) // Forge-Change
                     continue;
 
 
@@ -282,7 +286,7 @@ public sealed class SuitSensorSystem : EntitySystem
         component.ControlsLocked = true;
     }
 
-    private void OnEmpFinished(EntityUid uid, SuitSensorComponent component, ref EmpDisabledRemoved args)
+    private void OnEmpFinished(EntityUid uid, SuitSensorComponent component, ref EmpDisabledRemovedEvent args)
     {
         SetSensor((uid, component), component.PreviousMode, null);
         component.ControlsLocked = component.PreviousControlsLocked;
@@ -537,4 +541,26 @@ public sealed class SuitSensorSystem : EntitySystem
         };
         return status;
     }
+
+    // Forge-Change-start
+    /// <summary>
+    /// When a singleton device network server is disconnected (e.g. because a duplicate arrived via FTL/BSS jump),
+    /// clear ConnectedServer on every suit sensor that was bound to that server's address.
+    /// The next sensor update tick will re-resolve via TryGetActiveServerAddress and bind to the surviving server.
+    /// </summary>
+    private void OnServerDisconnected(EntityUid uid, SingletonDeviceNetServerComponent _server, ref DeviceNetServerDisconnectedEvent args)
+    {
+        if (!TryComp<DeviceNetworkComponent>(uid, out var serverDevice)
+            || string.IsNullOrEmpty(serverDevice.Address))
+            return;
+
+        var addr = serverDevice.Address;
+        var query = EntityQueryEnumerator<SuitSensorComponent>();
+        while (query.MoveNext(out _, out var sensor))
+        {
+            if (sensor.ConnectedServer == addr)
+                sensor.ConnectedServer = null;
+        }
+    }
+    // Forge-Change-end
 }

@@ -50,6 +50,7 @@
   - type: Tag
     tags:
     - Trash
+    - GoblinPreciousTrash # Forge-Change
   - type: PhysicalComposition
     materialComposition:
       Glass: 60
@@ -71,9 +72,21 @@
     shape:
     - 0,0,1,0
     storedOffset: 0,-6
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 5
+        reagents:
+        - ReagentId: ToxinTrash
+          Quantity: 5
   - type: Tag
     tags:
     - Trash
+    - GoblinPreciousTrash # Forge-Change
+  - type: TimedDespawn
+    lifetime: 600
+  - type: Food
+    requiresSpecialDigestion: true
   - type: SpaceGarbage
   - type: StaticPrice # Frontier
     price: 1 # Frontier
@@ -91,7 +104,7 @@
     state: plate-small
   - type: Item
     storedOffset: 0,-3
-# Needs the full thing because inherting is dumb sometimes.
+# Needs the full thing because inheriting is dumb sometimes.
   - type: Destructible
     thresholds:
     - trigger:
@@ -185,6 +198,7 @@
   - type: Tag
     tags:
     - Trash
+    - GoblinPreciousTrash # Forge-Change
   - type: PhysicalComposition
     materialComposition:
       Steel: 15 # Frontier 60<15

@@ -127,6 +127,8 @@
   - type: EmitBuzzWhileDamaged
   - type: CanHostGuardian
   - type: WeldingHealable
+  - type: TTS # Forge-Change
+  - type: RetroMonitorView # Mono
 
 - type: entity
   save: false

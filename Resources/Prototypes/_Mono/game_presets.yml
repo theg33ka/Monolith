@@ -10,6 +10,7 @@
   showInVote: false # For admin usage really. Not that boring, but I'd rather just let players choose their main threat instead of choosing no threat.
   rules:
   - NFAdventure
+  - MaxTimeRestart # Forge-Change
   - BasicStationEventScheduler
   - BluespaceEventScheduler
   - BluespaceDungeonEventScheduler
@@ -26,6 +27,7 @@
   showInVote: false # For admin usage really. General player opinion is that this was pretty boring.
   rules:
   - NFAdventure
+  - MaxTimeRestart # Forge-Change
   - BasicStationEventScheduler
   - BluespaceEventScheduler
   - BluespaceDungeonEventScheduler
@@ -42,6 +44,7 @@
   showInVote: false # For admin usage really. General player opinion is that this was pretty boring.
   rules:
   - NFAdventure
+  - MaxTimeRestart # Forge-Change
   - BasicStationEventScheduler
   - BluespaceEventScheduler
   - BluespaceDungeonEventScheduler
@@ -58,6 +61,7 @@
   showInVote: false # For admin usage really. General player opinion is that this was pretty boring.
   rules:
   - NFAdventure
+  - MaxTimeRestart # Forge-Change
   - BasicStationEventScheduler
   - BluespaceEventScheduler
   - BluespaceDungeonEventScheduler
@@ -74,16 +78,23 @@
   showInVote: true
   rules:
   - NFAdventure
+  - MaxTimeRestart # Forge-Change
   - BasicStationEventScheduler
   - BluespaceEventScheduler
   - BluespaceDungeonEventScheduler
   - BluespaceSalvageEventScheduler
   - SmugglingEventScheduler
   - FrontierRoundstartVariation
-  - MonoAISTCShuttleSpawnerScheduler
-  - MonoAISTCShuttleSpawnerSchedulerTier2
-  - MonoAsakimSTCShuttleSpawnerScheduler
   - MonoMonolithicEventsScheduler
+  # Forge-Change-start
+  # - MonoAISTCShuttleSpawnerScheduler
+  # - MonoAISTCShuttleSpawnerSchedulerTier2
+  # - MonoAsakimSTCShuttleSpawnerScheduler
+  - ForgeAISTCShuttleSpawnerScheduler
+  - ForgeAISTCShuttleSpawnerSchedulerTier2
+  - ForgeAISTCShuttleSpawnerSchedulerTier3
+  - ForgeAsakimSTCShuttleSpawnerScheduler
+  # Forge-Change-end
 
 
 - type: gamePreset
@@ -93,6 +104,7 @@
   showInVote: true
   rules:
   - NFAdventure
+  - MaxTimeRestart # Forge-Change
   - BasicStationEventScheduler
   - BluespaceEventScheduler
   - BluespaceDungeonEventScheduler
@@ -110,6 +122,7 @@
   showInVote: true
   rules:
   - NFAdventure
+  - MaxTimeRestart # Forge-Change
   - BasicStationEventScheduler
   - BluespaceEventScheduler
   - BluespaceDungeonEventScheduler
@@ -119,6 +132,7 @@
   - MonoChimeraSTCShuttleSpawnerSchedulerSlow
   - MonoAISTCShuttleSpawnerSchedulerSlow
   - MonoAISTCShuttleSpawnerSchedulerTier2Slow
+  - ForgeAISTCShuttleSpawnerSchedulerTier3Slow # Forge-Change
   - MonoAsakimSTCShuttleSpawnerSchedulerSlow
   - MonoMonolithicEventsScheduler
 

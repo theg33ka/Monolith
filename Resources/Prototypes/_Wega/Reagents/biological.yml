@@ -31,3 +31,103 @@
     collection: FootstepBlood
     params:
       volume: 6
+
+- type: reagent
+  parent: Blood
+  id: DemonBlood
+  name: reagent-name-demon-blood
+  group: Biological
+  desc: reagent-desc-demon-blood
+  flavor: bitter
+  color: "#b43313ca"
+  recognizable: true
+  physicalDesc: reagent-physical-desc-pungent
+  footstepSound:
+    collection: FootstepBlood
+    params:
+      volume: 6
+  metabolisms:
+    Medicine:
+      metabolismRate: 0.25
+      effects:
+      - !type:EvenHealthChange
+        damage:
+          Brute: -0.8
+      - !type:HealthChange
+        damage:
+          types:
+            Poison: -0.3
+            Heat: -0.4
+            Cold: -0.4
+            Bloodloss: -0.7
+        conditions:
+        - !type:OrganType
+          type: Demon
+          shouldHave: false
+      - !type:HealthChange
+        damage:
+          types:
+            Poison: 2.75
+        conditions:
+        - !type:OrganType
+          type: Demon
+          shouldHave: true
+      - !type:ChemVomit
+        probability: 0.5
+        conditions:
+        - !type:OrganType
+          type: Demon
+          shouldHave: true
+      - !type:SatiateThirst
+        factor: 4
+        conditions:
+        - !type:OrganType
+          type: Demon
+          shouldHave: false
+      - !type:ModifyBloodLevel
+        amount: 4
+        conditions:
+        - !type:OrganType
+          type: Demon
+          shouldHave: false
+      # Forge-change-start
+      - !type:ToleranceEffect
+        # hidden: true
+        reagent: DemonBlood
+        amount: 0.004
+        target: Heart
+      - !type:HealthChange
+        hidden: true
+        conditions:
+        - !type:ToleranceCondition
+          reagent: DemonBlood
+          source: Heart
+          min: 0.8
+          max: 1.0
+        - !type:OrganType
+          type: Demon
+          shouldHave: false
+        damage:
+          types:
+            Poison: 0.2
+            Heat: 0.2
+            Cold: 0.2
+            Bloodloss: 0.3
+      - !type:GenericDescEffect
+        description: forge-reagent-tolerance-badhealth
+      # Forge-change-end
+      
+- type: reagent
+  parent: Blood
+  id: SkrellBlood
+  name: reagent-name-skrell-blood
+  group: Biological
+  desc: reagent-desc-skrell-blood
+  flavor: salty
+  color: "#4bb6cf"
+  recognizable: true
+  physicalDesc: reagent-physical-desc-translucent
+  footstepSound:
+    collection: FootstepBlood
+    params:
+      volume: 6

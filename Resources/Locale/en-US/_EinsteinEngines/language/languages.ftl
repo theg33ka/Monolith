@@ -15,6 +15,16 @@ language-Hydraspeak-description =
     A Mix of warbles, trills and chirps, with heavy tonal shifts and pitch changes make up this unusual language.
     Due to the avian nature of hydrakin, one word can mean a million other things at the same time, which makes this language next to incomprehensible for even other birdlike races to figure out.
 
+language-Kelael-name = Kela'el
+language-Kelael-description =
+    A refined infernal tongue spoken by Arkans.
+    Flowing vowels and gentle cadence make it sound like a haunting song to outsiders.
+
+language-Qwila-name = Qwila
+language-Qwila-description =
+    A fluid Skrell language built from soft clicks, drawn vowels, and resonant throat tones.
+    Its rhythm carries meaning as much as its words do.
+
 language-Nekomimetic-name = Nekomimetic
 language-Nekomimetic-description = To the casual observer, this language is an incomprehensible mess of broken Japanese. To the Felinids and Oni, it's somehow comprehensible.
 

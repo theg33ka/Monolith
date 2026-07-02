@@ -32,10 +32,19 @@
     state: burnt-icon
   - type: Smokable
     state: Burnt
+  - type: TimedDespawn
+    lifetime: 600
   - type: SolutionContainerManager
     solutions:
       smokable:
         maxVol: 20
+      food:
+        maxVol: 5
+        reagents:
+        - ReagentId: ToxinTrash
+          Quantity: 5
+  - type: Food
+    solution: "food"
   - type: Tag
     tags:
       - Cigar
@@ -67,7 +76,16 @@
     state: burnt-icon
   - type: Smokable
     state: Burnt
+  - type: TimedDespawn
+    lifetime: 600
   - type: SolutionContainerManager
     solutions:
       smokable:
         maxVol: 20
+      food:
+        maxVol: 5
+        reagents:
+        - ReagentId: ToxinTrash
+          Quantity: 5
+  - type: Food
+    solution: "food"

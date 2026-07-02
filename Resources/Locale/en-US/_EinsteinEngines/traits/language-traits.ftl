@@ -50,10 +50,22 @@ trait-language-novunederic-desc =
     Spoken in the New-Netherlands, this direct and pragmatic trade language carries the sharp consonants and clipped vowels of its old-world roots.
     Built on centuries of seafaring, land reclamation, and commerce, it thrives among those who shape entire worlds — just as their ancestors shaped the land from the sea.
 
+# Forge-Change-start
+trait-language-qwila-name = Qwila
+trait-language-qwila-desc =
+    A fluid Skrell language built from soft clicks, drawn vowels, and resonant throat tones.
+    Its rhythm carries meaning as much as its words do.
+# Forge-Change-end
+
 trait-language-azaziba-name = Sinta'Azaziba
 trait-language-azaziba-desc =
     A language of Moghes consisting of a combination of spoken word and gesticulation.
     While waning since Moghes entered the galactic stage - it enjoys popular use by Unathi that never fell to the Hegemony's cultural dominance.
+
+trait-language-kelael-name = Kela'el
+trait-language-kelael-desc =
+    A refined infernal tongue with melodic cadence and flowing phonemes.
+    Spoken by Arkans and occasionally studied by linguists and occultists.
 
 trait-language-SiikMaas-name = Siik'maas
 trait-language-SiikMaas-desc = 

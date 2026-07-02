@@ -45,7 +45,6 @@
     - ClothingOuterEVASuitCargo
     - ClothingOuterEVASuitSalvage
     - ClothingBeltSalvageWebbing
-    - ArmorPlateSteel
     - Pickaxe
     - RadioHandheldNF
     - Floodlight
@@ -71,6 +70,7 @@
     - LanternNF
     - CableHVStack
     - CableMVStack
+    - TrashBoxFlatpack # Forge-Change
 
 - type: latheRecipePack
   id: NFSalvageTechfabDeprecated
