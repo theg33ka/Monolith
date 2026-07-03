@@ -3,9 +3,8 @@ using Content.Shared.Damage;
 using Content.Shared.FixedPoint;
 using Content.Shared.Inventory;
 using Content.Shared.Inventory.Events;
-using Content.Shared.Mobs.Components;
 using Content.Shared.StatusIcon;
-using Content.Shared.StatusIcon.Components;
+using Robust.Client.Graphics;
 using Robust.Client.Player;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -17,6 +16,7 @@ public sealed class HmeTriageVisorSystem : EntitySystem
     [Dependency] private readonly IPlayerManager _player = default!;
     [Dependency] private readonly InventorySystem _inventory = default!;
     [Dependency] private readonly IPrototypeManager _prototype = default!;
+    [Dependency] private readonly IOverlayManager _overlay = default!;
 
     private readonly List<HmeTriageVisorComponent> _activeVisors = new();
 
@@ -30,7 +30,16 @@ public sealed class HmeTriageVisorSystem : EntitySystem
         SubscribeLocalEvent<HmeTriageVisorComponent, ComponentRemove>(OnVisorRemove);
         SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnPlayerAttached);
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
-        SubscribeLocalEvent<MobStateComponent, GetStatusIconsEvent>(OnGetStatusIcons);
+
+        if (!_overlay.HasOverlay<HmeTriageVisorOverlay>())
+            _overlay.AddOverlay(new HmeTriageVisorOverlay());
+    }
+
+    public override void Shutdown()
+    {
+        _overlay.RemoveOverlay<HmeTriageVisorOverlay>();
+
+        base.Shutdown();
     }
 
     private void OnVisorEquipped(Entity<HmeTriageVisorComponent> ent, ref GotEquippedEvent args)
@@ -65,35 +74,12 @@ public sealed class HmeTriageVisorSystem : EntitySystem
         _activeVisors.Clear();
     }
 
-    private void OnGetStatusIcons(Entity<MobStateComponent> ent, ref GetStatusIconsEvent args)
-    {
-        RefreshActiveVisors();
-
-        if (_activeVisors.Count == 0)
-            return;
-
-        if (!TryComp<DamageableComponent>(ent.Owner, out var damageable))
-            return;
-
-        foreach (var visor in _activeVisors)
-        {
-            if (!CanShowForContainer(damageable, visor) ||
-                !TryGetDominantDamageIcon(damageable, visor, out var icon))
-            {
-                continue;
-            }
-
-            args.StatusIcons.Add(icon);
-            return;
-        }
-    }
-
-    private void RefreshActiveVisors()
+    public bool RefreshActiveVisors()
     {
         _activeVisors.Clear();
 
         if (_player.LocalSession?.AttachedEntity is not { } viewer || !Exists(viewer))
-            return;
+            return false;
 
         var slots = _inventory.GetSlotEnumerator(viewer, SlotFlags.EYES);
         while (slots.NextItem(out var item))
@@ -101,6 +87,25 @@ public sealed class HmeTriageVisorSystem : EntitySystem
             if (TryComp<HmeTriageVisorComponent>(item, out var visor))
                 _activeVisors.Add(visor);
         }
+
+        return _activeVisors.Count > 0;
+    }
+
+    public bool TryGetTriageIcon(DamageableComponent damageable, out HealthIconPrototype icon)
+    {
+        foreach (var visor in _activeVisors)
+        {
+            if (!CanShowForContainer(damageable, visor) ||
+                !TryGetDominantDamageIcon(damageable, visor, out icon))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        icon = default!;
+        return false;
     }
 
     private static bool CanShowForContainer(DamageableComponent damageable, HmeTriageVisorComponent visor)
