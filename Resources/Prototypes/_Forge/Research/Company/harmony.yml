@@ -124,3 +124,59 @@
   technologyPrerequisites:
   - HMELightModsuit
   position: -9, 13
+
+- type: technology
+  id: HMEFieldSupportPackaging
+  name: research-technology-hme-field-support-packaging
+  entityIcon: HMEMedipenCase
+  discipline: HME
+  tier: 2
+  cost: 12000
+  recipeUnlocks:
+  - HMEMedipenCase
+  technologyPrerequisites:
+  - IndustrialMedicine
+  position: -6, 11
+
+- type: technology
+  id: HMETacticalMedicalSupport
+  name: research-technology-hme-tactical-medical-support
+  entityIcon: ClothingEyesHudHMETriage
+  discipline: HME
+  tier: 2
+  cost: 30000
+  recipeUnlocks:
+  - HMETacticalMedipenCase
+  - ClothingEyesHudHMETriage
+  technologyPrerequisites:
+  - HMEFieldSupportPackaging
+  position: -6, 12
+
+- type: technology
+  id: HMEAutomatedStabilization
+  name: research-technology-hme-automated-stabilization
+  entityIcon: HMESmartInfusionStand
+  discipline: HME
+  tier: 3
+  cost: 65000
+  recipeUnlocks:
+  - HMESmartInfusionStand
+  - HMEStasisBlossomUnit
+  technologyPrerequisites:
+  - HMETacticalMedicalSupport
+  - HMEAdvancedFirstAidEquipement
+  position: -6, 13
+
+- type: technology
+  id: HMEExperimentalRecoverySystems
+  name: research-technology-hme-experimental-recovery-systems
+  entityIcon: HMEExperimentalRescueBeacon
+  discipline: HME
+  tier: 4
+  cost: 125000
+  recipeUnlocks:
+  - HMEExperimentalRescueBeacon
+  technologyPrerequisites:
+  - HMEAutomatedStabilization
+  - BluespaceChemistry
+  position: -6, 14

@@ -1,0 +1,207 @@
+- type: entity
+  id: HMEMedipenCase
+  parent: [ BaseStorageItem, BaseBagOpenClose ]
+  name: HME medipen case
+  description: A compact Harmony Medical Enterprises case for field medipens. Keeps the little life-sticks sorted, because pockets are not a medical protocol.
+  components:
+  - type: Sprite
+    sprite: _Forge/Objects/Specific/Medical/HME/medipen_case.rsi
+    layers:
+    - state: icon
+      map: [ "closeLayer" ]
+    - state: open
+      map: [ "openLayer" ]
+      visible: false
+  - type: Item
+    size: Tiny
+    shape:
+    - 0,0,0,1
+  - type: Storage
+    grid:
+    - 0,0,2,1
+    maxItemSize: Tiny
+    quickInsert: true
+    areaInsert: true
+    whitelist:
+      components:
+      - Hypospray
+  - type: Dumpable
+  - type: PhysicalComposition
+    materialComposition:
+      Plastic: 80
+      Steel: 20
+  - type: StaticPrice
+    price: 250
+
+- type: entity
+  id: HMETacticalMedipenCase
+  parent: HMEMedipenCase
+  name: HME tactical medipen case
+  description: A reinforced low-profile HME medipen case with fewer slots and more faith in your planning. Planning, terrifying concept.
+  components:
+  - type: Sprite
+    sprite: _Forge/Objects/Specific/Medical/HME/tactical_medipen_case.rsi
+    layers:
+    - state: icon
+      map: [ "closeLayer" ]
+    - state: icon
+      map: [ "openLayer" ]
+      visible: false
+  - type: Storage
+    grid:
+    - 0,0,2,0
+    maxItemSize: Tiny
+    quickInsert: true
+    areaInsert: true
+    whitelist:
+      components:
+      - Hypospray
+  - type: PhysicalComposition
+    materialComposition:
+      Plastic: 90
+      Steel: 60
+      Durathread: 25
+  - type: StaticPrice
+    price: 450
+
+- type: entity
+  id: HMESmartInfusionStand
+  parent: BaseStructureDynamic
+  name: HME smart infusion stand
+  description: A portable HME infusion stand that watches nearby downed patients and carefully meters needed medicine from installed small beakers.
+  components:
+  - type: Sprite
+    drawdepth: SmallObjects
+    sprite: _Forge/Objects/Specific/Medical/HME/smart_infusion_stand.rsi
+    layers:
+    - state: empty
+      map: [ "enum.HmeInfusionStandVisuals.State" ]
+  - type: GenericVisualizer
+    visuals:
+      enum.HmeInfusionStandVisuals.State:
+        enum.HmeInfusionStandVisuals.State:
+          Empty: { state: empty }
+          Idle: { state: icon }
+          Filled: { state: filled }
+          Active: { state: active }
+  - type: Appearance
+  - type: Storage
+    grid:
+    - 0,0,3,0
+    maxItemSize: Small
+    quickInsert: true
+    whitelist:
+      requireAll: true
+      tags:
+      - GlassBeaker
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+        ents: []
+  - type: Dumpable
+  - type: HmeSmartInfusionStand
+    maxReagentDose: 5
+  - type: StaticPrice
+    price: 1400
+
+- type: entity
+  id: ClothingEyesHudHMETriage
+  parent: [ ClothingEyesBase, ShowMedicalIcons ]
+  name: HME triage visor
+  description: A lightweight HME visor that keeps normal medical HUD data and highlights the dominant problem first. It will not stop you from panicking, sadly.
+  components:
+  - type: Sprite
+    sprite: _Forge/Clothing/Eyes/HME/triage_visor.rsi
+  - type: Clothing
+    sprite: _Forge/Clothing/Eyes/HME/triage_visor.rsi
+  - type: HmeTriageVisor
+  - type: Tag
+    tags:
+    - HudMedical
+  - type: StaticPrice
+    price: 600
+
+- type: entity
+  id: HMEStasisBlossomUnit
+  parent: [ BaseItem, PowerCellSlotSmallItem ]
+  name: HME stasis blossom unit
+  description: A compact HME stabilizer that clips to a patient and unfolds into a reusable stasis field. It buys time, not miracles; miracles cost extra.
+  components:
+  - type: Sprite
+    drawdepth: Effects
+    noRot: true
+    sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
+    layers:
+    - state: compact
+      map: [ "enum.HmeStasisBlossomVisuals.State" ]
+  - type: GenericVisualizer
+    visuals:
+      enum.HmeStasisBlossomVisuals.State:
+        enum.HmeStasisBlossomVisuals.State:
+          Compact: { state: compact }
+          Attached: { state: attached }
+          Deployed: { state: deployed }
+          Spent: { state: spent }
+  - type: Appearance
+  - type: Item
+    size: Small
+  - type: HmeStasisBlossom
+  - type: StaticPrice
+    price: 900
+
+- type: entity
+  id: ActionHMEStasisBlossomToggle
+  name: Toggle HME stasis blossom
+  description: Deploys or folds the attached HME stasis blossom.
+  components:
+  - type: InstantAction
+    itemIconStyle: BigItem
+    event: !type:HmeStasisBlossomToggleEvent
+
+- type: entity
+  id: HMEStasisBlossomCocoon
+  name: HME stasis blossom cocoon
+  description: A translucent HME field cocoon trying very hard to keep someone medically boring.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Transform
+    anchored: false
+  - type: Sprite
+    drawdepth: Effects
+    sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
+    state: deployed
+  - type: HmeStasisBlossomCocoon
+
+- type: entity
+  id: HMEExperimentalRescueBeacon
+  parent: ClothingArmbandBase
+  name: HME experimental rescue beacon
+  description: An HME armband beacon that attempts a last-second rescue during expedition collapse. The paperwork says the arm is optional; your arm may disagree.
+  components:
+  - type: Sprite
+    sprite: _Forge/Objects/Specific/Medical/HME/rescue_beacon.rsi
+    layers:
+    - state: armed
+      map: [ "enum.HmeRescueBeaconVisuals.State" ]
+  - type: GenericVisualizer
+    visuals:
+      enum.HmeRescueBeaconVisuals.State:
+        enum.HmeRescueBeaconVisuals.State:
+          Idle: { state: icon }
+          Armed: { state: armed }
+          Spent: { state: spent }
+  - type: Appearance
+  - type: Clothing
+    sprite: _Forge/Objects/Specific/Medical/HME/rescue_beacon.rsi
+    clothingVisuals:
+      leftarmband:
+      - state: equipped-ARMBANDLEFT
+      rightarmband:
+      - state: equipped-ARMBANDRIGHT
+  - type: HmeRescueBeacon
+  - type: StaticPrice
+    price: 2500

@@ -164,3 +164,65 @@
   completetime: 5
   materials:
     Cloth: 300
+
+- type: latheRecipe
+  id: HMEMedipenCase
+  result: HMEMedipenCase
+  completetime: 4
+  materials:
+    Plastic: 250
+    Steel: 100
+
+- type: latheRecipe
+  id: HMETacticalMedipenCase
+  result: HMETacticalMedipenCase
+  completetime: 5
+  materials:
+    Plastic: 400
+    Steel: 250
+    Durathread: 100
+
+- type: latheRecipe
+  id: HMESmartInfusionStand
+  result: HMESmartInfusionStand
+  completetime: 10
+  materials:
+    Plastic: 750
+    Steel: 1500
+    Glass: 500
+    Silver: 250
+    Plasma: 500
+
+- type: latheRecipe
+  id: ClothingEyesHudHMETriage
+  result: ClothingEyesHudHMETriage
+  completetime: 8
+  materials:
+    Plastic: 500
+    Steel: 400
+    Glass: 600
+    Silver: 250
+    Gold: 150
+
+- type: latheRecipe
+  id: HMEStasisBlossomUnit
+  result: HMEStasisBlossomUnit
+  completetime: 12
+  materials:
+    Plastic: 1000
+    Steel: 1000
+    Plasma: 1000
+    Biomass: 20
+    Silver: 300
+
+- type: latheRecipe
+  id: HMEExperimentalRescueBeacon
+  result: HMEExperimentalRescueBeacon
+  completetime: 15
+  materials:
+    Plastic: 750
+    Steel: 1500
+    Plasma: 1500
+    Uranium: 500
+    Gold: 500
+    Diamond: 100

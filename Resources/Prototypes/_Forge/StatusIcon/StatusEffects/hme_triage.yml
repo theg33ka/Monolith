@@ -1,0 +1,47 @@
+- type: healthIcon
+  id: HmeTriageBruteIcon
+  parent: HealthIcon
+  locationPreference: Right
+  icon:
+    sprite: /Textures/Objects/Devices/health_analyzer.rsi
+    state: brute
+
+- type: healthIcon
+  id: HmeTriageBurnIcon
+  parent: HealthIcon
+  locationPreference: Right
+  icon:
+    sprite: /Textures/Objects/Devices/health_analyzer.rsi
+    state: burn
+
+- type: healthIcon
+  id: HmeTriageAirlossIcon
+  parent: HealthIcon
+  locationPreference: Right
+  icon:
+    sprite: /Textures/Objects/Devices/health_analyzer.rsi
+    state: airloss
+
+- type: healthIcon
+  id: HmeTriageToxinIcon
+  parent: HealthIcon
+  locationPreference: Right
+  icon:
+    sprite: /Textures/Objects/Devices/health_analyzer.rsi
+    state: toxin
+
+- type: healthIcon
+  id: HmeTriageGeneticIcon
+  parent: HealthIcon
+  locationPreference: Right
+  icon:
+    sprite: /Textures/Objects/Devices/health_analyzer.rsi
+    state: genetic
+
+- type: healthIcon
+  id: HmeTriageMetaphysicalIcon
+  parent: HealthIcon
+  locationPreference: Right
+  icon:
+    sprite: /Textures/Objects/Devices/health_analyzer.rsi
+    state: metaphysical
