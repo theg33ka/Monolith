@@ -16,6 +16,9 @@
   - WeaponTurretBoforsCircuitboard
   - WeaponTurretTarnyxReloadCircuitboard
   - WeaponLaserTurretPrometheusCircuitboard
+  - WeaponShipRepairLaserCircuitboard
+  - WeaponShipRepairLaserMk2Circuitboard
+  - ShipRepairLaserMatterCanister
   - WeaponTurretSerpentMissileCircuitboard
   - WeaponTurretTovekCircuitboard
   - WeaponTurretASM220Circuitboard

@@ -284,6 +284,68 @@
     - MachineBoard2x1
 
 - type: entity
+  id: WeaponShipRepairLaserCircuitboard
+  parent: ForgeShipWeaponCircuitboardT3
+  name: SRL-30 Mender Mk1 repair laser machine board
+  description: A machine printed circuit board for an SRL-30 Mender Mk1 ship repair laser.
+  components:
+  - type: ShipWeaponBoard
+    fabricationTime: 120
+    requiredPartRating: 3
+  - type: MachineBoard
+    prototype: WeaponShipRepairLaserPortable
+    requirements:
+      Capacitor: 6
+      Manipulator: 4
+      MatterBin: 6
+    stackRequirements:
+      Steel: 50
+      Glass: 30
+      Plasteel: 30
+      Gold: 25
+      Plasma: 25
+      Uranium: 10
+      Silver: 25
+      Copper: 70
+      Lithium: 10
+      Plastitanium: 15
+      Iridite: 4
+  - type: Tag
+    tags:
+    - MachineBoard2x1
+
+- type: entity
+  id: WeaponShipRepairLaserMk2Circuitboard
+  parent: ForgeShipWeaponCircuitboardT3
+  name: SRL-60 Mender Mk2 repair laser machine board
+  description: A machine printed circuit board for an SRL-60 Mender Mk2 heavy ship repair laser.
+  components:
+  - type: ShipWeaponBoard
+    fabricationTime: 180
+    requiredPartRating: 3
+  - type: MachineBoard
+    prototype: WeaponShipRepairLaserMk2Portable
+    requirements:
+      Capacitor: 8
+      Manipulator: 6
+      MatterBin: 8
+    stackRequirements:
+      Steel: 70
+      Glass: 40
+      Plasteel: 45
+      Gold: 35
+      Plasma: 40
+      Uranium: 20
+      Silver: 35
+      Copper: 90
+      Lithium: 20
+      Plastitanium: 25
+      Iridite: 8
+  - type: Tag
+    tags:
+    - MachineBoard2x1
+
+- type: entity
   id: WeaponTurretSerpentMissileCircuitboard
   parent: ForgeShipWeaponCircuitboardT3
   name: Serpent torpedo launcher machine board

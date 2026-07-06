@@ -11,6 +11,7 @@ forge-research-technology-shipweapon-cerberus = Cerberus Scattercannon
 forge-research-technology-shipweapon-bofors = Bofors Cannon
 forge-research-technology-shipweapon-tarnyx = TARNYX EMP Cannon
 forge-research-technology-shipweapon-prometheus = Prometheus Laser Cannon
+forge-research-technology-shipweapon-repair-laser = Mender Repair Lasers
 forge-research-technology-shipweapon-serpent = Serpent Torpedo Launcher
 forge-research-technology-shipweapon-tovek = TOVEK Missile Pod
 forge-research-technology-shipweapon-trident = Trident Torpedo Rack

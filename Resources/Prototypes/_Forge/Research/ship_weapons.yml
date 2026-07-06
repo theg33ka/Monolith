@@ -155,6 +155,21 @@
   position: -13, 6
 
 - type: technology
+  id: ForgeShipWeaponResearchRepairLaser
+  name: forge-research-technology-shipweapon-repair-laser
+  entityIcon: WeaponShipRepairLaser
+  discipline: ShipArmory
+  tier: 3
+  cost: 22000
+  recipeUnlocks:
+  - WeaponShipRepairLaserCircuitboard
+  - WeaponShipRepairLaserMk2Circuitboard
+  - ShipRepairLaserMatterCanister
+  technologyPrerequisites:
+  - ForgeShipWeaponResearchPrometheus
+  position: -15, 6
+
+- type: technology
   id: ForgeShipWeaponResearchCerberus
   name: forge-research-technology-shipweapon-cerberus
   entityIcon: WeaponTurretCerberus

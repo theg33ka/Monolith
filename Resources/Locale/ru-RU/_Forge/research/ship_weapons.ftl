@@ -11,6 +11,7 @@ forge-research-technology-shipweapon-cerberus = Плазменная «Церб�
 forge-research-technology-shipweapon-bofors = Пушка Bofors
 forge-research-technology-shipweapon-tarnyx = ЭМИ-пушка TARNYX
 forge-research-technology-shipweapon-prometheus = Лазер «Прометей»
+forge-research-technology-shipweapon-repair-laser = Ремонтные лазеры «Шов»
 forge-research-technology-shipweapon-serpent = Торпедный аппарат «Змея»
 forge-research-technology-shipweapon-tovek = Ракетная установка TOVEK
 forge-research-technology-shipweapon-trident = Торпедная установка «Трезубец»

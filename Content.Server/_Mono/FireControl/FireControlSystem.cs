@@ -380,6 +380,21 @@ public sealed partial class FireControlSystem : EntitySystem
                _shipWeaponHomeGrid.IsOnHomeGrid(uid, homeGrid);
     }
 
+    // #Forge
+    private bool CanFireFixedMount(EntityUid weapon, TransformComponent weaponXform, Vector2 direction, GunComponent? gun = null)
+    {
+        if (!TryComp<FixedMountFireArcComponent>(weapon, out var fixedMount))
+            return true;
+
+        var defaultDirection = gun?.DefaultDirection ?? new Vector2(0, -1);
+        if (defaultDirection.LengthSquared() == 0)
+            defaultDirection = new Vector2(0, -1);
+
+        var localForward = fixedMount.ForwardOffset.RotateVec(Vector2.Normalize(defaultDirection));
+        var forward = _xform.GetWorldRotation(weaponXform).RotateVec(localForward);
+        return Vector2.Dot(Vector2.Normalize(forward), direction) >= Math.Cos(fixedMount.Arc.Theta / 2);
+    }
+
     /// <summary>
     /// Cleans up all invalid server references across all grids
     /// </summary>
@@ -537,6 +552,11 @@ public sealed partial class FireControlSystem : EntitySystem
 
         direction = Vector2.Normalize(direction);
 
+        // #Forge: fixed-mount naval weapons cannot use GCS as an invisible gimbal.
+        _gunQuery.TryComp(weapon, out var gun);
+        if (!CanFireFixedMount(weapon, weaponXform, direction, gun))
+            return false;
+
         // Check for obstacles in the firing direction
         if (!CanFireInDirection(weapon, weaponPos, direction, targetPos, weaponXform.MapID))
             return false;
@@ -551,7 +571,7 @@ public sealed partial class FireControlSystem : EntitySystem
         }
 
         // Try to get a gun component and fire the weapon
-        if (_gunQuery.TryComp(weapon, out var gun))
+        if (gun != null)
         {
             _gun.AttemptShots(user, weapon, gun, coords, TimeSpan.FromSeconds(0.2));
             return true;

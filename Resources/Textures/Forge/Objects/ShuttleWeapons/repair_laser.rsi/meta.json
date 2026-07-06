@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Provided by erik6 for Forge",
+  "size": {
+    "x": 128,
+    "y": 192
+  },
+  "states": [
+    {
+      "name": "space_artillery"
+    }
+  ]
+}

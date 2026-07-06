@@ -143,6 +143,38 @@
 
 - type: latheRecipe
   parent: ForgeShipWeaponBoardRecipeT3
+  id: WeaponShipRepairLaserCircuitboard
+  result: WeaponShipRepairLaserCircuitboard
+  materials:
+    Steel: 175
+    Glass: 800
+    Gold: 250
+    Plasma: 150
+    Uranium: 100
+
+- type: latheRecipe
+  parent: ForgeShipWeaponBoardRecipeT3
+  id: WeaponShipRepairLaserMk2Circuitboard
+  result: WeaponShipRepairLaserMk2Circuitboard
+  materials:
+    Steel: 275
+    Glass: 1200
+    Gold: 400
+    Plasma: 350
+    Uranium: 250
+
+- type: latheRecipe
+  id: ShipRepairLaserMatterCanister
+  result: ShipRepairLaserMatterCanister
+  completetime: 4
+  materials:
+    Steel: 800
+    Glass: 400
+    Plasma: 600
+    Gold: 100
+
+- type: latheRecipe
+  parent: ForgeShipWeaponBoardRecipeT3
   id: WeaponTurretSerpentMissileCircuitboard
   result: WeaponTurretSerpentMissileCircuitboard
 
