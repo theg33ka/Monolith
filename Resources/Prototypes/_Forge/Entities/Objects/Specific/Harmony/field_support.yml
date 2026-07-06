@@ -1,43 +1,8 @@
 - type: entity
-  id: HMEMedipenCase
-  parent: [ BaseStorageItem, BaseBagOpenClose ]
-  name: HME medipen case
-  description: A compact Harmony Medical Enterprises case for field medipens. Keeps the little life-sticks sorted, because pockets are not a medical protocol.
-  components:
-  - type: Sprite
-    sprite: _Forge/Objects/Specific/Medical/HME/medipen_case.rsi
-    layers:
-    - state: icon
-      map: [ "closeLayer" ]
-    - state: open
-      map: [ "openLayer" ]
-      visible: false
-  - type: Item
-    size: Tiny
-    shape:
-    - 0,0,0,1
-  - type: Storage
-    grid:
-    - 0,0,2,1
-    maxItemSize: Tiny
-    quickInsert: true
-    areaInsert: true
-    whitelist:
-      components:
-      - Hypospray
-  - type: Dumpable
-  - type: PhysicalComposition
-    materialComposition:
-      Plastic: 80
-      Steel: 20
-  - type: StaticPrice
-    price: 250
-
-- type: entity
   id: HMETacticalMedipenCase
-  parent: HMEMedipenCase
+  parent: [ BaseStorageItem, BaseBagOpenClose ]
   name: HME tactical medipen case
-  description: A reinforced low-profile HME medipen case with fewer slots and more faith in your planning. Planning, terrifying concept.
+  description: A reinforced HME medipen case with extra field slots for more little life-sticks. Your pockets may finally stop screaming, theoretically.
   components:
   - type: Sprite
     sprite: _Forge/Objects/Specific/Medical/HME/tactical_medipen_case.rsi
@@ -49,13 +14,18 @@
       visible: false
   - type: Storage
     grid:
-    - 0,0,2,0
+    - 0,0,4,1
     maxItemSize: Tiny
     quickInsert: true
     areaInsert: true
     whitelist:
       components:
       - Hypospray
+  - type: Item
+    size: Small
+    shape:
+    - 0,0,1,1
+  - type: Dumpable
   - type: PhysicalComposition
     materialComposition:
       Plastic: 90
@@ -87,13 +57,16 @@
   - type: Appearance
   - type: Storage
     grid:
-    - 0,0,3,0
-    maxItemSize: Small
+    - 0,0,3,1
+    maxItemSize: Normal
     quickInsert: true
+    areaInsert: true
     whitelist:
-      requireAll: true
+      components:
+      - FitsInDispenser
       tags:
-      - GlassBeaker
+      - Bottle
+      - CentrifugeCompatible
   - type: UserInterface
     interfaces:
       enum.StorageUiKey.Key:
@@ -104,7 +77,7 @@
         ents: []
   - type: Dumpable
   - type: HmeSmartInfusionStand
-    maxReagentDose: 5
+    transferAmount: 0.2
   - type: StaticPrice
     price: 1400
 

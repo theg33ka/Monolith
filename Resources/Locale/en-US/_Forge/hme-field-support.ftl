@@ -1,11 +1,8 @@
-ent-HMEMedipenCase = HME medipen case
-    .desc = A compact Harmony Medical Enterprises case for field medipens. Keeps the little life-sticks sorted, because pockets are not a medical protocol.
-
 ent-HMETacticalMedipenCase = HME tactical medipen case
-    .desc = A reinforced low-profile HME medipen case with fewer slots and more faith in your planning. Planning, terrifying concept.
+    .desc = A reinforced HME medipen case with extra field slots for more little life-sticks. Your pockets may finally stop screaming, theoretically.
 
 ent-HMESmartInfusionStand = HME smart infusion stand
-    .desc = A portable HME infusion stand that watches nearby downed patients and carefully meters needed medicine from installed small beakers.
+    .desc = A portable HME infusion stand that watches nearby downed patients and carefully meters needed medicine from installed containers.
 
 ent-ClothingEyesHudHMETriage = HME triage visor
     .desc = A lightweight HME visor that keeps normal medical HUD data and highlights the dominant problem first. It will not stop you from panicking, sadly.

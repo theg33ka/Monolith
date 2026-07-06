@@ -166,14 +166,6 @@
     Cloth: 300
 
 - type: latheRecipe
-  id: HMEMedipenCase
-  result: HMEMedipenCase
-  completetime: 4
-  materials:
-    Plastic: 250
-    Steel: 100
-
-- type: latheRecipe
   id: HMETacticalMedipenCase
   result: HMETacticalMedipenCase
   completetime: 5

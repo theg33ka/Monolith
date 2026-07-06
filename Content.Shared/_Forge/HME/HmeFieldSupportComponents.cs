@@ -21,10 +21,10 @@ public sealed partial class HmeSmartInfusionStandComponent : Component
     public TimeSpan UpdateInterval = TimeSpan.FromSeconds(2);
 
     [DataField]
-    public FixedPoint2 TransferAmount = FixedPoint2.New(1);
+    public FixedPoint2 TransferAmount = FixedPoint2.New(0.2);
 
     [DataField]
-    public FixedPoint2 MaxReagentDose = FixedPoint2.New(5);
+    public FixedPoint2 MaxSourceVolume = FixedPoint2.New(100);
 
     [DataField]
     public Dictionary<string, List<string>> DamageTypeReagents = new()

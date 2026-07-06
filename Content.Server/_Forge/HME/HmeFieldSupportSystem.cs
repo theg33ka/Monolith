@@ -76,6 +76,7 @@ public sealed class HmeFieldSupportSystem : EntitySystem
         base.Initialize();
 
         SubscribeLocalEvent<HmeSmartInfusionStandComponent, ComponentInit>(OnInfusionInit);
+        SubscribeLocalEvent<HmeSmartInfusionStandComponent, ContainerIsInsertingAttemptEvent>(OnInfusionInsertAttempt);
         SubscribeLocalEvent<HmeStasisBlossomComponent, ComponentInit>(OnBlossomInit);
         SubscribeLocalEvent<HmeStasisBlossomComponent, MapInitEvent>(OnBlossomMapInit);
         SubscribeLocalEvent<HmeStasisBlossomComponent, AfterInteractEvent>(OnBlossomAfterInteract);
@@ -130,6 +131,23 @@ public sealed class HmeFieldSupportSystem : EntitySystem
     private void OnInfusionInit(Entity<HmeSmartInfusionStandComponent> ent, ref ComponentInit args)
     {
         SetInfusionVisual(ent.Owner, HmeInfusionStandVisualState.Empty);
+    }
+
+    private void OnInfusionInsertAttempt(Entity<HmeSmartInfusionStandComponent> ent, ref ContainerIsInsertingAttemptEvent args)
+    {
+        if (args.Cancelled || args.Container.ID != StorageComponent.ContainerId)
+            return;
+
+        if (!IsValidInfusionSource(ent.Comp, args.EntityUid))
+            args.Cancel();
+    }
+
+    private bool IsValidInfusionSource(HmeSmartInfusionStandComponent component, EntityUid source)
+    {
+        if (!_solutions.TryGetDrainableSolution(source, out _, out var solution))
+            return false;
+
+        return solution.MaxVolume > FixedPoint2.Zero && solution.MaxVolume <= component.MaxSourceVolume;
     }
 
     private void UpdateInfusionStand(EntityUid uid, HmeSmartInfusionStandComponent component, StorageComponent storage)
@@ -197,22 +215,25 @@ public sealed class HmeFieldSupportSystem : EntitySystem
             foreach (var reagent in reagents)
             {
                 var currentDose = targetSolution.GetTotalPrototypeQuantity(reagent);
-                if (currentDose >= component.MaxReagentDose)
+                var dosageRoom = component.TransferAmount - currentDose;
+                if (dosageRoom <= FixedPoint2.Zero)
                     continue;
 
                 if (!TryFindStoredReagent(storage, reagent, out var sourceSolutionEnt, out var sourceSolution))
                     continue;
 
                 var available = sourceSolution.GetTotalPrototypeQuantity(reagent);
-                var dosageRoom = component.MaxReagentDose - currentDose;
-                var amount = FixedPoint2.Min(component.TransferAmount, FixedPoint2.Min(available, FixedPoint2.Min(remainingCapacity, dosageRoom)));
+                var amount = FixedPoint2.Min(available, FixedPoint2.Min(remainingCapacity, dosageRoom));
                 if (amount <= FixedPoint2.Zero)
                     continue;
 
                 if (!_solutions.RemoveReagent(sourceSolutionEnt, reagent, amount))
                     continue;
 
-                return _solutions.TryAddSolution(targetSolutionEnt.Value, new Solution(reagent, amount));
+                if (_solutions.TryAddSolution(targetSolutionEnt.Value, new Solution(reagent, amount)))
+                    return true;
+
+                _solutions.TryAddSolution(sourceSolutionEnt, new Solution(reagent, amount));
             }
         }
 

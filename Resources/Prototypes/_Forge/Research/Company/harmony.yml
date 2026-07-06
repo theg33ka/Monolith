@@ -128,12 +128,12 @@
 - type: technology
   id: HMEFieldSupportPackaging
   name: research-technology-hme-field-support-packaging
-  entityIcon: HMEMedipenCase
+  entityIcon: HMETacticalMedipenCase
   discipline: HME
   tier: 2
   cost: 12000
   recipeUnlocks:
-  - HMEMedipenCase
+  - HMETacticalMedipenCase
   technologyPrerequisites:
   - IndustrialMedicine
   position: -6, 11
@@ -146,7 +146,6 @@
   tier: 2
   cost: 30000
   recipeUnlocks:
-  - HMETacticalMedipenCase
   - ClothingEyesHudHMETriage
   technologyPrerequisites:
   - HMEFieldSupportPackaging
