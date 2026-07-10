@@ -22,9 +22,11 @@ public sealed class HmeTriageVisorOverlay : Robust.Client.Graphics.Overlay
 
     private readonly SpriteSystem _sprite;
     private readonly TransformSystem _transform;
+    private readonly EntityLookupSystem _lookup;
     private readonly StatusIconSystem _statusIcon;
     private readonly HmeTriageVisorSystem _triageVisor;
     private readonly ShaderInstance _unshadedShader;
+    private readonly HashSet<Entity<DamageableComponent>> _visibleDamageables = new();
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowFOV;
 
@@ -34,6 +36,7 @@ public sealed class HmeTriageVisorOverlay : Robust.Client.Graphics.Overlay
 
         _sprite = _entity.System<SpriteSystem>();
         _transform = _entity.System<TransformSystem>();
+        _lookup = _entity.System<EntityLookupSystem>();
         _statusIcon = _entity.System<StatusIconSystem>();
         _triageVisor = _entity.System<HmeTriageVisorSystem>();
         _unshadedShader = _prototype.Index<ShaderPrototype>("unshaded").Instance();
@@ -41,7 +44,7 @@ public sealed class HmeTriageVisorOverlay : Robust.Client.Graphics.Overlay
 
     protected override void Draw(in OverlayDrawArgs args)
     {
-        if (!_triageVisor.RefreshActiveVisors())
+        if (!_triageVisor.HasActiveVisor)
             return;
 
         var handle = args.WorldHandle;
@@ -52,9 +55,18 @@ public sealed class HmeTriageVisorOverlay : Robust.Client.Graphics.Overlay
         var iconSize = IconSizePixels / EyeManager.PixelsPerMeter;
         var iconMargin = IconMarginPixels / EyeManager.PixelsPerMeter;
 
-        var query = _entity.EntityQueryEnumerator<MobStateComponent, DamageableComponent, SpriteComponent, TransformComponent>();
-        while (query.MoveNext(out var uid, out _, out var damageable, out var sprite, out var xform))
+        _visibleDamageables.Clear();
+        _lookup.GetEntitiesIntersecting(args.MapId, args.WorldAABB, _visibleDamageables);
+
+        foreach (var (uid, damageable) in _visibleDamageables)
         {
+            if (!_entity.TryGetComponent(uid, out MobStateComponent? _) ||
+                !_entity.TryGetComponent(uid, out SpriteComponent? sprite) ||
+                !_entity.TryGetComponent(uid, out TransformComponent? xform))
+            {
+                continue;
+            }
+
             var meta = metaQuery.GetComponent(uid);
 
             if (xform.MapID != args.MapId ||

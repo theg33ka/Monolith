@@ -19,6 +19,7 @@ public sealed class HmeTriageVisorSystem : EntitySystem
     [Dependency] private readonly IOverlayManager _overlay = default!;
 
     private readonly List<HmeTriageVisorComponent> _activeVisors = new();
+    public bool HasActiveVisor => _activeVisors.Count > 0;
 
     public override void Initialize()
     {
@@ -121,13 +122,21 @@ public sealed class HmeTriageVisorSystem : EntitySystem
     {
         var highest = FixedPoint2.Zero;
         ProtoId<HealthIconPrototype>? highestIcon = null;
+        string? highestGroup = null;
 
         foreach (var (group, damage) in damageable.Damage.GetDamagePerGroup(_prototype))
         {
-            if (damage <= highest || !visor.DamageGroupIcons.TryGetValue(group, out var iconId))
+            if (damage <= FixedPoint2.Zero || !visor.DamageGroupIcons.TryGetValue(group, out var iconId))
                 continue;
 
+            if (damage < highest ||
+                damage == highest && highestGroup != null && string.CompareOrdinal(group, highestGroup) >= 0)
+            {
+                continue;
+            }
+
             highest = damage;
+            highestGroup = group;
             highestIcon = iconId;
         }
 

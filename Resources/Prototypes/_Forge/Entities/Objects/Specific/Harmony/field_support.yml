@@ -2,7 +2,7 @@
   id: HMETacticalMedipenCase
   parent: [ BaseStorageItem, BaseBagOpenClose ]
   name: HME tactical medipen case
-  description: A reinforced HME medipen case with extra field slots for more little life-sticks. Your pockets may finally stop screaming, theoretically.
+  description: A reinforced HME medipen case with additional field slots for compact injectors.
   components:
   - type: Sprite
     sprite: _Forge/Objects/Specific/Medical/HME/tactical_medipen_case.rsi
@@ -49,11 +49,10 @@
   - type: GenericVisualizer
     visuals:
       enum.HmeInfusionStandVisuals.State:
-        enum.HmeInfusionStandVisuals.State:
-          Empty: { state: empty }
-          Idle: { state: icon }
-          Filled: { state: filled }
-          Active: { state: active }
+        Empty: { state: empty }
+        Idle: { state: icon }
+        Filled: { state: filled }
+        Active: { state: active }
   - type: Appearance
   - type: Storage
     grid:
@@ -85,7 +84,7 @@
   id: ClothingEyesHudHMETriage
   parent: [ ClothingEyesBase, ShowMedicalIcons ]
   name: HME triage visor
-  description: A lightweight HME visor that keeps normal medical HUD data and highlights the dominant problem first. It will not stop you from panicking, sadly.
+  description: A lightweight HME visor that keeps normal medical HUD data and highlights the dominant injury type first.
   components:
   - type: Sprite
     sprite: _Forge/Clothing/Eyes/HME/triage_visor.rsi
@@ -102,7 +101,7 @@
   id: HMEStasisBlossomUnit
   parent: [ BaseItem, PowerCellSlotSmallItem ]
   name: HME stasis blossom unit
-  description: A compact HME stabilizer that clips to a patient and unfolds into a reusable stasis field. It buys time, not miracles; miracles cost extra.
+  description: A compact HME stabilizer that clips to a patient and unfolds into a reusable stasis field.
   components:
   - type: Sprite
     drawdepth: Effects
@@ -114,11 +113,9 @@
   - type: GenericVisualizer
     visuals:
       enum.HmeStasisBlossomVisuals.State:
-        enum.HmeStasisBlossomVisuals.State:
-          Compact: { state: compact }
-          Attached: { state: attached }
-          Deployed: { state: deployed }
-          Spent: { state: spent }
+        Compact: { state: compact }
+        Attached: { state: attached }
+        Deployed: { state: deployed }
   - type: Appearance
   - type: Item
     size: Small
@@ -136,24 +133,10 @@
     event: !type:HmeStasisBlossomToggleEvent
 
 - type: entity
-  id: HMEStasisBlossomCocoon
-  name: HME stasis blossom cocoon
-  description: A translucent HME field cocoon trying very hard to keep someone medically boring.
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: Transform
-    anchored: false
-  - type: Sprite
-    drawdepth: Effects
-    sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
-    state: deployed
-  - type: HmeStasisBlossomCocoon
-
-- type: entity
   id: HMEExperimentalRescueBeacon
   parent: ClothingArmbandBase
   name: HME experimental rescue beacon
-  description: An HME armband beacon that attempts a last-second rescue during expedition collapse. The paperwork says the arm is optional; your arm may disagree.
+  description: An HME armband beacon that attempts emergency extraction during expedition collapse.
   components:
   - type: Sprite
     sprite: _Forge/Objects/Specific/Medical/HME/rescue_beacon.rsi
@@ -163,10 +146,9 @@
   - type: GenericVisualizer
     visuals:
       enum.HmeRescueBeaconVisuals.State:
-        enum.HmeRescueBeaconVisuals.State:
-          Idle: { state: icon }
-          Armed: { state: armed }
-          Spent: { state: spent }
+        Idle: { state: icon }
+        Armed: { state: armed }
+        Spent: { state: spent }
   - type: Appearance
   - type: Clothing
     sprite: _Forge/Objects/Specific/Medical/HME/rescue_beacon.rsi
