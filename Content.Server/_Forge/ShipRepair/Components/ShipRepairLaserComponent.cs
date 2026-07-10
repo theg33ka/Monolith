@@ -69,10 +69,17 @@ public sealed partial class ShipRepairLaserComponent : Component
 
     [ViewVariables]
     public EntityUid? ActiveRadarEffect;
+
+    [ViewVariables]
+    public int SessionMatterSpent;
+
+    [ViewVariables]
+    public TimeSpan? LastRepairTime;
 }
 
 public sealed class ShipRepairLaserWork
 {
+    public ShipRepairLaserWorkKey Key;
     public Vector2i Indices;
     public int? RepairId;
     public Vector2 LocalPosition;
@@ -80,6 +87,8 @@ public sealed class ShipRepairLaserWork
     public int Cost;
     public TimeSpan FinishAt;
 }
+
+public readonly record struct ShipRepairLaserWorkKey(EntityUid Grid, Vector2i Indices, int? RepairId);
 
 [RegisterComponent]
 public sealed partial class ShipRepairLaserRadarEffectComponent : Component

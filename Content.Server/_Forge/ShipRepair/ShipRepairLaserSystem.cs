@@ -55,6 +55,9 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
 
+    private readonly Dictionary<ShipRepairLaserWorkKey, EntityUid> _reservedWork = new();
+    private readonly List<ShipRepairLaserWorkKey> _reservationCleanupBuffer = new();
+
     public override void Initialize()
     {
         base.Initialize();
@@ -63,6 +66,9 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         SubscribeLocalEvent<ShipRepairLaserBeamComponent, HitscanRaycastFiredEvent>(OnBeamHit, after: [typeof(HitscanReflectSystem)]);
         SubscribeLocalEvent<ShipRepairLaserComponent, ExaminedEvent>(OnExamined);
         SubscribeLocalEvent<ShipRepairLaserComponent, GetVerbsEvent<AlternativeVerb>>(OnGetVerbs);
+        SubscribeLocalEvent<ShipRepairLaserComponent, ComponentShutdown>(OnLaserShutdown);
+        SubscribeLocalEvent<ShipRepairLaserComponent, EntParentChangedMessage>(OnLaserParentChanged);
+        SubscribeLocalEvent<ShipRepairDataComponent, EntityTerminatingEvent>(OnRepairGridTerminating);
     }
 
     public override void Update(float frameTime)
@@ -144,11 +150,50 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         var now = _timing.CurTime;
 
         if (laser.ActiveGrid != targetGrid)
-            laser.CurrentWork = null;
+            StopRepair((args.Gun, laser));
 
         laser.ActiveGrid = targetGrid;
         laser.ActiveOrigin = origin;
         laser.ActiveUntil = now + TimeSpan.FromSeconds(laser.ActiveDuration);
+    }
+
+    private void OnLaserShutdown(Entity<ShipRepairLaserComponent> ent, ref ComponentShutdown args)
+    {
+        StopRepair(ent);
+    }
+
+    private void OnLaserParentChanged(Entity<ShipRepairLaserComponent> ent, ref EntParentChangedMessage args)
+    {
+        StopRepair(ent);
+    }
+
+    private void OnRepairGridTerminating(Entity<ShipRepairDataComponent> ent, ref EntityTerminatingEvent args)
+    {
+        _reservationCleanupBuffer.Clear();
+        foreach (var (key, _) in _reservedWork)
+        {
+            if (key.Grid == ent.Owner)
+                _reservationCleanupBuffer.Add(key);
+        }
+
+        foreach (var key in _reservationCleanupBuffer)
+        {
+            _reservedWork.Remove(key);
+        }
+
+        var lasers = EntityQueryEnumerator<ShipRepairLaserComponent>();
+        while (lasers.MoveNext(out var laserUid, out var laser))
+        {
+            if (laser.ActiveGrid == ent.Owner)
+                StopRepair((laserUid, laser));
+
+            if (laser.LastTargetGrid == ent.Owner)
+            {
+                laser.LastTargetGrid = null;
+                laser.SessionMatterSpent = 0;
+                laser.LastRepairTime = null;
+            }
+        }
     }
 
     private void OnGetVerbs(Entity<ShipRepairLaserComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
@@ -200,10 +245,11 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
                 return;
             }
 
+            if (!TryReserveWork(laserUid, work.Key))
+                return;
+
             PrintPendingReceiptOnGridChange((laserUid, laser), grid);
-            _charges.UseCharges(laserUid, work.Cost, charges);
             laser.LastTargetGrid = grid;
-            RecordMatterSpent(grid, work.Cost);
             StartOrRefreshRadarEffect((laserUid, laser), grid, work.LocalPosition, now);
             work.FinishAt = now + TimeSpan.FromSeconds(MathF.Max(MinWorkDelay, work.Delay));
             laser.CurrentWork = work;
@@ -216,22 +262,30 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         var current = laser.CurrentWork;
         laser.CurrentWork = null;
 
-        if (!TryApplyRepair(laserUid, grid, gridComp, repairData, current))
+        if (_charges.HasInsufficientCharges(laserUid, current.Cost, charges))
+        {
+            ReleaseReservation(laserUid, current.Key);
+            StopRepair((laserUid, laser));
             return;
+        }
+
+        if (!TryApplyRepair(laserUid, grid, gridComp, repairData, current))
+        {
+            ReleaseReservation(laserUid, current.Key);
+            return;
+        }
+
+        _charges.UseCharges(laserUid, current.Cost, charges);
+        RecordMatterSpent(laser, current.Cost);
+        ReleaseReservation(laserUid, current.Key);
 
         laser.LastTargetGrid = grid;
-        if (IsFullyRepaired((laserUid, laser), grid))
-        {
-            TryPrintReceipt((laserUid, laser), grid, null, false);
-            StopRepair((laserUid, laser));
-        }
     }
 
-    private void RecordMatterSpent(EntityUid grid, int amount)
+    private void RecordMatterSpent(ShipRepairLaserComponent laser, int amount)
     {
-        var ledger = EnsureComp<ShipRepairLaserLedgerComponent>(grid);
-        ledger.MatterSpent += amount;
-        ledger.LastRepairTime = _gameTicker.RoundDuration();
+        laser.SessionMatterSpent += amount;
+        laser.LastRepairTime = _gameTicker.RoundDuration();
     }
 
     private bool TryFindNextRepair(
@@ -250,16 +304,17 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         foreach (var (chunkPos, chunk) in repairData.Chunks)
         {
             if (laser.EnableTileRepair)
-                TryFindTileCandidate(grid, gridComp, repairData, chunkPos, chunk, origin, laser, maxCost, ref work, ref bestDistance);
+                TryFindTileCandidate(laserUid, grid, gridComp, repairData, chunkPos, chunk, origin, laser, maxCost, ref work, ref bestDistance);
 
             if (laser.EnableEntityRepair)
-                TryFindEntityCandidate(laserUid, repairData, chunkPos, chunk, origin, laser, maxCost, ref work, ref bestDistance);
+                TryFindEntityCandidate(laserUid, grid, repairData, chunkPos, chunk, origin, laser, maxCost, ref work, ref bestDistance);
         }
 
         return work != null;
     }
 
     private void TryFindTileCandidate(
+        EntityUid laserUid,
         EntityUid grid,
         MapGridComponent gridComp,
         ShipRepairDataComponent repairData,
@@ -288,6 +343,10 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
                     continue;
 
                 var localPosition = _map.TileCenterToVector(grid, gridComp, indices);
+                var key = new ShipRepairLaserWorkKey(grid, indices, null);
+                if (IsReservedByOther(laserUid, key))
+                    continue;
+
                 var distance = Vector2.DistanceSquared(localPosition, origin);
                 if (distance >= bestDistance)
                     continue;
@@ -295,6 +354,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
                 bestDistance = distance;
                 best = new ShipRepairLaserWork
                 {
+                    Key = key,
                     Indices = indices,
                     LocalPosition = localPosition,
                     Delay = laser.TileRepairTime * laser.RepairTimeMultiplier,
@@ -306,6 +366,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
 
     private void TryFindEntityCandidate(
         EntityUid laserUid,
+        EntityUid grid,
         ShipRepairDataComponent repairData,
         Vector2i chunkPos,
         ShipRepairChunk chunk,
@@ -318,6 +379,10 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         var chunkBase = chunkPos * repairData.ChunkSize;
         foreach (var (repairId, spec) in chunk.Entities)
         {
+            var key = new ShipRepairLaserWorkKey(grid, chunkBase, repairId);
+            if (IsReservedByOther(laserUid, key))
+                continue;
+
             if (!TryGetEntityRepairable(laserUid, repairData, spec, out var repairable) ||
                 !EntityNeedsRepair(spec))
             {
@@ -334,6 +399,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
             bestDistance = distance;
             best = new ShipRepairLaserWork
             {
+                Key = key,
                 Indices = chunkBase,
                 RepairId = repairId,
                 LocalPosition = spec.LocalPosition,
@@ -341,6 +407,28 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
                 Cost = repairable.RepairCost,
             };
         }
+    }
+
+    private bool TryReserveWork(EntityUid laserUid, ShipRepairLaserWorkKey key)
+    {
+        if (_reservedWork.TryGetValue(key, out var owner) && owner != laserUid && Exists(owner))
+            return false;
+
+        _reservedWork[key] = laserUid;
+        return true;
+    }
+
+    private bool IsReservedByOther(EntityUid laserUid, ShipRepairLaserWorkKey key)
+    {
+        return _reservedWork.TryGetValue(key, out var owner) &&
+               owner != laserUid &&
+               Exists(owner);
+    }
+
+    private void ReleaseReservation(EntityUid laserUid, ShipRepairLaserWorkKey key)
+    {
+        if (_reservedWork.TryGetValue(key, out var owner) && owner == laserUid)
+            _reservedWork.Remove(key);
     }
 
     private bool TryApplyRepair(
@@ -353,10 +441,10 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         if (work.RepairId != null)
             return TryRepairEntity(laserUid, grid, repairData, work.Indices, work.RepairId.Value);
 
-        if (!TryGetChunk(repairData, work.Indices, out var chunk))
+        if (!SharedShipRepairSystem.TryGetChunk(repairData, work.Indices, out var chunk))
             return false;
 
-        var relative = GetRelativeIndices(work.Indices, repairData.ChunkSize);
+        var relative = SharedShipRepairSystem.GetRelativeIndices(work.Indices, repairData.ChunkSize);
         var stored = chunk.Tiles[relative.X + relative.Y * repairData.ChunkSize];
         if (!CanRepairTile(grid, gridComp, work.Indices, stored))
             return false;
@@ -367,7 +455,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
 
     private bool TryRepairEntity(EntityUid laserUid, EntityUid grid, ShipRepairDataComponent repairData, Vector2i indices, int repairId)
     {
-        if (!TryGetChunk(repairData, indices, out var chunk) ||
+        if (!SharedShipRepairSystem.TryGetChunk(repairData, indices, out var chunk) ||
             !chunk.Entities.TryGetValue(repairId, out var spec) ||
             !TryGetEntityRepairable(laserUid, repairData, spec, out _))
         {
@@ -380,19 +468,8 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
             var ev = new ShipRepairReinstateQueryEvent(true);
             RaiseLocalEvent(original.Value, ref ev);
 
-            if (ev.Handled)
-            {
-                if (!ev.Repairable)
-                    return false;
-            }
-            else if (Transform(original.Value).GridUid != null)
-            {
+            if (!ev.Handled || !ev.Repairable)
                 return false;
-            }
-            else
-            {
-                QueueDel(original.Value);
-            }
         }
 
         var prototype = repairData.EntityPalette[spec.ProtoIndex];
@@ -435,7 +512,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         if (ev.Handled)
             return ev.Repairable;
 
-        return Transform(original.Value).GridUid == null;
+        return false;
     }
 
     private bool TileNeedsRepair(EntityUid grid, MapGridComponent gridComp, Vector2i indices, int storedTile)
@@ -608,7 +685,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         EntityUid? user,
         bool showPopup)
     {
-        if (!TryComp<ShipRepairLaserLedgerComponent>(grid, out var ledger) || ledger.MatterSpent <= 0)
+        if (laser.Comp.SessionMatterSpent <= 0)
         {
             if (showPopup && user != null)
                 _popup.PopupEntity(Loc.GetString("ship-repair-laser-receipt-empty"), laser, user.Value, PopupType.SmallCaution);
@@ -621,7 +698,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
             ? "ship-repair-laser-receipt-header-full"
             : "ship-repair-laser-receipt-header-partial");
         var time = _gameTicker.RoundDuration().ToString("hh\\:mm\\:ss", CultureInfo.InvariantCulture);
-        var matter = ledger.MatterSpent.ToString("N0", CultureInfo.InvariantCulture);
+        var matter = laser.Comp.SessionMatterSpent.ToString("N0", CultureInfo.InvariantCulture);
         var content = Loc.GetString("ship-repair-laser-receipt-content",
             ("header", header),
             ("ship", Name(grid)),
@@ -637,7 +714,7 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         }
 
         _audio.PlayPvs(laser.Comp.ReceiptPrintSound, laser.Owner);
-        ResetReceiptLedger(grid, ledger);
+        ResetReceiptLedger(laser.Comp);
 
         if (showPopup && user != null)
             _popup.PopupEntity(Loc.GetString("ship-repair-laser-receipt-printed"), laser, user.Value);
@@ -645,11 +722,10 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
         return true;
     }
 
-    private void ResetReceiptLedger(EntityUid grid, ShipRepairLaserLedgerComponent ledger)
+    private void ResetReceiptLedger(ShipRepairLaserComponent laser)
     {
-        ledger.MatterSpent = 0;
-        ledger.LastRepairTime = null;
-        Dirty(grid, ledger);
+        laser.SessionMatterSpent = 0;
+        laser.LastRepairTime = null;
     }
 
     private bool IsFullyRepaired(Entity<ShipRepairLaserComponent> laser, EntityUid grid)
@@ -665,29 +741,13 @@ public sealed partial class ShipRepairLaserSystem : EntitySystem
 
     private void StopRepair(Entity<ShipRepairLaserComponent> laser)
     {
+        if (laser.Comp.CurrentWork is { } work)
+            ReleaseReservation(laser.Owner, work.Key);
+
         ClearRadarEffect(laser.Comp);
         laser.Comp.ActiveGrid = null;
         laser.Comp.CurrentWork = null;
         laser.Comp.ActiveUntil = TimeSpan.Zero;
     }
 
-    private Vector2i GetRepairChunkIndices(Vector2i gridIndices, int chunkSize)
-    {
-        var xCoord = gridIndices.X < 0 ? 1 - chunkSize + gridIndices.X : gridIndices.X;
-        var yCoord = gridIndices.Y < 0 ? 1 - chunkSize + gridIndices.Y : gridIndices.Y;
-        return new Vector2i(xCoord / chunkSize, yCoord / chunkSize);
-    }
-
-    private Vector2i GetRelativeIndices(Vector2i gridIndices, int chunkSize)
-    {
-        var x = MathHelper.Mod(gridIndices.X, chunkSize);
-        var y = MathHelper.Mod(gridIndices.Y, chunkSize);
-        return new Vector2i(x, y);
-    }
-
-    private bool TryGetChunk(ShipRepairDataComponent data, Vector2i gridIndices, [NotNullWhen(true)] out ShipRepairChunk? chunk)
-    {
-        var chunkIndices = GetRepairChunkIndices(gridIndices, data.ChunkSize);
-        return data.Chunks.TryGetValue(chunkIndices, out chunk);
-    }
 }

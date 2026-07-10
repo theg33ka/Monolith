@@ -1,4 +1,4 @@
-- type: entity
+﻿- type: entity
   parent: BasicHitscan
   id: ShipRepairLaserBeam
   categories: [ HideSpawnMenu ]
@@ -41,13 +41,14 @@
     lineThickness: 7
     lifeTime: 8
 
+
 - type: entity
-  id: WeaponShipRepairLaser
+  abstract: true
+  id: BaseWeaponShipRepairLaser
   parent:
-  - BallisticArtilleryMapped
   - BallisticArtilleryTier3HP
   name: SRL-30 Mender Mk1 ship repair laser
-  description: A fast fixed ship-mounted repair laser for stitching up another ship with repeated short pulses. It refuses to repair its own grid, because that would be too convenient.
+  description: A fixed ship-mounted repair laser for reconstructing damaged tiles and repairable fixtures on another grid.
   components:
   - type: StaticPrice
     price: 24000
@@ -121,10 +122,6 @@
         - MachineMask
         layer:
         - MachineLayer
-  - type: ShipGunType
-    shipType: Energy
-  - type: ShipGunClass
-    shipClass: Heavy
   - type: ShipRepairable
     repairTime: 35
     repairCost: 150
@@ -134,112 +131,53 @@
     - ShipRepairLaserMatter
 
 - type: entity
+  abstract: true
+  id: BaseWeaponShipRepairLaserMapped
+  parent:
+  - BallisticArtilleryMapped
+  - BaseWeaponShipRepairLaser
+  components:
+  - type: ShipGunType
+    shipType: Energy
+  - type: ShipGunClass
+    shipClass: Heavy
+
+- type: entity
+  abstract: true
+  id: BaseWeaponShipRepairLaserPortable
+  parent:
+  - BallisticArtillery
+  - BaseWeaponShipRepairLaser
+  suffix: Do not map
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: ShipGunType
+    shipType: Energy
+  - type: ShipGunClass
+    shipClass: Heavy
+
+- type: entity
+  id: WeaponShipRepairLaser
+  parent: BaseWeaponShipRepairLaserMapped
+
+- type: entity
   id: WeaponShipRepairLaserEmpty
   parent: WeaponShipRepairLaser
-  suffix: "[Пустой]"
+  suffix: Empty
   components:
   - type: LimitedCharges
     charges: 0
 
 - type: entity
   id: WeaponShipRepairLaserPortable
-  parent:
-  - BallisticArtillery
-  - BallisticArtilleryTier3HP
-  name: SRL-30 Mender Mk1 ship repair laser
-  suffix: Do not map
-  categories: [ HideSpawnMenu ]
-  description: A fast fixed ship-mounted repair laser for stitching up another ship with repeated short pulses. It refuses to repair its own grid, because that would be too convenient.
-  components:
-  - type: StaticPrice
-    price: 24000
-  - type: Sprite
-    sprite: Forge/Objects/ShuttleWeapons/repair_laser.rsi
-    scale: 0.5, 0.5
-    layers:
-    - state: space_artillery
-  - type: Appearance
-  - type: AmmoCounter
-  - type: LimitedCharges
-    maxCharges: 10000
-    charges: 10000
-  - type: ShipRepairLaser
-    activeDuration: 2
-    repairTimeMultiplier: 0.333
-    powerUsePerSecond: 6000
-  - type: FixedMountFireArc
-    forwardOffset: 180
-  - type: Battery
-    maxCharge: 120000
-    startingCharge: 120000
-  - type: BatterySelfRecharger
-    autoRechargePause: true
-    autoRechargePauseTime: 30
-    autoRecharge: true
-    autoRechargeRate: 120000
-  - type: ExaminableBattery
-  - type: WirelessNetworkConnection
-    range: 500
-  - type: FireControllable
-    fireCooldown: 1
-  - type: Gun
-    fireRate: 1
-    recoil: 0
-    minAngle: 0
-    maxAngle: 0
-    shootThermalSignature: 2500000
-    soundGunshot:
-      path: /Audio/Weapons/Guns/Gunshots/ship_perforator.ogg
-    soundEmpty:
-      path: /Audio/Weapons/Guns/EmptyAlarm/smg_empty_alarm.ogg
-  - type: BasicEntityAmmoProvider
-    proto: ShipRepairLaserBeam
-  - type: SpaceArtillery
-    powerChargeRate: 40000
-    powerUsePassive: 500
-    powerUseActive: 0
-  - type: RadarBlip
-    radarColor: "#46d6a0"
-    scale: 2
-    visibleFromOtherGrids: true
-    gridConfig:
-      color: "#46d6a0"
-      shape: Square
-      respectZoom: true
-      rotate: true
-      bounds: "-1,-1.5,1,1.5"
-  - type: HitscanRadar
-    radarColor: "#46d6a0"
-    lineThickness: 2
-    lifeTime: 1
-  - type: Fixtures
-    fixtures:
-      fix1:
-        shape:
-          !type:PhysShapeAabb
-          bounds: "-1,-1.5,1,1.5"
-        density: 1500
-        mask:
-        - MachineMask
-        layer:
-        - MachineLayer
-  - type: ShipGunType
-    shipType: Energy
-  - type: ShipGunClass
-    shipClass: Heavy
-  - type: ShipRepairable
-    repairTime: 35
-    repairCost: 150
-  - type: Tag
-    tags:
-    - ShipRepairTool
-    - ShipRepairLaserMatter
+  parent: BaseWeaponShipRepairLaserPortable
 
 - type: entity
-  id: WeaponShipRepairLaserMk2
-  parent: WeaponShipRepairLaser
+  abstract: true
+  id: BaseWeaponShipRepairLaserMk2
+  parent: BaseWeaponShipRepairLaser
   name: SRL-60 Mender Mk2 heavy ship repair laser
-  description: A heavy fixed ship-mounted repair laser that fires one loud diagnostic lance and runs a long automated reconstruction cycle. Very dramatic, very paperwork-friendly.
+  description: A heavy fixed ship-mounted repair laser with a longer autonomous reconstruction cycle and higher power draw.
   components:
   - type: StaticPrice
     price: 38000
@@ -297,81 +235,52 @@
     repairCost: 250
 
 - type: entity
+  abstract: true
+  id: BaseWeaponShipRepairLaserMk2Mapped
+  parent:
+  - BallisticArtilleryMapped
+  - BaseWeaponShipRepairLaserMk2
+  components:
+  - type: ShipGunType
+    shipType: Energy
+  - type: ShipGunClass
+    shipClass: Heavy
+
+- type: entity
+  abstract: true
+  id: BaseWeaponShipRepairLaserMk2Portable
+  parent:
+  - BallisticArtillery
+  - BaseWeaponShipRepairLaserMk2
+  suffix: Do not map
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: ShipGunType
+    shipType: Energy
+  - type: ShipGunClass
+    shipClass: Heavy
+
+- type: entity
+  id: WeaponShipRepairLaserMk2
+  parent: BaseWeaponShipRepairLaserMk2Mapped
+
+- type: entity
   id: WeaponShipRepairLaserMk2Empty
   parent: WeaponShipRepairLaserMk2
-  suffix: "[Пустой]"
+  suffix: Empty
   components:
   - type: LimitedCharges
     charges: 0
 
 - type: entity
   id: WeaponShipRepairLaserMk2Portable
-  parent: WeaponShipRepairLaserPortable
-  name: SRL-60 Mender Mk2 heavy ship repair laser
-  suffix: Do not map
-  categories: [ HideSpawnMenu ]
-  description: A heavy fixed ship-mounted repair laser that fires one loud diagnostic lance and runs a long automated reconstruction cycle. Very dramatic, very paperwork-friendly.
-  components:
-  - type: StaticPrice
-    price: 38000
-  - type: ShipRepairLaser
-    activeDuration: 60
-    repairTimeMultiplier: 0.12
-    powerUsePerSecond: 12000
-    radarRepairEffectDuration: 60
-    radarRepairEffectMinScale: 1.8
-    radarRepairEffectMaxScale: 5
-    radarRepairEffectColorA: "#46d6a0"
-    radarRepairEffectColorB: "#9afcff"
-  - type: FireControllable
-    fireCooldown: 30
-  - type: Gun
-    fireRate: 0.033
-    recoil: 0
-    minAngle: 0
-    maxAngle: 0
-    shootThermalSignature: 48000000
-    soundGunshot:
-      path: /Audio/Weapons/Guns/Gunshots/ship_svalinn.ogg
-    soundEmpty:
-      path: /Audio/Weapons/Guns/EmptyAlarm/smg_empty_alarm.ogg
-  - type: BasicEntityAmmoProvider
-    proto: ShipRepairLaserBeamMk2
-  - type: Battery
-    maxCharge: 720000
-    startingCharge: 720000
-  - type: BatterySelfRecharger
-    autoRechargePause: true
-    autoRechargePauseTime: 30
-    autoRecharge: true
-    autoRechargeRate: 180000
-  - type: SpaceArtillery
-    powerChargeRate: 180000
-    powerUsePassive: 1000
-    powerUseActive: 0
-  - type: RadarBlip
-    radarColor: "#9afcff"
-    scale: 2.5
-    visibleFromOtherGrids: true
-    gridConfig:
-      color: "#9afcff"
-      shape: Ring
-      respectZoom: true
-      rotate: true
-      bounds: "-1.25,-1.75,1.25,1.75"
-  - type: HitscanRadar
-    radarColor: "#9afcff"
-    lineThickness: 7
-    lifeTime: 8
-  - type: ShipRepairable
-    repairTime: 45
-    repairCost: 250
+  parent: BaseWeaponShipRepairLaserMk2Portable
 
 - type: entity
   name: ship repair laser matter canister
   parent: BaseItem
   id: ShipRepairLaserMatterCanister
-  description: A dense canister of repair matter for SRL-30 ship repair lasers. Do not try to drink it; engineering already asked.
+  description: A dense repair-matter canister for SRL ship repair lasers.
   components:
   - type: LimitedChargesAmmo
     charges: 5000

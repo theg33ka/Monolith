@@ -17,6 +17,7 @@ using Content.Server._Mono.SpaceArtillery.Components;
 using Content.Server.Power.EntitySystems;
 using Content.Server._Forge.ShipWeapons; // Forge-Change
 using Content.Shared._Forge.ShipWeapons.Components; // Forge-Change
+using Content.Shared._Forge.ShipWeapons.Systems; // Forge-Change
 using Content.Shared.Shuttles.Components;
 using Robust.Shared.Timing;
 using Content.Shared.Interaction;
@@ -35,6 +36,7 @@ public sealed partial class FireControlSystem : EntitySystem
     [Dependency] private PowerReceiverSystem _power = default!;
     [Dependency] private RotateToFaceSystem _rotateToFace = default!;
     [Dependency] private ShipWeaponHomeGridSystem _shipWeaponHomeGrid = default!; // Forge-Change
+    [Dependency] private FixedMountFireArcSystem _fixedMountFireArc = default!; // Forge-Change
     /// <summary>
     /// Dictionary of entities that have visualization enabled
     /// </summary>
@@ -380,21 +382,6 @@ public sealed partial class FireControlSystem : EntitySystem
                _shipWeaponHomeGrid.IsOnHomeGrid(uid, homeGrid);
     }
 
-    // #Forge
-    private bool CanFireFixedMount(EntityUid weapon, TransformComponent weaponXform, Vector2 direction, GunComponent? gun = null)
-    {
-        if (!TryComp<FixedMountFireArcComponent>(weapon, out var fixedMount))
-            return true;
-
-        var defaultDirection = gun?.DefaultDirection ?? new Vector2(0, -1);
-        if (defaultDirection.LengthSquared() == 0)
-            defaultDirection = new Vector2(0, -1);
-
-        var localForward = fixedMount.ForwardOffset.RotateVec(Vector2.Normalize(defaultDirection));
-        var forward = _xform.GetWorldRotation(weaponXform).RotateVec(localForward);
-        return Vector2.Dot(Vector2.Normalize(forward), direction) >= Math.Cos(fixedMount.Arc.Theta / 2);
-    }
-
     /// <summary>
     /// Cleans up all invalid server references across all grids
     /// </summary>
@@ -552,9 +539,9 @@ public sealed partial class FireControlSystem : EntitySystem
 
         direction = Vector2.Normalize(direction);
 
-        // #Forge: fixed-mount naval weapons cannot use GCS as an invisible gimbal.
         _gunQuery.TryComp(weapon, out var gun);
-        if (!CanFireFixedMount(weapon, weaponXform, direction, gun))
+        if (TryComp<FixedMountFireArcComponent>(weapon, out var fixedMount) &&
+            !_fixedMountFireArc.IsWithinArc(weapon, fixedMount, direction, gun)) // Forge-Change
             return false;
 
         // Check for obstacles in the firing direction

@@ -135,7 +135,7 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
         return true;
     }
 
-    protected Vector2i GetRepairChunkIndices(Vector2i gridIndices, int chunkSize)
+    public static Vector2i GetRepairChunkIndices(Vector2i gridIndices, int chunkSize)
     {
         var xCoord = gridIndices.X < 0 ? 1 - chunkSize + gridIndices.X : gridIndices.X;
         var yCoord = gridIndices.Y < 0 ? 1 - chunkSize + gridIndices.Y : gridIndices.Y;
@@ -144,7 +144,7 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
         return new Vector2i(x, y);
     }
 
-    protected Vector2i GetRelativeIndices(Vector2i gridIndices, int chunkSize)
+    public static Vector2i GetRelativeIndices(Vector2i gridIndices, int chunkSize)
     {
         var x = MathHelper.Mod(gridIndices.X, chunkSize);
         var y = MathHelper.Mod(gridIndices.Y, chunkSize);
@@ -169,7 +169,7 @@ public abstract partial class SharedShipRepairSystem : EntitySystem
         return chunk;
     }
 
-    protected bool TryGetChunk(ShipRepairDataComponent data, Vector2i gridIndices, [NotNullWhen(true)] out ShipRepairChunk? chunk)
+    public static bool TryGetChunk(ShipRepairDataComponent data, Vector2i gridIndices, [NotNullWhen(true)] out ShipRepairChunk? chunk)
     {
         var chunkSize = data.ChunkSize;
         var chunkIndices = GetRepairChunkIndices(gridIndices, chunkSize);
