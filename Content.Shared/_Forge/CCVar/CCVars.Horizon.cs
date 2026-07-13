@@ -31,6 +31,9 @@ public sealed partial class ForgeCVars
     public static readonly CVarDef<float> HorizonStrategicInterval =
         CVarDef.Create("forge.horizon.strategic_interval", 180f, CVar.SERVERONLY);
 
+    public static readonly CVarDef<int> HorizonResourceCap =
+        CVarDef.Create("forge.horizon.resource_cap", 100000, CVar.SERVERONLY);
+
     public static readonly CVarDef<int> HorizonWorkItemsPerTick =
         CVarDef.Create("forge.horizon.work_items_per_tick", 4, CVar.SERVERONLY);
 

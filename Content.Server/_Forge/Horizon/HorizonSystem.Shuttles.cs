@@ -132,6 +132,9 @@ public sealed partial class HorizonSystem
                                                          TryComp<HorizonShuttleCoreComponent>(core, out var shuttle):
                 CompleteO01Deployment(core, shuttle);
                 break;
+            case HorizonWorkKind.RunStrategicCycle:
+                RunStrategicCycle();
+                break;
         }
     }
 

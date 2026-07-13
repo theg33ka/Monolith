@@ -30,12 +30,14 @@ public sealed partial class HorizonSystem : EntitySystem
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
         InitializeDeployment();
         InitializeShuttles();
+        ResetStrategyState();
     }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
         UpdateDeployment();
+        UpdateStrategy();
         UpdateShuttles();
     }
 
@@ -44,6 +46,7 @@ public sealed partial class HorizonSystem : EntitySystem
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
         ResetDeploymentState();
         ResetShuttleState();
+        ResetStrategyState();
     }
 
     private void OnObjectStartup(Entity<HorizonObjectComponent> ent, ref ComponentStartup args)

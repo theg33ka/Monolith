@@ -62,18 +62,18 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Emergency cluster.
 - [x] Late profile.
 - [x] Tests/perf.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 4 — Scheduler/economy
 
-- [ ] Coarse scheduler.
-- [ ] Bounded queue.
-- [ ] Ledger.
-- [ ] Income/capacity aggregates.
-- [ ] Costs.
-- [ ] Minimal planner.
-- [ ] Orders.
-- [ ] Tests.
+- [x] Coarse scheduler.
+- [x] Bounded queue.
+- [x] Ledger.
+- [x] Income/capacity aggregates.
+- [x] Costs.
+- [x] Minimal planner.
+- [x] Orders.
+- [x] Tests.
 - [ ] Commit.
 
 ## Phase 5 — Spatial
@@ -164,6 +164,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 2 RTR complete. `Content.Server` Release build passed, focused Horizon tests passed 3/3, and YAML linter reported no errors.
 - 2026-07-13: Phase 2 committed as `fab804572e`.
 - 2026-07-13: Phase 3 AMS/O-01 complete. `Content.Server` Release build passed, focused Horizon tests passed 9/9, and YAML linter reported no errors in 150249 ms.
+- 2026-07-13: Phase 3 committed as `70966abefc`.
+- 2026-07-13: Phase 4 scheduler/economy complete. `Content.Server` Release build passed and focused Horizon tests passed 13/13.
 
 ## Technical decisions
 
@@ -177,4 +179,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 3, then implement Phase 4 coarse scheduler, economy, bounded planner and general orders._
+_Commit Phase 4, then implement Phase 5 bounded spatial placement and the minimum station network._
