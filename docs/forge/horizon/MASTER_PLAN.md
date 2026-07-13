@@ -139,7 +139,7 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Long test.
 - [x] Regression fixes.
 - [x] Docs update.
-- [ ] Final commit.
+- [x] Final commit.
 
 ## Repository findings
 
@@ -179,6 +179,7 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 9 committed as `d810ec2aab`.
 - 2026-07-13: Phase 10 lifecycle/performance review bounded unsafe runtime CVar values, stopped same-drain requeue churn, prevented per-hit duplicate AMZ dispatch and closed stale object/incident references.
 - 2026-07-13: Final Release solution build passed. Focused Horizon tests passed 33/33; the 500-cycle typical-cluster soak took 41.71 ms. Full server/client YAML validation reported no errors in 179699 ms.
+- 2026-07-13: Phase 10 stabilization committed as `34580a3cdc`. The complete MVP remains local and was not pushed.
 
 ## Technical decisions
 
@@ -192,4 +193,4 @@ _None._
 
 ## Next exact action
 
-_Create the final local stabilization commit and hand off the completed MVP without pushing._
+_MVP complete. Await explicit user direction for live playtesting, final art/map replacement or push._
