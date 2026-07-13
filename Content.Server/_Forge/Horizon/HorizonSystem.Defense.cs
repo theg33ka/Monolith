@@ -86,9 +86,10 @@ public sealed partial class HorizonSystem
 
         var organization = GetOrganizationKey(origin);
         var key = HorizonDefensePolicy.IncidentKey(organization, target.ObjectId);
+        var created = false;
         if (!State.Incidents.TryGetValue(key, out var incident))
         {
-            var maxIncidents = Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxIncidents));
+            var maxIncidents = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxIncidents), 1, 128);
             if (State.Incidents.Count >= maxIncidents)
             {
                 var oldest = State.Incidents.Values.OrderBy(value => value.LastSeen).First();
@@ -106,16 +107,30 @@ public sealed partial class HorizonSystem
                 LastSeen = _timing.CurTime,
             };
             State.Incidents.Add(key, incident);
+            created = true;
         }
 
+        var activeResponse = HasActiveDefenseResponse(key);
+        var reopenResponse = incident.ResponseOrdered && !activeResponse;
         incident.Origin = origin;
         incident.Target = ent.Owner;
         incident.Position = target.WorldPosition;
         incident.Damage += damage;
         incident.LastSeen = _timing.CurTime;
-        incident.ResponseOrdered = false;
+        if (!activeResponse)
+            incident.ResponseOrdered = false;
         UpdateDamageRelation(organization, damage);
-        TryDispatchDefense(incident);
+        if (created || reopenResponse)
+            TryDispatchDefense(incident);
+    }
+
+    private bool HasActiveDefenseResponse(string incidentKey)
+    {
+        return _defenseExecutors.Any(uid =>
+            !Deleted(uid) &&
+            TryComp<HorizonDefenseExecutorComponent>(uid, out var executor) &&
+            executor.Busy &&
+            executor.IncidentKey == incidentKey);
     }
 
     private string GetOrganizationKey(EntityUid origin)
@@ -140,7 +155,7 @@ public sealed partial class HorizonSystem
 
     private void ProcessPendingIncidents()
     {
-        var limit = Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonWorkItemsPerTick));
+        var limit = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonWorkItemsPerTick), 1, 32);
         foreach (var incident in State.Incidents.Values
                      .Where(value => !value.ResponseOrdered)
                      .OrderByDescending(value => value.LastSeen)
@@ -155,9 +170,15 @@ public sealed partial class HorizonSystem
         if (incident.ResponseOrdered || State.Phase is HorizonDeploymentPhase.Dormant or HorizonDeploymentPhase.Destroyed)
             return false;
 
+        if (incident.Target is not { } target || !State.Objects.TryGetValue(target, out var targetRecord))
+        {
+            incident.ResponseOrdered = true;
+            return false;
+        }
+
         var activeCount = _defenseExecutors.Count(uid =>
             !Deleted(uid) && TryComp<HorizonDefenseExecutorComponent>(uid, out var executor) && executor.Busy);
-        if (activeCount >= Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxDefenseUnits)))
+        if (activeCount >= Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxDefenseUnits), 1, 8))
             return false;
 
         if (incident.Origin is not { } origin || Deleted(origin))
@@ -211,7 +232,7 @@ public sealed partial class HorizonSystem
             htn.Blackboard.SetValue("TargetRotation", Angle.Zero);
             _npc.WakeNPC(uid, htn);
             AnnounceOnce($"defense-{incident.Key}",
-                Loc.GetString("horizon-announcement-defense-dispatched", ("target", State.Objects[incident.Target!.Value].ObjectId)));
+                Loc.GetString("horizon-announcement-defense-dispatched", ("target", targetRecord.ObjectId)));
             return true;
         }
 
@@ -278,11 +299,10 @@ public sealed partial class HorizonSystem
                 Loc.GetString("horizon-announcement-object-lost", ("object", lost.ObjectId)));
         }
 
-        var incident = State.Incidents.Values
-            .Where(value => value.Target == uid)
-            .OrderByDescending(value => value.LastSeen)
-            .FirstOrDefault();
-        if (incident is not null)
+        foreach (var incident in State.Incidents.Values.Where(value => value.Target == uid))
+        {
             incident.DestroyedObjects++;
+            incident.ResponseOrdered = true;
+        }
     }
 }

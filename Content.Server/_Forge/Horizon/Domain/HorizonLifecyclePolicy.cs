@@ -12,6 +12,8 @@ public static class HorizonLifecyclePolicy
         state.Phase = HorizonDeploymentPhase.Destroyed;
         state.MatureNetwork = false;
         state.WakeCompletesAt = null;
+        state.PrimaryRtr = null;
+        state.NeighborRtr = null;
         state.ActiveAms = null;
         state.CommandObject = null;
         state.WorkQueue.Clear();
@@ -32,8 +34,9 @@ public static class HorizonLifecyclePolicy
         }
 
         foreach (var incident in state.Incidents.Values)
-            incident.ResponseOrdered = false;
+            incident.ResponseOrdered = true;
 
+        state.ProtectedZones.Clear();
         state.Aggregates.Reset();
         return true;
     }

@@ -31,4 +31,24 @@ public sealed class BoundedWorkQueueTests
             Assert.That(queue.Count, Is.EqualTo(1));
         });
     }
+
+    [Test]
+    public void RequeuedItemWaitsForNextDrain()
+    {
+        var queue = new BoundedWorkQueue<int>(4);
+        queue.TryEnqueue(1);
+        var handled = 0;
+
+        queue.Drain(4, item =>
+        {
+            handled++;
+            queue.TryEnqueue(item);
+        });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(handled, Is.EqualTo(1));
+            Assert.That(queue.Count, Is.EqualTo(1));
+        });
+    }
 }

@@ -1,7 +1,10 @@
+using System;
+using System.Linq;
 using System.Numerics;
 using Content.Server._Forge.Horizon.Domain;
 using Content.Shared._Forge.Horizon;
 using NUnit.Framework;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 
 namespace Content.Tests.Server._Forge.Horizon;
@@ -109,7 +112,7 @@ public sealed class HorizonEndToEndScenarioTests
             Assert.That(state.Orders[order.Id].Status, Is.EqualTo(HorizonOrderStatus.Cancelled));
             Assert.That(state.WorkQueue.Count, Is.Zero);
             Assert.That(state.Aggregates.ActiveObjects, Is.Zero);
-            Assert.That(state.Incidents[incidentKey].ResponseOrdered, Is.False);
+            Assert.That(state.Incidents[incidentKey].ResponseOrdered, Is.True);
             Assert.That(HorizonLifecyclePolicy.Destroy(state, "retry"), Is.False);
         });
     }

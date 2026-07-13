@@ -64,7 +64,7 @@ public sealed class HorizonState
         Aggregates.Reset();
         Ledger.Reset();
         Performance.Reset();
-        WorkQueue = new BoundedWorkQueue<HorizonWorkItem>(Math.Max(1, workQueueCapacity));
+        WorkQueue = new BoundedWorkQueue<HorizonWorkItem>(Math.Clamp(workQueueCapacity, 1, 256));
     }
 }
 

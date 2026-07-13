@@ -37,7 +37,8 @@ public sealed class BoundedWorkQueue<T>
             return 0;
 
         var processed = 0;
-        while (processed < limit && _queue.TryDequeue(out var item))
+        var available = Math.Min(limit, _queue.Count);
+        while (processed < available && _queue.TryDequeue(out var item))
         {
             handler(item);
             processed++;

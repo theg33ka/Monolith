@@ -9,6 +9,7 @@ using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.Stacks;
 using Robust.Server.GameObjects;
+using Robust.Shared.Map;
 
 namespace Content.Server._Forge.Horizon;
 
@@ -79,13 +80,14 @@ public sealed partial class HorizonSystem
 
     private void OnConsoleAfterInteract(Entity<HorizonConsoleComponent> ent, ref AfterInteractEvent args)
     {
-        if (args.Handled || !args.CanReach || !ent.Comp.AcceptsResources || args.Used is not { } used ||
-            !TryComp<StackComponent>(used, out var stack) ||
+        if (args.Handled || !args.CanReach || !ent.Comp.AcceptsResources || !args.Used.IsValid() ||
+            !TryComp<StackComponent>(args.Used, out var stack) ||
             (ent.Comp.AcceptedStacks.Count > 0 && !ent.Comp.AcceptedStacks.Contains(stack.StackTypeId)))
         {
             return;
         }
 
+        var used = args.Used;
         var units = Math.Min(
             stack.Count,
             Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxContributionUnits)));
@@ -119,7 +121,7 @@ public sealed partial class HorizonSystem
         if (State.Relations.TryGetValue(organization, out var relation))
             return relation;
 
-        if (State.Relations.Count >= Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxRelations)))
+        if (State.Relations.Count >= Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxRelations), 1, 256))
             return null;
 
         relation = new HorizonRelation { Organization = organization };
@@ -172,7 +174,7 @@ public sealed partial class HorizonSystem
             ent.Comp.AcceptsResources,
             BuildNetworkNeed(),
             BuildDiagnostics(relation.Access),
-            actor is { } user && CanWanderingAiHandoff(user),
+            actor is { } handoffActor && CanWanderingAiHandoff(handoffActor),
             IsWanderingCarrierControlled(),
             actor is { } viewer ? BuildWanderingAiBrief(viewer) : string.Empty);
         _userInterface.SetUiState(ent.Owner, HorizonConsoleUiKey.Key, state);
@@ -196,7 +198,7 @@ public sealed partial class HorizonSystem
 
         var output = new StringBuilder(1024);
         output.AppendLine("OBJECTS");
-        foreach (var obj in State.Objects.Values.OrderBy(value => value.ObjectId).Take(24))
+        foreach (var obj in State.Objects.Values.Take(64).OrderBy(value => value.ObjectId).Take(24))
             output.AppendLine($"{obj.ObjectId} {obj.Kind} {(obj.Active ? "online" : "offline")} d{obj.BranchDepth}");
 
         output.AppendLine("ORDERS");

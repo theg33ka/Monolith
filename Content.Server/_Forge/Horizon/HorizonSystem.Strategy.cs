@@ -58,7 +58,7 @@ public sealed partial class HorizonSystem
 
     private void TryPlanNextProject()
     {
-        if (ActiveOrderCount() >= Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxOrders)))
+        if (ActiveOrderCount() >= Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxOrders), 1, 128))
             return;
 
         var candidates = _prototypes.EnumeratePrototypes<HorizonProjectPrototype>()
@@ -87,7 +87,7 @@ public sealed partial class HorizonSystem
     {
         orderId = default;
         PruneFinishedOrders();
-        var maxOrders = Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxOrders));
+        var maxOrders = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxOrders), 1, 128);
         if (ActiveOrderCount() >= maxOrders || State.Orders.Count >= maxOrders)
             return false;
 
@@ -126,7 +126,7 @@ public sealed partial class HorizonSystem
 
     private void PruneFinishedOrders()
     {
-        var maxOrders = Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxOrders));
+        var maxOrders = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxOrders), 1, 128);
         if (State.Orders.Count < maxOrders)
             return;
 

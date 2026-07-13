@@ -4,6 +4,7 @@ using Content.Server._Forge.Horizon.Components;
 using Content.Server._Forge.Horizon.Domain;
 using Content.Shared._Forge.CCVar;
 using Content.Shared._Forge.Horizon;
+using Content.Shared._Forge.Horizon.Components;
 using Content.Shared._Forge.Horizon.Prototypes;
 using Robust.Shared.Map;
 
@@ -34,7 +35,7 @@ public sealed partial class HorizonSystem
             return;
         }
 
-        var objectLimit = Math.Max(2, _configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit));
+        var objectLimit = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit), 2, 128);
         var objects = State.Objects.Values
             .Where(obj => obj.Active && obj.MapId == mapId && obj.Kind != HorizonObjectKind.Ams)
             .Take(objectLimit)
@@ -180,7 +181,7 @@ public sealed partial class HorizonSystem
 
     public bool RegisterProtectedZone(MapId mapId, Vector2 position, float radius, bool hard)
     {
-        var limit = Math.Max(2, _configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit));
+        var limit = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit), 2, 128);
         if (State.ProtectedZones.Count >= limit)
             return false;
 

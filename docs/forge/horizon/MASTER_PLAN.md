@@ -129,16 +129,16 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Announcements.
 - [x] Destruction state.
 - [x] End-to-end scenario.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 10 — Stabilization
 
-- [ ] Full review.
-- [ ] Lifecycle review.
-- [ ] Performance profiling.
-- [ ] Long test.
-- [ ] Regression fixes.
-- [ ] Docs update.
+- [x] Full review.
+- [x] Lifecycle review.
+- [x] Performance profiling.
+- [x] Long test.
+- [x] Regression fixes.
+- [x] Docs update.
 - [ ] Final commit.
 
 ## Repository findings
@@ -176,6 +176,9 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 8 Wandering AI role, 30h/5h requirements, fixed directives, restricted O-01 context and single unarmed AMU-05 carrier handoff/return implemented. Validation deferred to the final combined pass.
 - 2026-07-13: Phase 8 committed as `e9ffa689bf`.
 - 2026-07-13: Phase 9 integrated all 12 required runtime objects, physical temporary fixtures, industrial/armed/loss announcements, irreversible destruction policy and a full domain scenario. `CONTENT_STATUS.md` records every reused map and the 53-row workbook scope. Validation deferred to the final combined pass.
+- 2026-07-13: Phase 9 committed as `d810ec2aab`.
+- 2026-07-13: Phase 10 lifecycle/performance review bounded unsafe runtime CVar values, stopped same-drain requeue churn, prevented per-hit duplicate AMZ dispatch and closed stale object/incident references.
+- 2026-07-13: Final Release solution build passed. Focused Horizon tests passed 33/33; the 500-cycle typical-cluster soak took 41.71 ms. Full server/client YAML validation reported no errors in 179699 ms.
 
 ## Technical decisions
 
@@ -189,4 +192,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 9, then perform Phase 10 lifecycle/performance review and the single final combined validation pass._
+_Create the final local stabilization commit and hand off the completed MVP without pushing._

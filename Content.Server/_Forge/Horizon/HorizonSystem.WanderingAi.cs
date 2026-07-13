@@ -4,6 +4,7 @@ using Content.Server._Forge.Horizon.Domain;
 using Content.Shared._CorvaxNext.Silicons.Borgs.Components;
 using Content.Shared.Mind;
 using Content.Shared.Silicons.StationAi;
+using Robust.Shared.Map;
 
 namespace Content.Server._Forge.Horizon;
 
@@ -57,15 +58,17 @@ public sealed partial class HorizonSystem
             return false;
 
         var aiAvailable = Exists(ai) && TryComp<StationAiHeldComponent>(ai, out _);
-        var carrierAvailable = Exists(carrier) && TryComp<AiRemoteControllerComponent>(carrier, out var remote);
+        if (!Exists(carrier) || !TryComp<AiRemoteControllerComponent>(carrier, out var remote))
+            return false;
+
         return HorizonWanderingAiPolicy.CanHandoff(
             State.Phase,
             actor == ai,
             aiAvailable,
-            carrierAvailable,
+            true,
             aiAvailable && _mind.TryGetMind(ai, out _, out _),
-            carrierAvailable && _mind.TryGetMind(carrier, out _, out _),
-            carrierAvailable && remote!.AiHolder is null && remote.LinkedMind is null,
+            _mind.TryGetMind(carrier, out _, out _),
+            remote.AiHolder is null && remote.LinkedMind is null,
             aiAvailable && _stationAi.TryGetCore(ai, out _));
     }
 

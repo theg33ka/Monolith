@@ -109,7 +109,9 @@ public sealed partial class HorizonSystem : EntitySystem
         State.ObjectCounts[record.Kind] = State.ObjectCounts.GetValueOrDefault(record.Kind) + 1;
         State.Aggregates.Add(record, 1);
 
-        if (record.Active && record.ProtectedRadius > 0f)
+        if (record.Active && record.ProtectedRadius > 0f &&
+            State.ProtectedZones.Count < Math.Clamp(
+                _configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit), 2, 128))
             State.ProtectedZones.Add(new HorizonProtectedZone(record.MapId, record.WorldPosition, record.ProtectedRadius, true, ent.Owner));
 
         return true;
@@ -130,6 +132,14 @@ public sealed partial class HorizonSystem : EntitySystem
             State.ObjectCounts[record.Kind] = count;
 
         State.ProtectedZones.RemoveAll(zone => zone.Entity == uid);
+        if (State.PrimaryRtr == uid)
+            State.PrimaryRtr = null;
+        if (State.NeighborRtr == uid)
+            State.NeighborRtr = null;
+        if (State.CommandObject == uid)
+            State.CommandObject = null;
+        if (State.ActiveAms == uid)
+            State.ActiveAms = null;
         return true;
     }
 
@@ -160,7 +170,9 @@ public sealed partial class HorizonSystem : EntitySystem
         record.ClusterId = clusterId;
 
         State.Aggregates.Add(record, 1);
-        if (record.Active && record.ProtectedRadius > 0f)
+        if (record.Active && record.ProtectedRadius > 0f &&
+            State.ProtectedZones.Count < Math.Clamp(
+                _configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit), 2, 128))
             State.ProtectedZones.Add(new HorizonProtectedZone(record.MapId, record.WorldPosition, record.ProtectedRadius, true, uid));
 
         return true;
@@ -227,7 +239,9 @@ public sealed partial class HorizonSystem : EntitySystem
         State.ObjectCounts[kind] = State.ObjectCounts.GetValueOrDefault(kind) + 1;
         State.Aggregates.Add(record, 1);
 
-        if (record.Active && record.ProtectedRadius > 0f)
+        if (record.Active && record.ProtectedRadius > 0f &&
+            State.ProtectedZones.Count < Math.Clamp(
+                _configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit), 2, 128))
             State.ProtectedZones.Add(new HorizonProtectedZone(record.MapId, record.WorldPosition, record.ProtectedRadius, true, uid));
 
         return true;

@@ -116,9 +116,11 @@ public sealed partial class HorizonSystem
 
             var playerTransform = Transform(player);
             var playerPosition = _transform.GetWorldPosition(playerTransform);
-            foreach (var rtr in State.Objects.Values)
+            foreach (var rtr in State.Objects.Values
+                         .Where(value => value.Kind == HorizonObjectKind.Rtr && value.Dormant)
+                         .Take(8))
             {
-                if (rtr.Kind != HorizonObjectKind.Rtr || !rtr.Dormant || rtr.MapId != playerTransform.MapID)
+                if (rtr.MapId != playerTransform.MapID)
                     continue;
 
                 if (Vector2.DistanceSquared(playerPosition, rtr.WorldPosition) > proximitySquared)
@@ -140,6 +142,7 @@ public sealed partial class HorizonSystem
 
         var dormant = State.Objects.Values
             .Where(obj => obj.Kind == HorizonObjectKind.Rtr && obj.Dormant && !Deleted(obj.Entity))
+            .Take(8)
             .Select(obj => obj.Entity)
             .ToList();
         if (dormant.Count < 2)

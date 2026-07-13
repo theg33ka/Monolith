@@ -84,9 +84,9 @@ public sealed partial class HorizonSystem
             Math.Max(0.25f, _configuration.GetCVar(ForgeCVars.HorizonOrderCheckInterval)));
 
         var now = _timing.CurTime;
-        var limit = Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonWorkItemsPerTick));
-        State.WorkQueue.Drain(limit, item => ProcessShuttleWork(item, now));
+        var limit = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonWorkItemsPerTick), 1, 32);
         State.Performance.QueuePeak = Math.Max(State.Performance.QueuePeak, State.WorkQueue.Count);
+        State.WorkQueue.Drain(limit, item => ProcessShuttleWork(item, now));
 
         foreach (var core in _shuttleCores.ToArray())
         {
@@ -301,6 +301,7 @@ public sealed partial class HorizonSystem
     {
         var dormant = State.Objects.Values
             .Where(obj => obj.Kind == HorizonObjectKind.Rtr && obj.Dormant && !Deleted(obj.Entity))
+            .Take(8)
             .Select(obj => obj.Entity)
             .ToList();
         if (dormant.Count < 2)
