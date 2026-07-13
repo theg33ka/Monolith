@@ -1,0 +1,52 @@
+- type: entity
+  id: HorizonCommunicationConsole
+  parent: [BaseStructureDisableToolUse, BaseComputerAiAccess]
+  name: Horizon communication console
+  description: A hardened communications and diagnostics link to the autonomous Horizon network.
+  components:
+  - type: Sprite
+    layers:
+    - map: ["computerLayerBody"]
+      state: computer
+    - map: ["computerLayerKeyboard"]
+      state: generic_keyboard
+    - map: ["computerLayerScreen"]
+      state: comm_logs
+    - map: ["computerLayerKeys"]
+      state: tech_key
+  - type: HorizonConsole
+  - type: ActivatableUI
+    key: enum.HorizonConsoleUiKey.Key
+  - type: UserInterface
+    interfaces:
+      enum.HorizonConsoleUiKey.Key:
+        type: HorizonConsoleBoundUserInterface
+  - type: Computer
+    board: CargoSaleComputerCircuitboard
+  - type: PointLight
+    radius: 1.5
+    energy: 1.4
+    color: "#35c9c2"
+
+- type: entity
+  id: HorizonResourceTerminal
+  parent: HorizonCommunicationConsole
+  name: Horizon resource terminal
+  description: Accepts registered material stacks as contributions to the Horizon network.
+  components:
+  - type: HorizonConsole
+    acceptsResources: true
+    acceptedStacks:
+    - Steel
+    - Plasteel
+    - Glass
+  - type: Sprite
+    layers:
+    - map: ["computerLayerBody"]
+      state: computer
+    - map: ["computerLayerKeyboard"]
+      state: generic_keyboard
+    - map: ["computerLayerScreen"]
+      state: supply
+    - map: ["computerLayerKeys"]
+      state: tech_key

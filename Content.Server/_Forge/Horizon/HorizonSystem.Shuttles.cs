@@ -239,7 +239,7 @@ public sealed partial class HorizonSystem
             ? ams.WorldPosition
             : _transform.GetWorldPosition(Transform(core));
 
-        if (!TryLoadProjectGrid(shuttle.DeployProjectId, position, out var grid) || grid is not { } stationGrid)
+        if (!TryCreateO01(position, out var stationCore))
         {
             order.Status = HorizonOrderStatus.Failed;
             order.FailureReason = "O-01 grid could not be loaded";
@@ -247,24 +247,6 @@ public sealed partial class HorizonSystem
             DeleteAmsGrid(core);
             return;
         }
-
-        var stationCore = Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero));
-        var project = _prototypes.Index<HorizonProjectPrototype>(shuttle.DeployProjectId);
-        ConfigureObject(
-            stationCore,
-            "O-01",
-            HorizonObjectKind.Command,
-            project.ID,
-            State.ActiveCluster,
-            true,
-            false,
-            project.RawIncome,
-            project.EnergyCapacity,
-            project.ProductionCapacity,
-            project.ProtectedRadius,
-            0,
-            project.TemporaryContent);
-        _metadata.SetEntityName(stationGrid, "АКС «Горизонт» O-01");
 
         State.CommandObject = stationCore;
         State.MatureNetwork = true;
@@ -359,10 +341,20 @@ public sealed partial class HorizonSystem
             return $"Late deployment is unavailable in phase {State.Phase}.";
 
         var activation = BeginActivation(null, automatic: true);
-        if (State.PrimaryRtr is null || State.NeighborRtr is null)
+        if (State.PrimaryRtr is not { } primary || State.NeighborRtr is not { } neighbor ||
+            !State.Objects.TryGetValue(primary, out var primaryRecord) ||
+            !State.Objects.TryGetValue(neighbor, out var neighborRecord))
             return activation;
 
+        var position = (primaryRecord.WorldPosition + neighborRecord.WorldPosition) / 2f;
+        if (!TryCreateO01(position, out var stationCore))
+        {
+            DestroyNetwork("late deployment O-01 could not be loaded");
+            return "Late Horizon deployment failed to load O-01 and was terminated.";
+        }
+
         State.WakeCompletesAt = null;
+        State.CommandObject = stationCore;
         State.LateDeployment = true;
         State.MatureNetwork = true;
         State.Phase = HorizonDeploymentPhase.Operational;
@@ -370,7 +362,34 @@ public sealed partial class HorizonSystem
         State.Ledger.Components = 40;
         State.Ledger.Energy = 80;
         AnnounceOnce("late-deployment", Loc.GetString("horizon-announcement-late-deployment"));
-        return $"Late Horizon beachhead activated on {State.ActiveCluster}; AMS/O-01 bootstrap skipped.";
+        return $"Late Horizon beachhead with O-01 activated on {State.ActiveCluster}.";
+    }
+
+    private bool TryCreateO01(Vector2 position, out EntityUid stationCore)
+    {
+        stationCore = EntityUid.Invalid;
+        if (!TryLoadProjectGrid("HorizonO01", position, out var grid) || grid is not { } stationGrid)
+            return false;
+
+        var project = _prototypes.Index<HorizonProjectPrototype>("HorizonO01");
+        stationCore = Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero));
+        ConfigureObject(
+            stationCore,
+            project.ObjectId,
+            HorizonObjectKind.Command,
+            project.ID,
+            State.ActiveCluster,
+            true,
+            false,
+            project.RawIncome,
+            project.EnergyCapacity,
+            project.ProductionCapacity,
+            project.ProtectedRadius,
+            0,
+            project.TemporaryContent);
+        _metadata.SetEntityName(stationGrid, "Horizon O-01");
+        SpawnHorizonConsoles(stationGrid);
+        return true;
     }
 
     private bool TryLoadProjectGrid(string projectId, Vector2 position, out EntityUid? grid)

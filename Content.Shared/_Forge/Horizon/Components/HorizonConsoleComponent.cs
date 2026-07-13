@@ -1,5 +1,7 @@
 using Robust.Shared.GameStates;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
+using Content.Shared.Stacks;
 
 namespace Content.Shared._Forge.Horizon.Components;
 
@@ -8,6 +10,9 @@ public sealed partial class HorizonConsoleComponent : Component
 {
     [DataField]
     public bool AcceptsResources;
+
+    [DataField]
+    public List<ProtoId<StackPrototype>> AcceptedStacks = new();
 }
 
 [Serializable, NetSerializable]
@@ -48,6 +53,7 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
     public readonly int Incidents;
     public readonly bool AcceptsResources;
     public readonly string Need;
+    public readonly string Diagnostics;
 
     public HorizonConsoleBoundUserInterfaceState(
         HorizonDeploymentPhase phase,
@@ -64,7 +70,8 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
         int orders,
         int incidents,
         bool acceptsResources,
-        string need)
+        string need,
+        string diagnostics)
     {
         Phase = phase;
         Cluster = cluster;
@@ -81,5 +88,6 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
         Incidents = incidents;
         AcceptsResources = acceptsResources;
         Need = need;
+        Diagnostics = diagnostics;
     }
 }

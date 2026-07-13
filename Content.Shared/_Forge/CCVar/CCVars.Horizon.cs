@@ -49,6 +49,9 @@ public sealed partial class ForgeCVars
     public static readonly CVarDef<int> HorizonMaxRelations =
         CVarDef.Create("forge.horizon.max_relations", 64, CVar.SERVERONLY);
 
+    public static readonly CVarDef<int> HorizonMaxContributionUnits =
+        CVarDef.Create("forge.horizon.max_contribution_units", 50, CVar.SERVERONLY);
+
     public static readonly CVarDef<int> HorizonSpatialCandidateCount =
         CVarDef.Create("forge.horizon.spatial_candidate_count", 16, CVar.SERVERONLY);
 

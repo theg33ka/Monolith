@@ -97,16 +97,16 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] IFF.
 - [x] Defense costs/limits.
 - [x] Tests.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 7 — Relations/UI
 
-- [ ] Organization key.
-- [ ] Contribution/damage/access.
-- [ ] Communication console.
-- [ ] Resource terminal.
-- [ ] Diagnostics.
-- [ ] Tests.
+- [x] Organization key.
+- [x] Contribution/damage/access.
+- [x] Communication console.
+- [x] Resource terminal.
+- [x] Diagnostics.
+- [x] Tests.
 - [ ] Commit.
 
 ## Phase 8 — Wandering AI
@@ -170,6 +170,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 5 spatial/minimum network complete. `Content.Server` Release build passed, focused Horizon tests passed 15/15, and the rebuilt YAML linter reported no errors in 177789 ms.
 - 2026-07-13: Phase 5 committed as `69c91ef19d`.
 - 2026-07-13: Phase 6 event-driven incidents/AMZ defense implemented. Validation deferred to the final combined pass at the user's request.
+- 2026-07-13: Phase 6 committed as `ab10d1b13e`.
+- 2026-07-13: Phase 7 relations and event/coarse-refreshed console UI implemented. Late deployment now creates O-01 immediately. Validation deferred to the final combined pass.
 
 ## Technical decisions
 
@@ -183,4 +185,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 6, then implement Phase 7 organization relations, communication console, resource terminal and diagnostics UI._
+_Commit Phase 7, then implement Phase 8 Wandering AI role, directives, carrier handoff, permissions and return path._

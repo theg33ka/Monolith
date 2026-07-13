@@ -129,17 +129,13 @@ public sealed partial class HorizonSystem
 
     private void UpdateDamageRelation(string organization, float damage)
     {
-        if (!State.Relations.TryGetValue(organization, out var relation))
-        {
-            if (State.Relations.Count >= Math.Max(1, _configuration.GetCVar(ForgeCVars.HorizonMaxRelations)))
-                return;
-
-            relation = new HorizonRelation { Organization = organization };
-            State.Relations.Add(organization, relation);
-        }
+        var relation = GetOrCreateRelation(organization);
+        if (relation is null)
+            return;
 
         relation.Damage = Math.Clamp(relation.Damage + (int) MathF.Ceiling(damage), 0, 1000000);
         relation.Iff = HorizonDefensePolicy.IffForDamage(relation.Damage);
+        relation.Access = HorizonRelationPolicy.AccessFor(relation.Contribution, relation.Damage);
     }
 
     private void ProcessPendingIncidents()

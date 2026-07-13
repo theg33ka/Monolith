@@ -31,6 +31,7 @@ public sealed partial class HorizonSystem : EntitySystem
         InitializeDeployment();
         InitializeShuttles();
         InitializeDefense();
+        InitializeConsoles();
         ResetStrategyState();
     }
 
@@ -41,6 +42,7 @@ public sealed partial class HorizonSystem : EntitySystem
         UpdateStrategy();
         UpdateShuttles();
         UpdateDefense();
+        UpdateConsoles();
     }
 
     private void OnRoundRestart(RoundRestartCleanupEvent args)
@@ -49,6 +51,7 @@ public sealed partial class HorizonSystem : EntitySystem
         ResetDeploymentState();
         ResetShuttleState();
         ResetDefenseState();
+        ResetConsoleState();
         ResetStrategyState();
     }
 
