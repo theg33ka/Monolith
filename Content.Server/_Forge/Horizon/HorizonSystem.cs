@@ -32,6 +32,7 @@ public sealed partial class HorizonSystem : EntitySystem
         InitializeShuttles();
         InitializeDefense();
         InitializeConsoles();
+        InitializeWanderingAi();
         ResetStrategyState();
     }
 
@@ -52,6 +53,7 @@ public sealed partial class HorizonSystem : EntitySystem
         ResetShuttleState();
         ResetDefenseState();
         ResetConsoleState();
+        ResetWanderingAiState();
         ResetStrategyState();
     }
 

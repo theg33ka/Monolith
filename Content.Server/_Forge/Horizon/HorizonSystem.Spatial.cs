@@ -86,9 +86,12 @@ public sealed partial class HorizonSystem
             return;
         }
 
-        var stationCore = project.Kind == HorizonObjectKind.Amz
-            ? CreateAmzExecutor(stationGrid)
-            : Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero));
+        var stationCore = project.Kind switch
+        {
+            HorizonObjectKind.Amz => CreateAmzExecutor(stationGrid),
+            HorizonObjectKind.Salvage when project.ID == "HorizonAMU05" => CreateWanderingCarrier(stationGrid),
+            _ => Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero)),
+        };
         ConfigureObject(
             stationCore,
             project.ObjectId,

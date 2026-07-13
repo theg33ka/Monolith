@@ -22,6 +22,7 @@
             <Label Name="DiagnosticsLabel" HorizontalExpand="True" />
         </ScrollContainer>
         <Label Name="ContributionHintLabel" />
+        <Button Name="HandoffButton" Access="Public" Text="{Loc 'horizon-console-ai-handoff'}" Visible="False" />
         <Button Name="RefreshButton" Access="Public" Text="{Loc 'horizon-console-refresh'}" />
     </BoxContainer>
 </controls:FancyWindow>

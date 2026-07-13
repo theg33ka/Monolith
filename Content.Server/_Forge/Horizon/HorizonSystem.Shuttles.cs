@@ -389,6 +389,7 @@ public sealed partial class HorizonSystem
             project.TemporaryContent);
         _metadata.SetEntityName(stationGrid, "Horizon O-01");
         SpawnHorizonConsoles(stationGrid);
+        Spawn("PlayerStationAiHorizon", new EntityCoordinates(stationGrid, new Vector2(0f, 1f)));
         return true;
     }
 

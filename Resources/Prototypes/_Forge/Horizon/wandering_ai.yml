@@ -1,0 +1,111 @@
+- type: entity
+  id: AiHeldHorizon
+  description: Restricted components granted while the Wandering AI is held by O-01.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: IntrinsicRadioReceiver
+  - type: IntrinsicRadioTransmitter
+    channels:
+    - Common
+    - Traffic
+  - type: ActiveRadio
+    channels:
+    - Common
+    - Traffic
+  - type: CollectiveMind
+    channels:
+    - Binary
+    defaultChannel: Binary
+  - type: IgnoreUIRange
+  - type: StationAiHeld
+  - type: StationAiOverlay
+  - type: ActionGrant
+    actions:
+    - ActionJumpToCore
+    - ActionAIViewLaws
+  - type: HolographicAvatar
+    layerData:
+    - sprite: Mobs/Silicon/station_ai.rsi
+      state: default
+  - type: ShowJobIcons
+
+- type: entity
+  id: PlayerStationAiHorizon
+  parent: PlayerStationAiEmpty
+  name: horizon-wandering-ai-core-name
+  description: horizon-wandering-ai-core-description
+  suffix: Horizon, Ghost Role
+  components:
+  - type: ContainerComp
+    proto: AiHeldHorizon
+    container: station_ai_mind_slot
+  - type: ContainerFill
+    containers:
+      station_ai_mind_slot:
+      - StationAiBrainHorizon
+  - type: Sprite
+    sprite: Mobs/Silicon/station_ai.rsi
+    layers:
+    - state: base
+    - state: ai
+      shader: unshaded
+      color: "#35c9c2"
+
+- type: entity
+  id: StationAiBrainHorizon
+  parent: StationAiBrain
+  name: horizon-wandering-ai-name
+  categories: [ HideSpawnMenu, DoNotMap ]
+  components:
+  - type: SiliconLawProvider
+    laws: HorizonWandering
+  - type: Access
+    groups: []
+    tags: []
+  - type: HorizonWanderingAi
+    goal: Prepare the sector for sustainable autonomous settlement.
+    context: You are the single mobile operator of Horizon; the strategic scheduler remains autonomous.
+    permissions: Operate Horizon consoles and the single designated AMU-05 carrier; do not command network strategy.
+  - type: GhostRole
+    name: horizon-wandering-ai-name
+    description: horizon-wandering-ai-description
+    rules: horizon-wandering-ai-rules
+    raffle:
+      settings: default
+    requirements:
+    - !type:OverallPlaytimeRequirement
+      time: 108000 # 30 hours
+    - !type:RoleTimeRequirement
+      role: JobStationAi
+      time: 18000 # 5 hours
+    prototype: HorizonWanderingAi
+    reregister: false
+  - type: GhostTakeoverAvailable
+
+- type: entity
+  id: HorizonWanderingCarrier
+  parent: PlayerBorgForerunnerAiRemote
+  name: horizon-wandering-ai-carrier-name
+  description: horizon-wandering-ai-carrier-description
+  suffix: Horizon, AI Remote, Unarmed
+  components:
+  - type: HorizonWanderingCarrier
+  - type: ContainerFill
+    containers:
+      borg_brain:
+      - AiRemoteBrain
+      borg_module: []
+  - type: BorgChassis
+    maxModules: 0
+    hasMindState: synd_engi_e
+    noMindState: synd_engi_e
+  - type: SiliconLawProvider
+    laws: HorizonWandering
+  - type: NpcFactionMember
+    factions:
+    - Horizon
+  - type: Access
+    groups: []
+    tags: []
+  - type: AccessReader
+    access: []

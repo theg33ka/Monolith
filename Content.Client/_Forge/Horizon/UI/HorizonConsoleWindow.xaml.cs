@@ -25,5 +25,10 @@ public sealed partial class HorizonConsoleWindow : FancyWindow
         ContributionHintLabel.Text = state.AcceptsResources
             ? Loc.GetString("horizon-console-contribution-hint")
             : Loc.GetString("horizon-console-communication-hint");
+        HandoffButton.Visible = state.CanHandoff || state.CarrierControlled;
+        HandoffButton.Disabled = !state.CanHandoff;
+        HandoffButton.Text = state.CarrierControlled
+            ? Loc.GetString("horizon-console-ai-deployed")
+            : Loc.GetString("horizon-console-ai-handoff");
     }
 }

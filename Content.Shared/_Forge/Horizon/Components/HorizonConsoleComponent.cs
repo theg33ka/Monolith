@@ -36,6 +36,9 @@ public sealed class HorizonConsoleContributeMessage : BoundUserInterfaceMessage
 }
 
 [Serializable, NetSerializable]
+public sealed class HorizonConsoleHandoffMessage : BoundUserInterfaceMessage;
+
+[Serializable, NetSerializable]
 public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceState
 {
     public readonly HorizonDeploymentPhase Phase;
@@ -54,6 +57,8 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
     public readonly bool AcceptsResources;
     public readonly string Need;
     public readonly string Diagnostics;
+    public readonly bool CanHandoff;
+    public readonly bool CarrierControlled;
 
     public HorizonConsoleBoundUserInterfaceState(
         HorizonDeploymentPhase phase,
@@ -71,7 +76,9 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
         int incidents,
         bool acceptsResources,
         string need,
-        string diagnostics)
+        string diagnostics,
+        bool canHandoff,
+        bool carrierControlled)
     {
         Phase = phase;
         Cluster = cluster;
@@ -89,5 +96,7 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
         AcceptsResources = acceptsResources;
         Need = need;
         Diagnostics = diagnostics;
+        CanHandoff = canHandoff;
+        CarrierControlled = carrierControlled;
     }
 }

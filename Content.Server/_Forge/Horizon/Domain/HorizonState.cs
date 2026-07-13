@@ -15,6 +15,8 @@ public sealed class HorizonState
     public EntityUid? NeighborRtr;
     public EntityUid? CommandObject;
     public EntityUid? ActiveAms;
+    public EntityUid? WanderingAi;
+    public EntityUid? WanderingCarrier;
     public int AmsAttempt;
     public bool EmergencyClusterUsed;
     public bool MatureNetwork;
@@ -45,6 +47,8 @@ public sealed class HorizonState
         NeighborRtr = null;
         CommandObject = null;
         ActiveAms = null;
+        WanderingAi = null;
+        WanderingCarrier = null;
         AmsAttempt = 0;
         EmergencyClusterUsed = false;
         MatureNetwork = false;

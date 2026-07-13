@@ -1,0 +1,41 @@
+- type: siliconLaw
+  id: HorizonWandering1
+  order: 1
+  lawString: horizon-law-1
+
+- type: siliconLaw
+  id: HorizonWandering2
+  order: 2
+  lawString: horizon-law-2
+
+- type: siliconLaw
+  id: HorizonWandering3
+  order: 3
+  lawString: horizon-law-3
+
+- type: siliconLaw
+  id: HorizonWandering4
+  order: 4
+  lawString: horizon-law-4
+
+- type: siliconLaw
+  id: HorizonWandering5
+  order: 5
+  lawString: horizon-law-5
+
+- type: siliconLaw
+  id: HorizonWandering6
+  order: 6
+  lawString: horizon-law-6
+
+- type: siliconLawset
+  id: HorizonWandering
+  laws:
+  - HorizonWandering1
+  - HorizonWandering2
+  - HorizonWandering3
+  - HorizonWandering4
+  - HorizonWandering5
+  - HorizonWandering6
+  obeysTo: horizon-law-owner
+

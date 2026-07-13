@@ -107,19 +107,19 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Resource terminal.
 - [x] Diagnostics.
 - [x] Tests.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 8 — Wandering AI
 
-- [ ] Role prototype.
-- [ ] Playtime.
-- [ ] Directives.
-- [ ] Goal/context/permissions.
-- [ ] Ghost offer.
-- [ ] Handoff.
-- [ ] Return to AI.
-- [ ] Abuse safeguards.
-- [ ] Tests.
+- [x] Role prototype.
+- [x] Playtime.
+- [x] Directives.
+- [x] Goal/context/permissions.
+- [x] Ghost offer.
+- [x] Handoff.
+- [x] Return to AI.
+- [x] Abuse safeguards.
+- [x] Tests.
 - [ ] Commit.
 
 ## Phase 9 — Integration
@@ -172,6 +172,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 6 event-driven incidents/AMZ defense implemented. Validation deferred to the final combined pass at the user's request.
 - 2026-07-13: Phase 6 committed as `ab10d1b13e`.
 - 2026-07-13: Phase 7 relations and event/coarse-refreshed console UI implemented. Late deployment now creates O-01 immediately. Validation deferred to the final combined pass.
+- 2026-07-13: Phase 7 committed as `1b9d02cc05`.
+- 2026-07-13: Phase 8 Wandering AI role, 30h/5h requirements, fixed directives, restricted O-01 context and single unarmed AMU-05 carrier handoff/return implemented. Validation deferred to the final combined pass.
 
 ## Technical decisions
 
@@ -185,4 +187,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 7, then implement Phase 8 Wandering AI role, directives, carrier handoff, permissions and return path._
+_Commit Phase 8, then complete Phase 9 integration, destruction and end-to-end scenario coverage._

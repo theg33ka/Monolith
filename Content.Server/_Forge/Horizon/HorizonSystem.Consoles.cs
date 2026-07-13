@@ -29,6 +29,7 @@ public sealed partial class HorizonSystem
         SubscribeLocalEvent<HorizonConsoleComponent, BoundUIOpenedEvent>(OnConsoleOpened);
         SubscribeLocalEvent<HorizonConsoleComponent, HorizonConsoleRefreshMessage>(OnConsoleRefresh);
         SubscribeLocalEvent<HorizonConsoleComponent, HorizonConsoleContributeMessage>(OnConsoleContributeMessage);
+        SubscribeLocalEvent<HorizonConsoleComponent, HorizonConsoleHandoffMessage>(OnConsoleHandoff);
         SubscribeLocalEvent<HorizonConsoleComponent, AfterInteractEvent>(OnConsoleAfterInteract);
     }
 
@@ -65,6 +66,14 @@ public sealed partial class HorizonSystem
     private void OnConsoleContributeMessage(Entity<HorizonConsoleComponent> ent, ref HorizonConsoleContributeMessage args)
     {
         _consoleActors[ent.Owner] = args.Actor;
+        UpdateConsoleUi(ent, args.Actor);
+    }
+
+    private void OnConsoleHandoff(Entity<HorizonConsoleComponent> ent, ref HorizonConsoleHandoffMessage args)
+    {
+        _consoleActors[ent.Owner] = args.Actor;
+        var result = HandoffWanderingAi(args.Actor);
+        _popup.PopupEntity(result, ent.Owner, args.Actor, PopupType.Medium);
         UpdateConsoleUi(ent, args.Actor);
     }
 
@@ -162,7 +171,9 @@ public sealed partial class HorizonSystem
             State.Incidents.Count,
             ent.Comp.AcceptsResources,
             BuildNetworkNeed(),
-            BuildDiagnostics(relation.Access));
+            BuildDiagnostics(relation.Access),
+            actor is { } user && CanWanderingAiHandoff(user),
+            IsWanderingCarrierControlled());
         _userInterface.SetUiState(ent.Owner, HorizonConsoleUiKey.Key, state);
     }
 

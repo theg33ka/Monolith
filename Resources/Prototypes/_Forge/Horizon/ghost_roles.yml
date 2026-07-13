@@ -1,0 +1,6 @@
+- type: ghostRole
+  id: HorizonWanderingAi
+  name: horizon-wandering-ai-name
+  description: horizon-wandering-ai-description
+  rules: horizon-wandering-ai-rules
+  entityPrototype: PlayerStationAiHorizon

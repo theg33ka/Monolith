@@ -19,6 +19,7 @@ public sealed class HorizonConsoleBoundUserInterface : BoundUserInterface
             Title = EntMan.GetComponent<MetaDataComponent>(Owner).EntityName,
         };
         _window.RefreshButton.OnPressed += _ => SendMessage(new HorizonConsoleRefreshMessage());
+        _window.HandoffButton.OnPressed += _ => SendMessage(new HorizonConsoleHandoffMessage());
         _window.OnClose += Close;
         _window.OpenCentered();
     }

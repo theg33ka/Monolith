@@ -17,7 +17,8 @@ internal static class HorizonCommandOutput
                $"orders={state.Orders.Count} incidents={state.Incidents.Count} queue={state.WorkQueue.Count}/{state.WorkQueue.Capacity} " +
                $"raw={state.Ledger.Raw} components={state.Ledger.Components} energy={state.Ledger.Energy} " +
                $"income={state.Aggregates.RawIncome} production={state.Aggregates.ProductionCapacity} " +
-               $"ams_attempt={state.AmsAttempt}/3 emergency_used={state.EmergencyClusterUsed} mature={state.MatureNetwork}";
+               $"ams_attempt={state.AmsAttempt}/3 emergency_used={state.EmergencyClusterUsed} mature={state.MatureNetwork} " +
+               $"wandering_ai={state.WanderingAi?.ToString() ?? "none"} carrier={state.WanderingCarrier?.ToString() ?? "none"}";
     }
 
     public static string Objects(HorizonState state)
@@ -152,7 +153,7 @@ public sealed class HorizonForceEventCommand : IConsoleCommand
 
     public string Command => "horizon_force_event";
     public string Description => "Forces a bounded АКС Horizon lifecycle event for testing.";
-    public string Help => "horizon_force_event <setup|activate|auto|late|destroy> [RTR entity]";
+    public string Help => "horizon_force_event <setup|activate|auto|late|destroy|ai_handoff|ai_return> [entity]";
 
     public void Execute(IConsoleShell shell, string argStr, string[] args)
     {
@@ -192,6 +193,17 @@ public sealed class HorizonForceEventCommand : IConsoleCommand
             case "destroy":
                 system.DestroyNetwork("admin force event");
                 shell.WriteLine("Horizon network marked permanently destroyed.");
+                break;
+            case "ai_handoff":
+                if (args.Length < 2 || !EntityUid.TryParse(args[1], out var ai))
+                {
+                    shell.WriteError("horizon_force_event ai_handoff <Wandering AI entity uid>");
+                    return;
+                }
+                shell.WriteLine(system.HandoffWanderingAi(ai));
+                break;
+            case "ai_return":
+                shell.WriteLine(system.ReturnWanderingAi());
                 break;
             default:
                 shell.WriteError(Help);
