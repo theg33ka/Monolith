@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Numerics;
+using Content.Server._Forge.Horizon.Components;
 using Content.Server._Forge.Horizon.Domain;
 using Content.Shared._Forge.CCVar;
 using Content.Shared._Forge.Horizon;
@@ -13,6 +14,7 @@ public sealed partial class HorizonSystem
     partial void OnStrategicCycle()
     {
         ProcessNextBuildOrder();
+        ProcessPendingIncidents();
     }
 
     private void ProcessNextBuildOrder()
@@ -84,7 +86,9 @@ public sealed partial class HorizonSystem
             return;
         }
 
-        var stationCore = Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero));
+        var stationCore = project.Kind == HorizonObjectKind.Amz
+            ? CreateAmzExecutor(stationGrid)
+            : Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero));
         ConfigureObject(
             stationCore,
             project.ObjectId,
@@ -104,6 +108,19 @@ public sealed partial class HorizonSystem
         order.Status = HorizonOrderStatus.Complete;
         AnnounceOnce($"project-{project.ID}",
             Loc.GetString("horizon-announcement-project-online", ("project", project.ObjectId)));
+    }
+
+    private EntityUid CreateAmzExecutor(EntityUid grid)
+    {
+        var core = TryFindShuttleConsole(grid, out var existing)
+            ? existing
+            : Spawn("ComputerShuttle", new EntityCoordinates(grid, Vector2.Zero));
+        EnsureComp<HorizonObjectComponent>(core);
+        EnsureComp<HorizonDefenseExecutorComponent>(core);
+        _npcFaction.AddFaction(core, "Horizon");
+        _shuttle.SetIFFColor(grid, Color.FromHex("#35c9c2"));
+        _shuttle.SetIFFReadOnly(grid, true);
+        return core;
     }
 
     private bool TryGetClusterAnchor(out EntityUid anchorEntity, out MapId mapId, out Vector2 position)

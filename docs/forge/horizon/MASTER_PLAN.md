@@ -85,18 +85,18 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Bubble/density/branch.
 - [x] Minimum station set.
 - [x] Tests.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 6 — Defense
 
-- [ ] Incident aggregation.
-- [ ] Immediate response.
-- [ ] AMZ.
-- [ ] Defend orders.
-- [ ] Chase limits.
-- [ ] IFF.
-- [ ] Defense costs/limits.
-- [ ] Tests.
+- [x] Incident aggregation.
+- [x] Immediate response.
+- [x] AMZ.
+- [x] Defend orders.
+- [x] Chase limits.
+- [x] IFF.
+- [x] Defense costs/limits.
+- [x] Tests.
 - [ ] Commit.
 
 ## Phase 7 — Relations/UI
@@ -168,6 +168,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 4 scheduler/economy complete. `Content.Server` Release build passed and focused Horizon tests passed 13/13.
 - 2026-07-13: Phase 4 committed as `dc9c11af41`.
 - 2026-07-13: Phase 5 spatial/minimum network complete. `Content.Server` Release build passed, focused Horizon tests passed 15/15, and the rebuilt YAML linter reported no errors in 177789 ms.
+- 2026-07-13: Phase 5 committed as `69c91ef19d`.
+- 2026-07-13: Phase 6 event-driven incidents/AMZ defense implemented. Validation deferred to the final combined pass at the user's request.
 
 ## Technical decisions
 
@@ -181,4 +183,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 5, then implement Phase 6 event-driven incidents, AMZ response, chase/IFF and defense costs._
+_Commit Phase 6, then implement Phase 7 organization relations, communication console, resource terminal and diagnostics UI._

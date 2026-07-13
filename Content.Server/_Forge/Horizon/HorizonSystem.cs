@@ -30,6 +30,7 @@ public sealed partial class HorizonSystem : EntitySystem
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
         InitializeDeployment();
         InitializeShuttles();
+        InitializeDefense();
         ResetStrategyState();
     }
 
@@ -39,6 +40,7 @@ public sealed partial class HorizonSystem : EntitySystem
         UpdateDeployment();
         UpdateStrategy();
         UpdateShuttles();
+        UpdateDefense();
     }
 
     private void OnRoundRestart(RoundRestartCleanupEvent args)
@@ -46,6 +48,7 @@ public sealed partial class HorizonSystem : EntitySystem
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
         ResetDeploymentState();
         ResetShuttleState();
+        ResetDefenseState();
         ResetStrategyState();
     }
 
@@ -57,6 +60,7 @@ public sealed partial class HorizonSystem : EntitySystem
     private void OnObjectShutdown(Entity<HorizonObjectComponent> ent, ref ComponentShutdown args)
     {
         var commandDestroyed = State.CommandObject == ent.Owner && State.Phase != HorizonDeploymentPhase.Destroyed;
+        OnRegisteredObjectDestroyed(ent.Owner);
         UnregisterObject(ent.Owner);
         if (commandDestroyed)
             DestroyNetwork("O-01 command object was destroyed");

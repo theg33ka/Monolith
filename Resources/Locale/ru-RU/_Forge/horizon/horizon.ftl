@@ -10,3 +10,4 @@ horizon-announcement-emergency-relocation = Основное развёртыв�
 horizon-announcement-o01-online = Командная станция O-01 введена в строй. «Горизонт» перешёл к автономной работе.
 horizon-announcement-late-deployment = Поздний профиль «Горизонта» активировал защищённый резервный плацдарм.
 horizon-announcement-project-online = Объект «Горизонта» {$project} введён в автономную эксплуатацию.
+horizon-announcement-defense-dispatched = «Горизонт» направил модуль АМЗ для защиты {$target}.

@@ -46,6 +46,9 @@ public sealed partial class ForgeCVars
     public static readonly CVarDef<int> HorizonMaxIncidents =
         CVarDef.Create("forge.horizon.max_incidents", 32, CVar.SERVERONLY);
 
+    public static readonly CVarDef<int> HorizonMaxRelations =
+        CVarDef.Create("forge.horizon.max_relations", 64, CVar.SERVERONLY);
+
     public static readonly CVarDef<int> HorizonSpatialCandidateCount =
         CVarDef.Create("forge.horizon.spatial_candidate_count", 16, CVar.SERVERONLY);
 
@@ -63,6 +66,18 @@ public sealed partial class ForgeCVars
 
     public static readonly CVarDef<float> HorizonDefenseChaseRadius =
         CVarDef.Create("forge.horizon.defense_chase_radius", 2500f, CVar.SERVERONLY);
+
+    public static readonly CVarDef<float> HorizonDefenseResponseSeconds =
+        CVarDef.Create("forge.horizon.defense_response_seconds", 180f, CVar.SERVERONLY);
+
+    public static readonly CVarDef<float> HorizonDefenseHoldSeconds =
+        CVarDef.Create("forge.horizon.defense_hold_seconds", 30f, CVar.SERVERONLY);
+
+    public static readonly CVarDef<int> HorizonDefenseRawCost =
+        CVarDef.Create("forge.horizon.defense_raw_cost", 2, CVar.SERVERONLY);
+
+    public static readonly CVarDef<int> HorizonDefenseEnergyCost =
+        CVarDef.Create("forge.horizon.defense_energy_cost", 5, CVar.SERVERONLY);
 
     public static readonly CVarDef<float> HorizonUiRefreshInterval =
         CVarDef.Create("forge.horizon.ui_refresh_interval", 15f, CVar.SERVERONLY);

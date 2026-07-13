@@ -10,3 +10,4 @@ horizon-announcement-emergency-relocation = Primary deployment failed. Horizon i
 horizon-announcement-o01-online = O-01 command station is online. Horizon has entered autonomous operation.
 horizon-announcement-late-deployment = Horizon late-deployment profile activated a protected reserve beachhead.
 horizon-announcement-project-online = Horizon project {$project} has entered autonomous operation.
+horizon-announcement-defense-dispatched = Horizon dispatched an AMZ response to protect {$target}.
