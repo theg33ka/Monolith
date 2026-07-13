@@ -313,3 +313,9 @@ Resources/MapImages
 # Link Files
 *.lnk
 
+*.md
+README.md
+docs/forge/horizon/source/Горизонт (1).docx
+docs/forge/horizon/source/Горизонт_MVP_маппинг_спрайтинг_и_прототипы.xlsx
+docs/forge/horizon/source/Горизонт_механики_развёртывания.docx
+docs/forge/horizon/source/Горизонт_флот_и_станции.docx
