@@ -9,3 +9,4 @@ horizon-announcement-ams-retry = AMS-01 was lost. Recovery launch {$attempt} of 
 horizon-announcement-emergency-relocation = Primary deployment failed. Horizon is relocating to the emergency RTR cluster.
 horizon-announcement-o01-online = O-01 command station is online. Horizon has entered autonomous operation.
 horizon-announcement-late-deployment = Horizon late-deployment profile activated a protected reserve beachhead.
+horizon-announcement-project-online = Horizon project {$project} has entered autonomous operation.

@@ -49,6 +49,12 @@ public sealed partial class ForgeCVars
     public static readonly CVarDef<int> HorizonSpatialCandidateCount =
         CVarDef.Create("forge.horizon.spatial_candidate_count", 16, CVar.SERVERONLY);
 
+    public static readonly CVarDef<int> HorizonSpatialObjectLimit =
+        CVarDef.Create("forge.horizon.spatial_object_limit", 64, CVar.SERVERONLY);
+
+    public static readonly CVarDef<float> HorizonBubbleRadius =
+        CVarDef.Create("forge.horizon.bubble_radius", 15000f, CVar.SERVERONLY);
+
     public static readonly CVarDef<int> HorizonMaxBranchDepth =
         CVarDef.Create("forge.horizon.max_branch_depth", 3, CVar.SERVERONLY);
 

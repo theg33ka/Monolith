@@ -1,6 +1,7 @@
 - type: horizonProject
   id: HorizonAMS01
   name: AMS-01 construction shuttle
+  objectId: AMS-01
   kind: Ams
   gridPath: /Maps/Shuttles/ShuttleEvent/microshuttle.yml
   energyCapacity: 50
@@ -10,6 +11,7 @@
 - type: horizonProject
   id: HorizonO01
   name: O-01 command station
+  objectId: O-01
   kind: Command
   gridPath: /Maps/Salvage/small-template.yml
   rawIncome: 2
@@ -17,3 +19,119 @@
   productionCapacity: 2
   protectedRadius: 1000
   temporaryContent: true
+
+- type: horizonProject
+  id: HorizonE01
+  name: E-01 energy node
+  objectId: E-01
+  kind: Energy
+  gridPath: /Maps/Salvage/small-template.yml
+  rawCost: 30
+  componentCost: 10
+  energyCost: 10
+  energyCapacity: 500
+  priority: 10
+  minDistance: 3000
+  preferredDistance: 4000
+  maxDistance: 7000
+
+- type: horizonProject
+  id: HorizonS01
+  name: S-01 relay node
+  objectId: S-01
+  kind: Relay
+  gridPath: /Maps/Salvage/small-template.yml
+  rawCost: 25
+  componentCost: 10
+  energyCost: 5
+  priority: 20
+  minDistance: 3000
+  preferredDistance: 4500
+  maxDistance: 7500
+
+- type: horizonProject
+  id: HorizonD04
+  name: D-04 Uglich mining station
+  objectId: D-04
+  kind: Mining
+  gridPath: /Maps/Salvage/small-template.yml
+  rawCost: 30
+  componentCost: 10
+  energyCost: 5
+  rawIncome: 12
+  priority: 30
+
+- type: horizonProject
+  id: HorizonP11
+  name: P-11 Tula production station
+  objectId: P-11
+  kind: Production
+  gridPath: /Maps/Salvage/small-template.yml
+  rawCost: 35
+  componentCost: 15
+  energyCost: 5
+  productionCapacity: 10
+  priority: 40
+
+- type: horizonProject
+  id: HorizonZ01
+  name: Z-01 defense node
+  objectId: Z-01
+  kind: Defense
+  gridPath: /Maps/Salvage/small-template.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  priority: 50
+  protectedRadius: 1250
+
+- type: horizonProject
+  id: HorizonAMZ01
+  name: AMZ-01 Shustry defense craft
+  objectId: AMZ-01
+  kind: Amz
+  gridPath: /Maps/_Forge/Shuttles/Drones/Paralysis.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 1
+  maxCount: 2
+  priority: 60
+  protectedRadius: 250
+
+- type: horizonProject
+  id: HorizonAMZ04
+  name: AMZ-04 Bditelny defense craft
+  objectId: AMZ-04
+  kind: Amz
+  gridPath: /Maps/_Forge/Shuttles/Drones/Paralysis.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 2
+  maxCount: 2
+  priority: 70
+  protectedRadius: 250
+
+- type: horizonProject
+  id: HorizonT01
+  name: T-01 technical node
+  objectId: T-01
+  kind: Technical
+  gridPath: /Maps/Salvage/small-template.yml
+  rawCost: 15
+  componentCost: 5
+  energyCost: 5
+  priority: 80
+
+- type: horizonProject
+  id: HorizonAMU05
+  name: AMU-05 Sanitar salvage craft
+  objectId: AMU-05
+  kind: Salvage
+  gridPath: /Maps/Salvage/small-ai-survey-drone.yml
+  rawCost: 15
+  componentCost: 5
+  energyCost: 5
+  priority: 90
+  protectedRadius: 250

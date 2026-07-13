@@ -9,3 +9,4 @@ horizon-announcement-ams-retry = AMS-01 потерян. Готовится во�
 horizon-announcement-emergency-relocation = Основное развёртывание сорвано. «Горизонт» переносится к аварийному кластеру РТР.
 horizon-announcement-o01-online = Командная станция O-01 введена в строй. «Горизонт» перешёл к автономной работе.
 horizon-announcement-late-deployment = Поздний профиль «Горизонта» активировал защищённый резервный плацдарм.
+horizon-announcement-project-online = Объект «Горизонта» {$project} введён в автономную эксплуатацию.

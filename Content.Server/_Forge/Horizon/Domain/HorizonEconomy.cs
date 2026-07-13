@@ -28,4 +28,12 @@ public static class HorizonEconomy
         ledger.Energy -= energy;
         return true;
     }
+
+    public static void Refund(HorizonLedger ledger, int raw, int components, int energy, int resourceCap)
+    {
+        var cap = Math.Max(0, resourceCap);
+        ledger.Raw = Math.Clamp(ledger.Raw + Math.Max(0, raw), 0, cap);
+        ledger.Components = Math.Clamp(ledger.Components + Math.Max(0, components), 0, cap);
+        ledger.Energy = Math.Clamp(ledger.Energy + Math.Max(0, energy), 0, cap);
+    }
 }

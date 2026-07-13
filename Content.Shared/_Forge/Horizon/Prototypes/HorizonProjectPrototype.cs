@@ -13,6 +13,9 @@ public sealed partial class HorizonProjectPrototype : IPrototype
     public string Name { get; private set; } = string.Empty;
 
     [DataField(required: true)]
+    public string ObjectId { get; private set; } = string.Empty;
+
+    [DataField(required: true)]
     public HorizonObjectKind Kind { get; private set; }
 
     [DataField(required: true)]

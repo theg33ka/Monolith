@@ -44,6 +44,7 @@ public sealed partial class HorizonSystem
             _configuration.GetCVar(ForgeCVars.HorizonResourceCap));
         PruneFinishedOrders();
         TryPlanNextProject();
+        OnStrategicCycle();
         stopwatch.Stop();
         State.Performance.LastStrategicMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
         if (State.Performance.LastStrategicMilliseconds > State.Performance.LongestStepMilliseconds)
@@ -52,6 +53,8 @@ public sealed partial class HorizonSystem
             State.Performance.LongestStep = "strategic-cycle";
         }
     }
+
+    partial void OnStrategicCycle();
 
     private void TryPlanNextProject()
     {

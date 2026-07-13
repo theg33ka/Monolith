@@ -74,17 +74,17 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Minimal planner.
 - [x] Orders.
 - [x] Tests.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 5 — Spatial
 
-- [ ] Cluster anchor.
-- [ ] Protected registry.
-- [ ] Hard/soft exclusion.
-- [ ] Candidate generation.
-- [ ] Bubble/density/branch.
-- [ ] Minimum station set.
-- [ ] Tests.
+- [x] Cluster anchor.
+- [x] Protected registry.
+- [x] Hard/soft exclusion.
+- [x] Candidate generation.
+- [x] Bubble/density/branch.
+- [x] Minimum station set.
+- [x] Tests.
 - [ ] Commit.
 
 ## Phase 6 — Defense
@@ -166,6 +166,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 3 AMS/O-01 complete. `Content.Server` Release build passed, focused Horizon tests passed 9/9, and YAML linter reported no errors in 150249 ms.
 - 2026-07-13: Phase 3 committed as `70966abefc`.
 - 2026-07-13: Phase 4 scheduler/economy complete. `Content.Server` Release build passed and focused Horizon tests passed 13/13.
+- 2026-07-13: Phase 4 committed as `dc9c11af41`.
+- 2026-07-13: Phase 5 spatial/minimum network complete. `Content.Server` Release build passed, focused Horizon tests passed 15/15, and the rebuilt YAML linter reported no errors in 177789 ms.
 
 ## Technical decisions
 
@@ -179,4 +181,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 4, then implement Phase 5 bounded spatial placement and the minimum station network._
+_Commit Phase 5, then implement Phase 6 event-driven incidents, AMZ response, chase/IFF and defense costs._
