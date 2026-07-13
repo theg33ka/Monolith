@@ -28,11 +28,19 @@ public sealed partial class HorizonSystem : EntitySystem
         SubscribeLocalEvent<HorizonObjectComponent, ComponentShutdown>(OnObjectShutdown);
 
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
+        InitializeDeployment();
+    }
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+        UpdateDeployment();
     }
 
     private void OnRoundRestart(RoundRestartCleanupEvent args)
     {
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
+        ResetDeploymentState();
     }
 
     private void OnObjectStartup(Entity<HorizonObjectComponent> ent, ref ComponentStartup args)
@@ -116,5 +124,27 @@ public sealed partial class HorizonSystem : EntitySystem
         record.Grid = xform.GridUid;
         record.MapId = xform.MapID;
         record.WorldPosition = _transform.GetWorldPosition(xform);
+    }
+
+    public bool SetObjectActivation(EntityUid uid, bool active, bool dormant, string clusterId)
+    {
+        if (!State.Objects.TryGetValue(uid, out var record) || !TryComp<HorizonObjectComponent>(uid, out var component))
+            return false;
+
+        State.Aggregates.Add(record, -1);
+        State.ProtectedZones.RemoveAll(zone => zone.Entity == uid);
+
+        component.Active = active;
+        component.Dormant = dormant;
+        component.ClusterId = clusterId;
+        record.Active = active && !dormant;
+        record.Dormant = dormant;
+        record.ClusterId = clusterId;
+
+        State.Aggregates.Add(record, 1);
+        if (record.Active && record.ProtectedRadius > 0f)
+            State.ProtectedZones.Add(new HorizonProtectedZone(record.MapId, record.WorldPosition, record.ProtectedRadius, true, uid));
+
+        return true;
     }
 }

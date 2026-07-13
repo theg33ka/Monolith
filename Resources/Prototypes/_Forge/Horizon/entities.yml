@@ -1,0 +1,36 @@
+- type: entity
+  id: HorizonRTR
+  parent: BaseStructure
+  name: РТР АКС «Горизонт»
+  description: Законсервированная резервная точка развёртывания автономной колонизационной системы.
+  components:
+  - type: Sprite
+    sprite: Structures/Machines/telecomms.rsi
+    layers:
+    - state: icon
+      color: "#b8b4a5"
+    - state: unlit
+      shader: unshaded
+      color: "#267d78"
+  - type: PointLight
+    enabled: true
+    color: "#267d78"
+    radius: 2
+    energy: 0.6
+  - type: HorizonObject
+    objectId: RTR
+    kind: Rtr
+    dormant: true
+    active: false
+    protectedRadius: 250
+    temporaryContent: true
+  - type: Damageable
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 350
+      behaviors:
+      - !type:DoActsBehavior
+        acts: ["Destruction"]

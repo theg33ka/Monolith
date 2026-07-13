@@ -36,18 +36,18 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Aggregates.
 - [x] Debug status/object commands.
 - [x] Tests.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 2 — RTR
 
-- [ ] Dormant RTR.
-- [ ] Controlled positions.
-- [ ] Proximity trigger.
-- [ ] Automatic activation.
-- [ ] Nearest neighbor.
-- [ ] One active cluster.
-- [ ] Announcements.
-- [ ] Tests.
+- [x] Dormant RTR.
+- [x] Controlled positions.
+- [x] Proximity trigger.
+- [x] Automatic activation.
+- [x] Nearest neighbor.
+- [x] One active cluster.
+- [x] Announcements.
+- [x] Tests.
 - [ ] Commit.
 
 ## Phase 3 — AMS and O-01
@@ -160,6 +160,8 @@ Codex ведёт этот файл в одном постоянном чате.
 
 - 2026-07-13: Phase 0 complete; baseline release build passed.
 - 2026-07-13: Phase 1 foundation complete. `Content.Server` Release build passed; focused `Content.Tests` Horizon run passed 2/2.
+- 2026-07-13: Phase 1 committed as `996f2eb779`.
+- 2026-07-13: Phase 2 RTR complete. `Content.Server` Release build passed, focused Horizon tests passed 3/3, and YAML linter reported no errors.
 
 ## Technical decisions
 
@@ -173,4 +175,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 1, then implement Phase 2 round-start RTR placement, proximity/automatic activation, nearest neighbor and one active cluster._
+_Commit Phase 2, then implement Phase 3 AMS physical grid spawn, HTN autopilot, O-01 replacement, retries, emergency relocation and late deployment._

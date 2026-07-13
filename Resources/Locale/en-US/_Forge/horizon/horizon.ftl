@@ -1,0 +1,5 @@
+horizon-announcement-title = ACS HORIZON
+horizon-announcement-proximity-wake = APPROACH REGISTERED. RESERVE NODES TRANSITIONED TO OPERATING MODE.
+horizon-announcement-auto-wake = WAITING PERIOD EXPIRED. SECTOR PREPARATION CONTINUES.
+horizon-announcement-link-established = STABLE DATA EXCHANGE ESTABLISHED. CLUSTER FORMATION STARTED.
+horizon-announcement-network-destroyed = OPERATING NODES UNAVAILABLE. DEPLOYMENT CYCLE PERMANENTLY TERMINATED.

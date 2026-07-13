@@ -144,3 +144,55 @@ public sealed class HorizonPerformanceCommand : IConsoleCommand
     public void Execute(IConsoleShell shell, string argStr, string[] args) =>
         shell.WriteLine(HorizonCommandOutput.Performance(HorizonCommandOutput.GetSystem(_systems).State));
 }
+
+[AdminCommand(AdminFlags.Debug)]
+public sealed class HorizonForceEventCommand : IConsoleCommand
+{
+    [Dependency] private readonly IEntitySystemManager _systems = default!;
+
+    public string Command => "horizon_force_event";
+    public string Description => "Forces a bounded АКС Horizon lifecycle event for testing.";
+    public string Help => "horizon_force_event <setup|activate|auto|destroy> [RTR entity]";
+
+    public void Execute(IConsoleShell shell, string argStr, string[] args)
+    {
+        if (args.Length == 0)
+        {
+            shell.WriteError(Help);
+            return;
+        }
+
+        var system = HorizonCommandOutput.GetSystem(_systems);
+        switch (args[0].ToLowerInvariant())
+        {
+            case "setup":
+                shell.WriteLine(system.SetupRound());
+                break;
+            case "activate":
+            {
+                EntityUid? requested = null;
+                if (args.Length > 1)
+                {
+                    if (!EntityUid.TryParse(args[1], out var parsed))
+                    {
+                        shell.WriteError($"Invalid RTR entity uid: {args[1]}");
+                        return;
+                    }
+                    requested = parsed;
+                }
+                shell.WriteLine(system.BeginActivation(requested, automatic: false));
+                break;
+            }
+            case "auto":
+                shell.WriteLine(system.BeginActivation(null, automatic: true));
+                break;
+            case "destroy":
+                system.DestroyNetwork("admin force event");
+                shell.WriteLine("Horizon network marked permanently destroyed.");
+                break;
+            default:
+                shell.WriteError(Help);
+                break;
+        }
+    }
+}
