@@ -120,15 +120,15 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] Return to AI.
 - [x] Abuse safeguards.
 - [x] Tests.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 9 — Integration
 
-- [ ] MVP maps/prototypes.
-- [ ] Temporary assets tracked.
-- [ ] Announcements.
-- [ ] Destruction state.
-- [ ] End-to-end scenario.
+- [x] MVP maps/prototypes.
+- [x] Temporary assets tracked.
+- [x] Announcements.
+- [x] Destruction state.
+- [x] End-to-end scenario.
 - [ ] Commit.
 
 ## Phase 10 — Stabilization
@@ -174,6 +174,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 7 relations and event/coarse-refreshed console UI implemented. Late deployment now creates O-01 immediately. Validation deferred to the final combined pass.
 - 2026-07-13: Phase 7 committed as `1b9d02cc05`.
 - 2026-07-13: Phase 8 Wandering AI role, 30h/5h requirements, fixed directives, restricted O-01 context and single unarmed AMU-05 carrier handoff/return implemented. Validation deferred to the final combined pass.
+- 2026-07-13: Phase 8 committed as `e9ffa689bf`.
+- 2026-07-13: Phase 9 integrated all 12 required runtime objects, physical temporary fixtures, industrial/armed/loss announcements, irreversible destruction policy and a full domain scenario. `CONTENT_STATUS.md` records every reused map and the 53-row workbook scope. Validation deferred to the final combined pass.
 
 ## Technical decisions
 
@@ -187,4 +189,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 8, then complete Phase 9 integration, destruction and end-to-end scenario coverage._
+_Commit Phase 9, then perform Phase 10 lifecycle/performance review and the single final combined validation pass._

@@ -210,16 +210,19 @@ public sealed partial class HorizonSystem
 
     public void DestroyNetwork(string reason)
     {
-        State.Phase = HorizonDeploymentPhase.Destroyed;
-        State.MatureNetwork = false;
-        State.WorkQueue.Clear();
-        foreach (var order in State.Orders.Values)
+        if (IsWanderingCarrierControlled())
+            ReturnWanderingAi();
+
+        if (!HorizonLifecyclePolicy.Destroy(State, reason))
+            return;
+
+        foreach (var record in State.Objects.Values)
         {
-            if (order.Status is HorizonOrderStatus.Queued or HorizonOrderStatus.Active)
-            {
-                order.Status = HorizonOrderStatus.Cancelled;
-                order.FailureReason = reason;
-            }
+            if (!TryComp<HorizonObjectComponent>(record.Entity, out var component))
+                continue;
+
+            component.Active = false;
+            component.Dormant = false;
         }
 
         AnnounceOnce("destroyed", Loc.GetString("horizon-announcement-network-destroyed"));

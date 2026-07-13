@@ -1,0 +1,122 @@
+- type: entity
+  id: HorizonAggregateModuleBase
+  parent: BaseStructure
+  abstract: true
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Structures/Machines/telecomms.rsi
+    layers:
+    - state: icon
+      color: "#35c9c2"
+    - state: unlit
+      shader: unshaded
+      color: "#35c9c2"
+  - type: PointLight
+    color: "#35c9c2"
+    radius: 1.5
+    energy: 0.7
+  - type: Damageable
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 250
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]
+
+- type: entity
+  id: HorizonEnergyModule
+  parent: HorizonAggregateModuleBase
+  name: Horizon aggregate energy module
+  description: A local interface for the node's event-driven aggregate energy capacity.
+
+- type: entity
+  id: HorizonRelayModule
+  parent: HorizonAggregateModuleBase
+  name: Horizon network relay
+  description: A local endpoint for the cluster's bounded logical connectivity.
+
+- type: entity
+  id: HorizonMiningModule
+  parent: HorizonAggregateModuleBase
+  name: Horizon aggregate mining module
+  description: Reports coarse resource income without simulating per-tile extraction.
+
+- type: entity
+  id: HorizonProductionModule
+  parent: HorizonAggregateModuleBase
+  name: Horizon aggregate production module
+  description: Reports coarse component capacity without running a separate physical economy.
+
+- type: entity
+  id: HorizonDefenseModule
+  parent: HorizonAggregateModuleBase
+  name: Horizon defense coordination module
+  description: Aggregates local incidents and requests a bounded AMZ response.
+
+- type: entity
+  id: HorizonTechnicalModule
+  parent: HorizonAggregateModuleBase
+  name: Horizon technical service module
+  description: A maintenance endpoint for the autonomous network.
+
+- type: entity
+  id: HorizonNavigationLight
+  parent: BaseStructure
+  name: Horizon navigation light
+  description: A low-frequency identity beacon that remains with the physical node.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Structures/Machines/telecomms.rsi
+    layers:
+    - state: unlit
+      color: "#35c9c2"
+      shader: unshaded
+  - type: PointLight
+    color: "#35c9c2"
+    radius: 2
+    energy: 0.8
+
+- type: entity
+  id: HorizonNameplate
+  parent: BaseItem
+  name: Horizon node nameplate
+  description: A durable physical identity plate from an autonomous Horizon node.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: boris
+    color: "#35c9c2"
+  - type: StaticPrice
+    price: 0
+
+- type: entity
+  id: HorizonMatrixComputer
+  parent: BaseItem
+  name: Horizon matrix computer
+  description: A temporary MVP system component represented by aggregate production capacity.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: boris
+    color: "#35c9c2"
+  - type: StaticPrice
+    price: 0
+
+- type: entity
+  id: HorizonAdaptiveController
+  parent: BaseItem
+  name: Horizon adaptive controller
+  description: A temporary MVP autonomy component represented by aggregate production capacity.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: boris
+    color: "#d3a938"
+  - type: StaticPrice
+    price: 0

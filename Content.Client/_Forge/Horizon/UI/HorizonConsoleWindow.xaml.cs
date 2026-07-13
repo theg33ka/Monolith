@@ -21,6 +21,8 @@ public sealed partial class HorizonConsoleWindow : FancyWindow
         ResourcesLabel.Text = $"{state.RawResources} raw / {state.Components} comp / {state.Energy} energy";
         CountsLabel.Text = $"{state.Objects} objects / {state.Orders} orders / {state.Incidents} incidents";
         NeedLabel.Text = state.Need;
+        WanderingAiPanel.Visible = !string.IsNullOrWhiteSpace(state.WanderingAiBrief);
+        WanderingAiLabel.Text = state.WanderingAiBrief;
         DiagnosticsLabel.Text = state.Diagnostics;
         ContributionHintLabel.Text = state.AcceptsResources
             ? Loc.GetString("horizon-console-contribution-hint")

@@ -63,9 +63,9 @@
     groups: []
     tags: []
   - type: HorizonWanderingAi
-    goal: Prepare the sector for sustainable autonomous settlement.
-    context: You are the single mobile operator of Horizon; the strategic scheduler remains autonomous.
-    permissions: Operate Horizon consoles and the single designated AMU-05 carrier; do not command network strategy.
+    goal: horizon-wandering-ai-goal-text
+    context: horizon-wandering-ai-context-text
+    permissions: horizon-wandering-ai-permissions-text
   - type: GhostRole
     name: horizon-wandering-ai-name
     description: horizon-wandering-ai-description

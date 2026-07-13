@@ -271,6 +271,13 @@ public sealed partial class HorizonSystem
 
     private void OnRegisteredObjectDestroyed(EntityUid uid)
     {
+        if (State.Phase is HorizonDeploymentPhase.Operational or HorizonDeploymentPhase.Degraded &&
+            State.Objects.TryGetValue(uid, out var lost) && lost.Active)
+        {
+            AnnounceOnce($"loss-{lost.ObjectId}",
+                Loc.GetString("horizon-announcement-object-lost", ("object", lost.ObjectId)));
+        }
+
         var incident = State.Incidents.Values
             .Where(value => value.Target == uid)
             .OrderByDescending(value => value.LastSeen)

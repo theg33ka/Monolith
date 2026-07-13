@@ -173,7 +173,8 @@ public sealed partial class HorizonSystem
             BuildNetworkNeed(),
             BuildDiagnostics(relation.Access),
             actor is { } user && CanWanderingAiHandoff(user),
-            IsWanderingCarrierControlled());
+            IsWanderingCarrierControlled(),
+            actor is { } viewer ? BuildWanderingAiBrief(viewer) : string.Empty);
         _userInterface.SetUiState(ent.Owner, HorizonConsoleUiKey.Key, state);
     }
 
@@ -214,6 +215,23 @@ public sealed partial class HorizonSystem
         }
 
         return output.ToString().TrimEnd();
+    }
+
+    private string BuildWanderingAiBrief(EntityUid viewer)
+    {
+        var authorized = State.WanderingAi == viewer ||
+                         State.WanderingCarrier == viewer && IsWanderingCarrierControlled();
+        if (!authorized || State.WanderingAi is not { } ai ||
+            !TryComp<Components.HorizonWanderingAiComponent>(ai, out var component))
+        {
+            return string.Empty;
+        }
+
+        return $"{Loc.GetString("horizon-wandering-ai-identity")}\n" +
+               $"{Loc.GetString("horizon-wandering-ai-directives-summary")}\n\n" +
+               $"{Loc.GetString("horizon-wandering-ai-goal")}: {Loc.GetString(component.Goal)}\n" +
+               $"{Loc.GetString("horizon-wandering-ai-context")}: {Loc.GetString(component.Context)}\n" +
+               $"{Loc.GetString("horizon-wandering-ai-permissions")}: {Loc.GetString(component.Permissions)}";
     }
 
     private void SpawnHorizonConsoles(EntityUid grid)

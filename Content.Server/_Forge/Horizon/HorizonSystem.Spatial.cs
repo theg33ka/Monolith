@@ -107,10 +107,15 @@ public sealed partial class HorizonSystem
             selected.BranchDepth,
             project.TemporaryContent);
         _metadata.SetEntityName(stationGrid, project.Name);
+        SpawnHorizonProjectFixtures(stationGrid, project.Kind, project.ObjectId);
         order.Executor = stationCore;
         order.Status = HorizonOrderStatus.Complete;
         AnnounceOnce($"project-{project.ID}",
             Loc.GetString("horizon-announcement-project-online", ("project", project.ObjectId)));
+        if (project.Kind is HorizonObjectKind.Mining or HorizonObjectKind.Production)
+            AnnounceOnce("industrial-online", Loc.GetString("horizon-announcement-industry-online"));
+        if (project.Kind is HorizonObjectKind.Defense or HorizonObjectKind.Amz)
+            AnnounceOnce("armed-online", Loc.GetString("horizon-announcement-armed-online"));
     }
 
     private EntityUid CreateAmzExecutor(EntityUid grid)
@@ -124,6 +129,26 @@ public sealed partial class HorizonSystem
         _shuttle.SetIFFColor(grid, Color.FromHex("#35c9c2"));
         _shuttle.SetIFFReadOnly(grid, true);
         return core;
+    }
+
+    private void SpawnHorizonProjectFixtures(EntityUid grid, HorizonObjectKind kind, string objectId)
+    {
+        var module = kind switch
+        {
+            HorizonObjectKind.Energy => "HorizonEnergyModule",
+            HorizonObjectKind.Relay => "HorizonRelayModule",
+            HorizonObjectKind.Mining => "HorizonMiningModule",
+            HorizonObjectKind.Production => "HorizonProductionModule",
+            HorizonObjectKind.Defense => "HorizonDefenseModule",
+            HorizonObjectKind.Technical => "HorizonTechnicalModule",
+            _ => null,
+        };
+        if (module is not null)
+            Spawn(module, new EntityCoordinates(grid, new Vector2(1f, 0f)));
+
+        Spawn("HorizonNavigationLight", new EntityCoordinates(grid, new Vector2(-1f, 0f)));
+        var nameplate = Spawn("HorizonNameplate", new EntityCoordinates(grid, new Vector2(0f, -1f)));
+        _metadata.SetEntityName(nameplate, $"{objectId} nameplate");
     }
 
     private bool TryGetClusterAnchor(out EntityUid anchorEntity, out MapId mapId, out Vector2 position)

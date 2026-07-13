@@ -17,6 +17,9 @@
         <PanelContainer HorizontalExpand="True">
             <Label Name="NeedLabel" Margin="6" />
         </PanelContainer>
+        <PanelContainer Name="WanderingAiPanel" HorizontalExpand="True" Visible="False">
+            <Label Name="WanderingAiLabel" Margin="6" HorizontalExpand="True" />
+        </PanelContainer>
         <Label Text="{Loc 'horizon-console-diagnostics'}" />
         <ScrollContainer VerticalExpand="True" HorizontalExpand="True">
             <Label Name="DiagnosticsLabel" HorizontalExpand="True" />

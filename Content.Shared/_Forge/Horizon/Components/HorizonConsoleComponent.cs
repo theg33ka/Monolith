@@ -59,6 +59,7 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
     public readonly string Diagnostics;
     public readonly bool CanHandoff;
     public readonly bool CarrierControlled;
+    public readonly string WanderingAiBrief;
 
     public HorizonConsoleBoundUserInterfaceState(
         HorizonDeploymentPhase phase,
@@ -78,7 +79,8 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
         string need,
         string diagnostics,
         bool canHandoff,
-        bool carrierControlled)
+        bool carrierControlled,
+        string wanderingAiBrief)
     {
         Phase = phase;
         Cluster = cluster;
@@ -98,5 +100,6 @@ public sealed class HorizonConsoleBoundUserInterfaceState : BoundUserInterfaceSt
         Diagnostics = diagnostics;
         CanHandoff = canHandoff;
         CarrierControlled = carrierControlled;
+        WanderingAiBrief = wanderingAiBrief;
     }
 }
