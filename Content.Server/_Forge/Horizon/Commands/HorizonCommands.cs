@@ -152,7 +152,7 @@ public sealed class HorizonForceEventCommand : IConsoleCommand
 
     public string Command => "horizon_force_event";
     public string Description => "Forces a bounded АКС Horizon lifecycle event for testing.";
-    public string Help => "horizon_force_event <setup|activate|auto|destroy> [RTR entity]";
+    public string Help => "horizon_force_event <setup|activate|auto|late|destroy> [RTR entity]";
 
     public void Execute(IConsoleShell shell, string argStr, string[] args)
     {
@@ -185,6 +185,9 @@ public sealed class HorizonForceEventCommand : IConsoleCommand
             }
             case "auto":
                 shell.WriteLine(system.BeginActivation(null, automatic: true));
+                break;
+            case "late":
+                shell.WriteLine(system.BeginLateDeployment());
                 break;
             case "destroy":
                 system.DestroyNetwork("admin force event");

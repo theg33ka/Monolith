@@ -34,3 +34,39 @@
       behaviors:
       - !type:DoActsBehavior
         acts: ["Destruction"]
+
+- type: entity
+  id: HorizonStationCore
+  parent: BaseStructure
+  name: Horizon station core
+  description: A temporary autonomous command core for the Horizon network.
+  components:
+  - type: Sprite
+    sprite: Structures/Machines/telecomms.rsi
+    layers:
+    - state: icon
+      color: "#35c9c2"
+    - state: unlit
+      shader: unshaded
+      color: "#35c9c2"
+  - type: PointLight
+    enabled: true
+    color: "#35c9c2"
+    radius: 3
+    energy: 1
+  - type: HorizonObject
+    objectId: O-01
+    kind: Command
+    active: true
+    protectedRadius: 1000
+    temporaryContent: true
+  - type: Damageable
+    damageContainer: StructuralInorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 700
+      behaviors:
+      - !type:DoActsBehavior
+        acts: ["Destruction"]

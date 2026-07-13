@@ -69,4 +69,7 @@ public sealed partial class ForgeCVars
 
     public static readonly CVarDef<float> HorizonRespawnDelay =
         CVarDef.Create("forge.horizon.respawn_delay", 60f, CVar.SERVERONLY);
+
+    public static readonly CVarDef<float> HorizonOrderCheckInterval =
+        CVarDef.Create("forge.horizon.order_check_interval", 1f, CVar.SERVERONLY);
 }

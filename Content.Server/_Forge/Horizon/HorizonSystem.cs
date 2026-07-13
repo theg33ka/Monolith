@@ -29,18 +29,21 @@ public sealed partial class HorizonSystem : EntitySystem
 
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
         InitializeDeployment();
+        InitializeShuttles();
     }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
         UpdateDeployment();
+        UpdateShuttles();
     }
 
     private void OnRoundRestart(RoundRestartCleanupEvent args)
     {
         State.Reset(_configuration.GetCVar(ForgeCVars.HorizonMaxWorkQueue));
         ResetDeploymentState();
+        ResetShuttleState();
     }
 
     private void OnObjectStartup(Entity<HorizonObjectComponent> ent, ref ComponentStartup args)
@@ -50,7 +53,10 @@ public sealed partial class HorizonSystem : EntitySystem
 
     private void OnObjectShutdown(Entity<HorizonObjectComponent> ent, ref ComponentShutdown args)
     {
+        var commandDestroyed = State.CommandObject == ent.Owner && State.Phase != HorizonDeploymentPhase.Destroyed;
         UnregisterObject(ent.Owner);
+        if (commandDestroyed)
+            DestroyNetwork("O-01 command object was destroyed");
     }
 
     public bool RegisterObject(Entity<HorizonObjectComponent> ent)
@@ -142,6 +148,73 @@ public sealed partial class HorizonSystem : EntitySystem
         record.ClusterId = clusterId;
 
         State.Aggregates.Add(record, 1);
+        if (record.Active && record.ProtectedRadius > 0f)
+            State.ProtectedZones.Add(new HorizonProtectedZone(record.MapId, record.WorldPosition, record.ProtectedRadius, true, uid));
+
+        return true;
+    }
+
+    public bool ConfigureObject(
+        EntityUid uid,
+        string objectId,
+        HorizonObjectKind kind,
+        string projectId,
+        string clusterId,
+        bool active,
+        bool dormant,
+        int rawIncome,
+        int energyCapacity,
+        int productionCapacity,
+        float protectedRadius,
+        int branchDepth,
+        bool temporaryContent)
+    {
+        if (!State.Objects.TryGetValue(uid, out var record) || !TryComp<HorizonObjectComponent>(uid, out var component))
+            return false;
+
+        State.Aggregates.Add(record, -1);
+        State.ProtectedZones.RemoveAll(zone => zone.Entity == uid);
+        State.ObjectsById.Remove(record.ObjectId);
+
+        if (State.ObjectsById.ContainsKey(objectId))
+            objectId = $"{objectId}-{uid}";
+
+        var oldKind = record.Kind;
+        var oldCount = Math.Max(0, State.ObjectCounts.GetValueOrDefault(oldKind) - 1);
+        if (oldCount == 0)
+            State.ObjectCounts.Remove(oldKind);
+        else
+            State.ObjectCounts[oldKind] = oldCount;
+
+        component.ObjectId = objectId;
+        component.Kind = kind;
+        component.ProjectId = projectId;
+        component.ClusterId = clusterId;
+        component.Active = active;
+        component.Dormant = dormant;
+        component.RawIncome = rawIncome;
+        component.EnergyCapacity = energyCapacity;
+        component.ProductionCapacity = productionCapacity;
+        component.ProtectedRadius = protectedRadius;
+        component.BranchDepth = branchDepth;
+        component.TemporaryContent = temporaryContent;
+
+        record.ObjectId = objectId;
+        record.Kind = kind;
+        record.ProjectId = projectId;
+        record.ClusterId = clusterId;
+        record.Active = active && !dormant;
+        record.Dormant = dormant;
+        record.RawIncome = rawIncome;
+        record.EnergyCapacity = energyCapacity;
+        record.ProductionCapacity = productionCapacity;
+        record.ProtectedRadius = protectedRadius;
+        record.BranchDepth = branchDepth;
+        record.TemporaryContent = temporaryContent;
+        State.ObjectsById[objectId] = uid;
+        State.ObjectCounts[kind] = State.ObjectCounts.GetValueOrDefault(kind) + 1;
+        State.Aggregates.Add(record, 1);
+
         if (record.Active && record.ProtectedRadius > 0f)
             State.ProtectedZones.Add(new HorizonProtectedZone(record.MapId, record.WorldPosition, record.ProtectedRadius, true, uid));
 

@@ -48,20 +48,20 @@ Codex ведёт этот файл в одном постоянном чате.
 - [x] One active cluster.
 - [x] Announcements.
 - [x] Tests.
-- [ ] Commit.
+- [x] Commit.
 
 ## Phase 3 — AMS and O-01
 
-- [ ] Shared shuttle core.
-- [ ] Autopilot.
-- [ ] Deploy order.
-- [ ] Movement/timeout.
-- [ ] Deployment timer.
-- [ ] Grid replacement.
-- [ ] Two respawns.
-- [ ] Emergency cluster.
-- [ ] Late profile.
-- [ ] Tests/perf.
+- [x] Shared shuttle core.
+- [x] Autopilot.
+- [x] Deploy order.
+- [x] Movement/timeout.
+- [x] Deployment timer.
+- [x] Grid replacement.
+- [x] Two respawns.
+- [x] Emergency cluster.
+- [x] Late profile.
+- [x] Tests/perf.
 - [ ] Commit.
 
 ## Phase 4 — Scheduler/economy
@@ -162,6 +162,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 1 foundation complete. `Content.Server` Release build passed; focused `Content.Tests` Horizon run passed 2/2.
 - 2026-07-13: Phase 1 committed as `996f2eb779`.
 - 2026-07-13: Phase 2 RTR complete. `Content.Server` Release build passed, focused Horizon tests passed 3/3, and YAML linter reported no errors.
+- 2026-07-13: Phase 2 committed as `fab804572e`.
+- 2026-07-13: Phase 3 AMS/O-01 complete. `Content.Server` Release build passed, focused Horizon tests passed 9/9, and YAML linter reported no errors in 150249 ms.
 
 ## Technical decisions
 
@@ -175,4 +177,4 @@ _None._
 
 ## Next exact action
 
-_Commit Phase 2, then implement Phase 3 AMS physical grid spawn, HTN autopilot, O-01 replacement, retries, emergency relocation and late deployment._
+_Commit Phase 3, then implement Phase 4 coarse scheduler, economy, bounded planner and general orders._

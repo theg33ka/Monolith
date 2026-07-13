@@ -1,0 +1,19 @@
+- type: horizonProject
+  id: HorizonAMS01
+  name: AMS-01 construction shuttle
+  kind: Ams
+  gridPath: /Maps/Shuttles/ShuttleEvent/microshuttle.yml
+  energyCapacity: 50
+  protectedRadius: 100
+  temporaryContent: true
+
+- type: horizonProject
+  id: HorizonO01
+  name: O-01 command station
+  kind: Command
+  gridPath: /Maps/Salvage/small-template.yml
+  rawIncome: 2
+  energyCapacity: 300
+  productionCapacity: 2
+  protectedRadius: 1000
+  temporaryContent: true
