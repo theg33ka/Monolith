@@ -6,12 +6,12 @@ This manifest separates working program logic from final art and mapping. Reused
 
 | MVP object | Runtime prototype | Current map/content | Status |
 |---|---|---|---|
-| RTR | `HorizonRTR` | Forge-owned entity using an existing telecom sprite | Functional, temporary art |
-| AMS-01 | `HorizonAMS01` | `/Maps/Shuttles/ShuttleEvent/microshuttle.yml` | Functional autopilot/deployment, temporary map |
-| O-01 | `HorizonO01` | `/Maps/Salvage/small-template.yml` | Functional command core, consoles and AI, temporary map |
+| RTR | `HorizonRTRGrid` / `HorizonRTR` | `/Maps/_Forge/Horizon/rtr.yml` | Dedicated map; grids are loaded through a bounded deployment queue |
+| AMS-01 | `HorizonAMS01` | `/Maps/_Forge/Horizon/Shuttles/ams01_kamenshchik.yml` | Dedicated Kamenshchik map; autopilot console has a runtime fallback |
+| O-01 | `HorizonO01` | `/Maps/_Forge/Horizon/Stations/o01.yml` | Dedicated command map with the Horizon Wandering AI core |
 | E-01 | `HorizonE01` | `/Maps/Salvage/small-template.yml` | Functional aggregate energy node, temporary map |
 | S-01 | `HorizonS01` | `/Maps/Salvage/small-template.yml` | Functional relay node, temporary map |
-| D-04 Uglich | `HorizonD04` | `/Maps/Salvage/small-template.yml` | Functional aggregate mining node, temporary map |
+| D-04 Uglich | `HorizonD04` | `/Maps/_Forge/Horizon/Stations/d04_uglich.yml` | Dedicated Uglich mining map |
 | P-11 Tula | `HorizonP11` | `/Maps/Salvage/small-template.yml` | Functional aggregate production node, temporary map |
 | Z-01 | `HorizonZ01` | `/Maps/Salvage/small-template.yml` | Functional protected defense node, temporary map |
 | AMZ-01 | `HorizonAMZ01` | `/Maps/_Forge/Shuttles/Drones/Paralysis.yml` | Functional response/autopilot/IFF, temporary map |
@@ -19,7 +19,20 @@ This manifest separates working program logic from final art and mapping. Reused
 | T-01 | `HorizonT01` | `/Maps/Salvage/small-template.yml` | Functional technical node, temporary map |
 | AMU-05 | `HorizonAMU05` | `/Maps/Salvage/small-ai-survey-drone.yml` | Functional Wandering AI carrier, temporary map |
 
-All runtime choices, IDs, costs, capacities, placement ranges and temporary flags live in Forge-owned prototypes. Final unique maps and sprites remain an art/mapping replacement task and do not require a systems rewrite.
+All runtime choices, IDs, costs, capacities, placement ranges and temporary flags live in Forge-owned prototypes. The remaining unique maps and sprites stay an art/mapping replacement task and do not require a systems rewrite.
+
+## Mapper placement contract
+
+The runtime still creates a missing Horizon fixture at grid origin as a functional fallback. Final map revisions should place these prototypes explicitly so their physical positions are intentional:
+
+| Grid | Forge-owned prototypes to place | Existing prototype required |
+|---|---|---|
+| RTR | `HorizonRTR` | None |
+| AMS-01 Kamenshchik | `HorizonNavigationLight`, `HorizonNameplate` | `ComputerShuttle` for the physical autopilot console |
+| O-01 | `HorizonStationCore`, `HorizonCommunicationConsole`, `HorizonResourceTerminal`, `PlayerStationAiHorizon`, `HorizonNavigationLight`, `HorizonNameplate` | Optional `ComputerIFF` UI only |
+| D-04 Uglich | `HorizonStationCore`, `HorizonMiningModule`, `HorizonNavigationLight`, `HorizonNameplate` | Optional `ComputerIFF` UI only |
+
+Horizon IFF is a grid component configured and locked by `HorizonSystem`; there is no separate Forge-owned IFF entity prototype. `ComputerIFF` only provides the standard physical UI.
 
 ## Source workbook prototype coverage
 
@@ -32,8 +45,7 @@ The workbook contains 53 rows, including explicit post-MVP work.
 
 ## Temporary asset rules
 
-- Temporary nodes have `temporaryContent: true` in their project/object data.
+- The four dedicated maps above have `temporaryContent: false`; nodes still using borrowed maps remain temporary.
 - Runtime spawns are limited to one project grid per strategic cycle.
 - Placeholder machines use Forge-owned prototypes and existing valid sprite states; no new unverified raster assets are introduced.
 - Nameplates and navigation lights are physical per-grid entities. Strategic state is still held only by the lifecycle registry.
-

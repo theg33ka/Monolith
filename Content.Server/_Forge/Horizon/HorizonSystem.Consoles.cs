@@ -238,7 +238,9 @@ public sealed partial class HorizonSystem
 
     private void SpawnHorizonConsoles(EntityUid grid)
     {
-        Spawn("HorizonCommunicationConsole", new EntityCoordinates(grid, new System.Numerics.Vector2(1f, 0f)));
-        Spawn("HorizonResourceTerminal", new EntityCoordinates(grid, new System.Numerics.Vector2(-1f, 0f)));
+        if (!HasGridChildPrototype(grid, "HorizonCommunicationConsole"))
+            Spawn("HorizonCommunicationConsole", new EntityCoordinates(grid, new System.Numerics.Vector2(1f, 0f)));
+        if (!HasGridChildPrototype(grid, "HorizonResourceTerminal"))
+            Spawn("HorizonResourceTerminal", new EntityCoordinates(grid, new System.Numerics.Vector2(-1f, 0f)));
     }
 }

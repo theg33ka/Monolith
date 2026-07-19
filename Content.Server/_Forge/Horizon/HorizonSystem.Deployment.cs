@@ -6,6 +6,7 @@ using Content.Server.GameTicking;
 using Content.Shared._Forge.CCVar;
 using Content.Shared._Forge.Horizon;
 using Content.Shared._Forge.Horizon.Components;
+using Content.Shared._Forge.Horizon.Prototypes;
 using Content.Shared.GameTicking;
 using Robust.Server.Player;
 using Robust.Shared.Enums;
@@ -23,7 +24,9 @@ public sealed partial class HorizonSystem
     [Dependency] private readonly IRobustRandom _random = default!;
 
     private readonly Dictionary<string, TimeSpan> _announcementTimes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Queue<(int Index, Vector2 Position)> _pendingRtrSpawns = new();
     private TimeSpan _nextProximityCheck;
+    private TimeSpan _nextRtrSpawnAt;
     private bool _roundInitialized;
 
     private void InitializeDeployment()
@@ -40,7 +43,9 @@ public sealed partial class HorizonSystem
     {
         _roundInitialized = false;
         _announcementTimes.Clear();
+        _pendingRtrSpawns.Clear();
         _nextProximityCheck = default;
+        _nextRtrSpawnAt = default;
     }
 
     public string SetupRound()
@@ -63,23 +68,26 @@ public sealed partial class HorizonSystem
         var minDistance = Math.Max(1000f, _configuration.GetCVar(ForgeCVars.HorizonRtrMinDistance));
         var maxDistance = Math.Max(minDistance, _configuration.GetCVar(ForgeCVars.HorizonRtrMaxDistance));
         var angleOffset = (float) _random.NextAngle().Theta;
+        _pendingRtrSpawns.Clear();
+        _nextRtrSpawnAt = _timing.CurTime;
 
         for (var index = 0; index < count; index++)
         {
             var angle = angleOffset + MathF.Tau * index / count;
             var distance = _random.NextFloat(minDistance, maxDistance);
             var position = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * distance;
-            var rtr = Spawn("HorizonRTR", new MapCoordinates(position, _ticker.DefaultMap));
-            RenameObject(rtr, $"RTR-{index + 1:D2}");
+            _pendingRtrSpawns.Enqueue((index + 1, position));
         }
 
-        return $"Spawned {count} dormant RTR objects on map {_ticker.DefaultMap}.";
+        return $"Queued {count} dormant RTR grids on map {_ticker.DefaultMap}.";
     }
 
     private void UpdateDeployment()
     {
         if (!_roundInitialized || State.Phase == HorizonDeploymentPhase.Destroyed)
             return;
+
+        ProcessPendingRtrSpawn();
 
         var now = _timing.CurTime;
         if (State.Phase == HorizonDeploymentPhase.Dormant)
@@ -104,6 +112,48 @@ public sealed partial class HorizonSystem
         {
             CompleteWake();
         }
+    }
+
+    private void ProcessPendingRtrSpawn()
+    {
+        if (_pendingRtrSpawns.Count == 0 || _timing.CurTime < _nextRtrSpawnAt)
+            return;
+
+        var pending = _pendingRtrSpawns.Dequeue();
+        _nextRtrSpawnAt = _timing.CurTime + TimeSpan.FromSeconds(
+            Math.Max(0.25f, _configuration.GetCVar(ForgeCVars.HorizonOrderCheckInterval)));
+
+        EntityUid? grid = null;
+        if (!_prototypes.TryIndex<HorizonProjectPrototype>("HorizonRTRGrid", out var project) ||
+            !TryLoadProjectGrid(project.ID, pending.Position, out grid) ||
+            grid is not { } rtrGrid)
+        {
+            if (grid is { } failedGrid)
+                QueueDel(failedGrid);
+            Log.Error($"Failed to load Horizon RTR grid {pending.Index}; using the emergency entity fallback.");
+            var fallback = Spawn("HorizonRTR", new MapCoordinates(pending.Position, _ticker.DefaultMap));
+            RenameObject(fallback, $"RTR-{pending.Index:D2}");
+            return;
+        }
+
+        var core = TryFindHorizonObject(rtrGrid, out var mappedCore)
+            ? mappedCore
+            : Spawn("HorizonRTR", new EntityCoordinates(rtrGrid, Vector2.Zero));
+        ConfigureObject(
+            core,
+            $"RTR-{pending.Index:D2}",
+            HorizonObjectKind.Rtr,
+            project.ID,
+            string.Empty,
+            false,
+            true,
+            project.RawIncome,
+            project.EnergyCapacity,
+            project.ProductionCapacity,
+            project.ProtectedRadius,
+            0,
+            project.TemporaryContent);
+        _metadata.SetEntityName(rtrGrid, $"Horizon RTR-{pending.Index:D2}");
     }
 
     private void TryProximityActivation()

@@ -162,18 +162,21 @@ public sealed partial class HorizonSystem
         var direction = target - primaryRecord.WorldPosition;
         var spawnOffset = primaryRecord.WorldPosition + (direction.LengthSquared() > 0f ? Vector2.Normalize(direction) * 120f : Vector2.Zero);
 
-        if (!TryLoadProjectGrid("HorizonAMS01", spawnOffset, out var grid) ||
-            !TryFindShuttleConsole(grid, out var core))
+        if (!TryLoadProjectGrid("HorizonAMS01", spawnOffset, out var grid) || grid is not { } amsGrid)
         {
             if (grid is { } failedGrid)
                 QueueDel(failedGrid);
-            HandleAmsFailure(EntityUid.Invalid, "AMS grid or shuttle console could not be loaded");
+            HandleAmsFailure(EntityUid.Invalid, "AMS grid could not be loaded");
             return;
         }
 
+        var core = TryFindShuttleConsole(amsGrid, out var mappedConsole)
+            ? mappedConsole
+            : Spawn("ComputerShuttle", new EntityCoordinates(amsGrid, Vector2.Zero));
         var project = _prototypes.Index<HorizonProjectPrototype>("HorizonAMS01");
         EnsureComp<HorizonObjectComponent>(core);
         EnsureComp<HorizonShuttleCoreComponent>(core);
+        _npcFaction.AddFaction(core, "Horizon");
         ConfigureObject(
             core,
             $"AMS-01-{State.AmsAttempt + 1}",
@@ -188,6 +191,7 @@ public sealed partial class HorizonSystem
             project.ProtectedRadius,
             0,
             project.TemporaryContent);
+        SpawnHorizonProjectFixtures(amsGrid, HorizonObjectKind.Ams, project.ObjectId);
 
         State.AmsAttempt++;
         State.ActiveAms = core;
@@ -373,7 +377,9 @@ public sealed partial class HorizonSystem
             return false;
 
         var project = _prototypes.Index<HorizonProjectPrototype>("HorizonO01");
-        stationCore = Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero));
+        stationCore = TryFindHorizonObject(stationGrid, out var mappedCore)
+            ? mappedCore
+            : Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero));
         ConfigureObject(
             stationCore,
             project.ObjectId,
@@ -391,7 +397,8 @@ public sealed partial class HorizonSystem
         _metadata.SetEntityName(stationGrid, "Horizon O-01");
         SpawnHorizonConsoles(stationGrid);
         SpawnHorizonProjectFixtures(stationGrid, HorizonObjectKind.Command, project.ObjectId);
-        Spawn("PlayerStationAiHorizon", new EntityCoordinates(stationGrid, new Vector2(0f, 1f)));
+        if (!HasGridChildPrototype(stationGrid, "PlayerStationAiHorizon"))
+            Spawn("PlayerStationAiHorizon", new EntityCoordinates(stationGrid, new Vector2(0f, 1f)));
         return true;
     }
 
@@ -404,6 +411,8 @@ public sealed partial class HorizonSystem
         var stopwatch = Stopwatch.StartNew();
         var loaded = _mapLoader.TryLoadGrid(_ticker.DefaultMap, project.GridPath, out var loadedGrid, offset: position);
         grid = loadedGrid?.Owner;
+        if (loaded && grid is { } gridUid)
+            ConfigureHorizonGridIdentity(gridUid);
         stopwatch.Stop();
         State.Performance.LastGridSpawnMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
         if (State.Performance.LastGridSpawnMilliseconds > State.Performance.LongestStepMilliseconds)
@@ -412,6 +421,43 @@ public sealed partial class HorizonSystem
             State.Performance.LongestStep = $"load:{projectId}";
         }
         return loaded;
+    }
+
+    private void ConfigureHorizonGridIdentity(EntityUid grid)
+    {
+        _shuttle.SetIFFColor(grid, Color.FromHex("#35c9c2"));
+        _shuttle.SetIFFReadOnly(grid, true);
+    }
+
+    private bool TryFindHorizonObject(EntityUid? grid, out EntityUid horizonObject)
+    {
+        horizonObject = EntityUid.Invalid;
+        if (grid is not { } gridUid || Deleted(gridUid))
+            return false;
+
+        var children = Transform(gridUid).ChildEnumerator;
+        while (children.MoveNext(out var child))
+        {
+            if (!HasComp<HorizonObjectComponent>(child))
+                continue;
+
+            horizonObject = child;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool HasGridChildPrototype(EntityUid grid, string prototypeId)
+    {
+        var children = Transform(grid).ChildEnumerator;
+        while (children.MoveNext(out var child))
+        {
+            if (MetaData(child).EntityPrototype?.ID == prototypeId)
+                return true;
+        }
+
+        return false;
     }
 
     private bool TryFindShuttleConsole(EntityUid? grid, out EntityUid console)

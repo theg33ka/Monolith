@@ -180,6 +180,8 @@ Codex ведёт этот файл в одном постоянном чате.
 - 2026-07-13: Phase 10 lifecycle/performance review bounded unsafe runtime CVar values, stopped same-drain requeue churn, prevented per-hit duplicate AMZ dispatch and closed stale object/incident references.
 - 2026-07-13: Final Release solution build passed. Focused Horizon tests passed 33/33; the 500-cycle typical-cluster soak took 41.71 ms. Full server/client YAML validation reported no errors in 179699 ms.
 - 2026-07-13: Phase 10 stabilization committed as `34580a3cdc`. The complete MVP remains local and was not pushed.
+- 2026-07-19: Dedicated Forge-owned RTR, AMS-01 Kamenshchik, O-01 and D-04 Uglich grids imported. RTR loading is staggered, missing mapped fixtures retain functional fallbacks, and Horizon IFF is applied and locked on every loaded project grid.
+- 2026-07-19: Dedicated map integration validated. Release solution build passed with 0 errors, focused Horizon tests passed 33/33, all four dedicated grids loaded in the focused integration test, and full server/client YAML validation reported no errors in 223004 ms.
 
 ## Technical decisions
 
@@ -193,4 +195,4 @@ _None._
 
 ## Next exact action
 
-_MVP complete. Await explicit user direction for live playtesting, final art/map replacement or push._
+_Continue replacing the remaining borrowed Horizon maps or perform live playtesting of the dedicated RTR/AMS-01/O-01/D-04 deployment chain._

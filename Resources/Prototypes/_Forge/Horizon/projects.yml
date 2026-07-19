@@ -1,24 +1,33 @@
 - type: horizonProject
+  id: HorizonRTRGrid
+  name: RTR reserve deployment point
+  objectId: RTR
+  kind: Rtr
+  gridPath: /Maps/_Forge/Horizon/rtr.yml
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
   id: HorizonAMS01
-  name: AMS-01 construction shuttle
+  name: AMS-01 Kamenshchik construction shuttle
   objectId: AMS-01
   kind: Ams
-  gridPath: /Maps/Shuttles/ShuttleEvent/microshuttle.yml
+  gridPath: /Maps/_Forge/Horizon/Shuttles/ams01_kamenshchik.yml
   energyCapacity: 50
   protectedRadius: 100
-  temporaryContent: true
+  temporaryContent: false
 
 - type: horizonProject
   id: HorizonO01
   name: O-01 command station
   objectId: O-01
   kind: Command
-  gridPath: /Maps/Salvage/small-template.yml
+  gridPath: /Maps/_Forge/Horizon/Stations/o01.yml
   rawIncome: 2
   energyCapacity: 300
   productionCapacity: 2
   protectedRadius: 1000
-  temporaryContent: true
+  temporaryContent: false
 
 - type: horizonProject
   id: HorizonE01
@@ -54,12 +63,13 @@
   name: D-04 Uglich mining station
   objectId: D-04
   kind: Mining
-  gridPath: /Maps/Salvage/small-template.yml
+  gridPath: /Maps/_Forge/Horizon/Stations/d04_uglich.yml
   rawCost: 30
   componentCost: 10
   energyCost: 5
   rawIncome: 12
   priority: 30
+  temporaryContent: false
 
 - type: horizonProject
   id: HorizonP11

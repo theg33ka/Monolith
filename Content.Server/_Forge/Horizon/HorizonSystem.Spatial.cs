@@ -91,7 +91,9 @@ public sealed partial class HorizonSystem
         {
             HorizonObjectKind.Amz => CreateAmzExecutor(stationGrid),
             HorizonObjectKind.Salvage when project.ID == "HorizonAMU05" => CreateWanderingCarrier(stationGrid),
-            _ => Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero)),
+            _ => TryFindHorizonObject(stationGrid, out var mappedCore)
+                ? mappedCore
+                : Spawn("HorizonStationCore", new EntityCoordinates(stationGrid, Vector2.Zero)),
         };
         ConfigureObject(
             stationCore,
@@ -144,12 +146,16 @@ public sealed partial class HorizonSystem
             HorizonObjectKind.Technical => "HorizonTechnicalModule",
             _ => null,
         };
-        if (module is not null)
+        if (module is not null && !HasGridChildPrototype(grid, module))
             Spawn(module, new EntityCoordinates(grid, new Vector2(1f, 0f)));
 
-        Spawn("HorizonNavigationLight", new EntityCoordinates(grid, new Vector2(-1f, 0f)));
-        var nameplate = Spawn("HorizonNameplate", new EntityCoordinates(grid, new Vector2(0f, -1f)));
-        _metadata.SetEntityName(nameplate, $"{objectId} nameplate");
+        if (!HasGridChildPrototype(grid, "HorizonNavigationLight"))
+            Spawn("HorizonNavigationLight", new EntityCoordinates(grid, new Vector2(-1f, 0f)));
+        if (!HasGridChildPrototype(grid, "HorizonNameplate"))
+        {
+            var nameplate = Spawn("HorizonNameplate", new EntityCoordinates(grid, new Vector2(0f, -1f)));
+            _metadata.SetEntityName(nameplate, $"{objectId} nameplate");
+        }
     }
 
     private bool TryGetClusterAnchor(out EntityUid anchorEntity, out MapId mapId, out Vector2 position)
