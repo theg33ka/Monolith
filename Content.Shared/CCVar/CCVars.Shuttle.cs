@@ -65,6 +65,13 @@ public sealed partial class CCVars
         CVarDef.Create("shuttle.hide_split_grids_under", 30, CVar.SERVERONLY);
 
     /// <summary>
+    ///     Minimum number of tiles a grid must have to be drawn on the map.
+    ///     Grids with fewer tiles than this will not be rendered to avoid clutter.
+    /// </summary>
+    public static readonly CVarDef<int> DrawGridMinTiles =
+        CVarDef.Create("shuttle.draw_grid_min_tiles", 10, CVar.SERVER | CVar.REPLICATED); /// Forge-Change
+
+    /// <summary>
     ///     Whether to automatically spawn escape shuttles.
     /// </summary>
     public static readonly CVarDef<bool> GridFill =
@@ -193,7 +200,7 @@ public sealed partial class CCVars
     ///         At the moment they have a very low mass of roughly 0.48 kg per tile independent of any walls or anchored objects on them.
     /// </summary>
     public static readonly CVarDef<float> GridImpulseMultiplier =
-        CVarDef.Create("shuttle.grid_impulse_multiplier", 0.01f, CVar.SERVERONLY);
+        CVarDef.Create("shuttle.grid_impulse_multiplier", 0.04f, CVar.SERVERONLY); /// Forge-Change
 
     #region impacts
 

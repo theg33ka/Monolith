@@ -153,6 +153,7 @@
     - NFNfsdTechfabDeprecatedStatic
     - StaticAmmoRecipePack
     - RoundstartShipgunAmmo # Mono
+    - StaticGrenades
     - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFNfsdTechfabDeprecated
@@ -166,6 +167,8 @@
     - UniversalMissileAmmo
     - UniversalOrdinance
     - ResearchedExplosives
+    - ForgeTurretTSF # Forge-Change
+    - ForgeTurretKits # Forge-Change
     # Mono end
   - type: EmagLatheRecipes
     emagStaticPacks:
@@ -202,12 +205,10 @@
     - StaticAmmoRecipePack
     - MonoRestraintsStatic # Mono
     - RoundstartShipgunAmmo # Mono
+    - StaticGrenades
     - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFMercenaryTechfabDeprecated
-    - ForgeTelAdiModsuitDynamic # Forge-change: Tel-Adi ARS (disk-gated research)
-    - ForgeTelAdiModsuitMk2Dynamic # Forge-change: Tel-Adi ARS Mk.II
-    - ForgeTelAdiVoucherDynamic # Forge-change: ваучер флагмана Tel-Adi
     - DynamicAmmoRecipePack
     # Mono start
     - MonoTSFWeaponsDynamicMelee
@@ -226,6 +227,10 @@
     - NSCRecipes # Forge-Change
     # Mono end
     - UllmanForgeRecipes # Forge-change
+    - MonoViperGroupDynamic #Forge-Change
+    - ForgeMercenaryVouchers # Forge-Change
+    - ForgeTurretMercenary # Forge-Change
+    - ForgeTurretKits # Forge-Change
   - type: EmagLatheRecipes
     emagStaticPacks:
     - NFMercenaryTechfabDeprecatedEmag
@@ -274,6 +279,7 @@
     - StaticAmmoRecipePack
     - MonoRestraintsStatic
     - RoundstartShipgunAmmo # Mono
+    - StaticGrenades
     - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFHackedMercenaryTechfabDeprecated
@@ -292,6 +298,8 @@
     - UniversalShellAmmo
     - UniversalOrdinance
     # Mono end
+    - ForgeTurretMercenary # Forge-Change
+    - ForgeTurretKits # Forge-Change
   - type: PirateBountyItem # Mono
     id: Techfab
 
@@ -406,6 +414,9 @@
     productValueModifier: null
     staticPacks:
     - NFScrapStatic
+  # Forge-Change: accept scrap/ore from disposal trunks into MaterialStorage.
+  - type: OrePipeOutlet
+    maxInsertPerFlush: 40
 
 - type: entity
   id: BiogeneratorFill

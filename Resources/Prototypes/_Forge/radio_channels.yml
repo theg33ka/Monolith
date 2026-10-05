@@ -127,9 +127,18 @@
   frequency: 7011
   color: "#1a5f9b"
 
-- type: radioChannel
-  id: TelAdi
-  name: chat-radio-teladi
-  keycode: 'g' # :g — канал корпорации Tel-Adi
-  frequency: 6067 # отображается как 606.7
-  color: "#D4AF37"
+# region Custom
+# Popular handheld / custom-key frequencies. Players pick one and tell others.
+- type: radioFrequencyPresetList
+  id: PopularHandheld
+  frequencies:
+  - 1330
+  - 1400
+  - 1500
+  - 1600
+  - 1700
+  - 1800
+  - 1900
+  - 2000
+  - 2500
+  - 3000

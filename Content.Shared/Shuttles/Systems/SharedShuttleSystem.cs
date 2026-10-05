@@ -1,28 +1,33 @@
 using System.Diagnostics.CodeAnalysis;
 using Content.Shared._Mono.Ships;
+using Content.Shared.CCVar;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Power.EntitySystems;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Shuttles.UI.MapObjects;
 using Content.Shared.Whitelist;
+using Robust.Shared.Configuration;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Physics;
 using Robust.Shared.Physics.Collision.Shapes;
 using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Systems;
 
 namespace Content.Shared.Shuttles.Systems;
 
 public abstract partial class SharedShuttleSystem : EntitySystem
 {
-    [Dependency] private IMapManager _mapManager = default!;
     [Dependency] private ItemSlotsSystem _itemSlots = default!;
     [Dependency] protected SharedMapSystem Maps = default!;
     [Dependency] protected SharedTransformSystem XformSystem = default!;
     [Dependency] private EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private SharedPowerReceiverSystem _powerReceiverSystem = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
 
     public const float FTLRange = 0f;
     public const float FTLBufferRange = 20f;
+    public const float TileDensityMultiplier = 0.5f; /// Forge-Change
 
     private EntityQuery<MapGridComponent> _gridQuery;
     private EntityQuery<PhysicsComponent> _physicsQuery;
@@ -43,7 +48,7 @@ public abstract partial class SharedShuttleSystem : EntitySystem
     /// </summary>
     public bool CanFTLTo(EntityUid shuttleUid, MapId targetMap, EntityUid consoleUid)
     {
-        var mapUid = _mapManager.GetMapEntityId(targetMap);
+        var mapUid = Maps.GetMap(targetMap);
         var shuttleMap = _xformQuery.GetComponent(shuttleUid).MapID;
 
         if (shuttleMap == targetMap)
@@ -114,6 +119,10 @@ public abstract partial class SharedShuttleSystem : EntitySystem
     {
         foreach (var beacon in beacons)
         {
+            // Skip beacons with invalid NetEntity IDs
+            if (beacon.Entity == NetEntity.Invalid)
+                continue;
+
             var beaconCoords = XformSystem.ToMapCoordinates(GetCoordinates(beacon.Coordinates));
 
             if (beaconCoords.MapId != mapId)
@@ -127,7 +136,18 @@ public abstract partial class SharedShuttleSystem : EntitySystem
     {
         if (!Resolve(gridUid, ref physics))
             return true;
+        /// Forge-Change-Start
+        // physics.BodyType; /// Forge-Change-Del
 
+        var minTiles = _cfg.IsCVarRegistered(CCVars.DrawGridMinTiles.Name) 
+            ? _cfg.GetCVar(CCVars.DrawGridMinTiles) 
+            : 10; // Default fallback value
+        if (physics.BodyType != BodyType.Static && physics.Mass < (minTiles * TileDensityMultiplier)) // A grid of approx minTiles tiles, to not draw tiny grids.
+        {
+            return false;
+        }
+
+        /// Forge-Change-End
         if (!Resolve(gridUid, ref iffComp, false))
         {
             return true;
@@ -266,7 +286,7 @@ public abstract partial class SharedShuttleSystem : EntitySystem
         var ourFTLBuffer = GetFTLBufferRange(shuttleUid);
         var circle = new PhysShapeCircle(ourFTLBuffer + FTLBufferRange, targetPosition);
 
-        _mapManager.FindGridsIntersecting(mapCoordinates.MapId, circle, Robust.Shared.Physics.Transform.Empty,
+        Maps.FindGridsIntersecting(mapCoordinates.MapId, circle, Robust.Shared.Physics.Transform.Empty,
             ref _grids, includeMap: false);
 
         // If any grids in range that aren't us then can't FTL.

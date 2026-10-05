@@ -11,6 +11,7 @@ using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Events;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Tag;
+using Content.Shared.Projectiles;
 using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Configuration;
@@ -37,7 +38,6 @@ public abstract partial class SharedMoverController : VirtualController
 {
     [Dependency] private   IConfigurationManager _configManager = default!;
     [Dependency] protected IGameTiming Timing = default!;
-    [Dependency] private   IMapManager _mapManager = default!;
     [Dependency] private   ITileDefinitionManager _tileDefinitionManager = default!;
     [Dependency] private   ActionBlockerSystem _blocker = default!;
     [Dependency] private   EntityLookupSystem _lookup = default!;
@@ -540,7 +540,8 @@ public abstract partial class SharedMoverController : VirtualController
                 !otherCollider.CanCollide ||
                 (collider.CollisionMask & otherCollider.CollisionLayer) == 0 &&
                 (otherCollider.CollisionMask & collider.CollisionLayer) == 0 ||
-                PullableQuery.TryComp(otherEntity, out var pullable) && pullable.BeingPulled)
+                PullableQuery.TryComp(otherEntity, out var pullable) && pullable.BeingPulled || /// Forge-Change
+                HasComp<ProjectileComponent>(otherEntity))                                      /// Forge-Change
             {
                 continue;
             }

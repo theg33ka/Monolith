@@ -490,4 +490,12 @@ public enum LogType
     /// Events relating to midi playback.
     /// </summary>
     Instrument = 103,
+
+    // RMC14
+    RMCTelephone = 10042,
+
+    /// <summary>
+    /// A player wrote on paper. Image uploads are Medium impact so they can be filtered.
+    /// </summary>
+    Paper = 300, // Forge
 }
