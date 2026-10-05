@@ -2,6 +2,11 @@
   id: CC
   hostile:
   - SimpleHostile
+  # Forge-Change-start
+  - Dragon
+  - Xeno
+  - Xenoborg
+  # Forge-Change-end
   - Zombie
   - Chimera
 
@@ -71,4 +76,44 @@
   id: Chimera
   friendly:
   - AberrantFleshExpeditionNF
+  defaultHostile: true
+
+- type: npcFaction
+  id: VG
+  neutral:
+  - CC
+  - NanoTrasen
+  - SimpleNeutral
+  - Mouse
+  - USSP
+  defaultHostile: true
+
+- type: npcFaction
+  id: VGTurret # Doesn't like intruders.
+  friendly:
+  - VG
+  neutral:
+  - Cat
+  - PetsNT
+  - SimpleNeutral
+  - Mouse
+  - USSP
+  defaultHostile: true
+
+- type: npcFaction
+  id: MMC
+  neutral:
+  - CC
+  - USSP
+  - VG
+  - NanoTrasen
+  - SimpleNeutral
+  - Mouse
+  defaultHostile: true
+
+- type: npcFaction
+  id: XenoborgTurret # Doesn't like intruders.
+  friendly:
+  - Mothership
+  - Xenoborg
   defaultHostile: true

@@ -62,13 +62,10 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
     [Dependency] private AtmosphereSystem _atmos = default!;
     [Dependency] private TurfSystem _turf = default!;
 
-    [ValidatePrototypeId<ReagentPrototype>]
     private const string Blood = "Blood";
 
-    [ValidatePrototypeId<ReagentPrototype>]
     private const string Slime = "Slime";
 
-    [ValidatePrototypeId<ReagentPrototype>]
     private const string CopperBlood = "CopperBlood";
 
     private static string[] _standoutReagents = [Blood, Slime, CopperBlood];
@@ -93,6 +90,7 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
 
         // Shouldn't need re-anchoring.
         SubscribeLocalEvent<PuddleComponent, AnchorStateChangedEvent>(OnAnchorChanged);
+        SubscribeLocalEvent<PuddleComponent, ComponentShutdown>(OnPuddleShutdown); // Forge-Change
         SubscribeLocalEvent<PuddleComponent, SolutionContainerChangedEvent>(OnSolutionUpdate);
         SubscribeLocalEvent<PuddleComponent, SpreadNeighborsEvent>(OnPuddleSpread);
         SubscribeLocalEvent<PuddleComponent, SlipEvent>(OnPuddleSlip);
@@ -288,6 +286,7 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
 
         if (args.Solution.Volume <= 0)
         {
+            UpdateFlammability((entity.Owner, entity.Comp), null); // Forge-Change
             _deletionQueue.Add(entity);
             return;
         }
@@ -463,8 +462,18 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
     private void OnAnchorChanged(Entity<PuddleComponent> entity, ref AnchorStateChangedEvent args)
     {
         if (!args.Anchored)
+        // Forge-change-start
+        {
+            UpdateFlammability((entity.Owner, entity.Comp), null);
             QueueDel(entity);
+        }
     }
+
+    private void OnPuddleShutdown(Entity<PuddleComponent> entity, ref ComponentShutdown args)
+    {
+        UpdateFlammability((entity.Owner, entity.Comp), null);
+    }
+    // Forge-change-end
 
     /// <summary>
     ///     Gets the current volume of the given puddle, which may not necessarily be PuddleVolume.

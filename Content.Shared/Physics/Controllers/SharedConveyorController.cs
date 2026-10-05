@@ -17,7 +17,7 @@ namespace Content.Shared.Physics.Controllers;
 
 public abstract partial class SharedConveyorController : VirtualController
 {
-    [Dependency] protected IMapManager MapManager = default!;
+    [Dependency] protected SharedMapSystem MapManager = default!;
     [Dependency] private   IParallelManager _parallel = default!;
     [Dependency] private   CollisionWakeSystem _wake = default!;
     [Dependency] protected EntityLookupSystem Lookup = default!;
@@ -223,7 +223,7 @@ public abstract partial class SharedConveyorController : VirtualController
             return true;
 
         if (physics.BodyStatus == BodyStatus.InAir ||
-            _gravity.IsWeightless(entity, physics, xform))
+            _gravity.IsWeightless(entity.Owner))
         {
             return true;
         }

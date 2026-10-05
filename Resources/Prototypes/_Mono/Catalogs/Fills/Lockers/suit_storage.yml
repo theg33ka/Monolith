@@ -15,7 +15,7 @@
         - id: ClothingShoesBootsMagSecurity
   - type: AccessReader
     access: [["Mercenary"]]
-    
+
 - type: entity
   id: SuitStorageUsspL10
   parent: SuitStorageBase
@@ -60,8 +60,8 @@
     contents:
     - id: OxygenTankFilled
     - id: NitrogenTankFilled
-    - id: ClothingOuterHardsuitM82c
-    - id: JetpackNfsdFilled # Forge-Change
+    - id: ClothingOuterHardsuitTSFMCM82c # Forge Change
+    - id: JetpackNfsdFilled
     - id: ClothingShoesBootsMagSecurity
   - type: AccessReader
     access: [["Security"]]
@@ -75,8 +75,8 @@
     contents:
     - id: OxygenTankFilled
     - id: NitrogenTankFilled
-    - id: ClothingOuterHardsuitM82b
-    - id: JetpackNfsdFilled # Forge-Change
+    - id: ClothingOuterHardsuitTSFMCM82b # Forge Change
+    - id: JetpackNfsdFilled
     - id: ClothingShoesBootsMagSecurity
   - type: AccessReader
     access: [["Security"]]
@@ -90,8 +90,8 @@
     contents:
     - id: OxygenTankFilled
     - id: NitrogenTankFilled
-    - id: ClothingOuterHardsuitM86
-    - id: JetpackNfsdFilled # Forge-Change
+    - id: ClothingOuterHardsuitTSFMCM86 # Forge-change
+    - id: JetpackNfsdFilled
     - id: ClothingShoesBootsMagSecurity
   - type: AccessReader
     access: [["Security"]]
@@ -106,7 +106,7 @@
     contents:
         - id: OxygenTankFilled
         - id: NitrogenTankFilled
-        - id: ClothingOuterHardsuitNfsdSheriff # Frontier
+        - id: ClothingOuterHardsuitTSFMCM86C # Forge-change
         - id: ClothingMaskGasSheriff
         - id: JetpackNfsdFilled
         - id: ClothingShoesBootsMagSecurity # Frontier
@@ -144,3 +144,73 @@
         - id: ClothingShoesBootsMagSyndie
         - id: ClothingMaskGasSyndicate
         - id: JetpackBlackFilled # Frontier
+
+# Viper Group
+
+- type: entity
+  id: SuitStorageViperWL
+  parent: SuitStorageBase
+  suffix: Viper Group - BROOD
+  components:
+  - type: StorageFill
+    contents:
+    - id: OxygenTankFilled
+    - id: NitrogenTankFilled
+    - id: ClothingOuterHardsuitViperGroupInitiate
+    - id: ClothingMaskGasSecurity
+    - id: JetpackMiniFilled
+    - id: ClothingShoesBootsMagSecurity
+    - id: ClothingNeckViperGroupMantle
+  - type: AccessReader
+    access: [ [ "Viper" ] ]
+
+- type: entity
+  id: SuitStorageViperJackal
+  parent: SuitStorageBase
+  suffix: Viper Group - Jackal
+  components:
+  - type: StorageFill
+    contents:
+      - id: OxygenTankFilled
+      - id: NitrogenTankFilled
+      - id: ClothingOuterHardsuitViperGroupStandard
+      - id: ClothingMaskGasSecurity
+      - id: JetpackMiniFilled
+      - id: ClothingShoesBootsMagSecurity
+      - id: ClothingNeckViperGroupMantle
+  - type: AccessReader
+    access: [ [ "Viper" ] ]
+
+# MMC
+
+- type: entity
+  id: SuitStorageMieyoMining
+  parent: SuitStorageBase
+  suffix: MMC Mining
+  components:
+  - type: StorageFill
+    contents:
+    - id: OxygenTankFilled
+    - id: NitrogenTankFilled
+    - id: ClothingOuterHardsuitMieyoMining
+    - id: ClothingMaskBreath
+    - id: JetpackBlackFilled
+    - id: ClothingShoesBootsMagSecurity
+  - type: AccessReader
+    access: [["Mieyo"]]
+
+- type: entity
+  id: SuitStorageMieyoCombat
+  parent: SuitStorageBase
+  suffix: MMC Combat
+  components:
+  - type: StorageFill
+    contents:
+    - id: OxygenTankFilled
+    - id: NitrogenTankFilled
+    - id: ClothingOuterHardsuitMieyoCombat
+    - id: ClothingMaskBreath
+    - id: JetpackBlackFilled
+    - id: ClothingShoesBootsMagSecurity
+  - type: AccessReader
+    access: [["MieyoSecurity"]]

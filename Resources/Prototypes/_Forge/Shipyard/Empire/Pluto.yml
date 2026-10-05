@@ -1,14 +1,14 @@
 - type: vessel
   id: Pluto
   parent: BaseVessel
-  name: "ESP Нептун"
+  name: "ESP «Нептун»"
   description: Опасный морской царь имперцев. Из какого моря выползла эта тварь?
   category: Small
   group: Empire
   access: Empire
   limit: 3
-  price: 270000
-  shuttlePath: /Maps/_Forge/Shuttles/Empire/Pluto.yml
+  price: 273000
+  shuttlePath: /SharedMaps/_Forge/Shuttles/Empire/Pluto.yml
   guidebookPage: Null
   class:
   - Fighter
@@ -18,7 +18,7 @@
 - type: gameMap
   id: Pluto
   mapName: 'PSE Нептун'
-  mapPath: /Maps/_Forge/Shuttles/Empire/Pluto.yml
+  mapPath: /SharedMaps/_Forge/Shuttles/Empire/Pluto.yml
   minPlayers: 0
   stations:
     Pluto:

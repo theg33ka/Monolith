@@ -45,6 +45,8 @@
   ## Tools
     - NetworkConfigurator
     - SprayPainter
+    - SprayPainterAmmo  # Forge-Change
+    - MaintenanceJack   # Forge-Change
     - TRayScanner
     - GasAnalyzer
     - Holoprojector
@@ -80,6 +82,9 @@
     - SolarTrackerElectronics
     - SolarAssemblyFlatpack
     - ShuttleConsoleCircuitboard
+    - ShuttleConsoleCircuitboardTSFN # Mono
+    - ShuttleConsoleCircuitboardKPV63RWR # Mono
+    - ShuttleConsoleCircuitboardANALR67RWR # Mono
     - PortableGeneratorPacmanMachineCircuitboard
     - PortableGeneratorSuperPacmanMachineCircuitboard
     - PortableGeneratorJrPacmanMachineCircuitboard
@@ -115,6 +120,7 @@
     - WelderExperimental
     - JawsOfLife
     - PowerDrill
+    - TrayGoggles # Mono
     - JetpackVoid
     - PowerCellHigh
     - PowerCellMicroreactor

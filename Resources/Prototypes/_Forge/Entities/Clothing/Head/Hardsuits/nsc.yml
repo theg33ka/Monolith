@@ -1,0 +1,93 @@
+- type: entity
+  parent: ClothingHeadHardsuitBase
+  id: ClothingHeadHelmetHardsuitNexusWorker
+  categories: [ HideSpawnMenu ]
+  suffix: Нексус
+  components:
+  - type: Sprite
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_worker_hardsuit_helm.rsi
+    state: icon
+  - type: Clothing
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_worker_hardsuit_helm.rsi
+    clothingVisuals:
+      head:
+      - state: equiped-HELMET
+  - type: PressureProtection
+    highPressureMultiplier: 0.08
+    lowPressureMultiplier: 1000
+  - type: FireProtection
+    reduction: 0.2
+
+# ClothingHeadHelmetHardsuitNexusMilT1
+- type: entity
+  parent: [ClothingHeadHardsuitBaseMilitary, ClothingNightVision1Nexus]
+  id: ClothingHeadHelmetHardsuitNexusMilT1
+  categories: [ HideSpawnMenu ]
+  suffix: Нексус
+  components:
+  - type: Sprite
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_t1_mil_hardsuit_helm.rsi
+    state: icon
+  - type: Clothing
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_t1_mil_hardsuit_helm.rsi
+    clothingVisuals:
+      head:
+      - state: equiped-HELMET
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.95
+        Slash: 0.95
+        Piercing: 0.95
+        Heat: 0.95
+
+# ClothingHeadHelmetHardsuitNexusMilT2
+- type: entity
+  parent: [ClothingHeadHardsuitBaseMilitary, ClothingNightVision2Nexus]
+  id: ClothingHeadHelmetHardsuitNexusMilT2
+  categories: [ HideSpawnMenu ]
+  suffix: Нексус
+  components:
+  - type: Sprite
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_t2_mil_hardsuit_helm.rsi
+    state: icon
+  - type: Clothing
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_t2_mil_hardsuit_helm.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.9
+        Slash: 0.9
+        Piercing: 0.9
+        Heat: 0.9
+
+# ClothingHeadHelmetHardsuitNexusMilT3
+- type: entity
+  parent: [ClothingHeadHardsuitBaseMilitary, ShowMedicalIcons, ClothingNightVision4Nexus, BaseClothingHelmetMassScanner]
+  id: ClothingHeadHelmetHardsuitNexusMilT3
+  categories: [ HideSpawnMenu ]
+  suffix: Нексус
+  components:
+  - type: Sprite
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_t3_mil_hardsuit_helm.rsi
+    state: icon
+  - type: Clothing
+    sprite: _Forge/Clothing/Head/Hardsuits/nexus_t3_mil_hardsuit_helm.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-HEAD-sealed
+  - type: PressureProtection
+    highPressureMultiplier: 0.3
+    lowPressureMultiplier: 1000
+  - type: EyeProtection
+    protectionTime: 15
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.9
+        Slash: 0.9
+        Piercing: 0.9
+        Heat: 0.9

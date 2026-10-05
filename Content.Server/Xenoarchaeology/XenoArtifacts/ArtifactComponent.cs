@@ -1,7 +1,7 @@
 using Content.Shared.Xenoarchaeology.XenoArtifacts;
 using Robust.Shared.Audio;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Xenoarchaeology.XenoArtifacts;
 
@@ -77,7 +77,7 @@ public sealed partial class ArtifactComponent : Component
     /// Used for calculating the research point value of an artifact node.
     /// </summary>
     [DataField("pointDangerMultiplier"), ViewVariables(VVAccess.ReadWrite)]
-    public float PointDangerMultiplier = 1.35f;
+    public float PointDangerMultiplier = 1.8f; // Mono: 1.35 < 1.8 //Note: Why tf does frontier use < instead of -> ???
 
     /// <summary>
     /// The sound that plays when an artifact is activated
@@ -140,7 +140,7 @@ public sealed partial class ArtifactNode : ICloneable
     /// <summary>
     /// The trigger for the node
     /// </summary>
-    [DataField("trigger", customTypeSerializer: typeof(PrototypeIdSerializer<ArtifactTriggerPrototype>), required: true), ViewVariables]
+    [DataField("trigger", customTypeSerializer: typeof(ProtoId<ArtifactTriggerPrototype>), required: true), ViewVariables]
     public string Trigger = default!;
 
     /// <summary>
@@ -152,7 +152,7 @@ public sealed partial class ArtifactNode : ICloneable
     /// <summary>
     /// The effect when the node is activated
     /// </summary>
-    [DataField("effect", customTypeSerializer: typeof(PrototypeIdSerializer<ArtifactEffectPrototype>), required: true), ViewVariables]
+    [DataField("effect", customTypeSerializer: typeof(ProtoId<ArtifactEffectPrototype>), required: true), ViewVariables]
     public string Effect = default!;
 
     /// <summary>

@@ -1,13 +1,14 @@
 - type: vessel
   id: seeker
   parent: BaseVessel
-  name: 'RBS Искатель'
+  name: 'RBS «Искатель»'
   description: Тяжеловооруженный шаттл наемников для исследований в экстремальных боевых условиях
   price: 165000
   category: Medium
   group: Shipyard
   access: Mercenary
-  shuttlePath: /Maps/_Forge/Shuttles/Mercenary/seeker.yml
+  purchasable: false
+  shuttlePath: /SharedMaps/_Forge/Shuttles/Mercenary/seeker.yml
   guidebookPage: Null
   class:
   - Fighter
@@ -15,7 +16,7 @@
 - type: gameMap
   id: seeker
   mapName: 'RBS Искатель'
-  mapPath: /Maps/_Forge/Shuttles/Mercenary/seeker.yml
+  mapPath: /SharedMaps/_Forge/Shuttles/Mercenary/seeker.yml
   minPlayers: 0
   stations:
     seeker:

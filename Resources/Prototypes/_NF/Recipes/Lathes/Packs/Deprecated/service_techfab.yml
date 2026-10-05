@@ -143,6 +143,7 @@
       - WelderExperimental
       - JawsOfLife
       - PowerDrill
+      - TrayGoggles # Mono
       - JetpackVoid
       - PowerCellHigh
       - PowerCellMicroreactor
@@ -164,6 +165,7 @@
       - PlantAnalyzer
       - JanicartFlatpack
       # - FireExtinguisherBluespace # DeltaV
+      - StationRadioReceiverHandheldRecipe #Forge-Change
 
 - type: latheRecipePack
   id: NFServiceTechfabDeprecatedEmagStatic

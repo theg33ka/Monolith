@@ -73,6 +73,14 @@ ui-options-lighting-low = Low
 ui-options-lighting-medium = Medium
 ui-options-lighting-high = High
 ui-options-scale-label = UI Scale:
+# Forge-Change-Start
+ui-options-chat-font-size = Chat text size:
+ui-options-chat-font-size-value = { $size } px
+ui-options-examine-font-size = Examine text size:
+ui-options-examine-font-size-value = { $size } px
+ui-options-hud-scale = HUD scale (hotbar, slots, actions):
+ui-options-storage-scale = Storage slot scale (bags, belts):
+# Forge-Change-End
 ui-options-scale-auto = Automatic ({ TOSTRING($scale, "P0") })
 ui-options-scale-75 = 75%
 ui-options-scale-100 = 100%
@@ -219,6 +227,11 @@ ui-options-function-editor-line-place = Place line
 ui-options-function-editor-rotate-object = Rotate
 ui-options-function-editor-flip-object = Flip
 ui-options-function-editor-copy-object = Copy
+# Forge-Change-Start
+ui-options-function-mapping-eyedropper = Mapping eyedropper (Shift+RMB)
+ui-options-function-mapping-eyedropper-tile = Mapping eyedropper tile (Alt+RMB)
+ui-options-function-mapping-eyedropper-decal = Mapping eyedropper decal (Ctrl+RMB)
+# Forge-Change-End
 
 ui-options-function-show-debug-console = Open Console
 ui-options-function-show-debug-monitors = Show Debug Monitors
@@ -295,6 +308,7 @@ cmd-options-help = Usage: options [tab]
 ui-options-enable-color-name = Add colors to character names
 ui-options-colorblind-friendly = Colorblind friendly mode
 ui-options-reduced-motion = Reduce motion of visual effects
+ui-options-disable-nv-noise = Disable the noise effect on the night vision overlay
 ui-options-screen-shake-intensity = Screen shake intensity
 ui-options-chat-window-opacity = Chat window opacity
 ui-options-speech-bubble-text-opacity = Speech bubble text opacity

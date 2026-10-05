@@ -1,5 +1,5 @@
 ﻿using Content.Shared.Construction.Prototypes;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Xenoarchaeology.Equipment.Components;
 
@@ -16,14 +16,14 @@ public sealed partial class TraversalDistorterComponent : Component
     [DataField("baseBiasChance")]
     public float BaseBiasChance = 0.7f;
 
-    [DataField("machinePartBiasChance", customTypeSerializer: typeof(PrototypeIdSerializer<MachinePartPrototype>))]
+    [DataField("machinePartBiasChance", customTypeSerializer: typeof(ProtoId<MachinePartPrototype>))]
     public string MachinePartBiasChance = "Manipulator";
 
     [DataField("partRatingBiasChance")]
     public float PartRatingBiasChance = 1.1f;
 
     [ViewVariables(VVAccess.ReadWrite)]
-    public BiasDirection BiasDirection = BiasDirection.Up;
+    public BiasDirection BiasDirection = BiasDirection.Down; // Mono - Since we start at Depth 0, analyzers will want to scan down instead of up.
 
     public TimeSpan NextActivation = default!;
     public TimeSpan ActivationDelay = TimeSpan.FromSeconds(1);

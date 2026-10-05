@@ -33,3 +33,37 @@
   - type: ContainerFill
     containers:
       board: [ DoorElectronicsTsfEngineer ]
+
+- type: entity
+  parent: AirlockSyndicate
+  id: AirlockViper
+  suffix: Viper Group, Locked
+  components:
+  - type: ContainerFill
+    containers:
+      board: [ DoorElectronicsViper ]
+
+- type: entity
+  parent: AirlockSyndicate
+  id: AirlockViperCommand
+  suffix: Viper Group Command, Locked
+  components:
+  - type: ContainerFill
+    containers:
+      board: [ DoorElectronicsViperCommand ]
+
+# Mieyo
+
+- type: entity
+  parent: Airlock
+  id: AirlockMieyo
+  suffix: Mieyo
+  components:
+  - type: Sprite
+    sprite: _Mono/Structures/Doors/Airlocks/Standard/mieyo.rsi
+  # - type: PaintableAirlock  # Forge-Change-Del
+  #   department: Civilian    # Forge-Change-Del
+  - type: Wires
+    layoutId: AirlockSecurity
+  - type: Airlock # Forge-change
+    openUnlitVisible: false

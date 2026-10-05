@@ -1,13 +1,13 @@
 - type: entity
   id: PlastitaniumWindowUran
-  name: plastitanium window
+  name: plastitanium uranium window
   parent: PlastitaniumWindowSquareBase
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/plastitanium_uran_window.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_uran_window.rsi
   - type: Icon
-    sprite: Forge/Structures/Windows/plastitanium_uran_window.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_uran_window.rsi
     state: full
   - type: Destructible
     thresholds:
@@ -50,19 +50,22 @@
     price: 100 # Frontier
   - type: RadiationBlocker
     resistance: 5
+  - type: Construction
+    graph: Plastitanium
+    node: plastitaniumWindowUran
 
 - type: entity
   id: PlastitaniumWindowUranDiagonal
-  name: plastitanium window
+  name: plastitanium uranium diagonal window
   parent: PlastitaniumWindowDiagonalBase
   suffix: diagonal
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/plastitanium_uran_window_diagonal.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_uran_window_diagonal.rsi
     state: state0
   - type: Icon
-    sprite: Forge/Structures/Windows/plastitanium_uran_window_diagonal.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_uran_window_diagonal.rsi
     state: state0
   - type: Destructible
     thresholds:
@@ -103,17 +106,20 @@
     damageModifierSet: RGlass
   - type: RadiationBlocker
     resistance: 5
+  - type: Construction
+    graph: Plastitanium
+    node: plastitaniumWindowUranDiagonal
 
 - type: entity
   id: PlastitaniumWindowPlasma
-  name: plastitanium window
+  name: plastitanium plasma window
   parent: PlastitaniumWindowSquareBase
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/plastitanium_plasma_window.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_plasma_window.rsi
   - type: Icon
-    sprite: Forge/Structures/Windows/plastitanium_plasma_window.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_plasma_window.rsi
     state: full
   - type: Destructible
     thresholds:
@@ -156,19 +162,22 @@
     price: 100 # Frontier
   - type: RadiationBlocker
     resistance: 4
+  - type: Construction
+    graph: Plastitanium
+    node: plastitaniumWindowPlasma
 
 - type: entity
   id: PlastitaniumWindowPlasmaDiagonal
-  name: plastitanium window
+  name: plastitanium plasma diagonal window
   parent: PlastitaniumWindowDiagonalBase
   suffix: diagonal
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/plastitanium_plasma_window_diagonal.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_plasma_window_diagonal.rsi
     state: state0
   - type: Icon
-    sprite: Forge/Structures/Windows/plastitanium_plasma_window_diagonal.rsi
+    sprite: _Forge/Structures/Windows/plastitanium_plasma_window_diagonal.rsi
     state: state0
   - type: Destructible
     thresholds:
@@ -209,3 +218,6 @@
     damageModifierSet: RGlass
   - type: RadiationBlocker
     resistance: 4
+  - type: Construction
+    graph: Plastitanium
+    node: plastitaniumWindowPlasmaDiagonal

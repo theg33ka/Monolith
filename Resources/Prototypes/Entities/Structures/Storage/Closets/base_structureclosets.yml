@@ -119,6 +119,8 @@
   id: ClosetSteelBase
   parent: ClosetBase
   components:
+  - type: Paintable   # Forge-Chane
+    group: Closet   # Forge-Chane
   - type: Construction
     graph: ClosetSteel
     node: done
@@ -200,6 +202,8 @@
     node: done
     containers:
     - entity_storage
+  - type: Paintable   # Forge-Change
+    group: WallCloset # Forge-Change
 
 #Wall locker
 - type: entity
@@ -322,3 +326,10 @@
     repairTo: SuitStorageBase
     repairTime: 2
     repairCost: 3
+  # Forge-Change-Start
+  - type: Construction
+    graph: SuitStorage
+    node: done
+    containers:
+    - entity_storage
+  # Forge-Change-End

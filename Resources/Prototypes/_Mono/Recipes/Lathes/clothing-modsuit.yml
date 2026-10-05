@@ -1,0 +1,12 @@
+- type: latheRecipe
+  id: ClothingModsuitMercenaryPowerCell
+  parent: ForgeUniversalLightSuitT1CompanyRecipe # Forge-change
+  result: ClothingModsuitMercenaryPowerCell
+  # materials: # Forge-change
+  #  Plastic: 2000 # Forge-change
+  #  Steel: 6000 # Forge-change
+  #  Plasteel: 8000 # Forge-change
+  #  Durathread: 4000 # Forge-change
+  #  Silver: 500 # Forge-change
+  #  Gold: 500 # Forge-change
+  #  UraniumFissile: 50 # Forge-Change

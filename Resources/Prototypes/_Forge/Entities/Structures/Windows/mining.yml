@@ -5,9 +5,9 @@
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/mining_uran.rsi
+    sprite: _Forge/Structures/Windows/mining_uran.rsi
   - type: Icon
-    sprite: Forge/Structures/Windows/mining_uran.rsi
+    sprite: _Forge/Structures/Windows/mining_uran.rsi
   - type: Repairable
     fuelCost: 15
     doAfterDelay: 3
@@ -52,6 +52,9 @@
     price: 100
   - type: RadiationBlocker
     resistance: 4
+  - type: Construction
+    graph: mining_window
+    node: miningWindowUran
 
 - type: entity
   parent: ShuttleWindowUran
@@ -64,7 +67,7 @@
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/mining_uran_diagonal.rsi
+    sprite: _Forge/Structures/Windows/mining_uran_diagonal.rsi
     state: state0
   - type: Tag
     tags:
@@ -74,7 +77,7 @@
     key: walls # Frontier: windows<walls
     base: state
   - type: Icon
-    sprite: Forge/Structures/Windows/mining_uran_diagonal.rsi
+    sprite: _Forge/Structures/Windows/mining_uran_diagonal.rsi
     state: state0
   - type: Fixtures
     fixtures:
@@ -99,6 +102,9 @@
       sprite: Structures/Windows/cracks_diagonal.rsi
   - type: RadiationBlocker
     resistance: 4
+  - type: Construction
+    graph: mining_window
+    node: miningWindowUranDiagonal
 
 - type: entity
   id: MiningWindowPlasma
@@ -107,9 +113,9 @@
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/mining_plasma.rsi
+    sprite: _Forge/Structures/Windows/mining_plasma.rsi
   - type: Icon
-    sprite: Forge/Structures/Windows/mining_plasma.rsi
+    sprite: _Forge/Structures/Windows/mining_plasma.rsi
   - type: Repairable
     fuelCost: 15
     doAfterDelay: 3
@@ -154,6 +160,9 @@
     price: 100
   - type: RadiationBlocker
     resistance: 3
+  - type: Construction
+    graph: mining_window
+    node: miningWindowPlasma
 
 - type: entity
   parent: ShuttleWindowPlasma
@@ -166,7 +175,7 @@
   components:
   - type: Sprite
     drawdepth: WallTops
-    sprite: Forge/Structures/Windows/mining_plasma_diagonal.rsi
+    sprite: _Forge/Structures/Windows/mining_plasma_diagonal.rsi
     state: state0
   - type: Tag
     tags:
@@ -176,7 +185,7 @@
     key: walls # Frontier: windows<walls
     base: state
   - type: Icon
-    sprite: Forge/Structures/Windows/mining_plasma_diagonal.rsi
+    sprite: _Forge/Structures/Windows/mining_plasma_diagonal.rsi
     state: state0
   - type: Fixtures
     fixtures:
@@ -201,3 +210,6 @@
       sprite: Structures/Windows/cracks_diagonal.rsi
   - type: RadiationBlocker
     resistance: 3
+  - type: Construction
+    graph: mining_window
+    node: miningWindowPlasmaDiagonal

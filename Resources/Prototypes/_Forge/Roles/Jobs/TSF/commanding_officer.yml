@@ -31,12 +31,16 @@
   access:
   - TsfmcEngineering
   - TsfSecApartment
+  - TurretCommandTSF
+  - TurretCommandTSFShuttle
   special:
   - !type:AddComponentSpecial
     components:
     - type: NpcFactionMember
       factions:
       - TSFMC
+    - type: ChatRank
+      rank: tsf-o6
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TSFTrackingImplant ]
   - !type:AddComponentSpecial
@@ -63,3 +67,4 @@
     - BaseSecurityUplinkRadioSheriff
     - PhoneInstrumentHigh
     - TSFSecApartmentTablet
+    - RubberStampTSFCommandingOfficer

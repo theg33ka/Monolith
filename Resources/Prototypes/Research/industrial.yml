@@ -9,9 +9,13 @@
   cost: 10000 # Mono
   recipeUnlocks:
   - MiningDrill
+  - ShipDrillMachineCircuitboard # Forge-change
   - WeaponGrapplingGun # Frontier
   - MineralScannerEmpty
   - OreProcessorIndustrialMachineCircuitboard
+  - OreMagnetMachineCircuitboard
+  - OrePipeStorageMachineCircuitboard # Forge-Change: ore hold hub
+  - OreHoldModuleMachineCircuitboard # Forge-Change: expandable capacity
   - ClothingMaskWeldingGas
   - ClothingShoesBootsJump
   - MechEquipmentDrill # Goobstation
@@ -96,6 +100,10 @@
   - LatheUpgradeKitHyper
   - LatheUpgradeKitCryo
   # End DeltaV Additions
+  # Begin Mono Additions
+  - IndustrialPressEconomyElectronicsMachineCircuitboard
+  - IndustrialPressEconomyPlatesMachineCircuitboard
+  # End Mono Additions
   # Begin Goobstation Additions
   - UpgradeKitAutomation
   - RoboticArmCircuitboard
@@ -161,6 +169,9 @@
   cost: 10000
   recipeUnlocks:
   - ShuttleConsoleCircuitboard
+  - ShuttleConsoleCircuitboardTSFN # Mono
+  - ShuttleConsoleCircuitboardKPV63RWR # Mono
+  - ShuttleConsoleCircuitboardANALR67RWR # Mono
   - ThrusterMachineCircuitboard
   - GyroscopeMachineCircuitboard
   - MiniGravityGeneratorCircuitboard
@@ -199,6 +210,7 @@
   - WelderExperimental
   - PowerDrill
   - JawsOfLife
+  - TrayGoggles # Delta-V
   - UtilityBeltChiefEngineer
   - BorgModuleAdvancedTool
   - ExperimentalNaniteApplicator # Monolith
@@ -210,6 +222,7 @@
   #- NFBlueprintWelderExperimental # Frontier
   # Mono edit start
   - RCD
+  - RPD
   - RCDAmmo
   - RPD # Forge-Change
   - HandheldForgeAtmosMonitoring # Forge-Change
@@ -234,6 +247,7 @@
   recipeUnlocks:
   - OreBagOfHolding
   - MiningDrillDiamond
+  - ShipDrillDiamondMachineCircuitboard #Forge-change
   - AdvancedMineralScannerEmpty
   - NFBlueprintOreBagOfHolding # Frontier
   - NFBlueprintMiningDrillDiamond # Frontier
@@ -284,6 +298,18 @@
   - SuperParts
   position: -2, 7
 
+- type: technology
+  id: MaterialSilo
+  name: research-technology-ore-silo
+  entityIcon: MachineMaterialSilo
+  discipline: Industrial
+  tier: 3
+  cost: 50000
+  recipeUnlocks:
+  - MaterialSiloMachineCircuitboard
+  technologyPrerequisites:
+  - SuperParts
+  position: -1, 6
 # Mono edit - research consolidation
 # - type: technology
 #   id: RapidConstruction

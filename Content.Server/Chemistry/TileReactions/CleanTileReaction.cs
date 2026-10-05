@@ -5,8 +5,9 @@ using Content.Shared.Chemistry.Reagent;
 using Content.Shared.FixedPoint;
 using Content.Shared.Fluids.Components;
 using Robust.Shared.Map;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Robust.Shared.Prototypes;
 using System.Linq;
+using Content.Server._Mono.ChimeraFloorCleaner;
 
 namespace Content.Server.Chemistry.TileReactions;
 
@@ -28,7 +29,7 @@ public sealed partial class CleanTileReaction : ITileReaction
     /// <summary>
     /// What reagent to replace the tile conents with.
     /// </summary>
-    [DataField("reagent", customTypeSerializer: typeof(PrototypeIdSerializer<ReagentPrototype>))]
+    [DataField("reagent", customTypeSerializer: typeof(ProtoId<ReagentPrototype>))]
     public string ReplacementReagent = "Water";
 
     FixedPoint2 ITileReaction.TileReact(TileRef tile,
@@ -39,12 +40,21 @@ public sealed partial class CleanTileReaction : ITileReaction
     {
         var entities = entityManager.System<EntityLookupSystem>().GetLocalEntitiesIntersecting(tile, 0f).ToArray();
         var puddleQuery = entityManager.GetEntityQuery<PuddleComponent>();
+        var chimeraQuery = entityManager.GetEntityQuery<ChimeraCleanableComponent>();
         var solutionContainerSystem = entityManager.System<SharedSolutionContainerSystem>();
         // Multiply as the amount we can actually purge is higher than the react amount.
         var purgeAmount = reactVolume / CleanAmountMultiplier;
 
         foreach (var entity in entities)
         {
+            // Remove chimera biomass entities
+            if (chimeraQuery.HasComponent(entity))
+            {
+                entityManager.QueueDeleteEntity(entity);
+                continue;
+            }
+
+            // Existing puddle cleaning logic
             if (!puddleQuery.TryGetComponent(entity, out var puddle) ||
                 !solutionContainerSystem.TryGetSolution(entity, puddle.SolutionName, out var puddleSolution, out _))
             {

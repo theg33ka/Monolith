@@ -1,3 +1,4 @@
+#region OMG PLS SOMEBODY SORTING THAT SHIT
 - type: Tag
   id: CartridgeVector22
 
@@ -15,6 +16,18 @@
 
 - type: Tag
   id: ADTWeaponMeleePrasatChainswordInq
+
+- type: Tag
+  id: MagazineTurretBallistic
+
+- type: Tag
+  id: MagazineTurretShotgun
+
+- type: Tag
+  id: MagazineTurretSniper
+
+- type: Tag
+  id: MagazineTurretMachinegun
 
 - type: Tag
   id: MagazineAntiMateriel
@@ -235,9 +248,44 @@
 - type: Tag
   id: Overlord
 
-# Ullman Industries
 - type: Tag
-  id: ForgeMagazineUllman127x85mm
+  id: BlacklistMachineFrame
 
 - type: Tag
-  id: ForgeCartridgeUllman127x85mm
+  id: AncientBattery
+
+# NSC ammunition
+- type: Tag
+  id: Cartridge135x110mm
+
+- type: Tag
+  id: Magazine135x110mm
+
+- type: Tag
+  id: Magazine635x40mmCaselessNexus
+
+# Ullman Industries
+- type: Tag
+  id: ForgeMagazineUllman135x110mm
+
+- type: Tag
+  id: SeismicCharge
+
+- type: Tag
+  id: DrakePlasmaTank
+
+- type: Tag
+  id: Kanabo
+
+- type: Tag
+  id: Odati
+
+- type: Tag
+  id: Type3
+
+#region TTI
+- type: Tag
+  id: FactionStaticUplinkTTI
+
+- type: Tag
+  id: TTIEquip

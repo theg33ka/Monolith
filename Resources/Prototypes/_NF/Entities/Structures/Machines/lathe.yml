@@ -153,6 +153,7 @@
     - NFNfsdTechfabDeprecatedStatic
     - StaticAmmoRecipePack
     - RoundstartShipgunAmmo # Mono
+    - StaticGrenades
     - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFNfsdTechfabDeprecated
@@ -166,6 +167,8 @@
     - UniversalMissileAmmo
     - UniversalOrdinance
     - ResearchedExplosives
+    - ForgeTurretTSF # Forge-Change
+    - ForgeTurretKits # Forge-Change
     # Mono end
   - type: EmagLatheRecipes
     emagStaticPacks:
@@ -202,6 +205,7 @@
     - StaticAmmoRecipePack
     - MonoRestraintsStatic # Mono
     - RoundstartShipgunAmmo # Mono
+    - StaticGrenades
     - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFMercenaryTechfabDeprecated
@@ -213,10 +217,6 @@
     - MonoRogueWeaponsDynamicMelee
     - MonoRogueWeaponsDynamicRanged
     - MonoRogueMiscDynamic
-    - MonoUSSPArmorDynamic
-    - MonoUSSPMiscDynamic
-    - MonoUSSPWeaponsDynamicRanged
-    - MonoViperGroupDynamic
     # Universal shit (stuff like shipgun ammo)
     - UniversalRailgunAmmo
     - UniversalMissileAmmo
@@ -224,8 +224,13 @@
     - UniversalOrdinance
     - SecurityEquipment
     - SmartGun #Smart SMG
+    - NSCRecipes # Forge-Change
     # Mono end
     - UllmanForgeRecipes # Forge-change
+    - MonoViperGroupDynamic #Forge-Change
+    - ForgeMercenaryVouchers # Forge-Change
+    - ForgeTurretMercenary # Forge-Change
+    - ForgeTurretKits # Forge-Change
   - type: EmagLatheRecipes
     emagStaticPacks:
     - NFMercenaryTechfabDeprecatedEmag
@@ -274,6 +279,7 @@
     - StaticAmmoRecipePack
     - MonoRestraintsStatic
     - RoundstartShipgunAmmo # Mono
+    - StaticGrenades
     - MonoAttachmentsStatic # Mono
     dynamicPacks:
     - NFHackedMercenaryTechfabDeprecated
@@ -286,16 +292,14 @@
     - MonoRogueWeaponsDynamicMelee
     - MonoRogueWeaponsDynamicRanged
     - MonoRogueMiscDynamic
-    - MonoUSSPArmorDynamic
-    - MonoUSSPMiscDynamic
-    - MonoViperGroupDynamic
-    - MonoUSSPWeaponsDynamicRanged
     # Universal shit (stuff like shipgun ammo)
     - UniversalRailgunAmmo
     - UniversalMissileAmmo
     - UniversalShellAmmo
     - UniversalOrdinance
     # Mono end
+    - ForgeTurretMercenary # Forge-Change
+    - ForgeTurretKits # Forge-Change
   - type: PirateBountyItem # Mono
     id: Techfab
 
@@ -410,6 +414,9 @@
     productValueModifier: null
     staticPacks:
     - NFScrapStatic
+  # Forge-Change: accept scrap/ore from disposal trunks into MaterialStorage.
+  - type: OrePipeOutlet
+    maxInsertPerFlush: 40
 
 - type: entity
   id: BiogeneratorFill

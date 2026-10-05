@@ -1,72 +1,17 @@
 #region Company
-- type: entity
-  parent: ClothingModsuitChestplateBase
-  id: ClothingModsuitChestplateVanguardNSC
-  name: vanguard modsuit chestplate
-  description: A well rounded modsuit that focuses on mobility with its Actuator Enhancement System allowing its wearer to leap across the battlefield for rapid redeployment.
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: Appearance
-  - type: AllowSuitStorage
-  - type: Sprite
-    sprite: Forge/Clothing/OuterClothing/Modsuits/nexusmod.rsi
-    layers:
-    - state: chestplate
-    - state: chestplate-sealed
-      visible: false
-      map: [ "sealed" ]
-  - type: Clothing
-    equipSound: /Audio/Mecha/mechmove03.ogg
-    unequipSound: /Audio/Mecha/mechmove03.ogg
-    slots: [ outerClothing ]
-  - type: SealableClothing
-    sealUpPopup: sealable-clothing-seal-up-chestplate
-    sealDownPopup: sealable-clothing-seal-down-chestplate
-  - type: SealableClothingVisuals
-    spriteLayer: sealed
-    clothingVisuals:
-      outerClothing:
-      - state: equipped-OUTERCLOTHING-sealed
-      outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox
-      outerClothing-resomi:
-      - state: equipped-OUTERCLOTHING-sealed-resomi
-  - type: ExplosionResistance
-    damageCoefficient: 0.50 # Mono
-  - type: Armor
-    modifiers:
-      coefficients:
-        Blunt: 0.65
-        Slash: 0.65
-        Piercing: 0.50
-        Heat: 0.50
-        Radiation: 0.60 # Mono
-  - type: ComponentToggler
-    components:
-    - type: PressureProtection
-      highPressureMultiplier: 0.3
-      lowPressureMultiplier: 1000
-    - type: TemperatureProtection
-      coolingCoefficient: 0.1
-      heatingCoefficient: 0.4
-  - type: StaminaDamageResistance
-    coefficient: 0.7 # Mono
-  - type: FireProtection
-    reduction: 0.5 # Mono
 
 # Harmony Medical Enterprises
-
 - type: entity
   parent: ClothingModsuitChestplateBase
   id: ClothingModsuitChestplateHMELightSuit
   name: HME light hardsuit "Preserver" chestplate
-  description: light-HME-modsuit-chestplate-desc 
+  description: light-HME-modsuit-chestplate-desc
   categories: [ HideSpawnMenu ]
   components:
   - type: Appearance
   - type: AllowSuitStorage
   - type: Sprite
-    sprite: Forge/Clothing/OuterClothing/Modsuits/hme_lightmod.rsi
+    sprite: _Forge/Clothing/OuterClothing/Modsuits/hme_lightmod.rsi
     layers:
     - state: chestplate
     - state: chestplate-sealed
@@ -76,20 +21,22 @@
     equipSound: /Audio/Mecha/mechmove03.ogg
     unequipSound: /Audio/Mecha/mechmove03.ogg
     slots: [ outerClothing ]
-  - type: RadarConsole
-    followEntity: true
-    noRotate: true
-  - type: DetectionRangeMultiplier
-    infraredMultiplier: 0.5
-    visualMultiplier: 0.75
   - type: ActivatableUI
-    key: enum.RadarConsoleUiKey.Key
-    inHandsOnly: false # Mono
-    singleUser: true
+    key: enum.CrewMonitoringUIKey.Key
   - type: UserInterface
     interfaces:
-      enum.RadarConsoleUiKey.Key:
-        type: RadarConsoleBoundUserInterface
+      enum.CrewMonitoringUIKey.Key:
+        type: CrewMonitoringBoundUserInterface
+  - type: CrewMonitoringConsole
+  - type: DeviceNetwork
+    deviceNetId: Wireless
+    receiveFrequencyId: CrewMonitor
+  - type: ActionGrant
+    actions:
+    - ActionHandheldCrewMonitorScanner
+  - type: ItemActionGrant
+    actions:
+    - ActionHandheldCrewMonitorScanner
   - type: SealableClothing
     sealUpPopup: sealable-clothing-seal-up-chestplate
     sealDownPopup: sealable-clothing-seal-down-chestplate
@@ -101,7 +48,7 @@
       outerClothing-resomi:
       - state: equipped-OUTERCLOTHING-sealed-resomi
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox     
+      - state: equipped-OUTERCLOTHING-sealed-vox
   - type: ExplosionResistance
     damageCoefficient: 0.8
   - type: ClothingSpeedModifier
@@ -110,11 +57,11 @@
   - type: Armor
     modifiers:
       coefficients:
-        Blunt: 0.6
-        Slash: 0.6
-        Shock: 0.8
-        Piercing: 0.8
-        Heat: 0.8
+        Blunt: 0.5
+        Slash: 0.5
+        Shock: 0.7
+        Piercing: 0.65
+        Heat: 0.65
         Caustic: 0.25
         Radiation: 0.25
         Poison: 0.3
@@ -127,7 +74,7 @@
       coolingCoefficient: 0.1
       heatingCoefficient: 0.4
   - type: StaminaDamageResistance
-    coefficient: 0.7
+    coefficient: 0.4
   - type: FireProtection
     reduction: 0.45
 
@@ -135,13 +82,13 @@
   parent: ClothingModsuitChestplateBase
   id: ClothingModsuitChestplateHMEHeavySuit
   name: HME heavy hardsuit "Intercessor" chestplate
-  description: heavy-HME-modsuit-chestplate-desc 
+  description: heavy-HME-modsuit-chestplate-desc
   categories: [ HideSpawnMenu ]
   components:
   - type: Appearance
   - type: AllowSuitStorage
   - type: Sprite
-    sprite: Forge/Clothing/OuterClothing/Modsuits/hme_heavymod.rsi
+    sprite: _Forge/Clothing/OuterClothing/Modsuits/hme_heavymod.rsi
     layers:
     - state: chestplate
     - state: chestplate-sealed
@@ -151,20 +98,23 @@
     equipSound: /Audio/Mecha/mechmove03.ogg
     unequipSound: /Audio/Mecha/mechmove03.ogg
     slots: [ outerClothing ]
-  - type: RadarConsole
-    followEntity: true
-    noRotate: true
-  - type: DetectionRangeMultiplier
-    infraredMultiplier: 0.5
-    visualMultiplier: 0.75
   - type: ActivatableUI
-    key: enum.RadarConsoleUiKey.Key
-    inHandsOnly: false # Mono
-    singleUser: true
+    key: enum.CrewMonitoringUIKey.Key
   - type: UserInterface
     interfaces:
-      enum.RadarConsoleUiKey.Key:
-        type: RadarConsoleBoundUserInterface
+      enum.CrewMonitoringUIKey.Key:
+        type: CrewMonitoringBoundUserInterface
+  - type: CrewMonitoringConsole
+  - type: DeviceNetwork
+    deviceNetId: Wireless
+    receiveFrequencyId: CrewMonitor
+  - type: ActionGrant
+    actions:
+    - ActionHandheldCrewMonitorScanner
+  - type: ItemActionGrant
+    actions:
+    - ActionHandheldCrewMonitorScanner
+    activeIfWorn: true
   - type: SealableClothing
     sealUpPopup: sealable-clothing-seal-up-chestplate
     sealDownPopup: sealable-clothing-seal-down-chestplate
@@ -176,9 +126,9 @@
       outerClothing-resomi:
       - state: equipped-OUTERCLOTHING-sealed-resomi
       outerClothing-vox:
-      - state: equipped-OUTERCLOTHING-sealed-vox     
+      - state: equipped-OUTERCLOTHING-sealed-vox
   - type: ExplosionResistance
-    damageCoefficient: 0.6
+    damageCoefficient: 0.4
   - type: ClothingSpeedModifier
     walkModifier: 0.85
     sprintModifier: 0.85
@@ -187,9 +137,9 @@
       coefficients:
         Blunt: 0.4
         Slash: 0.4
-        Piercing: 0.65
+        Piercing: 0.6
         Shock: 0.7
-        Heat: 0.65
+        Heat: 0.6
         Caustic: 0.1
         Radiation: 0.1
         Poison: 0.2
@@ -202,11 +152,11 @@
       coolingCoefficient: 0.1
       heatingCoefficient: 0.4
   - type: StaminaDamageResistance
-    coefficient: 0.4
+    coefficient: 0.3
   - type: FireProtection
     reduction: 0.1
-# ARS Omnissia
 
+# ARS Omnissia
 - type: entity
   parent: ClothingModsuitChestplateBase
   id: ClothingModsuitChestplateOmnissia
@@ -215,7 +165,7 @@
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
-    sprite: Forge/Clothing/OuterClothing/Modsuits/omnissiamod.rsi
+    sprite: _Forge/Clothing/OuterClothing/Modsuits/omnissiamod.rsi
     layers:
     - state: chestplate
     - state: chestplate-sealed

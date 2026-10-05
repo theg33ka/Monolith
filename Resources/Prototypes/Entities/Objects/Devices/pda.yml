@@ -38,15 +38,6 @@
       whitelist:
         tags:
         - Write
-    # Frontier: space law slot
-    bookSlot:
-      startingItem: HyperlinkBookSpaceLaw
-      priority: -2
-      whitelist:
-        tags:
-        - BookSpaceLaw
-        - BookNfsdSop
-    # End Frontier: space law slot
     idSlot:
       name: access-id-card-component-default
       ejectSound: /Audio/Machines/id_swipe.ogg
@@ -62,7 +53,6 @@
       PDA-id: !type:ContainerSlot {}
       PDA-pen: !type:ContainerSlot {}
       PDA-pai: !type:ContainerSlot {}
-      PDA-book: !type:ContainerSlot {} # Frontier
       Cartridge-Slot: !type:ContainerSlot {}
       program-container: !type:Container
   - type: ItemSlots
@@ -116,6 +106,8 @@
         type: InstrumentBoundUserInterface
       enum.HealthAnalyzerUiKey.Key:
         type: HealthAnalyzerBoundUserInterface
+      enum.PlantAnalyzerUiKey.Key:
+        type: PlantAnalyzerBoundUserInterface
   - type: Tag
     tags:
     - DoorBumpOpener
@@ -123,9 +115,6 @@
     - WhitelistChameleonPDA
   - type: Input
     context: "human"
-  - type: SentienceTarget # sentient PDA = pAI lite
-    flavorKind: station-event-random-sentience-flavor-mechanical
-    weight: 0.001 # 1,000 PDAs = as likely to be picked as 1 regular animal
   - type: BlockMovement
     blockInteraction: false # lets the PDA toggle its own flashlight
   - type: TypingIndicator
@@ -145,10 +134,6 @@
   - type: CargoSellBlacklist # Frontier: Liltenhead moment
   - type: PirateBountyItem
     id: Pda
-  - type: ToggleableGhostRole # Frontier: Literally only for the wipe verb and nothing else.
-    wipeVerbText: pda-wipe-device-verb-text # Frontier
-    wipeVerbPopup: pda-wiped-device # Frontier
-    mindRoles: [] # Frontier: no default value here
   - type: ShipyardSellCondition # Frontier: Teleport to shipyard console on sale
     preserveOnSale: true
   - type: RetroMonitorView # Mono
@@ -331,6 +316,15 @@
     accentVColor: "#00cc35"
   - type: Icon
     state: pda-hydro
+  - type: CartridgeLoader
+    uiKey: enum.PdaUiKey.Key
+    preinstalled:
+      - CrewManifestCartridge
+      - NotekeeperCartridge
+      - NewsReaderCartridge
+      - BountyContractsCartridge
+      - AstroNavCartridge
+      - AgroScanCartridge
 
 - type: entity
   parent: BasePDA
@@ -1093,7 +1087,7 @@
     - DoorBumpOpener
 
 - type: entity
-  parent: BasePDA
+  parent: [BasePDA, BaseFactionGearOtherFactionT1]
   id: SyndiPDA
   name: syndicate PDA
   description: Ok, time to be a productive member of- oh cool I'm a bad guy time to kill people!
@@ -1531,5 +1525,7 @@
         type: InstrumentBoundUserInterface
       enum.HealthAnalyzerUiKey.Key:
         type: HealthAnalyzerBoundUserInterface
+      enum.PlantAnalyzerUiKey.Key:
+        type: PlantAnalyzerBoundUserInterface
       enum.ChameleonUiKey.Key:
         type: ChameleonBoundUserInterface

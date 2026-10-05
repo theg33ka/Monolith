@@ -1,6 +1,7 @@
 ent-AirlockGlassRenegades = { ent-AirlockGlass }
     .desc = { ent-AirlockGlass.desc }
 ent-AirlockGlassEmpirePublic = { ent-AirlockGlass }
+    .sufffix = Forge, Империя, Без доступа
     .desc = { ent-AirlockGlass.desc }
 ent-AirlockGlassEmpire = { ent-AirlockGlass }
     .suffix = Forge, Империя
@@ -17,3 +18,15 @@ ent-AirlockGlassEmpireCommander = { ent-AirlockGlass }
 ent-AirlockGlassEmpireDiplomacy = { ent-AirlockGlass }
     .suffix = Forge, Империя, Консул
     .desc = { ent-AirlockGlass.desc }
+
+ent-AirlockGlassProvost = { ent-AirlockGlass }
+    .desc = { ent-AirlockGlass.desc }
+ent-AirlockGlassProvostLocked = { ent-AirlockGlass }
+    .desc = { ent-AirlockGlass.desc }
+    .suffix = Provost, Закрыт
+ent-AirlockGlassProvostOfficerLocked = { ent-AirlockGlass }
+    .desc = { ent-AirlockGlass.desc }
+    .suffix = Офицер, Закрыт
+ent-AirlockGlassProvostInspectorLocked = { ent-AirlockGlass }
+    .desc = { ent-AirlockGlass.desc }
+    .suffix = Инспектор, Закрыт

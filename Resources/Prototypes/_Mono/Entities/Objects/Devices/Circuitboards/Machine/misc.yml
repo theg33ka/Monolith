@@ -10,8 +10,6 @@
     requirements:
       Capacitor: 2
       Manipulator: 2
-    stackRequirements:
-      Plasma: 2
 
 - type: entity
   parent: BaseMachineCircuitboard
@@ -54,3 +52,28 @@
     stackRequirements:
       Glass: 5
       Cable: 1
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: ShipDrillMachineCircuitboard
+  name: ship drill machine board
+  components:
+  - type: MachineBoard
+    prototype: MachineShipDrill
+    stackRequirements:
+      Steel: 7
+
+# Forge-add-start
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: ShipDrillDiamondMachineCircuitboard
+  name: ship drill diamond machine board
+  components:
+  - type: MachineBoard
+    prototype: MachineShipDrillDiamond
+    stackRequirements:
+      Steel: 10
+      Diamond: 2
+
+# Forge-add-end

@@ -178,6 +178,7 @@
   - type: EmagLatheRecipes
     emagStaticPacks:
     - StaticAmmoRecipePack
+    - StaticGrenades
   - type: BlueprintReceiver
     whitelist:
       tags:
@@ -249,6 +250,8 @@
     - ScienceWeapons
     - Mining
     - ForgeEngineeringTools # Forge-Change: handheld monitors
+    - ForgeTurretAdventurer # Forge-Change
+    - ForgeTurretKits # Forge-Change
     - ResearchedExplosives # Mono
     # - EngineeringWeapons # Frontier
     - Chemistry
@@ -266,6 +269,7 @@
     - CarpEquipment # Mono
     - UpgradeKits # Mono
     - UpgradeKits_Goob # Mono
+    - RCD # Mono!
     - SMSurgery # Shitmed Change
     # WD EDIT START
     - VisionGoggles
@@ -273,9 +277,11 @@
     - SmartGun # Goobstation
     # Einstein Engines Packs
     - Translators
-    # Forge-change
+    # Forge-change-start
     - BSparts
     - ForgePublicWeapons
+    #Forge-Change-end
+
   - type: EmagLatheRecipes
     emagDynamicPacks:
     - DynamicAmmoRecipePack
@@ -285,6 +291,7 @@
     - SyringeGuns # Delta-V
     emagStaticPacks:
     - StaticAmmoRecipePack
+    - StaticGrenades # Mono
 
 - type: entity
   id: ProtolatheHyperConvection
@@ -347,6 +354,7 @@
     - ForgeShipWeaponsDynamic # Forge-Change
     - ForgeAdvancedShuttleComponents # Forge-Change
     - ForgeBoardingTeleportRecipes # Forge-Change
+    - CloakingShuttleCircuitsPack # Forge-Change
     - CarpCaller # Mono
     - MechBoardsPlus
     - AiCoreBoard
@@ -356,6 +364,7 @@
     - DrakeIndustriesCircuitBoards # Forge-change
     - ReactorCircuitboards # FH edit
     - BsEnergyCircuitsPack # Forge-Change
+    - ServiceBoardsGoob #Forge-Change
   - type: MaterialStorage
     whitelist:
       tags:
@@ -530,10 +539,13 @@
     - SecurityEquipmentStatic
     - SecurityPracticeStatic
     - StaticAmmoRecipePack
+    - StaticGrenades
     - SecurityWeaponsStatic
     dynamicPacks:
     - NanotrasenWeapon # Forge-change
     - NanotrasenEquipment # Forge-change
+    - ForgeTurretNT # Forge-Change
+    - ForgeTurretKits # Forge-Change
     - SecurityEquipment
     - SecurityExplosives
     - DynamicAmmoRecipePack
@@ -551,9 +563,6 @@
     - MonoRogueWeaponsDynamicMelee
     - MonoRogueWeaponsDynamicRanged
     - MonoRogueMiscDynamic
-    - MonoUSSPMiscDynamic
-    - MonoViperGroupDynamic
-    - MonoUSSPWeaponsDynamicRanged
     - UniversalShellAmmo
     - ResearchedExplosives
     - UniversalRailgunAmmo
@@ -597,6 +606,7 @@
     runningState: icon
     staticPacks:
     - StaticAmmoRecipePack
+    - StaticGrenades
     - RoundstartShipgunAmmo # Mono
     dynamicPacks:
     - DynamicAmmoRecipePack
@@ -760,6 +770,7 @@
     staticPacks:
     - BioGenIngredientsStatic
     - BioGenMaterialsStatic
+    - BioGenSwabsStatic
     - FriendlyCubesStatic # Frontier
     - NFBioGenIngredientsStatic # Frontier
     - NFBioGenMaterialsStatic # Frontier
@@ -807,6 +818,9 @@
   - type: PlaceableSurface # DeltaV: Allow ore bags to dump into it directly
     isPlaceable: false # but not place on it if you just click it with a random item
   - type: OreSiloClient #Gives silo access to ore holding
+  # Forge-Change: accept ore from disposal trunks into MaterialStorage.
+  - type: OrePipeOutlet
+    maxInsertPerFlush: 40
 
 - type: entity
   parent: OreProcessor
@@ -912,7 +926,7 @@
   components:
   # Forge-change-start
   - type: Sprite
-    sprite: Forge/Structures/Machines/organprinter.rsi
+    sprite: _Forge/Structures/Machines/organprinter.rsi
     snapCardinals: true
     layers:
     - state: base

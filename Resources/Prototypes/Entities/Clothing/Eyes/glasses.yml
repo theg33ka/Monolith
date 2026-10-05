@@ -134,9 +134,9 @@
   description: A pair of black sunglasses. Doesn't block light well, more of an accessory than something useful.
   components:
   - type: Sprite
-    sprite: Forge/Clothing/Eyes/Goggles/sunglasses.rsi
+    sprite: _Forge/Clothing/Eyes/Goggles/sunglasses.rsi # Forge-change
   - type: Clothing
-    sprite: Forge/Clothing/Eyes/Goggles/sunglasses.rsi
+    sprite: _Forge/Clothing/Eyes/Goggles/sunglasses.rsi # Forge-change
   - type: Tag
     tags:
     - HamsterWearable
@@ -166,9 +166,9 @@
   description: Upgraded sunglasses that provide flash immunity and a security HUD.
   components:
   - type: Sprite
-    sprite: Forge/Clothing/Eyes/Goggles/secglasses.rsi
+    sprite: _Forge/Clothing/Eyes/Goggles/secglasses.rsi # Forge-change
   - type: Clothing
-    sprite: Forge/Clothing/Eyes/Goggles/secglasses.rsi
+    sprite: _Forge/Clothing/Eyes/Goggles/secglasses.rsi # Forge-change
   - type: FlashImmunity
   - type: EyeProtection
     protectionTime: 5
@@ -190,9 +190,9 @@
   description: Upgraded sunglasses that provide flash immunity and show ID card status.
   components:
   - type: Sprite
-    sprite: Forge/Clothing/Eyes/Goggles/commandglasses.rsi
+    sprite: _Forge/Clothing/Eyes/Goggles/commandglasses.rsi
   - type: Clothing
-    sprite: Forge/Clothing/Eyes/Goggles/commandglasses.rsi
+    sprite: _Forge/Clothing/Eyes/Goggles/commandglasses.rsi
   - type: FlashImmunity
   - type: EyeProtection
     protectionTime: 5
@@ -267,5 +267,12 @@
   - type: Clothing
     sprite: Clothing/Eyes/Glasses/ninjavisor.rsi
   - type: FlashImmunity
-  - type: NightVision
-    isEquipment: true
+  - type: NightVision # Gen 4 quadtube-wide
+    relayOverlay: true
+    goggleEffect: true
+    viewCircleRadius: 450
+    viewCircleCount: 4
+    viewCircleSpacing: 280
+    action: ActionToggleNightVision
+    phosphorColor: "#41D7D9"
+    lightingColor: "#FFFFFF32"

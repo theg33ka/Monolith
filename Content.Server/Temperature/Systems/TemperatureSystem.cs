@@ -36,7 +36,6 @@ public sealed partial class TemperatureSystem : EntitySystem
 
     private float _accumulatedFrametime;
 
-    [ValidatePrototypeId<AlertCategoryPrototype>]
     public const string TemperatureAlertCategory = "Temperature";
 
     public override void Initialize()
@@ -131,6 +130,10 @@ public sealed partial class TemperatureSystem : EntitySystem
         TemperatureComponent? temperature = null)
     {
         if (!Resolve(uid, ref temperature, false))
+            return;
+        
+        // _Mono: No need if there's no heat to check
+        if (heatAmount == 0)
             return;
 
         if (!ignoreHeatResistance)

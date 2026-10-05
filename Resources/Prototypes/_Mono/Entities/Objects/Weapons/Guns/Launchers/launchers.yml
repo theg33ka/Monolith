@@ -144,7 +144,7 @@
 # grenade launcher
 
 - type: entity
-  name: GP-909 'Osiris' Grenade Launcher
+  name: QLU-909 Osiris MGL
   parent: [ BaseWeaponLauncher, BaseItem ] # Frontier: BaseMinorContraband<BaseC1Contraband
   id: WeaponLauncherTSFOsiris
   description: The TSF's powerful solution to things that don't have enough boom. Capable of firing most standard grenades.
@@ -192,7 +192,7 @@
 # TPGL (its just a QLU-11...)
 
 - type: entity
-  name: TCA MK.6 "Anubis" TPGL (35x53mm grenade) # CS2 reference
+  name: TCA QLU-907 Anubis TPGL (35x53mm grenade) # CS2 reference
   parent: [ BaseWeaponLauncher, BaseWeaponRifle ] # Magfed so we use rifle
   id: WeaponLauncherTSFAnubis
   description: A precision magfed grenade rifle with an inbuilt fire-control system, originally intended for use against fortifications & counterinsurgency. Fires 35mm grenades with high-velocity and precision.
@@ -205,7 +205,9 @@
     - state: mag-0
       map: ["enum.GunVisualLayers.Mag"]
   - type: Item
-    size: Huge
+    size: Ginormous # Forge-change
+    shape: # Forge-change
+    - 0,0,7,2 # Forge-change
     sprite: _Mono/Objects/Weapons/Guns/Launchers/mk6-tpgl_inhands_32x.rsi
   - type: Clothing
     sprite: _Mono/Objects/Weapons/Guns/Launchers/mk6-tpgl_inhands_32x.rsi
@@ -220,7 +222,7 @@
     minAngle: 27
     maxAngle: 39
     projectileSpeed: 70
-    fireRate: 0.2
+    fireRate: 0.5 # Forge-change 0.2->0.5
     selectedMode: SemiAuto
     availableModes:
     - SemiAuto

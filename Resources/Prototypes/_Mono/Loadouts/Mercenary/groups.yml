@@ -47,6 +47,7 @@
   - MercenaryClothingEyesBallisticGlassesRed
   - MercenaryClothingEyesBallisticGlassesGreen
   - MercenaryClothingEyesBallisticGlassesOrange
+  - MercenaryClothingEyesTransparentBlindfold # Forge-Change
 
 # - type: loadoutGroup # Forge-Change-Del
 #   id: MonoMercenaryHead # ONLY TO BE USED AS A SUBGROUP FOR _NF MERCENARY GROUPS
@@ -106,36 +107,9 @@
   - MercenaryClothingBalaclavaSkiMaskGreen
   - MercenaryClothingBalaclavaSkiMaskBlue
   - MercenaryClothingBalaclavaSkiMaskPurple
+  - MercenaryClothingBalaclavaSkiMaskPink #Forge-Change
   - MercenaryClothingBalaclavaSkiMaskYellow
   - MercenaryClothingBalaclavaSkiMaskTan
+  - MercenaryClothingBalaclavaSkiMaskMerc #Forge-Change
   - MercenaryClothingBalaclavaSkiMaskRangerGreen
   - MercenaryClothingBalaclavaSkiMaskCoyoteBrown
-
-- type: loadoutGroup
-  id: MonoUSSPJumpsuit
-  name: loadout-group-ussp-jumpsuit
-  loadouts:
-  - USSPClothingJumpsuit
-
-- type: loadoutGroup
-  id: MonoUSSPHead
-  name: loadout-group-ussp-head
-  loadouts:
-  - USSPOfficerCap
-  - USSPCommissarCap
-
-- type: loadoutGroup
-  id: MonoUSSPOuterClothing
-  name: loadout-group-ussp-outerclothing
-  loadouts:
-  - USSPClothingL10
-  - USSPClothingL10A
-  - USSPClothingCoat
-
-- type: loadoutGroup
-  id: MonoUSSPBackpack
-  name: loadout-group-ussp-backpack
-  loadouts:
-  - USSPBackpack
-  - USSPDuffel
-  - USSPSatchel

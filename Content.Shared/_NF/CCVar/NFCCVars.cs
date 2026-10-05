@@ -27,6 +27,13 @@ public sealed class NFCCVars
         CVarDef.Create("nf14.respawn.time", 1200.0f, CVar.SERVER | CVar.REPLICATED);
 
     /// <summary>
+    /// Respawn time after ghosting from any body that is not the character the player joined from the lobby as
+    /// (ghost roles, possessed items, etc.).
+    /// </summary>
+    public static readonly CVarDef<float> RespawnGhostRoleTime =
+        CVarDef.Create("nf14.respawn.ghost_role_time", 1800.0f, CVar.SERVER | CVar.REPLICATED);
+
+    /// <summary>
     /// Whether or not returning from cryosleep is enabled.
     /// </summary>
     public static readonly CVarDef<bool> CryoReturnEnabled =
@@ -52,7 +59,7 @@ public sealed class NFCCVars
 	/// Mono: Changed to _Mono busdart.yml
     /// </summary>
     public static readonly CVarDef<string> PublicTransitBusMap =
-        CVarDef.Create("nf14.publictransit.bus_map", "/Maps/_Mono/Shuttles/Bus/busdart.yml", CVar.SERVERONLY);
+        CVarDef.Create("nf14.publictransit.bus_map", "/SharedMaps/_Mono/Shuttles/Bus/busdart.yml", CVar.SERVERONLY);
 
     /// <summary>
     /// The amount of time the bus waits at a station.

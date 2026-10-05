@@ -1,3 +1,4 @@
+using Content.Server._Crescent.ShipShields.Components;
 using Content.Shared._Crescent.ShipShields;
 using Content.Server.Power.Components;
 using Content.Shared.Damage;
@@ -29,11 +30,12 @@ public partial class ShipShieldsSystem
 
     private void OnRemoved(Entity<ShipShieldEmitterComponent> owner, ref ComponentRemove remove)
     {
+        // Forge-Change: do not require a live GridUid — deconstruct/FTL can null it before ComponentRemove.
+        DropEmitterShield(owner.Owner, owner.Comp);
+
         var parent = Transform(owner.Owner).GridUid;
-        if (parent is null)
-            return;
-        if (TryComp<ShipShieldedComponent>(parent.Value, out var shielded) && shielded.Source == owner.Owner)
-            UnshieldEntity(parent.Value, null);
+        if (parent != null)
+            RefreshGridShieldState(parent.Value);
     }
 
     /// <summary>
@@ -143,7 +145,14 @@ public partial class ShipShieldsSystem
         if (!args.IsInDetailsRange)
             return;
 
-        args.PushMarkup(Loc.GetString("shield-emitter-examine", ("basedraw", component.BaseDraw), ("additional", ShipShieldEmitterMath.CalculateAdditionalLoad(component))));
+        args.PushMarkup(Loc.GetString("shield-emitter-examine", ("basedraw", component.BaseDraw), ("additional", CalculateLoadDamage(component))));
+        if (HasComp<ShipShieldDisabledGridComponent>(Transform(uid).GridUid))
+            args.PushMarkup(Loc.GetString("shield-emitter-examine-invalid-grid"));
+    }
+
+    private static float CalculateLoadDamage(ShipShieldEmitterComponent emitter)
+    {
+        return (float)Math.Clamp(Math.Pow(emitter.Damage, emitter.DamageExp) * emitter.PowerModifier, 0f, emitter.MaxDraw);
     }
 
     private void AdjustEmitterLoad(EntityUid uid, ShipShieldEmitterComponent? emitter = null, ApcPowerReceiverComponent? receiver = null)

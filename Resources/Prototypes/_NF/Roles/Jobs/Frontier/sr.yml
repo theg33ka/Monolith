@@ -29,9 +29,15 @@
   canBeAntag: false
   access:
   - NtSecApartment
+  - TurretCommandNT # Forge-Change
+  - TurretCommandNTShuttle # Forge-Change
   accessGroups:
   - AllAccessSR # Forge-Change
   special:
+  - !type:AddComponentSpecial
+    components:
+    - type: ChatRank
+      rank: cc-overseer
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, NanotrasenTrackingImplant ] # Forge-change
   - !type:AddComponentSpecial
@@ -61,3 +67,4 @@
     - EncryptionKeyHospital # Forge
     - ShipVoucherFrontierGuard
     - PhoneInstrumentHigh
+    #- CCHandheldOverwatchConsole #Forge-Change-Remove

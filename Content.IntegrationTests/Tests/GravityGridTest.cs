@@ -39,7 +39,6 @@ namespace Content.IntegrationTests.Tests
             var testMap = await pair.CreateTestMap();
 
             var entityMan = server.EntMan;
-            var mapMan = server.MapMan;
             var mapSys = entityMan.System<SharedMapSystem>();
             var powerReceiverSys = entityMan.System<PowerReceiverSystem>(); // Forge-Change
             var powerNetSys = entityMan.System<PowerNetSystem>(); // Forge-Change
@@ -52,8 +51,8 @@ namespace Content.IntegrationTests.Tests
             await server.WaitAssertion(() =>
             {
                 var mapId = testMap.MapId;
-                grid1 = mapMan.CreateGridEntity(mapId);
-                grid2 = mapMan.CreateGridEntity(mapId);
+                grid1 = mapSys.CreateGridEntity(mapId);
+                grid2 = mapSys.CreateGridEntity(mapId);
 
                 mapSys.SetTile(grid1, grid1, Vector2i.Zero, new Tile(1));
                 mapSys.SetTile(grid2, grid2, Vector2i.Zero, new Tile(1));
@@ -79,8 +78,8 @@ namespace Content.IntegrationTests.Tests
                 Assert.Multiple(() =>
                 {
                     Assert.That(generatorComponent.GravityActive, Is.True);
-                    Assert.That(!entityMan.GetComponent<GravityComponent>(grid1).EnabledVV);
-                    Assert.That(entityMan.GetComponent<GravityComponent>(grid2).EnabledVV);
+                    Assert.That(!entityMan.GetComponent<GravityComponent>(grid1).Enabled);
+                    Assert.That(entityMan.GetComponent<GravityComponent>(grid2).Enabled);
                 });
 
                 // Re-enable needs power so it turns off again.
@@ -97,7 +96,7 @@ namespace Content.IntegrationTests.Tests
                 Assert.Multiple(() =>
                 {
                     Assert.That(generatorComponent.GravityActive, Is.False);
-                    Assert.That(entityMan.GetComponent<GravityComponent>(grid2).EnabledVV, Is.False);
+                    Assert.That(entityMan.GetComponent<GravityComponent>(grid2).Enabled, Is.False);
                 });
             });
 

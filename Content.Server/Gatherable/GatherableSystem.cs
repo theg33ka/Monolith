@@ -1,5 +1,6 @@
 using Content.Server.Destructible;
 using Content.Server.Gatherable.Components;
+using Content.Shared._Forge.OrePipe;
 using Content.Shared.Destructible;
 using Content.Shared.Interaction;
 using Content.Shared.Tag;
@@ -51,7 +52,7 @@ public sealed partial class GatherableSystem : EntitySystem
         args.Handled = true;
     }
 
-    public void Gather(EntityUid gatheredUid, EntityUid? gatherer = null, GatherableComponent? component = null)
+    public void Gather(EntityUid gatheredUid, EntityUid? gatherer = null, GatherableComponent? component = null, bool spawnOnGatherer = false) //mono
     {
         if (!Resolve(gatheredUid, ref component))
             return;
@@ -61,12 +62,14 @@ public sealed partial class GatherableSystem : EntitySystem
             _audio.PlayPvs(soundComp.Sound, Transform(gatheredUid).Coordinates);
         }
 
-        // Complete the gathering process
-        // Instead of directly destroying, raise the destruction event first
-        // This ensures that components like OreVein have their event handlers called
-        var eventArgs = new DestructionEventArgs();
-        RaiseLocalEvent(gatheredUid, eventArgs);
+        // // Complete the gathering process
+        // // Instead of directly destroying, raise the destruction event first
+        // // This ensures that components like OreVein have their event handlers called.
+        // var eventArgs = new DestructionEventArgs();
+        // RaiseLocalEvent(gatheredUid, eventArgs); // Mono - just dont
 
+        RaiseLocalEvent(gatheredUid, new GatheredEvent(gatherer, spawnOnGatherer)); // mono
+        component.Gathered = true; // mono
         // Now queue the entity for deletion
         QueueDel(gatheredUid);
 
@@ -74,7 +77,9 @@ public sealed partial class GatherableSystem : EntitySystem
         if (component.Loot == null)
             return;
 
-        component.Gathered = true; // mono
+        // Forge-Change: ship drills use abstract ore buffers — never drop Dynamic loot piles.
+        if (gatherer != null && HasComp<OrePipeBufferComponent>(gatherer.Value))
+            return;
 
         var pos = _transform.GetMapCoordinates(gatheredUid);
 
@@ -94,4 +99,17 @@ public sealed partial class GatherableSystem : EntitySystem
             }
         }
     }
+}
+
+/// <summary>
+/// Raised when entity has been gathered - Mono
+/// </summary>
+public record struct GatheredEvent(EntityUid? Gatherer, bool TeleportLootToGatherer)
+{
+    /// <summary>
+    /// Entity that gathered Gatherable entity.
+    /// </summary>
+    public EntityUid? Gatherer { get; } = Gatherer;
+
+    public bool TeleportLootToGatherer { get; } = TeleportLootToGatherer;
 }

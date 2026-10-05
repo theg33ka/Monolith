@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -110,7 +111,9 @@ namespace Content.IntegrationTests.Tests
         // private static readonly string[] GameMaps = GameDataScrounger.PrototypesOfKind<GameMapPrototype>().Where(x => x != PoolManager.TestMap).ToArray();
         private static readonly string[] GameMaps = FrontierConstants.GameMapPrototypes;
         private static readonly ResPath[] AllMapFiles = GameDataScrounger.FilesInDirectoryInVfs("/Maps/_Mono", "*.yml");
-        private static readonly ResPath[] ShuttleMapFiles = GameDataScrounger.FilesInDirectoryInVfs("/Maps/_Mono/Shuttles", "*.yml");
+        private static readonly ResPath[] ShuttleMapFiles = GameDataScrounger.FilesInDirectoryInVfs("/SharedMaps/_Mono/Shuttles", "*.yml")
+            .Concat(GameDataScrounger.FilesInDirectoryInVfs("/SharedMaps/_Forge/Shuttles", "*.yml"))
+            .ToArray();
 
         private static readonly ProtoId<EntityCategoryPrototype> DoNotMapCategory = "DoNotMap";
 
@@ -214,6 +217,7 @@ namespace Content.IntegrationTests.Tests
             if (!resourceManager.TryContentFileRead(rootedPath, out var fileStream))
             {
                 Assert.Fail($"Map not found: {rootedPath}");
+                return;
             }
 
             using var reader = new StreamReader(fileStream);
@@ -300,7 +304,7 @@ namespace Content.IntegrationTests.Tests
                     var protoId = yamlEntity["proto"].AsString();
 
                     // This doesn't properly handle prototype migrations, but thats not a significant issue.
-                    if (!protoManager.TryIndex(protoId, out var proto, false))
+                    if (!protoManager.TryIndex(new EntProtoId(protoId), out EntityPrototype? proto))
                         continue;
 
                     Assert.That(!proto.Categories.Contains(dnmCategory) || IsWhitelistedForMap(protoId, map),
@@ -350,7 +354,7 @@ namespace Content.IntegrationTests.Tests
             });
             var server = pair.Server;
 
-            var mapManager = server.ResolveDependency<IMapManager>();
+            var mapManager = server.System<SharedMapSystem>();
             var entManager = server.ResolveDependency<IEntityManager>();
             var mapLoader = entManager.System<MapLoaderSystem>();
             var mapSystem = entManager.System<SharedMapSystem>();
@@ -435,13 +439,13 @@ namespace Content.IntegrationTests.Tests
 
                     var spawnPoints = entManager.EntityQuery<SpawnPointComponent>()
                         .Where(x => x.SpawnType == SpawnPointType.Job && x.Job != null)
-                        .Select(x => x.Job.Value);
+                        .Select(x => x.Job!.Value);
 
                     jobs.ExceptWith(spawnPoints);
 
                     spawnPoints = entManager.EntityQuery<ContainerSpawnPointComponent>()
                         .Where(x => x.SpawnType is SpawnPointType.Job or SpawnPointType.Unset && x.Job != null)
-                        .Select(x => x.Job.Value);
+                        .Select(x => x.Job!.Value);
 
                     jobs.ExceptWith(spawnPoints);
 
@@ -502,9 +506,11 @@ namespace Content.IntegrationTests.Tests
                     x.ID == PoolManager.TestMap || // Frontier: check test map
                     x.MapPath.ToString().StartsWith("/Maps/_Forge/Outpost") || // Forge: station/outpost game maps (e.g. Frontier)
                     (x.MapPath.ToString().StartsWith("/Maps/_Mono") && // Mono: check Mono maps only
-                    !x.MapPath.ToString().StartsWith("/Maps/_Mono/Shuttles") && // Mono: skip shuttles (not loaded as maps)
+                    !x.MapPath.ToString().StartsWith("/SharedMaps/_Mono/Shuttles") && // Mono: skip shuttles (not loaded as maps)
+                    !x.MapPath.ToString().StartsWith("/SharedMaps/_Forge/Shuttles") && // Forge: skip shuttles (not loaded as maps)
                     !x.MapPath.ToString().StartsWith("/Maps/_Mono/Deprecated") && // Mono: skip deprecated (not loaded as maps)
                     !x.MapPath.ToString().StartsWith("/Maps/_Mono/ShuttleEvent") && // Mono: skip shuttleevents (not loaded as maps)
+                    !x.MapPath.ToString().StartsWith("/Maps/_Mono/Supercapitals") && // Mono: skip supercapitals (not loaded as maps)
                     !x.MapPath.ToString().StartsWith("/Maps/_Mono/POI")) // Mono: skip POIs (not loaded as maps)
                     )
                 // End Frontier

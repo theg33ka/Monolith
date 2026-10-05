@@ -21,3 +21,11 @@
 - type: latheCategory
   id: DrakeIndustries
   name: lathe-category-drake-industries
+
+- type: latheCategory
+  id: NSC
+  name: lathe-category-nsc
+
+- type: latheCategory
+  id: Turrets
+  name: lathe-category-turrets

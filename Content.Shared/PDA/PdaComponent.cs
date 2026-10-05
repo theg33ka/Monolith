@@ -2,7 +2,7 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.GameStates;
 using Content.Shared.Access.Components;
 using Content.Shared.Containers.ItemSlots;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Robust.Shared.Prototypes;
 
 namespace Content.Shared.PDA
 {
@@ -12,7 +12,6 @@ namespace Content.Shared.PDA
         public const string PdaIdSlotId = "PDA-id";
         public const string PdaPenSlotId = "PDA-pen";
         public const string PdaPaiSlotId = "PDA-pai";
-        public const string PdaBookSlotId = "PDA-book";
 
         [DataField("idSlot")]
         public ItemSlot IdSlot = new();
@@ -23,13 +22,10 @@ namespace Content.Shared.PDA
         [DataField("paiSlot")]
         public ItemSlot PaiSlot = new();
 
-        [DataField("bookSlot")]
-        public ItemSlot BookSlot = new();
-
         // Really this should just be using ItemSlot.StartingItem. However, seeing as we have so many different starting
         // PDA's and no nice way to inherit the other fields from the ItemSlot data definition, this makes the yaml much
         // nicer to read.
-        [DataField("id", customTypeSerializer: typeof(PrototypeIdSerializer<EntityPrototype>))]
+        [DataField("id", customTypeSerializer: typeof(ProtoId<EntityPrototype>))]
         public string? IdCard;
 
         [ViewVariables] public EntityUid? ContainedId;
@@ -43,5 +39,8 @@ namespace Content.Shared.PDA
         [ViewVariables] public string? StationName;
         [ViewVariables] public string? StationAlertLevel;
         [ViewVariables] public Color StationAlertColor = Color.White;
+        //[ViewVariables] public string? WarLevel; // Mono // Forge-change
+        [DataField] public DateTime CurrentDate; // DeltaV - PDA date
+        [DataField] public DateTime? DateOverride; // DeltaV - PDA date
     }
 }
