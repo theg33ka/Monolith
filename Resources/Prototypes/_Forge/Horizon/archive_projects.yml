@@ -1,0 +1,181 @@
+- type: horizonProject
+  id: HorizonAMT01
+  name: AMT-01 archive craft
+  objectId: AMT-01
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/amt-01.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonAMT02
+  name: AMT-02 archive craft
+  objectId: AMT-02
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/amt-02.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonAMT06
+  name: AMT-06 archive craft
+  objectId: AMT-06
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/amt-06.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonAMT11
+  name: AMT-11 archive craft
+  objectId: AMT-11
+  kind: Carrier
+  gridPath: /Maps/_Forge/Horizon/Archive/amt-11.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonAMD01
+  name: AMD-01 archive craft
+  objectId: AMD-01
+  kind: Mining
+  gridPath: /Maps/_Forge/Horizon/Archive/amd-01.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonAMH01
+  name: AMH-01 archive craft
+  objectId: AMH-01
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/amh-01.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonAMY01
+  name: AMY-01 archive craft
+  objectId: AMY-01
+  kind: Salvage
+  gridPath: /Maps/_Forge/Horizon/Archive/amy-01.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonAMZ09
+  name: AMZ-09 archive craft
+  objectId: AMZ-09
+  kind: Amz
+  gridPath: /Maps/_Forge/Horizon/Archive/amz-09.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonC01
+  name: C-01 archive craft
+  objectId: C-01
+  kind: Defense
+  gridPath: /Maps/_Forge/Horizon/Archive/c-01.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonT05
+  name: T-05 archive craft
+  objectId: T-05
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/t-05.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonT09
+  name: T-09 archive craft
+  objectId: T-09
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/t-09.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonT09V2
+  name: T-09-v2 archive craft
+  objectId: T-09-v2
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/t-09_v2.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false
+
+- type: horizonProject
+  id: HorizonViar17
+  name: Viar-17 archive craft
+  objectId: Viar-17
+  kind: Technical
+  gridPath: /Maps/_Forge/Horizon/Archive/viar-17.yml
+  rawCost: 20
+  componentCost: 10
+  energyCost: 10
+  desiredCount: 0
+  maxCount: 1
+  protectedRadius: 250
+  temporaryContent: false

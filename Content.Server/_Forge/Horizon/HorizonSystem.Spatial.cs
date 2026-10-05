@@ -12,6 +12,8 @@ namespace Content.Server._Forge.Horizon;
 
 public sealed partial class HorizonSystem
 {
+    private TimeSpan? _lastProjectBuildAt;
+
     partial void OnStrategicCycle()
     {
         ProcessNextBuildOrder();
@@ -20,6 +22,8 @@ public sealed partial class HorizonSystem
 
     private void ProcessNextBuildOrder()
     {
+        if (_lastProjectBuildAt == _timing.CurTime)
+            return;
         var order = State.Orders.Values
             .Where(candidate => candidate.Status == HorizonOrderStatus.Queued &&
                                 candidate.Type == HorizonOrderType.DeployStation)
@@ -27,6 +31,13 @@ public sealed partial class HorizonSystem
             .FirstOrDefault();
         if (order is null || !_prototypes.TryIndex<HorizonProjectPrototype>(order.ProjectId, out var project))
             return;
+
+        if (State.Objects.Count >= Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonSpatialObjectLimit), 2, 128))
+        {
+            order.Status = HorizonOrderStatus.Failed;
+            order.FailureReason = "network object limit reached";
+            return;
+        }
 
         if (!TryGetClusterAnchor(out var anchorEntity, out var mapId, out var anchor))
         {
@@ -78,8 +89,11 @@ public sealed partial class HorizonSystem
             return;
         }
 
+        _lastProjectBuildAt = _timing.CurTime;
         if (!TryLoadProjectGrid(project.ID, selected.Position, out var grid) || grid is not { } stationGrid)
         {
+            if (grid is { } failedGrid)
+                QueueDel(failedGrid);
             HorizonEconomy.Refund(State.Ledger, project.RawCost, project.ComponentCost, project.EnergyCost,
                 _configuration.GetCVar(ForgeCVars.HorizonResourceCap));
             order.Status = HorizonOrderStatus.Failed;
@@ -111,6 +125,7 @@ public sealed partial class HorizonSystem
             project.TemporaryContent);
         _metadata.SetEntityName(stationGrid, project.Name);
         SpawnHorizonProjectFixtures(stationGrid, project.Kind, project.ObjectId);
+        RegisterGridDamageRelays(stationGrid, stationCore);
         order.Executor = stationCore;
         order.Status = HorizonOrderStatus.Complete;
         AnnounceOnce($"project-{project.ID}",

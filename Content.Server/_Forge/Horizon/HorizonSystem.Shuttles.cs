@@ -192,6 +192,7 @@ public sealed partial class HorizonSystem
             0,
             project.TemporaryContent);
         SpawnHorizonProjectFixtures(amsGrid, HorizonObjectKind.Ams, project.ObjectId);
+        RegisterGridDamageRelays(amsGrid, core);
 
         State.AmsAttempt++;
         State.ActiveAms = core;
@@ -344,6 +345,11 @@ public sealed partial class HorizonSystem
 
         if (State.Phase != HorizonDeploymentPhase.Dormant)
             return $"Late deployment is unavailable in phase {State.Phase}.";
+        if (_pendingRtrSpawns.Count > 0)
+        {
+            _pendingLateDeployment = true;
+            return "Late deployment queued; it will start after the RTR grids finish loading.";
+        }
 
         var activation = BeginActivation(null, automatic: true);
         if (State.PrimaryRtr is not { } primary || State.NeighborRtr is not { } neighbor ||
@@ -399,6 +405,7 @@ public sealed partial class HorizonSystem
         SpawnHorizonProjectFixtures(stationGrid, HorizonObjectKind.Command, project.ObjectId);
         if (!HasGridChildPrototype(stationGrid, "PlayerStationAiHorizon"))
             Spawn("PlayerStationAiHorizon", new EntityCoordinates(stationGrid, new Vector2(0f, 1f)));
+        RegisterGridDamageRelays(stationGrid, stationCore);
         return true;
     }
 

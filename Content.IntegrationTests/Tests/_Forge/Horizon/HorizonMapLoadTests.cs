@@ -1,9 +1,14 @@
+using System.Linq;
 using Content.Shared.CCVar;
+using Content.Shared._Forge.Horizon.Prototypes;
+using Content.Shared._Forge.Horizon;
+using Content.Server._Forge.Horizon;
 using Robust.Shared.Configuration;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Utility;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._Forge.Horizon;
 
@@ -27,12 +32,23 @@ public sealed class HorizonMapLoadTests
         var configuration = server.ResolveDependency<IConfigurationManager>();
         var mapLoader = entities.System<MapLoaderSystem>();
         var maps = entities.System<SharedMapSystem>();
+        var prototypes = server.ResolveDependency<IPrototypeManager>();
 
         Assert.That(configuration.GetCVar(CCVars.GridFill), Is.False);
 
         await server.WaitAssertion(() =>
         {
-            foreach (var path in DedicatedGrids)
+            var horizon = entities.System<HorizonSystem>();
+            horizon.State.Phase = HorizonDeploymentPhase.Operational;
+            Assert.That(horizon.TryCreateOrder(HorizonOrderType.DeployStation, "HorizonAMT01", null, null, out var order), Is.True);
+            Assert.That(horizon.TryCreateOrder(HorizonOrderType.DeployStation, "HorizonAMT01", null, null, out _), Is.False);
+            horizon.DebugCancel(order);
+            Assert.That(horizon.TryCreateOrder(HorizonOrderType.DeployStation, "HorizonAMT01", null, null, out _), Is.True);
+            Assert.That(horizon.TryCreateOrder(HorizonOrderType.DeployStation, "NotAHorizonProject", null, null, out _), Is.False);
+            horizon.State.Reset();
+            var paths = DedicatedGrids.Concat(prototypes.EnumeratePrototypes<HorizonProjectPrototype>()
+                .Select(project => project.GridPath)).Distinct();
+            foreach (var path in paths)
             {
                 maps.CreateMap(out var mapId);
                 try

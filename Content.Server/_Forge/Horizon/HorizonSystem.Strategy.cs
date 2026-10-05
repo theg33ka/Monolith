@@ -11,15 +11,18 @@ namespace Content.Server._Forge.Horizon;
 public sealed partial class HorizonSystem
 {
     private TimeSpan _nextStrategicCycle;
+    private bool _strategyPaused;
 
     private void ResetStrategyState()
     {
         _nextStrategicCycle = default;
+        _strategyPaused = false;
+        _lastProjectBuildAt = null;
     }
 
     private void UpdateStrategy()
     {
-        if (!_roundInitialized ||
+        if (!_roundInitialized || _strategyPaused ||
             State.Phase is not (HorizonDeploymentPhase.Operational or HorizonDeploymentPhase.Degraded) ||
             _timing.CurTime < _nextStrategicCycle)
         {
@@ -38,6 +41,15 @@ public sealed partial class HorizonSystem
             return;
 
         var stopwatch = Stopwatch.StartNew();
+        foreach (var uid in State.Objects.Keys)
+            RefreshObjectPosition(uid);
+        foreach (var order in State.Orders.Values.Where(order =>
+                     order.Type == HorizonOrderType.DeployStation && order.Status == HorizonOrderStatus.Queued &&
+                     _timing.CurTime >= order.Deadline))
+        {
+            order.Status = HorizonOrderStatus.TimedOut;
+            order.FailureReason = "build queue deadline expired";
+        }
         HorizonEconomy.ApplyCycle(
             State.Ledger,
             State.Aggregates,
@@ -61,6 +73,12 @@ public sealed partial class HorizonSystem
         if (ActiveOrderCount() >= Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxOrders), 1, 128))
             return;
 
+        var counts = State.Objects.Values.GroupBy(obj => obj.ProjectId)
+            .ToDictionary(group => group.Key, group => group.Count());
+        foreach (var order in State.Orders.Values.Where(order => order.Type == HorizonOrderType.DeployStation &&
+                     order.Status is HorizonOrderStatus.Queued or HorizonOrderStatus.Active))
+            counts[order.ProjectId] = counts.GetValueOrDefault(order.ProjectId) + 1;
+
         var candidates = _prototypes.EnumeratePrototypes<HorizonProjectPrototype>()
             .Select(project => new HorizonProjectCandidate(
                 project.ID,
@@ -71,7 +89,7 @@ public sealed partial class HorizonSystem
                 project.RawCost,
                 project.ComponentCost,
                 project.EnergyCost));
-        var selected = HorizonPlanningPolicy.SelectNext(candidates, State.ObjectCounts, State.Ledger);
+        var selected = HorizonPlanningPolicy.SelectNext(candidates, counts, State.Ledger);
         if (selected is not { } project)
             return;
 
@@ -86,6 +104,18 @@ public sealed partial class HorizonSystem
         out Guid orderId)
     {
         orderId = default;
+        if (type == HorizonOrderType.DeployStation)
+        {
+            if (!_prototypes.TryIndex<HorizonProjectPrototype>(projectId, out var project) ||
+                !HorizonPlanningPolicy.IsStrategicBuildKind(project.Kind))
+                return false;
+            var count = State.Objects.Values.Count(obj => obj.ProjectId == projectId) +
+                        State.Orders.Values.Count(order => order.ProjectId == projectId &&
+                            order.Type == HorizonOrderType.DeployStation &&
+                            order.Status is HorizonOrderStatus.Queued or HorizonOrderStatus.Active);
+            if (count >= Math.Max(0, project.MaxCount))
+                return false;
+        }
         PruneFinishedOrders();
         var maxOrders = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxOrders), 1, 128);
         if (ActiveOrderCount() >= maxOrders || State.Orders.Count >= maxOrders)

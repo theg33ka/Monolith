@@ -152,6 +152,12 @@ public sealed partial class HorizonSystem : EntitySystem
         record.Grid = xform.GridUid;
         record.MapId = xform.MapID;
         record.WorldPosition = _transform.GetWorldPosition(xform);
+        for (var index = 0; index < State.ProtectedZones.Count; index++)
+        {
+            var zone = State.ProtectedZones[index];
+            if (zone.Entity == uid)
+                State.ProtectedZones[index] = zone with { MapId = record.MapId, Position = record.WorldPosition };
+        }
     }
 
     public bool SetObjectActivation(EntityUid uid, bool active, bool dormant, string clusterId)

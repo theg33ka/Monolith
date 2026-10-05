@@ -1,6 +1,7 @@
-using Content.Server._CorvaxNext.Silicons.Borgs;
 using Content.Server._Forge.Horizon.Components;
 using Content.Server._Forge.Horizon.Domain;
+using Content.Server._CorvaxNext.Silicons.Borgs;
+using Content.Shared._CorvaxNext.Silicons.Borgs;
 using Content.Shared._CorvaxNext.Silicons.Borgs.Components;
 using Content.Shared.Mind;
 using Content.Shared.Silicons.StationAi;
@@ -12,7 +13,6 @@ public sealed partial class HorizonSystem
 {
     [Dependency] private readonly SharedMindSystem _mind = default!;
     [Dependency] private readonly SharedStationAiSystem _stationAi = default!;
-    [Dependency] private readonly AiRemoteControlSystem _aiRemote = default!;
 
     private void InitializeWanderingAi()
     {
@@ -20,6 +20,14 @@ public sealed partial class HorizonSystem
         SubscribeLocalEvent<HorizonWanderingAiComponent, ComponentShutdown>(OnWanderingAiShutdown);
         SubscribeLocalEvent<HorizonWanderingCarrierComponent, ComponentStartup>(OnWanderingCarrierStartup);
         SubscribeLocalEvent<HorizonWanderingCarrierComponent, ComponentShutdown>(OnWanderingCarrierShutdown);
+        SubscribeLocalEvent<HorizonWanderingCarrierComponent, ReturnMindIntoAiEvent>(OnCarrierReturn,
+            before: new[] { typeof(AiRemoteControlSystem) });
+    }
+
+    private void OnCarrierReturn(Entity<HorizonWanderingCarrierComponent> ent, ref ReturnMindIntoAiEvent args)
+    {
+        if (State.WanderingCarrier == ent.Owner && IsWanderingCarrierControlled())
+            ReturnWanderingAi();
     }
 
     private void ResetWanderingAiState()
@@ -49,7 +57,11 @@ public sealed partial class HorizonSystem
     private void OnWanderingCarrierShutdown(Entity<HorizonWanderingCarrierComponent> ent, ref ComponentShutdown args)
     {
         if (State.WanderingCarrier == ent.Owner)
+        {
+            if (IsWanderingCarrierControlled())
+                ReturnWanderingAi();
             State.WanderingCarrier = null;
+        }
     }
 
     public bool CanWanderingAiHandoff(EntityUid actor)
@@ -66,7 +78,7 @@ public sealed partial class HorizonSystem
             actor == ai,
             aiAvailable,
             true,
-            aiAvailable && _mind.TryGetMind(ai, out _, out _),
+            aiAvailable && _mind.TryGetMind(ai, out _, out var mind) && mind.VisitingEntity is null,
             _mind.TryGetMind(carrier, out _, out _),
             remote.AiHolder is null && remote.LinkedMind is null,
             aiAvailable && _stationAi.TryGetCore(ai, out _));
@@ -92,7 +104,7 @@ public sealed partial class HorizonSystem
             return "Wandering AI handoff denied by Horizon safeguards.";
         }
 
-        _mind.ControlMob(ai, carrier);
+        _mind.Visit(mindId, carrier);
         remote.AiHolder = ai;
         remote.LinkedMind = mindId;
         held.CurrentConnectedEntity = carrier;
@@ -111,7 +123,14 @@ public sealed partial class HorizonSystem
             return "Wandering AI is not controlling the Horizon carrier.";
         }
 
-        _aiRemote.ReturnMindIntoAi(carrier);
+        if (remote.AiHolder is not { } ai || !_stationAi.TryGetCore(ai, out var core))
+            return "Wandering AI core is unavailable.";
+        _mind.UnVisit(remote.LinkedMind.Value);
+        if (TryComp<StationAiHeldComponent>(ai, out var held))
+            held.CurrentConnectedEntity = null;
+        remote.AiHolder = null;
+        remote.LinkedMind = null;
+        _stationAi.SwitchRemoteEntityMode(core, true);
         AnnounceOnce("wandering-ai-return", Loc.GetString("horizon-announcement-ai-return"));
         UpdateAllConsoleUis();
         return "Wandering AI returned to the O-01 core.";

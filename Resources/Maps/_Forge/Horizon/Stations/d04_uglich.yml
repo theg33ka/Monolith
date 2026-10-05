@@ -9264,7 +9264,7 @@ entities:
     - type: Transform
       pos: 9.5,-14.5
       parent: 1
-- proto: ForgeLaserDrill
+- proto: StationLaserDrill
   entities:
   - uid: 139
     components:

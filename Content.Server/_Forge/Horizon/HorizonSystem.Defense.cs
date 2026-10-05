@@ -3,6 +3,7 @@ using System.Numerics;
 using Content.Server._Forge.Horizon.Components;
 using Content.Server._Forge.Horizon.Domain;
 using Content.Server._Mono.NPC.HTN.Operators;
+using Content.Server._Mono.NPC.HTN;
 using Content.Server.NPC.HTN;
 using Content.Shared._Forge.CCVar;
 using Content.Shared._Forge.Horizon;
@@ -19,6 +20,7 @@ public sealed partial class HorizonSystem
 {
     [Dependency] private readonly NpcFactionSystem _npcFaction = default!;
     [Dependency] private readonly ShuttleSystem _shuttle = default!;
+    [Dependency] private readonly ShipTargetingSystem _shipTargeting = default!;
 
     private readonly HashSet<EntityUid> _defenseExecutors = new();
     private TimeSpan _nextDefenseCheck;
@@ -26,6 +28,7 @@ public sealed partial class HorizonSystem
     private void InitializeDefense()
     {
         SubscribeLocalEvent<HorizonObjectComponent, DamageChangedEvent>(OnHorizonObjectDamaged);
+        SubscribeLocalEvent<HorizonDamageRelayComponent, DamageChangedEvent>(OnGridAssetDamaged);
         SubscribeLocalEvent<HorizonDefenseExecutorComponent, ComponentStartup>(OnDefenseExecutorStartup);
         SubscribeLocalEvent<HorizonDefenseExecutorComponent, ComponentShutdown>(OnDefenseExecutorShutdown);
         SubscribeLocalEvent<HorizonDefenseExecutorComponent, SteeringDoneEvent>(OnDefenseSteeringDone);
@@ -37,6 +40,29 @@ public sealed partial class HorizonSystem
         _nextDefenseCheck = default;
     }
 
+    private void RegisterGridDamageRelays(EntityUid grid, EntityUid core)
+    {
+        var limit = Math.Clamp(_configuration.GetCVar(ForgeCVars.HorizonMaxDamageRelaysPerGrid), 1, 4096);
+        var count = 0;
+        var children = Transform(grid).ChildEnumerator;
+        while (children.MoveNext(out var child))
+        {
+            if (child == core || !HasComp<DamageableComponent>(child))
+                continue;
+            if (count++ >= limit)
+                break;
+            EnsureComp<HorizonDamageRelayComponent>(child).Core = core;
+        }
+    }
+
+    private void OnGridAssetDamaged(Entity<HorizonDamageRelayComponent> ent, ref DamageChangedEvent args)
+    {
+        if (Deleted(ent.Comp.Core) || !TryComp<HorizonObjectComponent>(ent.Comp.Core, out var core) ||
+            Transform(ent.Owner).GridUid != Transform(ent.Comp.Core).GridUid)
+            return;
+        OnHorizonObjectDamaged((ent.Comp.Core, core), ref args);
+    }
+
     private void OnDefenseExecutorStartup(Entity<HorizonDefenseExecutorComponent> ent, ref ComponentStartup args)
     {
         _defenseExecutors.Add(ent.Owner);
@@ -44,6 +70,7 @@ public sealed partial class HorizonSystem
 
     private void OnDefenseExecutorShutdown(Entity<HorizonDefenseExecutorComponent> ent, ref ComponentShutdown args)
     {
+        _shipTargeting.Stop(ent.Owner);
         _defenseExecutors.Remove(ent.Owner);
         if (ent.Comp.OrderId is { } orderId && State.Orders.TryGetValue(orderId, out var order) &&
             order.Status == HorizonOrderStatus.Active)
@@ -69,6 +96,10 @@ public sealed partial class HorizonSystem
 
         ent.Comp.ReturnAt = _timing.CurTime + TimeSpan.FromSeconds(
             Math.Max(1f, _configuration.GetCVar(ForgeCVars.HorizonDefenseHoldSeconds)));
+        if (State.Incidents.TryGetValue(ent.Comp.IncidentKey, out var incident) &&
+            incident.Origin is { } origin && !Deleted(origin) &&
+            Transform(origin).MapID == Transform(ent.Owner).MapID)
+            _shipTargeting.Target(ent.Owner, new EntityCoordinates(origin, Vector2.Zero));
     }
 
     private void OnHorizonObjectDamaged(Entity<HorizonObjectComponent> ent, ref DamageChangedEvent args)
@@ -185,6 +216,11 @@ public sealed partial class HorizonSystem
             return false;
 
         var originTransform = Transform(origin);
+        RefreshObjectPosition(target);
+        if (originTransform.MapID != targetRecord.MapId)
+            return false;
+        if (originTransform.GridUid is { } originGrid && State.Objects.Values.Any(record => record.Grid == originGrid))
+            return false;
         var originPosition = _transform.GetWorldPosition(originTransform);
         if (!HorizonDefensePolicy.CanChase(
                 incident.Position,
@@ -201,6 +237,10 @@ public sealed partial class HorizonSystem
             {
                 continue;
             }
+
+            RefreshObjectPosition(uid);
+            if (record.MapId != originTransform.MapID)
+                continue;
 
             var rawCost = Math.Max(0, _configuration.GetCVar(ForgeCVars.HorizonDefenseRawCost));
             var energyCost = Math.Max(0, _configuration.GetCVar(ForgeCVars.HorizonDefenseEnergyCost));
@@ -248,11 +288,22 @@ public sealed partial class HorizonSystem
             Math.Max(0.5f, _configuration.GetCVar(ForgeCVars.HorizonOrderCheckInterval)));
         foreach (var uid in _defenseExecutors.ToArray())
         {
-            if (Deleted(uid) || !TryComp<HorizonDefenseExecutorComponent>(uid, out var executor) || !executor.Busy ||
-                _timing.CurTime < executor.ReturnAt)
+            if (Deleted(uid) || !TryComp<HorizonDefenseExecutorComponent>(uid, out var executor) || !executor.Busy)
             {
                 continue;
             }
+
+            if (!executor.Returning && State.Incidents.TryGetValue(executor.IncidentKey, out var incident) &&
+                (incident.Origin is not { } origin || Deleted(origin) ||
+                 Transform(origin).MapID != Transform(uid).MapID ||
+                 !HorizonDefensePolicy.CanChase(incident.Position, _transform.GetWorldPosition(Transform(origin)),
+                     _configuration.GetCVar(ForgeCVars.HorizonDefenseChaseRadius))))
+            {
+                SendDefenseHome(uid, executor);
+                continue;
+            }
+            if (_timing.CurTime < executor.ReturnAt)
+                continue;
 
             if (executor.Returning)
             {
@@ -266,6 +317,7 @@ public sealed partial class HorizonSystem
 
     private void SendDefenseHome(EntityUid uid, HorizonDefenseExecutorComponent executor)
     {
+        _shipTargeting.Stop(uid);
         if (!TryComp<HTNComponent>(uid, out var htn))
         {
             CompleteDefenseOrder((uid, executor));
@@ -282,6 +334,7 @@ public sealed partial class HorizonSystem
 
     private void CompleteDefenseOrder(Entity<HorizonDefenseExecutorComponent> ent)
     {
+        _shipTargeting.Stop(ent.Owner);
         if (ent.Comp.OrderId is { } orderId)
             SetOrderStatus(orderId, HorizonOrderStatus.Complete);
         ent.Comp.OrderId = null;

@@ -81,6 +81,56 @@ internal static class HorizonCommandOutput
 }
 
 [AdminCommand(AdminFlags.Debug)]
+public sealed class HorizonDebugCommand : IConsoleCommand
+{
+    [Dependency] private readonly IEntitySystemManager _systems = default!;
+    public string Command => "horizon_debug";
+    public string Description => "Controls Horizon playtest resources, projects and bounded scheduling.";
+    public string Help => "horizon_debug <projects|resources RAW COMPONENTS ENERGY|build PROJECT|pause|resume|step|cancel ORDER_GUID|fail_ams|wake>";
+
+    public void Execute(IConsoleShell shell, string argStr, string[] args)
+    {
+        var system = HorizonCommandOutput.GetSystem(_systems);
+        string result;
+        switch (args.FirstOrDefault()?.ToLowerInvariant())
+        {
+            case "projects" when args.Length == 1:
+                result = system.DebugProjects();
+                break;
+            case "resources" when args.Length == 4 && int.TryParse(args[1], out var raw) &&
+                int.TryParse(args[2], out var components) && int.TryParse(args[3], out var energy):
+                result = system.DebugSetResources(raw, components, energy);
+                break;
+            case "build" when args.Length == 2:
+                result = system.DebugBuild(args[1]);
+                break;
+            case "pause" when args.Length == 1:
+                result = system.DebugPause(true);
+                break;
+            case "resume" when args.Length == 1:
+                result = system.DebugPause(false);
+                break;
+            case "step" when args.Length == 1:
+                result = system.DebugStep();
+                break;
+            case "cancel" when args.Length == 2 && Guid.TryParse(args[1], out var id):
+                result = system.DebugCancel(id);
+                break;
+            case "fail_ams" when args.Length == 1:
+                result = system.DebugFailAms();
+                break;
+            case "wake" when args.Length == 1:
+                result = system.DebugWake();
+                break;
+            default:
+                shell.WriteError(Help);
+                return;
+        }
+        shell.WriteLine(result);
+    }
+}
+
+[AdminCommand(AdminFlags.Debug)]
 public sealed class HorizonStatusCommand : IConsoleCommand
 {
     [Dependency] private readonly IEntitySystemManager _systems = default!;

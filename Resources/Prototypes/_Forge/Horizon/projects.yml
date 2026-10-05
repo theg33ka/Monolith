@@ -100,7 +100,8 @@
   name: AMZ-01 Shustry defense craft
   objectId: AMZ-01
   kind: Amz
-  gridPath: /Maps/_Forge/Shuttles/Drones/Paralysis.yml
+  gridPath: /Maps/_Forge/Horizon/Archive/amz-01.yml
+  temporaryContent: false
   rawCost: 20
   componentCost: 10
   energyCost: 10
@@ -118,7 +119,7 @@
   rawCost: 20
   componentCost: 10
   energyCost: 10
-  desiredCount: 2
+  desiredCount: 1
   maxCount: 2
   priority: 70
   protectedRadius: 250
@@ -128,7 +129,8 @@
   name: T-01 technical node
   objectId: T-01
   kind: Technical
-  gridPath: /Maps/Salvage/small-template.yml
+  gridPath: /Maps/_Forge/Horizon/Archive/t-01.yml
+  temporaryContent: false
   rawCost: 15
   componentCost: 5
   energyCost: 5

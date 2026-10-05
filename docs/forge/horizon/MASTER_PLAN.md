@@ -185,6 +185,14 @@ Codex ведёт этот файл в одном постоянном чате.
 
 ## Technical decisions
 
+- 2026-10-05/06: merged current `upstream/main` as `d3e7cad24d` on `HorizonCrysisSystem`; `.gitignore` keeps both Horizon rules and the upstream secrets exclusion. RobustToolbox is at the main-required revision with no local engine edits.
+- Imported all 16 `_gorizont.zip` entries (15 distinct grids), replaced AMZ-01/T-01 borrowed maps and added thirteen opt-in archive projects. The AMT-06 duplicate is preserved without duplicate catalog registration. Archive roles are conservative test classifications, not confirmed final balance roles.
+- Planner counts project IDs and queued reservations, caps manual builds, expires queued orders and limits project grid loads to one per update. Late deployment waits for staggered RTR loading.
+- Defense now uses existing Monolith ship targeting after approach, stops on return/network destruction, rejects cross-map and friendly-grid dispatch, and receives hull damage through bounded per-grid relays installed once at deployment.
+- Wandering AI uses mind visitation to retain core ownership and returns safely from its unarmed carrier.
+- Added `horizon_debug` actions: projects, resources, build, pause, resume, step, cancel, fail_ams and wake. Full command/mapping contract is in `PLAYTEST.md`.
+- Final validation found a missing `[CVarDefs]` annotation that prevented Horizon settings registration with current main. Fixed it and added a regression test. Removed map references and invalid device links were repaired; release build, 37 focused tests and prototype validation passed. Map integration loaded all 22 project paths and the final server-init rerun passed. Results are in `TEST_REPORT_2026-10-06.md`.
+
 - Keep strategic state in one server-side domain model owned by `HorizonSystem`; entity components hold only local identity/capacity/executor data.
 - Use the existing shuttle HTN autopilot for physical movement and bounded strategic orders for intent/timeout tracking.
 - Temporary MVP project definitions may reuse existing map files, but all Horizon selection, identity, balance and lifecycle data remains Forge-owned and configurable.
@@ -195,4 +203,4 @@ _None._
 
 ## Next exact action
 
-_Continue replacing the remaining borrowed Horizon maps or perform live playtesting of the dedicated RTR/AMS-01/O-01/D-04 deployment chain._
+_Run the supervised multiplayer acceptance checklist in PLAYTEST.md. Remaining borrowed stations need dedicated mapping and archive transport roles need confirmation; physical salvage/towing is still outside the aggregate MVP._

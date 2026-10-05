@@ -19,11 +19,23 @@ public static class HorizonPlanningPolicy
         IEnumerable<HorizonProjectCandidate> candidates,
         IReadOnlyDictionary<HorizonObjectKind, int> counts,
         HorizonLedger ledger)
+        => SelectNext(candidates, candidate => counts.GetValueOrDefault(candidate.Kind), ledger);
+
+    public static HorizonProjectCandidate? SelectNext(
+        IEnumerable<HorizonProjectCandidate> candidates,
+        IReadOnlyDictionary<string, int> projectCounts,
+        HorizonLedger ledger)
+        => SelectNext(candidates, candidate => projectCounts.GetValueOrDefault(candidate.ProjectId), ledger);
+
+    private static HorizonProjectCandidate? SelectNext(
+        IEnumerable<HorizonProjectCandidate> candidates,
+        Func<HorizonProjectCandidate, int> count,
+        HorizonLedger ledger)
     {
         return candidates
             .Where(candidate => IsStrategicBuildKind(candidate.Kind))
-            .Where(candidate => counts.GetValueOrDefault(candidate.Kind) < Math.Max(0, candidate.DesiredCount))
-            .Where(candidate => counts.GetValueOrDefault(candidate.Kind) < Math.Max(0, candidate.MaxCount))
+            .Where(candidate => count(candidate) < Math.Max(0, candidate.DesiredCount))
+            .Where(candidate => count(candidate) < Math.Max(0, candidate.MaxCount))
             .Where(candidate => ledger.Raw >= candidate.RawCost &&
                                 ledger.Components >= candidate.ComponentCost &&
                                 ledger.Energy >= candidate.EnergyCost)

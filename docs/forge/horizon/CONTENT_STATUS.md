@@ -14,12 +14,14 @@ This manifest separates working program logic from final art and mapping. Reused
 | D-04 Uglich | `HorizonD04` | `/Maps/_Forge/Horizon/Stations/d04_uglich.yml` | Dedicated Uglich mining map |
 | P-11 Tula | `HorizonP11` | `/Maps/Salvage/small-template.yml` | Functional aggregate production node, temporary map |
 | Z-01 | `HorizonZ01` | `/Maps/Salvage/small-template.yml` | Functional protected defense node, temporary map |
-| AMZ-01 | `HorizonAMZ01` | `/Maps/_Forge/Shuttles/Drones/Paralysis.yml` | Functional response/autopilot/IFF, temporary map |
+| AMZ-01 | `HorizonAMZ01` | `/Maps/_Forge/Horizon/Archive/amz-01.yml` | Dedicated archive craft; runtime defense executor and IFF |
 | AMZ-04 | `HorizonAMZ04` | `/Maps/_Forge/Shuttles/Drones/Paralysis.yml` | Functional second response asset, temporary map |
-| T-01 | `HorizonT01` | `/Maps/Salvage/small-template.yml` | Functional technical node, temporary map |
+| T-01 | `HorizonT01` | `/Maps/_Forge/Horizon/Archive/t-01.yml` | Dedicated archive technical grid |
 | AMU-05 | `HorizonAMU05` | `/Maps/Salvage/small-ai-survey-drone.yml` | Functional Wandering AI carrier, temporary map |
 
 All runtime choices, IDs, costs, capacities, placement ranges and temporary flags live in Forge-owned prototypes. The remaining unique maps and sprites stay an art/mapping replacement task and do not require a systems rewrite.
+
+2026-10-05: all 16 entries from `_gorizont.zip` imported to `Archive/`, representing 15 distinct grids. Thirteen additional opt-in projects are defined in `archive_projects.yml`; AMT-06's identical duplicate has no second project. See `PLAYTEST.md` for names, role caveats and mapper requirements. Viar-17 enemy AI cores were neutralized in the integrated map.
 
 ## Mapper placement contract
 

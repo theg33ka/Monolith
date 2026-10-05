@@ -1,8 +1,10 @@
 using System.Linq;
 using System.Numerics;
 using Content.Server._Forge.Horizon.Domain;
+using Content.Server._Forge.Horizon.Components;
 using Content.Server.Chat.Systems;
 using Content.Server.GameTicking;
+using Content.Server.NPC.HTN;
 using Content.Shared._Forge.CCVar;
 using Content.Shared._Forge.Horizon;
 using Content.Shared._Forge.Horizon.Components;
@@ -28,6 +30,7 @@ public sealed partial class HorizonSystem
     private TimeSpan _nextProximityCheck;
     private TimeSpan _nextRtrSpawnAt;
     private bool _roundInitialized;
+    private bool _pendingLateDeployment;
 
     private void InitializeDeployment()
     {
@@ -42,6 +45,7 @@ public sealed partial class HorizonSystem
     private void ResetDeploymentState()
     {
         _roundInitialized = false;
+        _pendingLateDeployment = false;
         _announcementTimes.Clear();
         _pendingRtrSpawns.Clear();
         _nextProximityCheck = default;
@@ -88,6 +92,14 @@ public sealed partial class HorizonSystem
             return;
 
         ProcessPendingRtrSpawn();
+        if (_pendingRtrSpawns.Count > 0)
+            return;
+        if (_pendingLateDeployment)
+        {
+            _pendingLateDeployment = false;
+            BeginLateDeployment();
+            return;
+        }
 
         var now = _timing.CurTime;
         if (State.Phase == HorizonDeploymentPhase.Dormant)
@@ -154,6 +166,7 @@ public sealed partial class HorizonSystem
             0,
             project.TemporaryContent);
         _metadata.SetEntityName(rtrGrid, $"Horizon RTR-{pending.Index:D2}");
+        RegisterGridDamageRelays(rtrGrid, core);
     }
 
     private void TryProximityActivation()
@@ -189,6 +202,8 @@ public sealed partial class HorizonSystem
 
         if (State.Phase != HorizonDeploymentPhase.Dormant)
             return $"Horizon already has an active cluster ({State.Phase}).";
+        if (_pendingRtrSpawns.Count > 0)
+            return "RTR deployment is still queued; wait for deployment to finish.";
 
         var dormant = State.Objects.Values
             .Where(obj => obj.Kind == HorizonObjectKind.Rtr && obj.Dormant && !Deleted(obj.Entity))
@@ -269,6 +284,15 @@ public sealed partial class HorizonSystem
         if (!HorizonLifecyclePolicy.Destroy(State, reason))
             return;
 
+        foreach (var uid in _defenseExecutors)
+        {
+            if (Deleted(uid))
+                continue;
+            _shipTargeting.Stop(uid);
+            if (TryComp<HorizonDefenseExecutorComponent>(uid, out var executor))
+                executor.Busy = false;
+        }
+
         foreach (var record in State.Objects.Values)
         {
             if (!TryComp<HorizonObjectComponent>(record.Entity, out var component))
@@ -276,6 +300,11 @@ public sealed partial class HorizonSystem
 
             component.Active = false;
             component.Dormant = false;
+            if (TryComp<HTNComponent>(record.Entity, out var htn))
+            {
+                htn.Enabled = false;
+                _npc.SleepNPC(record.Entity, htn);
+            }
         }
 
         AnnounceOnce("destroyed", Loc.GetString("horizon-announcement-network-destroyed"));

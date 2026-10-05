@@ -2,6 +2,7 @@ using Robust.Shared.Configuration;
 
 namespace Content.Shared._Forge.CCVar;
 
+[CVarDefs]
 public sealed partial class ForgeCVars
 {
     public static readonly CVarDef<bool> HorizonEnabled =
@@ -99,4 +100,7 @@ public sealed partial class ForgeCVars
 
     public static readonly CVarDef<float> HorizonOrderCheckInterval =
         CVarDef.Create("forge.horizon.order_check_interval", 1f, CVar.SERVERONLY);
+
+    public static readonly CVarDef<int> HorizonMaxDamageRelaysPerGrid =
+        CVarDef.Create("forge.horizon.max_damage_relays_per_grid", 1024, CVar.SERVERONLY);
 }
