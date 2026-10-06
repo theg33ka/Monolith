@@ -389,6 +389,8 @@ public sealed partial class FireControlSystem : EntitySystem
                 controlled.NetEntity = EntityManager.GetNetEntity(controllable);
                 controlled.Coordinates = GetNetCoordinates(Transform(controllable).Coordinates);
                 controlled.Name = MetaData(controllable).EntityName;
+                controlled.KiasReserved = TryComp<Content.Shared._Forge.KIAS.KiasPdcWeaponComponent>(controllable, out var kiasWeapon)
+                    && kiasWeapon.AutomaticGrid != null;
 
                 var (ammoCount, hasManualReload) = GetWeaponAmmunitionInfo(controllable);
                 controlled.AmmoCount = ammoCount;

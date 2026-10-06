@@ -7,6 +7,12 @@ namespace Content.Server.Power.Nodes
     [DataDefinition]
     public sealed partial class CableNode : Node
     {
+        public override bool Connectable(IEntityManager entMan, TransformComponent? xform = null)
+        {
+            return base.Connectable(entMan, xform)
+                && !entMan.System<Content.Server._Forge.KIAS.KiasRelaySystem>().IsCableBlocked(Owner);
+        }
+
         public override IEnumerable<Node> GetReachableNodes(
             Entity<TransformComponent> xform,
             EntityQuery<NodeContainerComponent> nodeQuery,

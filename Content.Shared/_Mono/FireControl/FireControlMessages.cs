@@ -117,6 +117,7 @@ public sealed class FireControlConsoleFireEvent : EntityEventArgs
 [Serializable, NetSerializable]
 public struct FireControllableEntry
 {
+    public bool KiasReserved;
     /// <summary>
     /// The entity in question
     /// </summary>

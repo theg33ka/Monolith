@@ -649,6 +649,7 @@ public sealed partial class FireControlWindow : FancyWindow
     /// </summary>
     private void UpdateWeaponButtonText(Button button, FireControllableEntry controllable)
     {
+        button.ToolTip = controllable.KiasReserved ? Loc.GetString("kias-pdc-manual-priority") : null;
         if (button.Pressed && controllable.HasManualReload && controllable.AmmoCount.HasValue)
         {
             button.Text = Loc.GetString("gunnery-gun-select-ammo", ("name", controllable.Name), ("ammo", controllable.AmmoCount.Value));

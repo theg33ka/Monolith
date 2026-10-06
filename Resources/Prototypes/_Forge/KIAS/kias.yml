@@ -1,0 +1,588 @@
+- type: entity
+  id: KiasDataCable
+  name: KIAS data cable
+  description: An underfloor automation bus with a two tile service radius.
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: Transform
+    anchored: true
+    noRot: true
+  - type: Visibility
+    layer: 1
+  - type: Sprite
+    sprite: Structures/Power/Cables/mv_cable.rsi
+    state: mvcable_4
+    color: Cyan
+    drawdepth: ThinWire
+  - type: Icon
+    sprite: Structures/Power/Cables/mv_cable.rsi
+    state: mvcable_4
+  - type: SubFloorHide
+  - type: Clickable
+  - type: InteractionOutline
+  - type: Cable
+    cableType: Data
+    cableDroppedOnCutPrototype: KiasDataCableStack1
+  - type: KiasDataCable
+  - type: Damageable
+    damageContainer: Inorganic
+    damageModifierSet: Metallic
+  - type: Destructible
+    thresholds:
+    - trigger: !type:DamageTrigger
+        damage: 100
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [Destruction]
+
+- type: stack
+  id: KiasDataCable
+  name: KIAS data cable
+  icon: { sprite: /Textures/Objects/Tools/cable-coils.rsi, state: coilmv-30 }
+  spawn: KiasDataCableStack1
+  maxCount: 100
+
+- type: entity
+  id: KiasDataCableStack
+  parent: CableStack
+  name: KIAS data cable coil
+  components:
+  - type: Stack
+    stackType: KiasDataCable
+    baseLayer: base
+    layerStates: [coilmv-10, coilmv-20, coilmv-30]
+  - type: Sprite
+    color: Cyan
+    layers:
+    - state: coilmv-30
+      map: [base]
+  - type: Item
+    heldPrefix: coilmv
+  - type: CablePlacer
+    cablePrototypeID: KiasDataCable
+    blockingWireType: Data
+  - type: Appearance
+
+- type: entity
+  id: KiasDataCableStack1
+  parent: KiasDataCableStack
+  suffix: 1
+  components:
+  - type: Stack
+    count: 1
+
+- type: entity
+  id: BaseKiasServer
+  parent: BaseMachinePowered
+  abstract: true
+  components:
+  - type: Construction
+    graph: Machine
+    node: machine
+    containers: [machine_board, machine_parts]
+  - type: ContainerContainer
+    containers:
+      machine_board: !type:Container
+      machine_parts: !type:Container
+  - type: Sprite
+    sprite: Structures/Machines/server.rsi
+    layers:
+    - state: server
+    - state: variant-crew
+      color: Cyan
+  - type: ApcPowerReceiver
+    powerLoad: 100
+  - type: ExtensionCableReceiver
+  - type: KiasDevice
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.KiasVisuals.Status:
+        0:
+          enum.KiasDeviceStatus.Online: { color: Cyan }
+          enum.KiasDeviceStatus.Offline: { color: Gray }
+          enum.KiasDeviceStatus.NoPower: { color: Gray }
+          enum.KiasDeviceStatus.NoDataPath: { color: Orange }
+          enum.KiasDeviceStatus.Disconnected: { color: Gray }
+          enum.KiasDeviceStatus.DuplicateCore: { color: Red }
+
+- type: entity
+  id: BaseKiasWallDevice
+  parent: BaseKiasServer
+  abstract: true
+  placement:
+    mode: SnapgridCenter
+    snap: [Wallmount]
+  components:
+  - type: WallMount
+    arc: 175
+  - type: Sprite
+    drawdepth: WallMountedItems
+    sprite: Structures/Wallmounts/air_monitors.rsi
+    layers:
+    - state: alarm0
+  - type: Fixtures
+    fixtures: {}
+
+- type: entity
+  id: KiasCore
+  parent: BaseKiasServer
+  name: KIAS core
+  components:
+  - type: Machine
+    board: KiasCoreBoard
+  - type: KiasCore
+  - type: KiasProtocol
+    protocols:
+    - trigger: HullImpact
+      actions:
+      - kind: Lights
+        group: EMERGENCY
+        value: true
+    - trigger: HullImpact
+      actions:
+      - kind: Pdc
+        value: true
+    - trigger: WeaponFlash
+      disposition: Hostile
+      actions:
+      - kind: Lights
+        group: EMERGENCY
+        value: true
+    - trigger: WeaponFlash
+      disposition: Hostile
+      actions:
+      - kind: Pdc
+        value: true
+    - trigger: Manual
+      actions:
+      - kind: Lights
+        group: EMERGENCY
+        value: true
+    - trigger: Manual
+      actions:
+      - kind: Pdc
+        value: true
+  - type: KiasDevice
+    role: Core
+
+- type: entity
+  id: KiasDefenceServer
+  parent: BaseKiasServer
+  name: KIAS defence server
+  components:
+  - type: Machine
+    board: KiasDefenceServerBoard
+  - type: KiasDevice
+    role: Defence
+  - type: KiasDefence
+
+- type: entity
+  id: KiasAtmosServer
+  parent: BaseKiasServer
+  name: KIAS atmosphere server
+  components:
+  - type: Machine
+    board: KiasAtmosServerBoard
+  - type: KiasDevice
+    role: Atmosphere
+
+- type: entity
+  id: KiasPowerServer
+  parent: BaseKiasServer
+  name: KIAS power server
+  components:
+  - type: Machine
+    board: KiasPowerServerBoard
+  - type: KiasDevice
+    role: Power
+
+- type: entity
+  id: KiasCrewServer
+  parent: BaseKiasServer
+  name: KIAS crew server
+  components:
+  - type: Machine
+    board: KiasCrewServerBoard
+  - type: KiasCrewServer
+  - type: KiasDevice
+    role: Crew
+
+- type: entity
+  id: KiasNavigationServer
+  parent: BaseKiasServer
+  name: KIAS navigation server
+  components:
+  - type: Machine
+    board: KiasNavigationServerBoard
+  - type: KiasDevice
+    role: Navigation
+
+- type: entity
+  id: KiasRecorder
+  parent: BaseKiasServer
+  name: KIAS recorder
+  components:
+  - type: Machine
+    board: KiasRecorderBoard
+  - type: KiasDevice
+    role: Recorder
+  - type: KiasRecorder
+  - type: KiasDisplay
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Key
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Key:
+        type: KiasBoundUserInterface
+
+- type: sinkPort
+  id: KiasAnnounce
+  name: kias-port-announce
+  description: kias-port-announce-description
+
+- type: entity
+  id: KiasSpeaker
+  parent: BaseKiasWallDevice
+  name: KIAS speaker
+  components:
+  - type: Machine
+    board: KiasSpeakerBoard
+  - type: KiasDevice
+    role: Speaker
+  - type: KiasSpeaker
+  - type: Speech
+    speechVerb: Robotic
+  - type: Sprite
+    sprite: Structures/Wallmounts/intercom.rsi
+    layers:
+    - state: base
+    - state: speaker
+  - type: DeviceLinkSink
+    ports: [KiasAnnounce]
+
+- type: entity
+  id: KiasDisplay
+  parent: BaseComputer
+  name: KIAS display
+  placement:
+    mode: SnapgridCenter
+    snap: [Wallmount]
+  components:
+  - type: WallMount
+    arc: 175
+  - type: Sprite
+    drawdepth: WallMountedItems
+    sprite: Structures/Wallmounts/screen.rsi
+    layers:
+    - state: screen
+  - type: Computer
+    board: KiasDisplayBoard
+  - type: KiasDevice
+    role: Display
+  - type: KiasDisplay
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Key
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Key:
+        type: KiasBoundUserInterface
+
+- type: entity
+  id: KiasServiceTool
+  parent: BaseItem
+  name: KIAS service multitool
+  components:
+  - type: Sprite
+    sprite: Objects/Tools/multitool.rsi
+    state: icon
+  - type: Item
+    size: Small
+  - type: KiasServiceTool
+  - type: KiasDisplay
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Key
+    inHandsOnly: true
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Key:
+        type: KiasBoundUserInterface
+
+- type: sourcePort
+  id: KiasMotion
+  name: kias-port-motion
+  description: kias-port-motion-description
+  defaultLinks: [KiasAnnounce]
+
+- type: entity
+  id: KiasRoomScanner
+  parent: BaseKiasWallDevice
+  name: KIAS modular room scanner
+  components:
+  - type: Machine
+    board: KiasRoomScannerBoard
+  - type: KiasDevice
+    role: Scanner
+  - type: KiasRoomScanner
+  - type: DeviceLinkSource
+    ports: [KiasMotion]
+  - type: ItemSlots
+    slots:
+      kias-module-1:
+        startingItem: KiasMotionModule
+        whitelist:
+          components: [KiasScannerModule]
+      kias-module-2:
+        startingItem: KiasTransponderModule
+        whitelist:
+          components: [KiasScannerModule]
+      kias-module-3:
+        whitelist:
+          components: [KiasScannerModule]
+      kias-module-4:
+        whitelist:
+          components: [KiasScannerModule]
+      kias-module-5:
+        whitelist:
+          components: [KiasScannerModule]
+      kias-module-6:
+        whitelist:
+          components: [KiasScannerModule]
+  - type: ContainerContainer
+    containers:
+      kias-module-1: !type:ContainerSlot
+      kias-module-2: !type:ContainerSlot
+      kias-module-3: !type:ContainerSlot
+      kias-module-4: !type:ContainerSlot
+      kias-module-5: !type:ContainerSlot
+      kias-module-6: !type:ContainerSlot
+
+- type: entity
+  id: BaseKiasScannerModule
+  parent: BaseItem
+  abstract: true
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: id_mod
+  - type: Item
+    size: Tiny
+  - type: KiasScannerModule
+
+- type: entity
+  id: KiasMotionModule
+  parent: BaseKiasScannerModule
+  name: KIAS motion module
+  components:
+  - type: KiasScannerModule
+    module: Motion
+
+- type: entity
+  id: KiasIdModule
+  parent: BaseKiasScannerModule
+  name: KIAS ID module
+  components:
+  - type: KiasScannerModule
+    module: Id
+
+- type: entity
+  id: KiasTransponderModule
+  parent: BaseKiasScannerModule
+  name: KIAS transponder module
+  components:
+  - type: KiasScannerModule
+    module: Transponder
+
+- type: entity
+  id: KiasBiometricModule
+  parent: BaseKiasScannerModule
+  name: KIAS biometric module
+  components:
+  - type: KiasScannerModule
+    module: Biometric
+
+- type: entity
+  id: KiasRadiationModule
+  parent: BaseKiasScannerModule
+  name: KIAS radiation module
+  components:
+  - type: KiasScannerModule
+    module: Radiation
+
+- type: entity
+  id: KiasSpectralModule
+  parent: BaseKiasScannerModule
+  name: KIAS spectral module
+  components:
+  - type: KiasScannerModule
+    module: Spectral
+
+- type: entity
+  id: KiasCrewTransponder
+  parent: BaseItem
+  name: KIAS crew transponder
+  components:
+  - type: Sprite
+    sprite: Objects/Devices/pinpointer.rsi
+    state: pinpointer
+  - type: Item
+    size: Tiny
+    shape:
+    - 0,0,0,0
+  - type: KiasTransponder
+
+- type: entity
+  id: KiasHorizon
+  parent: BaseKiasServer
+  name: KIAS Horizon bluespace interferometer
+  components:
+  - type: Machine
+    board: KiasHorizonBoard
+  - type: KiasDevice
+    role: Horizon
+  - type: KiasHorizon
+
+- type: entity
+  id: KiasMasterKey
+  parent: BaseItem
+  name: KIAS master key
+  components:
+  - type: Sprite
+    sprite: Objects/Devices/encryption_keys.rsi
+    state: crypt_gold
+  - type: Item
+    size: Tiny
+  - type: KiasMasterKey
+
+- type: entity
+  id: KiasHullSensor
+  parent: BaseKiasWallDevice
+  name: KIAS hull impact sensor
+  components:
+  - type: Machine
+    board: KiasHullSensorBoard
+  - type: KiasDevice
+    role: Hull
+  - type: KiasHullSensor
+
+- type: entity
+  id: KiasIntegrityMonitor
+  parent: BaseKiasServer
+  name: KIAS hull integrity monitor
+  components:
+  - type: Machine
+    board: KiasIntegrityMonitorBoard
+  - type: KiasDevice
+    role: Hull
+  - type: KiasIntegrityMonitor
+
+- type: entity
+  id: KiasCollisionMonitor
+  parent: BaseKiasServer
+  name: KIAS collision monitor
+  components:
+  - type: Machine
+    board: KiasCollisionMonitorBoard
+  - type: KiasDevice
+    role: Hull
+  - type: KiasCollisionMonitor
+
+- type: entity
+  id: KiasLightController
+  parent: BaseKiasWallDevice
+  name: KIAS light group controller
+  components:
+  - type: Machine
+    board: KiasLightControllerBoard
+  - type: KiasDevice
+    role: Light
+  - type: KiasLightController
+  - type: DeviceLinkSink
+    ports: [On, Off]
+
+- type: sinkPort
+  id: KiasSuppress
+  name: kias-port-suppress
+  description: kias-port-suppress-description
+
+- type: entity
+  id: KiasSuppression
+  parent: BaseKiasWallDevice
+  name: KIAS fire suppression module
+  components:
+  - type: Machine
+    board: KiasSuppressionBoard
+  - type: KiasDevice
+    role: Suppression
+  - type: KiasSuppression
+  - type: DeviceLinkSink
+    ports: [KiasSuppress]
+  - type: ItemSlots
+    slots:
+      kias-cartridge:
+        startingItem: KiasSuppressionCartridge
+        whitelist:
+          components: [KiasSuppressionCartridge]
+  - type: ContainerContainer
+    containers:
+      kias-cartridge: !type:ContainerSlot
+
+- type: entity
+  id: KiasSuppressionCartridge
+  parent: BaseItem
+  name: KIAS suppression cartridge
+  components:
+  - type: Sprite
+    sprite: _NF/Objects/Misc/fire_extinguisher.rsi
+    state: fire_extinguisher_closed
+  - type: Item
+    size: Small
+  - type: KiasSuppressionCartridge
+
+- type: entity
+  id: KiasRelay
+  parent: BaseKiasServer
+  name: KIAS four channel relay
+  components:
+  - type: Machine
+    board: KiasRelayBoard
+  - type: KiasDevice
+    role: Relay
+  - type: KiasRelay
+  - type: SubFloorHide
+  - type: Visibility
+    layer: 1
+
+- type: entity
+  id: KiasPdcRadar
+  parent: BaseKiasServer
+  name: KIAS point defence radar
+  components:
+  - type: Machine
+    board: KiasPdcRadarBoard
+  - type: KiasDevice
+    role: PdcRadar
+  - type: KiasPdcRadar
+
+- type: entity
+  id: KiasWeaponFlashDetector
+  parent: BaseKiasServer
+  name: KIAS weapon flash detector
+  components:
+  - type: Machine
+    board: KiasWeaponFlashDetectorBoard
+  - type: KiasDevice
+    role: WeaponFlash
+  - type: KiasWeaponFlash
+
+- type: entity
+  id: KiasProximitySensor
+  parent: BaseKiasServer
+  name: KIAS proximity sensor
+  components:
+  - type: Machine
+    board: KiasProximitySensorBoard
+  - type: KiasDevice
+    role: Proximity
+  - type: KiasProximity

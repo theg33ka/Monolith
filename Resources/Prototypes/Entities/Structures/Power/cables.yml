@@ -4,6 +4,7 @@
   placement:
     mode: SnapgridCenter
   components:
+  - type: KiasPowerCable
   - type: Visibility
     layer: 1
   - type: Cable

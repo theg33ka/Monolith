@@ -1,0 +1,133 @@
+using System.Linq;
+using Content.Server.Fluids.EntitySystems;
+using Content.Server.Light.EntitySystems;
+using Content.Shared._Forge.KIAS;
+using Content.Shared.Chemistry.Components;
+using Content.Shared.DeviceLinking.Events;
+using Content.Shared.Verbs;
+using Robust.Shared.Containers;
+
+namespace Content.Server._Forge.KIAS;
+
+public sealed class KiasActuatorSystem : EntitySystem
+{
+    [Dependency] private KiasSystem _kias = default!;
+    [Dependency] private PoweredLightSystem _lights = default!;
+    [Dependency] private SharedContainerSystem _containers = default!;
+    [Dependency] private SmokeSystem _smoke = default!;
+    [Dependency] private KiasSafetySystem _safety = default!;
+    [Dependency] private MetaDataSystem _metadata = default!;
+    private readonly Dictionary<EntityUid, HashSet<EntityUid>> _groupLights = new();
+
+    public override void Initialize()
+    {
+        SubscribeLocalEvent<KiasLightGroupComponent, ComponentStartup>(OnLightStartup);
+        SubscribeLocalEvent<KiasLightGroupComponent, ComponentShutdown>(OnLightShutdown);
+        SubscribeLocalEvent<KiasLightGroupComponent, EntParentChangedMessage>(OnLightParent);
+        SubscribeLocalEvent<KiasLightGroupComponent, GridUidChangedEvent>(OnLightGrid);
+        SubscribeLocalEvent<KiasSetLightGroupEvent>(OnGroup);
+        SubscribeLocalEvent<KiasLightControllerComponent, GetVerbsEvent<AlternativeVerb>>(OnLightVerbs);
+        SubscribeLocalEvent<KiasSuppressionComponent, GetVerbsEvent<AlternativeVerb>>(OnSuppressionVerbs);
+        SubscribeLocalEvent<KiasLightControllerComponent, SignalReceivedEvent>(OnLightSignal);
+        SubscribeLocalEvent<KiasSuppressionComponent, SignalReceivedEvent>(OnSuppressionSignal);
+    }
+
+    private void OnLightStartup(Entity<KiasLightGroupComponent> ent, ref ComponentStartup args) => Index(ent);
+    private void OnLightShutdown(Entity<KiasLightGroupComponent> ent, ref ComponentShutdown args) => Unindex(ent);
+    private void OnLightParent(Entity<KiasLightGroupComponent> ent, ref EntParentChangedMessage args) => Index(ent);
+    private void OnLightGrid(Entity<KiasLightGroupComponent> ent, ref GridUidChangedEvent args) => Index(ent);
+
+    private void Unindex(Entity<KiasLightGroupComponent> ent)
+    {
+        if (ent.Comp.IndexedGrid is { } old && _groupLights.TryGetValue(old, out var lights))
+        {
+            lights.Remove(ent);
+            if (lights.Count == 0)
+                _groupLights.Remove(old);
+        }
+        ent.Comp.IndexedGrid = null;
+    }
+
+    private void Index(Entity<KiasLightGroupComponent> ent)
+    {
+        Unindex(ent);
+        _metadata.AddFlag(ent, MetaDataFlags.ExtraTransformEvents);
+        if (TerminatingOrDeleted(ent) || Transform(ent).GridUid is not { } grid)
+            return;
+        if (!_groupLights.TryGetValue(grid, out var lights))
+            _groupLights.Add(grid, lights = new());
+        lights.Add(ent);
+        ent.Comp.IndexedGrid = grid;
+    }
+
+    private void OnGroup(ref KiasSetLightGroupEvent args)
+    {
+        if (!_kias.ActiveGrids.Contains(args.Grid) || !_groupLights.TryGetValue(args.Grid, out var lights))
+            return;
+        foreach (var light in lights.ToArray())
+        {
+            if (!TerminatingOrDeleted(light) && Transform(light).GridUid == args.Grid
+                && Comp<KiasLightGroupComponent>(light).Group == args.Group)
+                _lights.SetState(light, args.Enabled);
+        }
+    }
+
+    public void SetLights(EntityUid controller, bool enabled)
+    {
+        if (!_kias.IsOnline(controller) || !TryComp<KiasLightControllerComponent>(controller, out var comp)
+            || Transform(controller).GridUid is not { } grid)
+            return;
+        var ev = new KiasSetLightGroupEvent(grid, comp.Group, enabled);
+        RaiseLocalEvent(grid, ref ev, true);
+    }
+
+    private void OnLightVerbs(Entity<KiasLightControllerComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
+    {
+        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent))
+            return;
+        var uid = ent.Owner;
+        foreach (var enabled in new[] { true, false })
+        {
+            var state = enabled;
+            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString(state ? "kias-lights-on" : "kias-lights-off"), Act = () => SetLights(uid, state) });
+        }
+    }
+
+    private void OnLightSignal(Entity<KiasLightControllerComponent> ent, ref SignalReceivedEvent args)
+    {
+        if (args.Port is "On" or "Off")
+            SetLights(ent, args.Port == "On");
+    }
+
+    private void OnSuppressionVerbs(Entity<KiasSuppressionComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
+    {
+        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent))
+            return;
+        var uid = ent.Owner;
+        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("kias-suppress"), Act = () => Suppress(uid) });
+    }
+
+    private void OnSuppressionSignal(Entity<KiasSuppressionComponent> ent, ref SignalReceivedEvent args)
+    {
+        if (args.Port == "KiasSuppress")
+            Suppress(ent);
+    }
+
+    public bool Suppress(EntityUid uid)
+    {
+        if (!_kias.IsOnline(uid) || !HasComp<KiasSuppressionComponent>(uid)
+            || Transform(uid).GridUid is not { } grid || !_kias.HasRole(grid, KiasDeviceRole.Atmosphere)
+            || !_containers.TryGetContainer(uid, "kias-cartridge", out var slot)
+            || slot.ContainedEntities.FirstOrDefault() is not { Valid: true } cartridge
+            || TerminatingOrDeleted(cartridge) || EntityManager.IsQueuedForDeletion(cartridge)
+            || !HasComp<KiasSuppressionCartridgeComponent>(cartridge))
+            return false;
+        var solution = new Solution();
+        solution.AddReagent("Water", 100);
+        var foam = Spawn("Foam", Transform(uid).Coordinates);
+        _smoke.StartSmoke(foam, solution, 10, 12);
+        QueueDel(cartridge);
+        _safety.Publish(grid, Loc.GetString("kias-suppression-activated", ("location", _safety.Location(grid, uid))));
+        return true;
+    }
+}

@@ -207,6 +207,11 @@ public sealed partial class GunSystem : SharedGunSystem
         {
             FiredProjectiles = shotProjectiles,
         });
+        if (HasComp<Content.Server._Mono.SpaceArtillery.Components.SpaceArtilleryComponent>(gunUid))
+        {
+            var flash = new Content.Shared._Forge.KIAS.KiasWeaponFiredEvent(gunUid);
+            RaiseLocalEvent(gunUid, ref flash, true);
+        }
 
         void CreateAndFireProjectiles(EntityUid ammoEnt, AmmoComponent ammoComp, float offset = 0f)
         {

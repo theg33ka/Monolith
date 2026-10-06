@@ -308,7 +308,7 @@ public readonly record struct AnomalySeverityChangedEvent(EntityUid Anomaly, flo
 /// Event broadcast when an anomaly's stability is changed.
 /// </summary>
 [ByRefEvent]
-public readonly record struct AnomalyStabilityChangedEvent(EntityUid Anomaly, float Stability, float Severity);
+public readonly record struct AnomalyStabilityChangedEvent(EntityUid Anomaly, float Stability, float Severity, float? PreviousStability = null);
 
 /// <summary>
 /// Event broadcast when an anomaly's health is changed.

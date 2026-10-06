@@ -163,6 +163,7 @@
     - PartsStatic
     - AtmosStatic
     - CablesStatic
+    - KiasTools
     - CargoStatic
     - MaterialsStatic
     - BasicChemistryStatic
@@ -329,6 +330,7 @@
     runningState: building
     staticPacks:
     - ScienceBoardsStatic
+    - KiasBoards
     - ServiceBoardsStatic
     - CargoBoardsStatic
     - MedicalBoardsStatic # Shitmed Change

@@ -229,12 +229,13 @@ public abstract partial class SharedAnomalySystem : EntitySystem
         if (!Resolve(uid, ref component))
             return;
 
-        var newVal = component.Stability + change;
+        var previous = component.Stability;
+        var newVal = previous + change;
 
         component.Stability = Math.Clamp(newVal, 0, 1);
         Dirty(uid, component);
 
-        var ev = new AnomalyStabilityChangedEvent(uid, component.Stability, component.Severity);
+        var ev = new AnomalyStabilityChangedEvent(uid, component.Stability, component.Severity, previous);
         RaiseLocalEvent(uid, ref ev, true);
     }
 

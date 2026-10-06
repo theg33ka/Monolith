@@ -181,7 +181,7 @@ public sealed partial class AtmosAlarmableSystem : EntitySystem
         alarmable.LastAlarmState = type;
         UpdateAppearance(uid, type);
         PlayAlertSound(uid, type, alarmable);
-        RaiseLocalEvent(uid, new AtmosAlarmEvent(type), true);
+        RaiseLocalEvent(uid, new AtmosAlarmEvent(type, uid), true);
     }
 
     public void SyncAlertsToNetwork(EntityUid uid, string? address = null, AtmosAlarmableComponent? alarmable = null, TagComponent? tags = null)
@@ -317,9 +317,11 @@ public sealed partial class AtmosAlarmableSystem : EntitySystem
 public sealed class AtmosAlarmEvent : EntityEventArgs
 {
     public AtmosAlarmType AlarmType { get; }
+    public EntityUid? Source { get; }
 
-    public AtmosAlarmEvent(AtmosAlarmType netMax)
+    public AtmosAlarmEvent(AtmosAlarmType netMax, EntityUid? source = null)
     {
         AlarmType = netMax;
+        Source = source;
     }
 }

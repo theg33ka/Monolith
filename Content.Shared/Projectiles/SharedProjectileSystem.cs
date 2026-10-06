@@ -222,6 +222,8 @@ public abstract partial class SharedProjectileSystem : EntitySystem
         var otherName = ToPrettyString(target);
         var direction = ourBody.LinearVelocity.Normalized();
         DamageSpecifier modifiedDamage;
+        var hullGrid = HasComp<Content.Shared._Forge.KIAS.KiasHullStructureComponent>(target)
+            ? Transform(target).GridUid : null;
         if (_net.IsServer)
         {
             modifiedDamage = _damageableSystem.TryChangeDamage(target,
@@ -236,6 +238,12 @@ public abstract partial class SharedProjectileSystem : EntitySystem
             modifiedDamage = new DamageSpecifier(ev.Damage);
         }
         var deleted = Deleted(target);
+
+        if (_net.IsServer && hullGrid is { } impactedGrid && modifiedDamage.AnyPositive())
+        {
+            var hull = new Content.Shared._Forge.KIAS.KiasHullImpactEvent(impactedGrid, target);
+            RaiseLocalEvent(impactedGrid, ref hull, true);
+        }
 
         var filter = Robust.Shared.Player.Filter.Pvs(coordinates, entityMan: EntityManager);
         if (_guns.GunPrediction &&

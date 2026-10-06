@@ -171,6 +171,9 @@ internal sealed partial class PowerMonitoringConsoleSystem : SharedPowerMonitori
 
     public void OnCableAnchorStateChanged(EntityUid uid, CableComponent component, CableAnchorStateChangedEvent args)
     {
+        if (component.CableType == CableType.Data)
+            return;
+
         var xform = args.Transform;
 
         if (xform.GridUid == null || !TryComp<MapGridComponent>(xform.GridUid, out var grid))
@@ -923,7 +926,7 @@ internal sealed partial class PowerMonitoringConsoleSystem : SharedPowerMonitori
         var query = AllEntityQuery<CableComponent, TransformComponent>();
         while (query.MoveNext(out var ent, out var cable, out var entXform))
         {
-            if (entXform.GridUid != gridUid)
+            if (entXform.GridUid != gridUid || cable.CableType == CableType.Data)
                 continue;
 
             var tile = _sharedMapSystem.GetTileRef(gridUid, grid, entXform.Coordinates);
@@ -964,7 +967,7 @@ internal sealed partial class PowerMonitoringConsoleSystem : SharedPowerMonitori
             var relative = SharedMapSystem.GetChunkRelative(gridIndices, ChunkSize);
             var flag = GetFlag(relative);
 
-            if (TryComp<CableComponent>(ent, out var cable))
+            if (TryComp<CableComponent>(ent, out var cable) && cable.CableType != CableType.Data)
                 chunk.PowerCableData[(int) cable.CableType] |= flag;
         }
 

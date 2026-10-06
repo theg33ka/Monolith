@@ -3,6 +3,7 @@ using Content.Server.NPC.HTN;
 using Content.Shared.Popups;
 using Content.Server.Shuttles.Components;
 using Content.Shared._Mono.Shuttles;
+using Content.Shared._Forge.KIAS;
 using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
 
@@ -36,5 +37,10 @@ public sealed partial class ShuttleConsoleAutopilotSystem : EntitySystem
     {
         _audio.PlayPvs(ent.Comp.AutopilotDoneSound, ent);
         _popup.PopupEntity(Loc.GetString("shuttle-console-autopilot-popup-done"), ent, PopupType.Medium);
+        if (Transform(ent).GridUid is { } grid)
+        {
+            var arrived = new KiasAutopilotArrivedEvent(grid, ent);
+            RaiseLocalEvent(grid, ref arrived, true);
+        }
     }
 }

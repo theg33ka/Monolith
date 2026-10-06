@@ -9,6 +9,7 @@
     snap:
     - Wall
   components:
+  - type: KiasHullStructure
   - type: Anchorable
     flags:
     - Anchorable

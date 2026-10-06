@@ -165,6 +165,18 @@ namespace Content.Shared.Damage
                 var data = new DamageVisualizerGroupData(component.DamagePerGroup.Keys.ToList());
                 _appearance.SetData(uid, DamageVisualizerKeys.DamageUpdateGroups, data, appearance);
             }
+            if (_netMan.IsServer && HasComp<Content.Shared._Forge.KIAS.KiasHullStructureComponent>(uid)
+                && damageDelta != null && damageDelta.AnyPositive() && Transform(uid).GridUid is { } grid)
+            {
+                var positive = FixedPoint2.Zero;
+                foreach (var value in damageDelta.DamageDict.Values)
+                {
+                    if (value > FixedPoint2.Zero)
+                        positive += value;
+                }
+                var hull = new Content.Shared._Forge.KIAS.KiasHullDamageEvent(grid, uid, (float) positive);
+                RaiseLocalEvent(grid, ref hull, true);
+            }
             RaiseLocalEvent(uid, new DamageChangedEvent(component, damageDelta, interruptsDoAfters, origin, canSever ?? true)); // Shitmed Change
         }
 

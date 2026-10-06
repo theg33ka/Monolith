@@ -8,6 +8,7 @@
     snap:
     - Window
   components:
+  - type: KiasHullStructure
   - type: Anchorable
     flags:
     - Anchorable
@@ -145,6 +146,7 @@
     snap:
     - Window
   components:
+  - type: KiasHullStructure
   - type: WallMount
     arc: 360 # interact despite grilles
   - type: Tag

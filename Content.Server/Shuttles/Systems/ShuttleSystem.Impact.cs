@@ -144,6 +144,15 @@ public sealed partial class ShuttleSystem
         var ourBody = args.OurBody;
         var otherBody = args.OtherBody;
 
+        var relativeSpeed = (ourBody.LinearVelocity - otherBody.LinearVelocity).Length();
+        if (relativeSpeed > 0.1f)
+        {
+            var collision = new Content.Shared._Forge.KIAS.KiasGridCollisionEvent(args.OurEntity, args.OtherEntity, relativeSpeed);
+            RaiseLocalEvent(args.OurEntity, ref collision, true);
+            collision = new Content.Shared._Forge.KIAS.KiasGridCollisionEvent(args.OtherEntity, args.OurEntity, relativeSpeed);
+            RaiseLocalEvent(args.OtherEntity, ref collision, true);
+        }
+
         // TODO: Would also be nice to have a continuous sound for scraping.
         var ourXform = Transform(args.OurEntity);
         var otherXform = Transform(args.OtherEntity);
