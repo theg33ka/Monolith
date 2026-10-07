@@ -74,9 +74,15 @@ public sealed class KiasGridTests
             crew.RebuildCoverage(map.Grid);
             var token = em.SpawnEntity("KiasCrewTransponder", new EntityCoordinates(map.Grid, 4.5f, 1.5f));
             var serverComponent = em.GetComponent<KiasCrewServerComponent>(device);
+            Assert.That(serverComponent.RegistrationLocked, Is.False);
             var registration = new InteractUsingEvent(core, token, device, new EntityCoordinates(map.Grid, 10.5f, 2.5f));
             em.EventBus.RaiseLocalEvent(device, registration);
-            Assert.That(em.GetComponent<KiasTransponderComponent>(token).Core, Is.Null);
+            Assert.That(em.GetComponent<KiasTransponderComponent>(token).Core, Is.EqualTo(core));
+            var rejectedToken = em.SpawnEntity("KiasCrewTransponder", new EntityCoordinates(map.Grid, 4.5f, 1.5f));
+            serverComponent.RegistrationLocked = true;
+            registration = new InteractUsingEvent(core, rejectedToken, device, new EntityCoordinates(map.Grid, 10.5f, 2.5f));
+            em.EventBus.RaiseLocalEvent(device, registration);
+            Assert.That(em.GetComponent<KiasTransponderComponent>(rejectedToken).Core, Is.Null);
             serverComponent.RegistrationLocked = false;
             registration = new InteractUsingEvent(core, token, device, new EntityCoordinates(map.Grid, 10.5f, 2.5f));
             em.EventBus.RaiseLocalEvent(device, registration);

@@ -7,10 +7,12 @@ using Content.Shared._NF.Shipyard.Components;
 using Content.Shared.Interaction;
 using Content.Shared.Mind;
 using Content.Shared.Power;
+using Content.Shared.Verbs;
 using Robust.Server.Player;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
+using Robust.Shared.Localization;
 
 namespace Content.IntegrationTests.Tests._Forge.KIAS;
 
@@ -83,8 +85,31 @@ public sealed class KiasServiceTests
             var core = Spawn("KiasCore", map.Grid, 0);
             var display = Spawn("KiasDisplay", map.Grid, 1);
             var defence = Spawn("KiasDefenceServer", map.Grid, 2);
+            var crewServer = Spawn("KiasCrewServer", map.Grid, 3);
             var foreign = Spawn("KiasRelay", other.Grid, 0);
             em.System<KiasSystem>().Rebuild(map.Grid);
+            var registration = em.GetComponent<KiasCrewServerComponent>(crewServer);
+            Assert.That(registration.RegistrationLocked, Is.False);
+            AlternativeVerb? RegistrationVerb(EntityUid user, string key)
+            {
+                var verbs = new GetVerbsEvent<AlternativeVerb>(user, crewServer, null, null, true, true, true, new());
+                em.EventBus.RaiseLocalEvent(crewServer, verbs);
+                return verbs.Verbs.SingleOrDefault(verb => verb.Text == Loc.GetString(key));
+            }
+            Assert.That(RegistrationVerb(stranger, "kias-lock-registration"), Is.Null);
+            em.RemoveComponent<ShipOwnershipComponent>(map.Grid);
+            Assert.That(RegistrationVerb(actor, "kias-lock-registration"), Is.Null);
+            Assert.That(registration.RegistrationLocked, Is.False);
+            em.EnsureComponent<ShipOwnershipComponent>(map.Grid).OwnerUserId = session.UserId;
+            var lockVerb = RegistrationVerb(actor, "kias-lock-registration");
+            Assert.That(lockVerb, Is.Not.Null);
+            lockVerb!.Act!();
+            Assert.That(registration.RegistrationLocked, Is.True);
+            Assert.That(RegistrationVerb(stranger, "kias-unlock-registration"), Is.Null);
+            var unlockVerb = RegistrationVerb(actor, "kias-unlock-registration");
+            Assert.That(unlockVerb, Is.Not.Null);
+            unlockVerb!.Act!();
+            Assert.That(registration.RegistrationLocked, Is.False);
             var protocols = em.GetComponent<KiasProtocolComponent>(core);
             protocols.Protocols.Clear();
             var edit = new KiasProtocolMessage { Actor = stranger, Index = 0, Trigger = KiasTrigger.Manual, Action = KiasActionKind.Record, Message = "Owner only" };

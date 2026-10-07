@@ -26,7 +26,7 @@ public sealed partial class KiasScannerModuleComponent : Component
 public sealed partial class KiasCrewServerComponent : Component
 {
     [DataField]
-    public bool RegistrationLocked = true;
+    public bool RegistrationLocked;
     [DataField]
     public HashSet<string> Registered = new();
 }
