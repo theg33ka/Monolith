@@ -60,7 +60,7 @@ public sealed class KiasControllerWindow : FancyWindow
         body.AddChild(sidebar);
         _search.PlaceHolder = Loc.GetString("kias-controller-search"); sidebar.AddChild(_search);
         _search.OnTextChanged += _ => RebuildPalette();
-        var paletteScroll = new ScrollContainer { VerticalExpand = true }; paletteScroll.AddChild(_palette); sidebar.AddChild(paletteScroll);
+        var paletteScroll = new ScrollContainer { VerticalExpand = true, HScrollEnabled = false }; paletteScroll.AddChild(_palette); sidebar.AddChild(paletteScroll);
         body.AddChild(_canvas);
         var settingsScroll = new ScrollContainer { MinWidth = 205, MaxWidth = 240 }; settingsScroll.AddChild(_settings); body.AddChild(settingsScroll);
         _canvas.Edited += Send; _canvas.Selected += SelectNode;
@@ -97,7 +97,15 @@ public sealed class KiasControllerWindow : FancyWindow
     private void PaletteItem(string title, KiasNodeKind kind, string profile = "", NetEntity? binding = null)
     {
         if (_search.Text.Length > 0 && !title.Contains(_search.Text, StringComparison.OrdinalIgnoreCase)) return;
-        var button = new Button { Text = title, Disabled = !_state.HasCard || !_state.Online };
+        var button = new Button
+        {
+            Text = title,
+            TextAlign = Label.AlignMode.Left,
+            ClipText = true,
+            ToolTip = title,
+            Disabled = !_state.HasCard || !_state.Online
+        };
+        button.Label.RemoveStyleClass(ContainerButton.StyleClassButton);
         button.OnKeyBindUp += args =>
         {
             if (args.Function != EngineKeyFunctions.UIClick) return;
