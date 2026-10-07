@@ -102,11 +102,12 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
         foreach (var uid in Devices(grid, node.Profile))
         {
             if (node.Kind == KiasNodeKind.Specific && node.Binding != uid || !_kias.IsOnline(uid)) continue;
-            if (node.Room.Length > 0 && Comp<KiasDeviceComponent>(uid).Room != node.Room) continue;
-            if (node.Group.Length > 0)
+            if (node.Kind != KiasNodeKind.Specific && node.Room.Length > 0 && Comp<KiasDeviceComponent>(uid).Room != node.Room) continue;
+            if (node.Kind != KiasNodeKind.Specific && node.Group.Length > 0)
             {
                 var group = TryComp<KiasSpeakerComponent>(uid, out var speaker) ? speaker.Group
-                    : TryComp<KiasLightControllerComponent>(uid, out var light) ? light.Group : string.Empty;
+                    : TryComp<KiasLightControllerComponent>(uid, out var light) ? light.Group
+                    : TryComp<KiasLightGroupComponent>(uid, out var fixture) ? fixture.Group : string.Empty;
                 if (group != node.Group) continue;
             }
             result.Add(uid);

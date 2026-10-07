@@ -26,8 +26,14 @@ public sealed class KiasIntegrationSystem : EntitySystem
     {
         SubscribeLocalEvent<KiasIntegrationKitComponent, AfterInteractEvent>(OnInstall);
         SubscribeLocalEvent<KiasIntegratedComponent, SignalReceivedEvent>(OnSignal);
+        SubscribeLocalEvent<KiasIntegratedComponent, MapInitEvent>(OnIntegratedInit);
         EntityManager.EntityInitialized += OnNativeInitialized;
         SubscribeLocalEvent<ApcPowerReceiverComponent, AnchorStateChangedEvent>(OnNativeAnchor);
+    }
+
+    private void OnIntegratedInit(Entity<KiasIntegratedComponent> ent, ref MapInitEvent args)
+    {
+        if (HasComp<Content.Shared.Light.Components.PoweredLightComponent>(ent)) EnsureComp<KiasLightFixtureComponent>(ent);
     }
 
     public override void Shutdown()
@@ -86,7 +92,8 @@ public sealed class KiasIntegrationSystem : EntitySystem
         if (args.Handled || !args.CanReach || args.Target is not { } target || Transform(target).GridUid is not { } grid
             || !_kias.CanConfigure(grid, args.User) || TryComp<KiasIntegratedComponent>(target, out var existing) && existing.Direct
             || !(HasComp<ApcPowerReceiverComponent>(target) || HasComp<Content.Shared.Radio.Components.RadioJammerComponent>(target))
-            || HasComp<KiasCoreComponent>(target) || !Transform(target).Anchored) return;
+            || HasComp<KiasDeviceComponent>(target) && !HasComp<KiasIntegratedComponent>(target)
+            || !Transform(target).Anchored) return;
         Integrate(target, null);
         args.Handled = true;
         QueueDel(ent);
@@ -98,6 +105,8 @@ public sealed class KiasIntegrationSystem : EntitySystem
         integrated.Scanner = scanner;
         integrated.Direct = scanner == null;
         EnsureComp<KiasDeviceComponent>(target).Role = KiasDeviceRole.Adapter;
+        if (HasComp<Content.Shared.Light.Components.PoweredLightComponent>(target))
+            EnsureComp<KiasLightFixtureComponent>(target);
         _links.EnsureSinkPorts(target, "On", "Off");
         _links.EnsureSourcePorts(target, "Status");
         if (Transform(target).GridUid is { } grid) _kias.Invalidate(grid);

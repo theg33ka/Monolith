@@ -40,14 +40,17 @@ public sealed class KiasControllerEditorTests
             Assert.That(ui.TryOpenUi(programmer, KiasControllerUiKey.Programmer, other), Is.False, "Only one writer may own the draft lease.");
             var draft = em.GetComponent<KiasControllerProgrammerComponent>(programmer);
             var stored = em.GetComponent<KiasControllerCardComponent>(card);
+            var initialName = em.GetComponent<MetaDataComponent>(card).EntityName;
             bool Edit(KiasGraphEdit action, string text = "", uint? revision = null) => editor.Edit((programmer, draft), actor,
                 new() { Edit = action, Text = text, Revision = revision ?? draft.DraftRevision });
             Assert.That(Edit(KiasGraphEdit.Rename, "Written program"), Is.True);
             Assert.That(stored.Program.Name, Is.EqualTo("Controller"));
+            Assert.That(em.GetComponent<MetaDataComponent>(card).EntityName, Is.EqualTo(initialName));
             Assert.That(Edit(KiasGraphEdit.Rename, "stale", draft.DraftRevision - 1), Is.False);
             Assert.That(Edit(KiasGraphEdit.Eject), Is.False);
             Assert.That(Edit(KiasGraphEdit.Write), Is.True);
             Assert.That(stored.Program.Name, Is.EqualTo("Written program")); Assert.That(stored.Revision, Is.EqualTo(1));
+            Assert.That(em.GetComponent<MetaDataComponent>(card).EntityName, Is.EqualTo(stored.Program.Name));
             Assert.That(Edit(KiasGraphEdit.Rename, "Discard me"), Is.True);
             Assert.That(Edit(KiasGraphEdit.Discard), Is.True); Assert.That(draft.Draft!.Name, Is.EqualTo(stored.Program.Name));
             Assert.That(editor.Edit((programmer, draft), actor, new() { Revision = draft.DraftRevision, Edit = KiasGraphEdit.Add,
@@ -61,6 +64,7 @@ public sealed class KiasControllerEditorTests
             ui.CloseUi(programmer, KiasControllerUiKey.Programmer, actor);
             Assert.That(Edit(KiasGraphEdit.Write), Is.False);
             Assert.That(slots.TryEject(programmer, KiasControllerProgrammerComponent.SlotId, actor, out _), Is.True);
+            Assert.That(em.GetComponent<MetaDataComponent>(card).EntityName, Is.EqualTo("Written program"));
         });
         await pair.CleanReturnAsync();
     }

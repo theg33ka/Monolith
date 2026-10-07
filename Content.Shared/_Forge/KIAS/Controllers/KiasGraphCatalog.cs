@@ -11,13 +11,20 @@ public static class KiasGraphCatalog
     public static KiasGraphPort Port(string id, KiasPortType type, bool output = false) => new()
     {
         Id = id, Type = type, Direction = output ? KiasPortDirection.Output : KiasPortDirection.Input,
-        Name = $"kias-controller-port-{id.TrimStart('$').ToLowerInvariant()}", Description = "kias-controller-port-description"
+        Name = $"kias-controller-port-{id.TrimStart('$').ToLowerInvariant()}", Description = $"kias-controller-help-meta-{id.TrimStart('$').ToLowerInvariant()}"
     };
 
-    public static List<KiasGraphPort> InternalPorts(KiasNodeKind kind)
+    public static List<KiasGraphPort> InternalPorts(KiasNodeKind kind, KiasEnumDomain domain = KiasEnumDomain.Unspecified)
     {
-        KiasGraphPort I(string id, KiasPortType type) => Port(id, type);
-        KiasGraphPort O(string id, KiasPortType type) => Port(id, type, true);
+        KiasGraphPort Describe(string id, KiasPortType type, bool output)
+        {
+            var port = Port(id, type, output);
+            port.Description = $"kias-controller-help-{kind.ToString().ToLowerInvariant()}-{id.ToLowerInvariant()}";
+            if (type == KiasPortType.Enum) port.EnumDomain = domain;
+            return port;
+        }
+        KiasGraphPort I(string id, KiasPortType type) => Describe(id, type, false);
+        KiasGraphPort O(string id, KiasPortType type) => Describe(id, type, true);
         var signal = KiasPortType.Signal;
         var boolean = KiasPortType.Bool;
         var number = KiasPortType.Number;

@@ -1,21 +1,34 @@
-# Third-party references and attribution checklist
+# UI and system references for this pass
 
-This handoff uses external projects as design/code references. The coding agent must verify the exact file headers/history at the commit actually used before copying/adapting code.
+## In-repo UI reference: Shuttle Console
 
-| Project | Expected license context | Intended use |
-|---|---|---|
-| `/tg/station` Wiremod / Integrated Circuits | AGPL v3 | Primary UX/dataflow/serialization design reference; prefer native C# implementation |
-| WizDen `space-station-14` DeviceLinking | MIT upstream | Reuse existing local Monolith DeviceLink APIs; adapt small APIs only if required |
-| Goob Station nested factory filters | AGPL-3.0-or-later / REUSE | Conceptual nested-filter reference; no dependency unless needed |
-| Forge/Monolith | Project REUSE/mixed-history policy | Target codebase; follow per-file rules |
+Primary visual quality reference:
 
-For any substantive copied/adapted code, record:
+- `Content.Client/Shuttles/UI/ShuttleConsoleWindow.xaml`
+- `Content.Client/Shuttles/UI/ShuttleNavControl.xaml.cs`
 
-- source project;
-- exact commit;
-- exact source path;
-- license;
-- original authors/copyright from headers/history;
-- whether copied, adapted or conceptual reference.
+Useful ideas:
 
-The two sprites in `assets/` are user-supplied project assets. Add repository-required metadata, but do not invent ownership/license terms not provided by the project owner.
+- nested dark panel frames;
+- clear top-level modes;
+- constrained status/info panels;
+- high information density without raw debug text;
+- consistent margins and alignment.
+
+Do not copy a shuttle-specific layout literally. Reuse existing styles/components when suitable.
+
+## In-repo configuration reference: NetworkConfigurator
+
+- `Content.Client/NetworkConfigurator/*`
+- `Content.Server/DeviceNetwork/Systems/NetworkConfiguratorSystem.cs`
+- `Content.Server/DeviceNetwork/Systems/DeviceListSystem.cs`
+
+This is authoritative for the normal multitool device list/link workflows KIAS must preserve.
+
+## Robust/SS14 UI
+
+Prefer native Robust UI/XAML patterns. Avoid adding a custom rendering framework for ordinary controls. The graph canvas may remain custom drawn where appropriate.
+
+## External Wiremod ideas
+
+Wiremod/Integrated Circuits remains conceptual inspiration for typed ports, graph discoverability and inline values. Do not import unrelated runtime/UI architecture wholesale.

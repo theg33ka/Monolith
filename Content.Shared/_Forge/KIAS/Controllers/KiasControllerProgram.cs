@@ -4,6 +4,7 @@ namespace Content.Shared._Forge.KIAS.Controllers;
 
 public enum KiasPortType : byte { Signal, Bool, Number, String, Entity, Enum }
 public enum KiasPortDirection : byte { Input, Output }
+public enum KiasEnumDomain : byte { Unspecified, AudioChannel, ContactDisposition, Alert, PowerChannel }
 public enum KiasNodeKind : byte
 {
     OnStart, BoolConstant, NumberConstant, StringConstant, EnumConstant,
@@ -60,11 +61,12 @@ public sealed partial class KiasNodeConfig
     [DataField] public double Number;
     [DataField] public string Text = string.Empty;
     [DataField] public int Enum;
+    [DataField] public KiasEnumDomain EnumDomain;
     [DataField] public double Seconds = 1;
     [DataField] public KiasComparison Comparison;
     public KiasNodeConfig Copy() => new()
     {
-        Bool = Bool, Number = Number, Text = Text, Enum = Enum, Seconds = Seconds, Comparison = Comparison
+        Bool = Bool, Number = Number, Text = Text, Enum = Enum, EnumDomain = EnumDomain, Seconds = Seconds, Comparison = Comparison
     };
 }
 
@@ -89,9 +91,10 @@ public sealed partial class KiasGraphPort
     [DataField] public KiasPortType Type;
     [DataField] public string Name = string.Empty;
     [DataField] public string Description = string.Empty;
+    [DataField] public KiasEnumDomain EnumDomain;
     public KiasGraphPort Copy() => new()
     {
-        Id = Id, Direction = Direction, Type = Type, Name = Name, Description = Description
+        Id = Id, Direction = Direction, Type = Type, Name = Name, Description = Description, EnumDomain = EnumDomain
     };
 }
 

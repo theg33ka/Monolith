@@ -53,7 +53,7 @@ public static class KiasGraphCompiler
                 || !double.IsFinite(node.Config.Seconds) || node.Config.Seconds < MinSeconds || node.Config.Seconds > MaxSeconds
                 || node.Config.Text.Length > 256 || !Enum.IsDefined(node.Config.Comparison)
                 || node.DeviceName.Length > 256 || node.Room.Length > 64 || node.Group.Length > 32 || node.Profile.Length > 64
-                || node.PortSnapshot.Count > 64)
+                || node.PortSnapshot.Count > 64 || !Enum.IsDefined(node.Config.EnumDomain))
             {
                 Error($"config:{node.Id}");
                 continue;
@@ -72,7 +72,7 @@ public static class KiasGraphCompiler
                 }
                 ports = KiasGraphCatalog.DevicePorts(profile);
             }
-            else ports = KiasGraphCatalog.InternalPorts(node.Kind);
+            else ports = KiasGraphCatalog.InternalPorts(node.Kind, node.Config.EnumDomain);
             foreach (var port in ports)
             {
                 if (port.Direction == KiasPortDirection.Input && port.Type != KiasPortType.Signal)
@@ -80,9 +80,20 @@ public static class KiasGraphCompiler
                     if (!graph.DataInputs.TryGetValue(node.Id, out var inputs)) graph.DataInputs[node.Id] = inputs = new();
                     inputs.Add(port.Id);
                 }
-                if (port.Id.Length is < 1 or > 64 || !Enum.IsDefined(port.Type) || !Enum.IsDefined(port.Direction)
+                if (port.Id.Length is < 1 or > 64 || !Enum.IsDefined(port.Type) || !Enum.IsDefined(port.Direction) || !Enum.IsDefined(port.EnumDomain)
                     || !graph.Ports.TryAdd(new(node.Id, port.Id), port)) Error($"schema:{node.Id}");
             }
+        }
+        var enumLinks = new Dictionary<KiasGraphEndpoint, List<KiasGraphEndpoint>>();
+        void EnumLink(KiasGraphEndpoint a, KiasGraphEndpoint b)
+        {
+            if (!enumLinks.TryGetValue(a, out var links)) enumLinks[a] = links = new();
+            links.Add(b);
+        }
+        foreach (var node in graph.Nodes.Values.Where(node => node.Kind == KiasNodeKind.EnumCompare))
+        {
+            EnumLink(new(node.Id, "A"), new(node.Id, "B"));
+            EnumLink(new(node.Id, "B"), new(node.Id, "A"));
         }
         var sources = new HashSet<KiasGraphEndpoint>();
         var duplicates = new HashSet<(KiasGraphEndpoint, KiasGraphEndpoint)>();
@@ -98,11 +109,32 @@ public static class KiasGraphCompiler
             }
             if (output.Direction != KiasPortDirection.Output || input.Direction != KiasPortDirection.Input
                 || output.Type != input.Type || !duplicates.Add((from, to))) { Error("wire"); continue; }
+            if (output.Type == KiasPortType.Enum) { EnumLink(from, to); EnumLink(to, from); }
             if (input.Type != KiasPortType.Signal && !sources.Add(to)) Error($"multiple-source:{to.Node}:{to.Port}");
             if (!graph.Outgoing.TryGetValue(from, out var targets)) graph.Outgoing[from] = targets = new();
             targets.Add(to);
             if (targets.Count > MaxFanOut) Error("fan-out");
             if (!KiasGraphCatalog.BreaksCycle(graph.Nodes[from.Node].Kind)) dependency[from.Node].Add(to.Node);
+        }
+        var enumVisited = new HashSet<KiasGraphEndpoint>();
+        foreach (var endpoint in graph.Ports.Where(pair => pair.Value.Type == KiasPortType.Enum).Select(pair => pair.Key))
+        {
+            if (!enumVisited.Add(endpoint)) continue;
+            var component = new List<KiasGraphEndpoint>();
+            var queue = new Queue<KiasGraphEndpoint>(); queue.Enqueue(endpoint);
+            while (queue.TryDequeue(out var next))
+            {
+                component.Add(next);
+                if (enumLinks.TryGetValue(next, out var links))
+                    foreach (var link in links) if (enumVisited.Add(link)) queue.Enqueue(link);
+            }
+            var domains = component.Select(point => graph.Ports[point].EnumDomain).Where(domain => domain != KiasEnumDomain.Unspecified).Distinct().ToArray();
+            if (domains.Length > 1) { Error("enum-domain"); continue; }
+            if (domains.Length == 1)
+                foreach (var point in component) graph.Ports[point].EnumDomain = domains[0];
+            foreach (var point in component)
+                if (graph.Nodes[point.Node].Kind == KiasNodeKind.EnumConstant && domains.Length == 1
+                    && graph.Nodes[point.Node].Config.Enum is < 0 or > 3) Error($"config:{point.Node}");
         }
         var visited = new Dictionary<int, byte>();
         bool Cycle(int id)

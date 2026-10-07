@@ -1,129 +1,51 @@
-# Ordered implementation plan — programmable controller integration
+# Ordered implementation plan — correctness/UI pass
 
-## Phase 0 — post-patch recon and baseline
+## Phase 0 — reproduce first
 
-- verify current `KIAS` HEAD and working tree;
-- inspect actual first-patch changes;
-- run current build/KIAS integration tests;
-- inventory current protocol records/defaults/actions;
-- inventory KIAS devices and current DeviceLink source/sink ports;
-- produce/update a small parity table: device -> controller profile -> native ports -> DeviceLink fallback;
-- confirm current access resolver API and power `SetLoad` API.
+Create minimal failing tests/smokes for:
 
-## Phase 1 — graph schema and compiler
+- card name after WRITE;
+- controller -> Speaker;
+- ALL Speaker broadcast;
+- integrated light OFF -> ON;
+- ALL Lighting vs ALL LightGroupController distinction;
+- AirAlarm DeviceList multitool workflow;
+- real atmos danger -> KIAS preset path.
 
-- persistent program/node/wire records;
-- schema version;
-- stable node IDs;
-- port type system;
-- node definitions;
-- validation limits;
-- SCC/combinational cycle detection;
-- compile into adjacency/index-friendly runtime form;
-- unit tests first.
+Do not start with cosmetic refactor before correctness failures are captured.
 
-## Phase 2 — device profile registry
+## Phase 1 — card metadata + speaker correctness
 
-- stable `ProfileId` abstraction;
-- port descriptor query/registry;
-- map current KIAS devices to profiles;
-- generic DeviceLink fallback = Signal;
-- no giant prototype switch.
+Small isolated fixes first. Add regression tests.
 
-## Phase 3 — physical controller/programmer/rack
+## Phase 2 — integrated control-plane power semantics
 
-- controller item + supplied sprite;
-- programming console with 1 slot;
-- rack + supplied sprite + exactly 8 slots;
-- dynamic power load;
-- rack state/examine UI;
-- lifecycle activation/deactivation.
+Introduce the minimal distinction needed for KiasIntegrated endpoints. Re-run native KIAS power/off tests to prove normal devices still go offline when expected.
 
-## Phase 4 — server runtime
+## Phase 3 — lighting profile split
 
-- event queue;
-- constants/state;
-- centralized timer/clock scheduler;
-- SPECIFIC device subscriptions;
-- evaluation budget/faults;
-- clean boot/stop behavior.
+Add direct Lighting capability and rename existing LightController profile for user-facing semantics. Update presets only where they intentionally target group controllers. Verify old saved cards/presets migrate or keep stable IDs cleanly.
 
-## Phase 5 — ANY/ALL selectors
+## Phase 4 — restore DeviceList workflow
 
-- `(grid, profile) -> devices` index;
-- `ANY` and `ALL` nodes;
-- merged output-event semantics;
-- `ANY` deterministic first-available command routing;
-- `ALL` broadcast routing;
-- metadata outputs (`MatchedCount`, `HasAny`, `Source`) where clean;
-- dynamic match updates from topology/device revisions;
-- cross-ship portability tests.
+Reproduce why AirAlarm cannot be configured through normal list workflow. Fix the smallest relevant layer. Preserve port-link mode and generic DeviceLink behavior.
 
-## Phase 6 — DeviceLink bridge
+## Phase 5 — graph schema/help
 
-- observe source-port invocation safely;
-- direct sink invoke safely;
-- preserve invoke/overload/loop protection;
-- generic Signal ports;
-- tests for loops and stale entities.
+Add port descriptions/domains and any versioned metadata needed. Avoid rewriting runtime value representation unless necessary.
 
-## Phase 7 — graph UI
+## Phase 6 — inspector + canvas readability
 
-- Robust UI canvas;
-- pan/zoom/grid;
-- nodes/ports/wires;
-- palette/search/categories;
-- SPECIFIC devices list;
-- ANY profile picker;
-- ALL profile picker;
-- live matched count;
-- node config;
-- program name;
-- validation panel;
-- draft/WRITE/discard/eject safety.
+Capability-driven inspector, inline configured values, tooltips, wire incompatibility feedback, selector filter labels.
 
-## Phase 8 — expose KIAS devices
+## Phase 7 — KIAS visual design pass
 
-Implement profiles/ports for all currently accepted KIAS sensors/actuators, prioritizing those used by current default protocols.
+Create reusable section/status/field UI helpers/styles. Apply to programmer, rack, management/local/service windows. Use ShuttleConsole visual hierarchy as an in-repo quality reference, not a literal skin copy.
 
-Do not remove physical prerequisites. Use existing subsystem methods for actions.
+## Phase 8 — localization
 
-## Phase 9 — migrate old protocols to graph presets
+Audit all KIAS player-facing prototypes and graph strings. `KIAS` remains Latin. Add concise `.desc`.
 
-- inventory every active/default `KiasProtocolRecord` behavior;
-- build graph preset equivalents;
-- preset loader in programmer;
-- route default/new gameplay automation through controller runtimes;
-- retire/deprecate old policy executor;
-- keep raw event producers/subsystem algorithms;
-- add deterministic legacy import/migration or explicitly supported compatibility path;
-- remove duplicate protocol editor workflow from normal gameplay.
+## Phase 9 — end-to-end validation
 
-## Phase 10 — persistence/security
-
-- map save/load card program;
-- specific binding remap on same saved map;
-- portable selectors re-resolve on current rack grid;
-- all BUI messages server-validated;
-- use centralized KIAS access resolver/wire bypass;
-- malicious cross-grid/profile/port IDs rejected.
-
-## Phase 11 — perf/stress
-
-- 8 controllers/rack;
-- 100 nodes/controller;
-- 200 wires/controller;
-- selector-heavy graphs;
-- 50/200 grids;
-- burst events;
-- topology churn;
-- hard-off near-zero cost;
-- inspect max/near-max tick, not only total elapsed.
-
-## Phase 12 — docs/assets/build validation
-
-- integrate supplied sprites into repo conventions;
-- update KIAS architecture/player/validation/parity docs;
-- add controller/third-party docs;
-- compile, tests, YAML/localization/REUSE validation;
-- final gameplay smoke scenarios.
+Automated suites + live client smoke + screenshots. Only after this update `Docs/KIAS/VALIDATION.md` with measured actual results.

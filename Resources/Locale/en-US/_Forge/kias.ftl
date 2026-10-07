@@ -1,10 +1,19 @@
 kias-shutdown = KIAS shutting down.
+ent-KiasProgrammableController = KIAS programmable circuit
+    .desc = A portable programmable circuit for KIAS automation. Insert it into a connected controller rack to run its program.
 kias-sensor-range = Range
 kias-scanner-modules = Installed modules
 kias-log-filter = Filter log
 kias-service-target = Source: {$source}; selected device: {$target}
+kias-service-mode = Tool mode
+kias-display-page = Display page
+kias-service-current-group = Current group ({ $kind }): { $group }
+kias-service-group-lighting = lighting
+kias-service-group-speaker = speakers
 ent-KiasManagementConsole = KIAS management console
+    .desc = A KIAS management console for ship automation. Configure it through the KIAS service interface.
 ent-KiasManagementConsoleBoard = KIAS management console board
+    .desc = A circuit board for assembling a KIAS management console.
 kias-claimed = KIAS claimed. Use your ID or PDA for access; a replacement ID for the same owner also works.
 kias-claim-protected = KIAS already has an access policy. Swiping an ID does not transfer a protected system.
 kias-online = KIAS online.
@@ -126,8 +135,8 @@ kias-relay-highvoltage = Channel: HV
 kias-relay-mediumvoltage = Channel: MV
 kias-relay-apc = Channel: LV
 kias-relay-data = Channel: DATA
-kias-mode-group = Configure light group
-kias-light-group-set = Light group: { $group }.
+kias-mode-group = Assign group
+kias-light-group-set = Assigned group: { $group }.
 kias-lights-on = Enable light group
 kias-lights-off = Disable light group
 kias-suppress = Discharge suppression cartridge
@@ -153,44 +162,64 @@ kias-protocol-crew-unavailable = Require distress AND no responsive registered c
 
 
 ent-KiasAtmosServerBoard = KIAS atmos server board
+    .desc = A circuit board for assembling a KIAS atmos server.
 
 ent-KiasCollisionMonitorBoard = KIAS collision monitor board
+    .desc = A circuit board for assembling a KIAS collision monitor.
 
 ent-KiasCoreBoard = KIAS core board
+    .desc = A circuit board for assembling a KIAS core.
 
 ent-KiasCrewServerBoard = KIAS crew server board
+    .desc = A circuit board for assembling a KIAS crew server.
 
 ent-KiasDefenceServerBoard = KIAS defence server board
+    .desc = A circuit board for assembling a KIAS defence server.
 
 ent-KiasDisplayBoard = KIAS display board
+    .desc = A circuit board for assembling a KIAS display.
 
 ent-KiasHorizonBoard = KIAS horizon board
+    .desc = A circuit board for assembling a KIAS horizon.
 
 ent-KiasHullSensorBoard = KIAS hull sensor board
+    .desc = A circuit board for assembling a KIAS hull sensor.
 
 ent-KiasIntegrityMonitorBoard = KIAS integrity monitor board
+    .desc = A circuit board for assembling a KIAS integrity monitor.
 
 ent-KiasLightControllerBoard = KIAS light controller board
+    .desc = A circuit board for assembling a KIAS light controller.
 
 ent-KiasNavigationServerBoard = KIAS navigation server board
+    .desc = A circuit board for assembling a KIAS navigation server.
 
 ent-KiasPdcRadarBoard = KIAS pdc radar board
+    .desc = A circuit board for assembling a KIAS pdc radar.
 
 ent-KiasPowerServerBoard = KIAS power server board
+    .desc = A circuit board for assembling a KIAS power server.
 
 ent-KiasProximitySensorBoard = KIAS proximity sensor board
+    .desc = A circuit board for assembling a KIAS proximity sensor.
 
 ent-KiasRecorderBoard = KIAS recorder board
+    .desc = A circuit board for assembling a KIAS recorder.
 
 ent-KiasRelayBoard = KIAS relay board
+    .desc = A circuit board for assembling a KIAS relay.
 
 ent-KiasRoomScannerBoard = KIAS room scanner board
+    .desc = A circuit board for assembling a KIAS room scanner.
 
 ent-KiasSpeakerBoard = KIAS speaker board
+    .desc = A circuit board for assembling a KIAS speaker.
 
 ent-KiasSuppressionBoard = KIAS suppression board
+    .desc = A circuit board for assembling a KIAS suppression.
 
 ent-KiasWeaponFlashDetectorBoard = KIAS weapon flash detector board
+    .desc = A circuit board for assembling a KIAS weapon flash detector.
 
 kias-add-action = Add action
 kias-remove-action = Remove action
@@ -218,34 +247,63 @@ kias-emergency-button-name = KIAS emergency button
 kias-emergency-button-description = Starts the manual emergency protocol through a linked receiver.
 
 ent-KiasIffReceiver = KIAS IFF receiver
+    .desc = A KIAS iff receiver for ship automation. Configure it through the KIAS service interface.
 ent-KiasIffReceiverBoard = KIAS IFF receiver board
+    .desc = A circuit board for assembling a KIAS IFF receiver.
 ent-KiasDockingSensor = KIAS docking sensor
+    .desc = A KIAS docking sensor for ship automation. Configure it through the KIAS service interface.
 ent-KiasDockingSensorBoard = KIAS docking sensor board
+    .desc = A circuit board for assembling a KIAS docking sensor.
 ent-KiasDeviceAdapter = KIAS device adapter
+    .desc = A KIAS device adapter for ship automation. Configure it through the KIAS service interface.
 ent-KiasDeviceAdapterBoard = KIAS device adapter board
+    .desc = A circuit board for assembling a KIAS device adapter.
 ent-KiasWirelessTransceiver = KIAS wireless transceiver
+    .desc = A KIAS wireless transceiver for ship automation. Configure it through the KIAS service interface.
 ent-KiasWirelessTransceiverBoard = KIAS wireless transceiver board
+    .desc = A circuit board for assembling a KIAS wireless transceiver.
 ent-KiasKeySwitch = KIAS key switch
+    .desc = A KIAS key switch for ship automation. Configure it through the KIAS service interface.
 ent-KiasKeySwitchBoard = KIAS key switch board
+    .desc = A circuit board for assembling a KIAS key switch.
 ent-KiasRotarySwitch = KIAS rotary switch
+    .desc = A KIAS rotary switch for ship automation. Configure it through the KIAS service interface.
 ent-KiasRotarySwitchBoard = KIAS rotary switch board
+    .desc = A circuit board for assembling a KIAS rotary switch.
 ent-KiasResourceMonitor = KIAS resource monitor
+    .desc = A KIAS resource monitor for ship automation. Configure it through the KIAS service interface.
 ent-KiasResourceMonitorBoard = KIAS resource monitor board
+    .desc = A circuit board for assembling a KIAS resource monitor.
 ent-KiasFlipFlop = KIAS flip-flop
+    .desc = A KIAS flip-flop for ship automation. Configure it through the KIAS service interface.
 ent-KiasFlipFlopBoard = KIAS flip-flop board
+    .desc = A circuit board for assembling a KIAS flip-flop.
 ent-KiasEmergencyReceiver = KIAS emergency receiver
+    .desc = A KIAS emergency receiver for ship automation. Configure it through the KIAS service interface.
 ent-KiasEmergencyReceiverBoard = KIAS emergency receiver board
+    .desc = A circuit board for assembling a KIAS emergency receiver.
 ent-KiasEmergencyButton = KIAS emergency button
+    .desc = A KIAS emergency button for ship automation. Configure it through the KIAS service interface.
 ent-KiasNavigationLight = KIAS navigation light
+    .desc = A KIAS navigation light for ship automation. Configure it through the KIAS service interface.
 ent-KiasAdvancedRoomScanner = KIAS advanced room scanner
+    .desc = A KIAS advanced room scanner for ship automation. Configure it through the KIAS service interface.
 ent-KiasAdvancedRoomScannerBoard = KIAS advanced room scanner board
+    .desc = A circuit board for assembling a KIAS advanced room scanner.
 ent-KiasIntegrationKit = KIAS integration kit
+    .desc = A KIAS integration kit for ship automation. Configure it through the KIAS service interface.
 ent-KiasMaydayAntenna = KIAS mayday antenna
+    .desc = A KIAS mayday antenna for ship automation. Configure it through the KIAS service interface.
 ent-KiasMaydayAntennaBoard = KIAS mayday antenna board
+    .desc = A circuit board for assembling a KIAS mayday antenna.
 ent-KiasIdentityModule = KIAS identity module
+    .desc = A KIAS identity module for ship automation. Configure it through the KIAS service interface.
 ent-KiasConnectorModule = KIAS connector module
+    .desc = A KIAS connector module for ship automation. Configure it through the KIAS service interface.
 ent-KiasOpticalModule = KIAS optical module
+    .desc = A KIAS optical module for ship automation. Configure it through the KIAS service interface.
 ent-KiasThreatModule = KIAS threat module
+    .desc = A KIAS threat module for ship automation. Configure it through the KIAS service interface.
 kias-run-selected-protocol = Run selected protocol
 kias-diagnostic-chain = { $core } → DATA ({ $nodes } cables) → { $target }. Status: { $status }. Power: { $power }.
 kias-fire-locked = LockedKIAS: firing locked by a KIAS protocol.
@@ -258,7 +316,9 @@ kias-preset-power-lost = Power loss
 kias-preset-boot = Startup
 kias-preset-shutdown = Shutdown
 ent-KiasJammer = KIAS electronic warfare module
+    .desc = A KIAS electronic warfare module for ship automation. Configure it through the KIAS service interface.
 ent-KiasJammerBoard = KIAS jammer board
+    .desc = A circuit board for assembling a KIAS jammer.
 kias-boarding = Suspicious activity during crew injury: { $location }.
 kias-fire-clear = Fire extinguished: { $location }.
 kias-atmos-clear = Atmosphere restored: { $location }.
@@ -355,24 +415,24 @@ kias-controller-comparison-lessequal = Less or equal
 kias-controller-comparison-greater = Greater
 kias-controller-comparison-greaterequal = Greater or equal
 kias-controller-node-onstart = On start
-kias-controller-node-boolconstant = Boolean
+kias-controller-node-boolconstant = Yes/No
 kias-controller-node-numberconstant = Number
 kias-controller-node-stringconstant = String
 kias-controller-node-enumconstant = Enum
 kias-controller-node-and = AND
 kias-controller-node-or = OR
-kias-controller-node-xor = XOR
+kias-controller-node-xor = Exclusive OR (XOR)
 kias-controller-node-not = NOT
 kias-controller-node-nand = NAND
 kias-controller-node-nor = NOR
-kias-controller-node-xnor = XNOR
+kias-controller-node-xnor = Equivalence (XNOR)
 kias-controller-node-if = IF
 kias-controller-node-timer = Timer
 kias-controller-node-clock = Clock
-kias-controller-node-latch = Latch
+kias-controller-node-latch = RS latch
 kias-controller-node-toggle = Toggle
 kias-controller-node-counter = Counter
-kias-controller-node-edge = Edge
+kias-controller-node-edge = Edge detector
 kias-controller-node-numbercompare = Compare numbers
 kias-controller-node-boolcompare = Compare booleans
 kias-controller-node-stringcompare = Compare strings
@@ -432,7 +492,7 @@ kias-controller-port-enable = Enable
 kias-controller-port-enabled = Enabled
 kias-controller-port-entities = Entities
 kias-controller-port-escalatealert = Escalate Alert
-kias-controller-port-eventkey = Event Key
+kias-controller-port-eventkey = Event ID
 kias-controller-port-falling = Falling
 kias-controller-port-false = False
 kias-controller-port-faunathreat = Fauna Threat
@@ -444,7 +504,7 @@ kias-controller-port-hulldamage = Hull Damage
 kias-controller-port-hullimpact = Hull Impact
 kias-controller-port-impact = Impact
 kias-controller-port-increment = Increment
-kias-controller-port-key = Key
+kias-controller-port-key = Event ID
 kias-controller-port-localthreat = Local Threat
 kias-controller-port-lock = Lock
 kias-controller-port-manual = Manual
@@ -513,7 +573,7 @@ kias-controller-profile-crewmonitor = Crew Monitor
 kias-controller-profile-navigationcomms = Navigation Comms
 kias-controller-profile-speaker = Speaker
 kias-controller-profile-recorder = Recorder
-kias-controller-profile-lightcontroller = Light Controller
+kias-controller-profile-lightcontroller = Lighting group controllers
 kias-controller-profile-suppression = Suppression
 kias-controller-profile-relay = Relay
 kias-controller-profile-defencecontroller = Defence Controller
@@ -566,3 +626,231 @@ kias-controller-present = inserted
 kias-controller-absent = absent
 kias-controller-unsaved = not written
 kias-controller-saved = written
+
+kias-controller-type-signal = Impulse
+
+kias-controller-type-bool = Yes/No
+
+kias-controller-type-number = Number
+
+kias-controller-type-string = String
+
+kias-controller-type-entity = Entity
+
+kias-controller-type-enum = Enumeration
+
+kias-controller-direction-input = Input
+
+kias-controller-direction-output = Output
+
+kias-controller-domain-unspecified = Choose an enum domain
+
+kias-controller-domain-audiochannel = Audio channel
+
+kias-controller-domain-contactdisposition = Contact disposition
+
+kias-controller-domain-alert = Alert state
+
+kias-controller-domain-powerchannel = Power channel
+
+kias-controller-enum-unselected = Choose a domain first
+
+kias-controller-enum-domain = Enum domain
+
+kias-controller-yes = Yes
+
+kias-controller-no = No
+
+kias-controller-duration = { $seconds } s
+
+kias-controller-match-summary = Matches: { $count }
+
+kias-controller-filter-room-value = room: { $value }
+
+kias-controller-filter-group-value = group: { $value }
+
+kias-controller-filter-room = Room filter
+
+kias-controller-filter-group = Group filter
+
+kias-controller-inspector = Node inspector
+
+kias-controller-select-help = Select a node to edit its parameters and read port help.
+
+kias-controller-values-help = Port colors indicate data types. An impulse is one event; Yes/No is persistent state.
+
+kias-controller-node-section = Node
+
+kias-controller-selector-section = Device selection
+
+kias-controller-parameters-section = Parameters
+
+kias-controller-actions-section = Actions
+
+kias-controller-ports-section = Inputs and outputs
+
+kias-controller-initial-state = Initial state: Yes
+
+kias-controller-comparison = Comparison operator
+
+kias-controller-wire-direction = A wire needs one input and one output.
+
+kias-controller-wire-type = Incompatible types: { $first } and { $second }.
+
+kias-controller-wire-conversion = Use Edge for Yes/No to Impulse, or Latch/Toggle for the reverse conversion.
+
+kias-controller-error-enum-domain = Cannot connect different enum domains.
+
+kias-controller-profile-lighting = Lighting
+
+kias-controller-enum-audiochannel-0 = Notification
+
+kias-controller-enum-audiochannel-1 = Warning
+
+kias-controller-enum-audiochannel-2 = Battle
+
+kias-controller-enum-audiochannel-3 = Emergency
+
+kias-controller-enum-contactdisposition-0 = Unknown
+
+kias-controller-enum-contactdisposition-1 = Friendly
+
+kias-controller-enum-contactdisposition-2 = Neutral
+
+kias-controller-enum-contactdisposition-3 = Hostile
+
+kias-controller-enum-alert-0 = Normal
+
+kias-controller-enum-alert-1 = Contact
+
+kias-controller-enum-alert-2 = Battle
+
+kias-controller-enum-alert-3 = Emergency
+
+kias-controller-enum-powerchannel-0 = High voltage
+
+kias-controller-enum-powerchannel-1 = Medium voltage
+
+kias-controller-enum-powerchannel-2 = Low voltage
+
+kias-controller-enum-powerchannel-3 = Data
+
+ent-KiasControllerRack = KIAS controller rack
+    .desc = Executes up to eight physical programmable controllers.
+
+ent-KiasControllerProgrammer = KIAS programmer
+    .desc = Edits and writes programs to a physical controller card.
+
+ent-KiasControllerRackBoard = KIAS controller rack board
+    .desc = A circuit board for assembling a KIAS controller rack.
+
+ent-KiasControllerProgrammerBoard = KIAS controller programmer board
+    .desc = A circuit board for assembling a KIAS controller programmer.
+
+ent-KiasDataCable = KIAS data cable
+    .desc = An underfloor automation bus with a two tile service radius.
+
+ent-KiasDataCableStack = KIAS data cable coil
+    .desc = An automation cable coil. Lay it under the floor to connect KIAS devices.
+
+ent-KiasDataCableStack1 = KIAS data cable coil
+    .desc = A single length of automation cable for connecting KIAS devices.
+
+ent-KiasCore = KIAS core
+    .desc = Connects and coordinates KIAS devices on this grid. Requires power and DATA wiring.
+
+ent-KiasDefenceServer = KIAS defence server
+    .desc = Collects contacts and threat reports for KIAS defence automation.
+
+ent-KiasAtmosServer = KIAS atmosphere server
+    .desc = Collects atmosphere alarms and supplies emergency events to KIAS controllers.
+
+ent-KiasPowerServer = KIAS power server
+    .desc = Monitors grid power and supplies power events to KIAS controllers.
+
+ent-KiasCrewServer = KIAS crew server
+    .desc = Registers crew transponders and reports their status to KIAS.
+
+ent-KiasNavigationServer = KIAS navigation server
+    .desc = Collects navigation contacts and movement reports for KIAS.
+
+ent-KiasRecorder = KIAS recorder
+    .desc = Records KIAS events. Open its interface to inspect or filter the log.
+
+ent-KiasSpeaker = KIAS speaker
+    .desc = Announces KIAS messages nearby. Set a group to select speakers together.
+
+ent-KiasDisplay = KIAS display
+    .desc = Shows a selected KIAS status page for nearby crew.
+
+ent-KiasServiceTool = KIAS service multitool
+    .desc = Inspects and configures KIAS devices. Select a mode before using it on a target.
+
+ent-KiasRoomScanner = KIAS basic room scanner
+    .desc = Maps a room and supplies observations from installed sensor modules.
+
+ent-KiasMotionModule = KIAS motion module
+    .desc = Adds motion detection to a modular KIAS room scanner.
+
+ent-KiasIdModule = KIAS ID module
+    .desc = Adds identification scanning to a modular KIAS room scanner.
+
+ent-KiasTransponderModule = KIAS transponder module
+    .desc = Adds crew transponder detection to a modular KIAS room scanner.
+
+ent-KiasBiometricModule = KIAS biometric module
+    .desc = Adds biometric observations to a modular KIAS room scanner.
+
+ent-KiasRadiationModule = KIAS radiation module
+    .desc = Adds radiation detection to a modular KIAS room scanner.
+
+ent-KiasSpectralModule = KIAS spectral module
+    .desc = Adds spectral observations to a modular KIAS room scanner.
+
+ent-KiasCrewTransponder = KIAS crew transponder
+    .desc = Identifies its wearer to a KIAS crew server after registration.
+
+ent-KiasHorizon = KIAS Horizon bluespace interferometer
+    .desc = Observes bluespace anomalies and reports their growth to KIAS.
+
+ent-KiasMasterKey = KIAS master key
+    .desc = A key for operating the KIAS master switch.
+
+ent-KiasHullSensor = KIAS hull impact sensor
+    .desc = Reports impacts on the hull to the KIAS defence network.
+
+ent-KiasIntegrityMonitor = KIAS hull integrity monitor
+    .desc = Monitors hull damage and reports integrity changes to KIAS.
+
+ent-KiasCollisionMonitor = KIAS collision monitor
+    .desc = Reports grid collisions to KIAS automation.
+
+ent-KiasLightController = KIAS light group controller
+    .desc = Controls integrated lights assigned to its group. Set the group with a KIAS service tool.
+
+ent-KiasSuppression = KIAS fire suppression module
+    .desc = Uses an installed cartridge to suppress fires when triggered through KIAS.
+
+ent-KiasSuppressionCartridge = KIAS suppression cartridge
+    .desc = A replacement cartridge for the KIAS fire suppression module.
+
+ent-KiasRelay = KIAS four channel relay
+    .desc = Switches four independent channels in response to KIAS commands.
+
+ent-KiasPdcRadar = KIAS point defence radar
+    .desc = Detects contacts for KIAS point defence automation.
+
+ent-KiasWeaponFlashDetector = KIAS weapon flash detector
+    .desc = Detects nearby weapon flashes and reports them to KIAS.
+
+ent-KiasProximitySensor = KIAS proximity sensor
+    .desc = Detects nearby contacts and reports proximity events to KIAS.
+
+kias-overview-counts = Objects: { $devices } · Crew: { $crew }
+kias-crew-detected = Detected crew: { $crew }
+
+kias-controller-disable = Disable
+kias-controller-enable = Enable
+
+kias-controller-status-empty = Empty slot
+kias-group-name = Group name

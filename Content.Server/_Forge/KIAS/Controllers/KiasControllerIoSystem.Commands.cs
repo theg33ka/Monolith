@@ -16,7 +16,7 @@ public sealed partial class KiasControllerIoSystem
         if (Comp<KiasGridComponent>(grid).Testing && node.Profile is not ("Speaker" or "Recorder")) return;
         var message = read("Message").Text ?? string.Empty;
         message = message[..Math.Min(message.Length, 256)];
-        var sourceKey = $"controller:{card}:{node.Id}:{read("Key").Text}:{message}";
+        var sourceKey = $"controller:{card}:{node.Id}:{target}:{read("Key").Text}:{message}";
         if (node.Profile.StartsWith("Link.", StringComparison.Ordinal))
         {
             if (port.StartsWith("in:", StringComparison.Ordinal) && value.Type == KiasPortType.Signal)
@@ -36,6 +36,9 @@ public sealed partial class KiasControllerIoSystem
                 break;
             case "LightController":
                 if (port is "Set" or "On" or "Off") EntityManager.System<KiasActuatorSystem>().SetLights(target, port == "Set" ? value.Bool : port == "On");
+                break;
+            case "Lighting":
+                if (port is "Set" or "On" or "Off") EntityManager.System<KiasActuatorSystem>().SetFixture(target, port == "Set" ? value.Bool : port == "On");
                 break;
             case "Suppression":
                 if (port == "Trigger") EntityManager.System<KiasActuatorSystem>().Suppress(target);

@@ -1,168 +1,116 @@
-# KIAS controller graph specification
+# Controller graph UX and semantics specification
 
-## Design goal
+## Visual grammar
 
-The graph system is a small deterministic PLC/dataflow runtime, not a general scripting language. It must be understandable through a node editor, safe for untrusted player-authored graphs, portable between ships when desired, and cheap when idle.
+Port colors may remain type-based, but color is never the only explanation. Tooltip and inspector show type text.
 
-## Node identity
+Recommended player-facing type labels:
 
-Every node has a stable integer/Guid-like program-local ID. Wire endpoints address node ID + stable port ID, never list index.
+- gold: Импульс;
+- green: Да/Нет;
+- cyan: Число;
+- pink: Строка;
+- orange: Объект;
+- purple: Перечисление/domain.
 
-## Port model
+## Node layout
 
-Direction: Input/Output.
+Header: localized node/profile name.
 
-Types: Signal, Bool, Number, String, Entity, Enum.
+Secondary line:
 
-Signal carries a pulse and optional runtime metadata. Data values are strongly typed. A node may keep last runtime value, but persistent card data never stores arbitrary live entity state.
+- internal node: configured value/state when meaningful;
+- selector: matched count and compact filter summary;
+- SPECIFIC: device name + online state.
 
-## Universal runtime event metadata
+Then ports.
 
-Where useful, internal dispatch may carry:
-
-- source device UID;
-- source profile ID;
-- source port ID;
-- timestamp/tick;
-- typed payload.
-
-This metadata allows ANY/ALL nodes to merge sensor streams without losing the identity of the physical source. Only expose selected metadata to graph ports; do not create a dynamic scripting object.
-
-## Device selector nodes
-
-### SPECIFIC(profile, binding)
-
-One physical device. Port schema snapshot remains visible if unavailable.
-
-### ANY(profile)
-
-Match all Online devices on current rack grid implementing profile.
-
-Output side:
-
-- every matching device emission for a profile output port is forwarded through that ANY node output;
-- `Source` is updated/emitted with the physical source;
-- persistent data values represent the latest emission seen at that selector, not an aggregate over all devices unless the port/node explicitly defines an aggregation.
-
-Input side:
-
-- one matching Online device receives the command;
-- baseline picker is deterministic `FirstAvailable`;
-- stable ordering can be based on a reproducible per-grid/device key available in the engine; do not rely on dictionary iteration order;
-- if chosen device becomes invalid before execution, retry selection once against current cached set or no-op safely.
-
-### ALL(profile)
-
-Output side is the same merged event stream principle: a signal from any matching physical device can enter the graph.
-
-Input side broadcasts to every matching Online device exactly once for that graph emission.
-
-For values that do not make semantic sense as a simultaneous aggregate, do not invent hidden sum/AND/OR behavior. The output is an event/value stream from individual sources. Separate aggregator nodes may be added later.
-
-## Why ANY and ALL both merge sensor events
-
-The user-facing distinction is targeting/fan-out, not suppressing sensors. A graph `ALL WeaponFlashDetector.Triggered` still needs to react when any one detector fires. `ALL` becomes materially different when the graph writes/commands a port: it fans out to every matching detector/actuator.
-
-## Selector match lifecycle
-
-Membership changes on:
-
-- KIAS topology revision;
-- device startup/shutdown/delete;
-- grid/parent move;
-- power status/Online status change;
-- rack grid change.
-
-Membership does not persist on the card.
-
-## Optional selector filters
-
-Architecture should allow a future selector key:
+Examples:
 
 ```text
-ProfileId + optional Room + optional Group + optional Tag
+Строка
+"Внимание: разгерметизация"
+                 Значение ●
 ```
 
-Default is all devices of profile. If current KIAS already has stable room/group metadata and filter support is cheap, include it in v1 because it makes presets such as “all emergency lights” practical.
+```text
+ALL Освещение
+12 найдено
+● Установить      Есть устройства ●
+● Включить             В сети ●
+● Выключить          Источник ●
+```
 
-## Internal nodes
+Do not literally hardcode ASCII; this is information hierarchy only.
 
-### Combinational
+## Inspector sections
 
-- AND/OR/XOR/NOT/NAND/NOR/XNOR
-- comparisons
+Use visually distinct sections, for example:
 
-### Control
+- `Узел` — title/status;
+- `Выборка` — room/group only when selector supports them;
+- `Параметры` — node-specific config;
+- `Входы и выходы` — help cards;
+- `Действия` — remove.
 
-IF/ELSE consumes Trigger + Condition and emits True/False Signal.
+No unlabeled `OptionButton`. No raw direction/type strings.
 
-### Time/state breaking
+## Value editors
 
-- Timer/Delay
-- Clock
-- Latch/Memory
-- Toggle
-- Counter
-- Edge Detector
+- bool = checkbox/toggle with label;
+- enum = dropdown;
+- seconds = numeric line edit/spin-like field with unit in label;
+- string = line edit; safe max-length indication if useful;
+- number = validated numeric field;
+- compare = labeled dropdown.
 
-These break combinational cycles and hold volatile runtime state only.
+Save only changed/valid relevant config. Hidden stale config must not accidentally affect unrelated node semantics.
 
-## Compilation
+## Selector filters
 
-Compiler resolves node definitions and ports into compact arrays/dictionaries. It creates outgoing-edge tables so runtime propagation is O(edges actually traversed), not O(total graph).
+`Room`/`Group` are filters. Labels must be `Фильтр помещения` / `Фильтр группы`.
 
-It also precomputes:
+Show only if the selected profile actually supports the concept. Empty = no filter.
 
-- specific external endpoints;
-- selector endpoint keys;
-- timer/state node tables;
-- source/sink type checks.
+## Wiring feedback
 
-## Validation errors vs warnings
+When starting a wire:
 
-Blocking:
+- incompatible ports visibly dim as now;
+- on release over incompatible port, show short tooltip/status reason;
+- same direction -> «Нельзя соединить два входа/два выхода»;
+- type mismatch -> show both friendly types;
+- Signal/Bool mismatch -> suggest Edge or Latch/Toggle.
 
-- unknown node/profile/port;
-- duplicate node ID;
-- bad wire endpoint;
-- output->output/input->input;
-- type mismatch;
-- forbidden multiple data sources;
-- pure combinational cycle;
-- limits exceeded;
-- invalid config values.
+## Port help
 
-Warnings:
+Hover tooltip:
 
-- specific target currently unavailable;
-- ANY/ALL currently matches zero devices;
-- optional subsystem/profile not currently present.
+`Объявить — Импульс`<br>
+`Произносит текст, поданный на вход «Сообщение».`
 
-A portable program should be writeable while some matching devices are absent.
+Inspector should list help without requiring hover for discoverability.
 
-## Execution budget
+## Search/palette
 
-Every external emission starts/joins a bounded work queue. A controller should have a configurable maximum evaluations per logical event/batch. Exceeding the budget marks the card runtime FAULT and records a useful diagnostic; it must not cascade to other cards/racks.
+Search should match:
 
-## Determinism
+- profile display name;
+- node name;
+- device name;
+- localized port names where practical.
 
-For the same event ordering and device set:
+Avoid several visually identical `ALL Порты устройства` entries. Generic DeviceLink fallback title should include meaningful source/sink port names or device family context.
 
-- internal node evaluation order should be deterministic;
-- ANY FirstAvailable selection should be deterministic;
-- output fan-out ordering should not change observable behavior where possible.
+## Window behavior
 
-Random routing is optional future functionality, not baseline semantics.
+- no horizontal inspector scrollbar;
+- palette has controlled width and ellipsis/tooltips;
+- inspector wider than current 205–240 px baseline where space allows;
+- canvas gets remaining width;
+- at min width side panels may become narrower, but text remains intentional and usable;
+- do not let long localized text expand the entire window off-screen.
 
-## Debugging
+## Save state
 
-Editor/rack diagnostics should be able to show:
-
-- compiled/invalid;
-- active/offline/fault;
-- matched count for selectors;
-- unavailable specific targets;
-- last fault reason;
-- optionally low-rate last port values while editor diagnostics mode is enabled.
-
-Do not stream every port value permanently.
+Dirty/saved status must be obvious but compact. `WRITE` is primary action, `Discard` secondary/destructive-ish, `Eject` disabled while dirty as today unless product behavior intentionally changes.

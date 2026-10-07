@@ -77,13 +77,16 @@ public sealed class KiasControllerUiSystem : EntitySystem
         state.Enabled = ent.Comp.DraftEnabled;
         if (ent.Comp.Draft is { } draft)
         {
+            var graph = KiasGraphCompiler.Compile(draft, _io.Schema, _io.SnapshotSchema).Graph;
             state.Name = draft.Name;
             state.Wires = draft.Wires.ConvertAll(wire => wire.Copy());
             foreach (var node in draft.Nodes)
             {
                 var ports = KiasGraphCatalog.External(node.Kind)
                     ? KiasGraphCatalog.DevicePorts(_io.Schema(node.Profile) ?? node.PortSnapshot)
-                    : KiasGraphCatalog.InternalPorts(node.Kind);
+                    : KiasGraphCatalog.InternalPorts(node.Kind, node.Config.EnumDomain);
+                if (graph != null)
+                    ports = ports.Select(port => graph.Ports.GetValueOrDefault(new(node.Id, port.Id), port)).ToList();
                 state.Nodes.Add(new KiasGraphNodeView
                 {
                     Id = node.Id, Kind = node.Kind, X = node.X, Y = node.Y, Profile = node.Profile,
@@ -149,6 +152,7 @@ public sealed class KiasControllerUiSystem : EntitySystem
             if (!compiled.Success) { Refresh(ent); return false; }
             controller.Program = current.Copy(); controller.Revision++;
             controller.Enabled = ent.Comp.DraftEnabled;
+            _physical.SyncCardMetadata(card, controller);
             ent.Comp.DraftDirty = false; ent.Comp.DraftRevision++; Refresh(ent); return true;
         }
         var draft = current.Copy();
@@ -183,8 +187,10 @@ public sealed class KiasControllerUiSystem : EntitySystem
                     || message.Config.Text.Length > 256 || !double.IsFinite(message.Config.Number)
                     || Math.Abs(message.Config.Number) > 1e12 || !double.IsFinite(message.Config.Seconds)
                     || message.Config.Seconds is < KiasGraphCompiler.MinSeconds or > KiasGraphCompiler.MaxSeconds
-                    || !Enum.IsDefined(message.Config.Comparison)) return false;
-                node.Config = message.Config.Copy(); node.Room = message.Room; node.Group = message.Group;
+                    || !Enum.IsDefined(message.Config.Comparison) || !Enum.IsDefined(message.Config.EnumDomain)) return false;
+                node.Config = message.Config.Copy();
+                node.Room = node.Kind is KiasNodeKind.Any or KiasNodeKind.All ? message.Room : string.Empty;
+                node.Group = node.Kind is KiasNodeKind.Any or KiasNodeKind.All ? message.Group : string.Empty;
                 break;
             case KiasGraphEdit.Remove:
                 if (node == null) return false;

@@ -1,14 +1,16 @@
-# КИАС — корабельная автоматика
+# KIAS documentation
 
-КИАС объединяет датчики и исполнительные устройства корабля через отдельную сеть DATA. Владелец настраивает реакции на повреждения, атмосферные угрозы, контакты, состояние экипажа и энергоснабжения; система использует существующие механики Monolith.
+Current documentation is split by audience:
 
-- [Подключение, изготовление и настройка для игрока](PLAYER_GUIDE.md).
-- [Архитектура и точки интеграции для разработчика](ARCHITECTURE.md).
-- [Физические карточки и редактор схем](CONTROLLERS.md).
-- [Источники и атрибуция](THIRD_PARTY.md).
-- [Проверки и нагрузочный стенд](VALIDATION.md).
-- [Подготовленное описание для pull request](PULL_REQUEST.md).
+- `CORRECTION_REPORT.md` — причины ошибок, решения и совместимость;
+- `ARCHITECTURE.md` — current technical model;
+- `CONTROLLERS.md` — programmable graph semantics and profiles;
+- `PLAYER_GUIDE.md` — how a player actually configures KIAS;
+- `VALIDATION.md` — acceptance/test plan and real results after the patch;
+- `PARITY_AUDIT.md` — known gaps/regressions and their status;
+- `PULL_REQUEST.md` — PR checklist/summary skeleton;
+- `THIRD_PARTY.md` — references/attribution notes.
 
-Минимальный комплект: одно ядро, питание APC, связный DATA-кабель и нужные устройства не дальше двух клеток от сети ядра. Для автоматического перехвата дополнительно нужны сервер обороны, радар и совместимое орудие L85 со штатным управлением огнём.
+The correction pass is specified in root `00_AGENT_MASTER_PROMPT.md` through `09_THIRD_PARTY_REFERENCES.md`.
 
-Автоматика теперь выполняется физическими карточками в восьмислотовом Online-шкафу. Отдельный программатор записывает схемы через WRITE. Все 27 готовых протоколов — редактируемые graph presets; без карточек скрытый исполнитель не работает.
+Important terminology: product name is **KIAS** in both English and Russian text. Do not render it as «КИАС».

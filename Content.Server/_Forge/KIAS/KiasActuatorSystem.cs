@@ -95,6 +95,14 @@ public sealed class KiasActuatorSystem : EntitySystem
         RaiseLocalEvent(grid, ref ev, true);
     }
 
+    public void SetFixture(EntityUid target, bool enabled)
+    {
+        if (!_kias.IsOnline(target) || !HasComp<KiasLightFixtureComponent>(target)
+            || Transform(target).GridUid is not { } grid || Comp<KiasGridComponent>(grid).Testing) return;
+        EntityManager.System<Content.Shared.Power.EntitySystems.SharedPowerReceiverSystem>().SetPowerDisabled(target, !enabled);
+        _lights.SetState(target, enabled);
+    }
+
     private void OnLightVerbs(Entity<KiasLightControllerComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
         if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User))

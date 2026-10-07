@@ -16,7 +16,7 @@ public sealed class KiasControllerWindow : FancyWindow
     private readonly BoxContainer _palette = new() { Orientation = BoxContainer.LayoutOrientation.Vertical };
     private readonly BoxContainer _settings = new() { Orientation = BoxContainer.LayoutOrientation.Vertical };
     private readonly LineEdit _search = new(), _name = new();
-    private readonly Label _status = new();
+    private readonly Label _status = new() { ClipText = true };
     private readonly OptionButton _presets = new();
     private readonly OptionButton _legacy = new();
     private readonly CheckBox _enabled = new();
@@ -28,12 +28,18 @@ public sealed class KiasControllerWindow : FancyWindow
     {
         Title = Loc.GetString("kias-controller-editor-title");
         SetSize = new Vector2(1200, 720); MinSize = new Vector2(850, 500); Resizable = true;
-        var root = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, Margin = new Thickness(8) };
+        var root = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, Margin = new Thickness(8), RectClipContent = true };
         XamlChildren.Add(root);
-        var toolbar = new BoxContainer(); root.AddChild(toolbar);
+        var toolbar = new BoxContainer { Margin = new Thickness(4), SeparationOverride = 4 }; root.AddChild(KiasUi.Panel(toolbar));
         _name.HorizontalExpand = true; toolbar.AddChild(_name);
         toolbar.AddChild(Button("kias-controller-rename", () => Send(new() { Edit = KiasGraphEdit.Rename, Text = _name.Text })));
-        var templates = new BoxContainer(); root.AddChild(templates);
+        var operations = new BoxContainer { Margin = new Thickness(4), SeparationOverride = 4 };
+        root.AddChild(KiasUi.Panel(operations));
+        var templates = new BoxContainer { Margin = new Thickness(4), SeparationOverride = 4 }; root.AddChild(KiasUi.Panel(templates));
+        _presets.MinWidth = _legacy.MinWidth = 140;
+        _presets.MaxWidth = _legacy.MaxWidth = 180;
+        _presets.HorizontalExpand = _legacy.HorizontalExpand = true;
+        ClipOptions(_presets); ClipOptions(_legacy);
         templates.AddChild(_presets);
         _presets.OnItemSelected += args => _presets.SelectId(args.Id);
         templates.AddChild(Button("kias-controller-load-preset", () =>
@@ -47,23 +53,30 @@ public sealed class KiasControllerWindow : FancyWindow
             if (_legacy.SelectedId >= 0 && _legacy.SelectedId < _state.Legacy.Count)
                 Send(new() { Edit = KiasGraphEdit.ImportLegacy, Node = _legacy.SelectedId });
         }));
-        _enabled.Text = Loc.GetString("kias-protocol-enabled"); templates.AddChild(_enabled);
+        _enabled.Text = Loc.GetString("kias-protocol-enabled"); toolbar.AddChild(_enabled);
         _enabled.OnToggled += _ => { if (!_updating) Send(new() { Edit = KiasGraphEdit.Enabled, Enabled = _enabled.Pressed }); };
-        _write = Button("kias-controller-write", () => Send(new() { Edit = KiasGraphEdit.Write })); toolbar.AddChild(_write);
-        _discard = Button("kias-controller-discard", () => Send(new() { Edit = KiasGraphEdit.Discard })); toolbar.AddChild(_discard);
-        _eject = Button("kias-controller-eject", () => Send(new() { Edit = KiasGraphEdit.Eject })); toolbar.AddChild(_eject);
-        toolbar.AddChild(Button("kias-refresh", () => Send(new() { Edit = KiasGraphEdit.Refresh })));
-        root.AddChild(_status);
-        root.AddChild(new Label { Text = Loc.GetString("kias-controller-editor-help") });
+        _write = Button("kias-controller-write", () => Send(new() { Edit = KiasGraphEdit.Write })); operations.AddChild(_write);
+        _discard = Button("kias-controller-discard", () => Send(new() { Edit = KiasGraphEdit.Discard })); operations.AddChild(_discard);
+        _eject = Button("kias-controller-eject", () => Send(new() { Edit = KiasGraphEdit.Eject })); operations.AddChild(_eject);
+        operations.AddChild(Button("kias-refresh", () => Send(new() { Edit = KiasGraphEdit.Refresh })));
+        root.AddChild(KiasUi.Panel(_status));
+        root.AddChild(new Label { Text = Loc.GetString("kias-controller-editor-help"), ClipText = true, ToolTip = Loc.GetString("kias-controller-editor-help") });
         var body = new BoxContainer { VerticalExpand = true }; root.AddChild(body);
         var sidebar = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, MinWidth = 215, MaxWidth = 250 };
         body.AddChild(sidebar);
         _search.PlaceHolder = Loc.GetString("kias-controller-search"); sidebar.AddChild(_search);
         _search.OnTextChanged += _ => RebuildPalette();
         var paletteScroll = new ScrollContainer { VerticalExpand = true, HScrollEnabled = false }; paletteScroll.AddChild(_palette); sidebar.AddChild(paletteScroll);
-        body.AddChild(_canvas);
-        var settingsScroll = new ScrollContainer { MinWidth = 205, MaxWidth = 240 }; settingsScroll.AddChild(_settings); body.AddChild(settingsScroll);
+        var canvasPanel = KiasUi.Panel(_canvas); canvasPanel.HorizontalExpand = true; body.AddChild(canvasPanel);
+        var settingsScroll = new ScrollContainer { MinWidth = 300, MaxWidth = 340, HorizontalExpand = true, HScrollEnabled = false, Name = "KiasInspector" };
+        settingsScroll.AddChild(_settings); body.AddChild(KiasUi.Panel(settingsScroll));
         _canvas.Edited += Send; _canvas.Selected += SelectNode;
+        _canvas.Feedback += message => { _status.Text = message; _status.ToolTip = message; };
+    }
+    private static void ClipOptions(Robust.Client.UserInterface.Control control)
+    {
+        if (control is Label label) label.ClipText = true;
+        foreach (var child in control.Children) ClipOptions(child);
     }
     private static Button Button(string key, Action action)
     {
@@ -81,11 +94,12 @@ public sealed class KiasControllerWindow : FancyWindow
         _canvas.CanEdit = state.HasCard && state.Online && state.Editing;
         _write.Disabled = !state.HasCard || !state.Online || state.Errors.Count > 0;
         _discard.Disabled = !state.HasCard || !state.Dirty; _eject.Disabled = !state.HasCard || state.Dirty;
-        _name.Text = state.Name;
+        _name.Text = state.Name; _name.CursorPosition = 0;
         _status.Text = Loc.GetString("kias-controller-editor-status", ("card", Loc.GetString(state.HasCard ? "kias-controller-present" : "kias-controller-absent")),
             ("online", Loc.GetString(state.Online ? "kias-status-online" : "kias-status-offline")),
             ("dirty", Loc.GetString(state.Dirty ? "kias-controller-unsaved" : "kias-controller-saved")),
             ("nodes", state.Nodes.Count), ("wires", state.Wires.Count)) + (state.Errors.Count == 0 ? string.Empty : "\n" + string.Join(", ", state.Errors.Select(KiasControllerLabels.Error)));
+        _status.ToolTip = _status.Text;
         var selectedPreset = _presets.SelectedId; var selectedLegacy = _legacy.SelectedId;
         _presets.Clear(); _legacy.Clear();
         for (var i = 0; i < state.Presets.Count; i++) _presets.AddItem(Loc.TryGetString($"kias-preset-{state.Presets[i]}", out var presetTitle) ? presetTitle : state.Presets[i], i);
@@ -142,37 +156,95 @@ public sealed class KiasControllerWindow : FancyWindow
             PaletteItem($"{device.Name} ({KiasControllerLabels.Profile(device.Profile, _state.Profiles.First(p => p.Id == device.Profile).Ports)})",
                 KiasNodeKind.Specific, device.Profile, device.Entity);
     }
-    private LineEdit Field(string key, string text)
+    private static LineEdit Field(BoxContainer section, string key, string text)
     {
-        _settings.AddChild(new Label { Text = Loc.GetString(key) });
-        var field = new LineEdit { Text = text }; _settings.AddChild(field); return field;
+        var field = new LineEdit { Text = text, CursorPosition = 0, Name = key };
+        section.AddChild(KiasUi.Field(field, key)); return field;
     }
-    private void SelectNode(KiasGraphNodeView? node)
+    public void SelectNode(KiasGraphNodeView? node)
     {
-        _settings.RemoveAllChildren(); if (node == null) return;
-        _settings.AddChild(new Label { Text = $"#{node.Id}: {Loc.GetString($"kias-controller-node-{node.Kind.ToString().ToLowerInvariant()}")}" });
-        if (KiasGraphCatalog.External(node.Kind)) _settings.AddChild(new Label { Text = $"{KiasControllerLabels.Profile(node.Profile, node.Ports)}\n{node.DeviceName}\n{Loc.GetString("kias-controller-matches")}: {node.Matched}" });
-        var room = Field("kias-mode-room", node.Room); var group = Field("kias-mode-group", node.Group);
-        var text = Field("kias-controller-text", node.Config.Text);
-        var number = Field("kias-controller-number", node.Config.Number.ToString(CultureInfo.InvariantCulture));
-        var seconds = Field("kias-controller-seconds", node.Config.Seconds.ToString(CultureInfo.InvariantCulture));
-        var enumValue = Field("kias-controller-enum", node.Config.Enum.ToString(CultureInfo.InvariantCulture));
-        var boolean = new CheckBox { Text = Loc.GetString("kias-controller-bool"), Pressed = node.Config.Bool }; _settings.AddChild(boolean);
-        var comparison = new OptionButton();
-        foreach (var item in Enum.GetValues<KiasComparison>()) comparison.AddItem(Loc.GetString($"kias-controller-comparison-{item.ToString().ToLowerInvariant()}"), (int) item);
-        comparison.SelectId((int) node.Config.Comparison); comparison.OnItemSelected += args => comparison.SelectId(args.Id); _settings.AddChild(comparison);
-        _settings.AddChild(Button("kias-save", () =>
+        _settings.RemoveAllChildren();
+        if (node == null) { _settings.AddChild(KiasUi.Help(Loc.GetString("kias-controller-inspector"), Loc.GetString("kias-controller-select-help"))); return; }
+        var title = KiasUi.Section(_settings, "kias-controller-node-section");
+        var name = KiasGraphCatalog.External(node.Kind) ? KiasControllerLabels.Profile(node.Profile, node.Ports)
+            : Loc.GetString($"kias-controller-node-{node.Kind.ToString().ToLowerInvariant()}");
+        title.AddChild(new Label { Text = $"#{node.Id} · {name}", ClipText = true, ToolTip = name });
+        title.AddChild(KiasUi.Help(KiasControllerLabels.Summary(node), KiasGraphCatalog.External(node.Kind)
+            ? Loc.GetString("kias-controller-match-summary", ("count", node.Matched)) : Loc.GetString("kias-controller-values-help")));
+        LineEdit? room = null, group = null, text = null, number = null, seconds = null;
+        CheckBox? boolean = null;
+        OptionButton? comparison = null, enumeration = null, domainPicker = null;
+        var domain = node.Ports.FirstOrDefault(port => port.Type == KiasPortType.Enum)?.EnumDomain ?? node.Config.EnumDomain;
+        if (node.Kind is KiasNodeKind.Any or KiasNodeKind.All)
         {
-            if (!double.TryParse(number.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var numeric)
-                || !double.TryParse(seconds.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var delay)
-                || !int.TryParse(enumValue.Text, out var enumeration)) { _status.Text = Loc.GetString("kias-controller-invalid-number"); return; }
-            Send(new() { Edit = KiasGraphEdit.Configure, Node = node.Id, Room = room.Text, Group = group.Text,
-                Config = new() { Text = text.Text, Number = numeric, Seconds = delay, Enum = enumeration, Bool = boolean.Pressed,
-                    Comparison = (KiasComparison) comparison.SelectedId } });
-        }));
-        _settings.AddChild(Button("kias-controller-remove-node", () => Send(new() { Edit = KiasGraphEdit.Remove, Node = node.Id })));
+            var filters = KiasUi.Section(_settings, "kias-controller-selector-section");
+            room = Field(filters, "kias-controller-filter-room", node.Room);
+            if (node.Profile is "Speaker" or "LightController" or "Lighting") group = Field(filters, "kias-controller-filter-group", node.Group);
+        }
+        if (!KiasGraphCatalog.External(node.Kind) && node.Kind is KiasNodeKind.StringConstant or KiasNodeKind.StringLatch
+            or KiasNodeKind.NumberConstant or KiasNodeKind.Counter or KiasNodeKind.BoolConstant or KiasNodeKind.Latch
+            or KiasNodeKind.Toggle or KiasNodeKind.Timer or KiasNodeKind.Clock or KiasNodeKind.Cooldown or KiasNodeKind.EnumConstant
+            or KiasNodeKind.NumberCompare or KiasNodeKind.BoolCompare or KiasNodeKind.StringCompare or KiasNodeKind.EnumCompare)
+        {
+            var parameters = KiasUi.Section(_settings, "kias-controller-parameters-section");
+            if (node.Kind is KiasNodeKind.StringConstant or KiasNodeKind.StringLatch) text = Field(parameters, "kias-controller-text", node.Config.Text);
+            if (node.Kind is KiasNodeKind.NumberConstant or KiasNodeKind.Counter) number = Field(parameters, "kias-controller-number", node.Config.Number.ToString(CultureInfo.InvariantCulture));
+            if (node.Kind is KiasNodeKind.Timer or KiasNodeKind.Clock or KiasNodeKind.Cooldown) seconds = Field(parameters, "kias-controller-seconds", node.Config.Seconds.ToString(CultureInfo.InvariantCulture));
+            if (node.Kind is KiasNodeKind.BoolConstant or KiasNodeKind.Clock or KiasNodeKind.Latch or KiasNodeKind.Toggle)
+            {
+                boolean = new CheckBox { Name = "kias-controller-bool", Text = Loc.GetString("kias-controller-initial-state"), Pressed = node.Config.Bool };
+                parameters.AddChild(boolean);
+            }
+            if (node.Kind is KiasNodeKind.NumberCompare or KiasNodeKind.BoolCompare or KiasNodeKind.StringCompare or KiasNodeKind.EnumCompare)
+            {
+                comparison = new OptionButton { Name = "kias-controller-comparison" };
+                foreach (var item in Enum.GetValues<KiasComparison>())
+                    if (node.Kind == KiasNodeKind.NumberCompare || item is KiasComparison.Equal or KiasComparison.NotEqual)
+                        comparison.AddItem(Loc.GetString($"kias-controller-comparison-{item.ToString().ToLowerInvariant()}"), (int) item);
+                comparison.SelectId((int) (node.Kind == KiasNodeKind.NumberCompare || node.Config.Comparison is KiasComparison.Equal or KiasComparison.NotEqual ? node.Config.Comparison : KiasComparison.Equal)); comparison.OnItemSelected += args => comparison.SelectId(args.Id);
+                parameters.AddChild(KiasUi.Field(comparison, "kias-controller-comparison"));
+            }
+            if (node.Kind == KiasNodeKind.EnumConstant)
+            {
+                domainPicker = new OptionButton { Name = "kias-controller-enum-domain" };
+                enumeration = new OptionButton { Name = "kias-controller-enum" };
+                foreach (var item in Enum.GetValues<KiasEnumDomain>()) domainPicker.AddItem(Loc.GetString($"kias-controller-domain-{item.ToString().ToLowerInvariant()}"), (int) item);
+                domainPicker.SelectId((int) domain);
+                void Values()
+                {
+                    enumeration.Clear();
+                    if (domain == KiasEnumDomain.Unspecified) { enumeration.AddItem(Loc.GetString("kias-controller-enum-unselected"), 0); enumeration.Disabled = true; return; }
+                    enumeration.Disabled = false;
+                    for (var i = 0; i < 4; i++) enumeration.AddItem(KiasControllerLabels.EnumValue(domain, i), i);
+                    enumeration.SelectId(Math.Clamp(node.Config.Enum, 0, 3));
+                }
+                Values(); domainPicker.OnItemSelected += args => { domainPicker.SelectId(args.Id); domain = (KiasEnumDomain) args.Id; Values(); };
+                enumeration.OnItemSelected += args => enumeration.SelectId(args.Id);
+                parameters.AddChild(KiasUi.Field(domainPicker, "kias-controller-enum-domain"));
+                parameters.AddChild(KiasUi.Field(enumeration, "kias-controller-enum"));
+            }
+        }
+        var actions = KiasUi.Section(_settings, "kias-controller-actions-section");
+        if (room != null || text != null || number != null || seconds != null || boolean != null || comparison != null || enumeration != null)
+            actions.AddChild(Button("kias-save", () =>
+            {
+                var config = node.Config.Copy();
+                if (number != null && !double.TryParse(number.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out config.Number)
+                    || seconds != null && !double.TryParse(seconds.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out config.Seconds)
+)
+                { _status.Text = Loc.GetString("kias-controller-invalid-number"); return; }
+                if (enumeration != null && domain == KiasEnumDomain.Unspecified)
+                { _status.Text = Loc.GetString("kias-controller-enum-unselected"); _status.ToolTip = _status.Text; return; }
+                if (text != null) config.Text = text.Text;
+                if (boolean != null) config.Bool = boolean.Pressed;
+                if (comparison != null) config.Comparison = (KiasComparison) comparison.SelectedId;
+                if (enumeration != null) { config.Enum = enumeration.SelectedId; config.EnumDomain = domain; }
+                Send(new() { Edit = KiasGraphEdit.Configure, Node = node.Id, Room = room?.Text ?? "", Group = group?.Text ?? "", Config = config });
+            }));
+        actions.AddChild(Button("kias-controller-remove-node", () => Send(new() { Edit = KiasGraphEdit.Remove, Node = node.Id })));
+        var ports = KiasUi.Section(_settings, "kias-controller-ports-section");
         foreach (var port in node.Ports)
-            _settings.AddChild(new Label { Text = $"{port.Direction} {port.Id}: {port.Type}" });
+            ports.AddChild(KiasUi.Help(KiasControllerLabels.PortTitle(port), KiasControllerLabels.Description(port)));
     }
 }
 
@@ -182,18 +254,23 @@ public sealed class KiasControllerRackWindow : FancyWindow
     private readonly BoxContainer _rows = new() { Orientation = BoxContainer.LayoutOrientation.Vertical };
     public KiasControllerRackWindow()
     {
-        Title = Loc.GetString("kias-controller-rack-title"); SetSize = new Vector2(650, 420); Resizable = true;
-        XamlChildren.Add(_rows);
+        Title = Loc.GetString("kias-controller-rack-title"); SetSize = new Vector2(650, 420); MinSize = new Vector2(430, 320); Resizable = true;
+        var scroll = new ScrollContainer { HScrollEnabled = false }; scroll.AddChild(_rows);
+        XamlChildren.Add(KiasUi.Panel(scroll));
     }
     public void UpdateState(KiasControllerRackState state)
     {
         _rows.RemoveAllChildren();
-        _rows.AddChild(new Label { Text = Loc.GetString("kias-controller-rack-status", ("online", Loc.GetString(state.Online ? "kias-status-online" : "kias-status-offline")), ("running", state.Running), ("load", state.Load)) });
+        var overview = Loc.GetString("kias-controller-rack-status", ("online", Loc.GetString(state.Online ? "kias-status-online" : "kias-status-offline")), ("running", state.Running), ("load", state.Load));
+        _rows.AddChild(new Label { ClipText = true, Text = overview, ToolTip = overview });
         for (var i = 0; i < state.Slots.Count; i++)
         {
-            var slot = i; var item = state.Slots[i]; var row = new BoxContainer(); _rows.AddChild(row);
-            row.AddChild(new Label { HorizontalExpand = true, Text = $"{i + 1}. {item.Name} {(Loc.TryGetString($"kias-controller-status-{item.Status.ToLowerInvariant()}", out var status) ? status : item.Status)} {KiasControllerLabels.Error(item.Fault)}" });
-            var toggle = new Button { Text = item.Enabled ? "OFF" : "ON", Disabled = !item.Inserted };
+            var slot = i; var item = state.Slots[i]; var row = new BoxContainer { Margin = new Thickness(6) }; _rows.AddChild(KiasUi.Panel(row));
+            var caption = item.Inserted
+                ? $"{i + 1}. {item.Name} {(Loc.TryGetString($"kias-controller-status-{item.Status.ToLowerInvariant()}", out var status) ? status : item.Status)} {KiasControllerLabels.Error(item.Fault)}"
+                : $"{i + 1}. {Loc.GetString("kias-controller-status-empty")}";
+            row.AddChild(new Label { HorizontalExpand = true, Text = caption, ClipText = true, ToolTip = caption });
+            var toggle = new Button { Text = Loc.GetString(item.Enabled ? "kias-controller-disable" : "kias-controller-enable"), Disabled = !item.Inserted };
             toggle.OnPressed += _ => Changed?.Invoke(new() { Slot = slot, Enabled = !item.Enabled }); row.AddChild(toggle);
             var eject = new Button { Text = Loc.GetString("kias-controller-eject"), Disabled = !item.Inserted };
             eject.OnPressed += _ => Changed?.Invoke(new() { Slot = slot, Eject = true }); row.AddChild(eject);

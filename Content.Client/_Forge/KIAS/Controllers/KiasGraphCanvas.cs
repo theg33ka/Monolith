@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using Content.Shared._Forge.KIAS.Controllers;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
@@ -12,6 +13,7 @@ public sealed class KiasGraphCanvas : Control
 {
     public event Action<KiasControllerEditMessage>? Edited;
     public event Action<KiasGraphNodeView?>? Selected;
+    public event Action<string>? Feedback;
     private KiasControllerEditorState _state = new();
     private readonly Font _font;
     private Vector2 _pan = new(40, 40), _mouse, _previous, _dragOffset;
@@ -27,7 +29,7 @@ public sealed class KiasGraphCanvas : Control
         RectClipContent = true;
         MouseFilter = MouseFilterMode.Stop;
         HorizontalExpand = VerticalExpand = true;
-        MinSize = new Vector2(450, 350);
+        MinSize = new Vector2(260, 240);
         _font = new VectorFont(IoCManager.Resolve<IResourceCache>().GetResource<FontResource>("/EngineFonts/NotoSans/NotoSans-Regular.ttf"), 12);
     }
 
@@ -68,6 +70,18 @@ public sealed class KiasGraphCanvas : Control
         KiasPortType.Number => Color.Cyan, KiasPortType.String => Color.LightPink,
         KiasPortType.Entity => Color.Orange, _ => Color.MediumPurple
     };
+    private string Fit(string text, float width)
+    {
+        var result = new StringBuilder();
+        var remaining = width * _zoom * UIScale;
+        foreach (var rune in text.EnumerateRunes())
+        {
+            remaining -= _font.GetCharMetrics(rune, _zoom * UIScale)?.Advance ?? 0;
+            if (remaining < 12 * _zoom * UIScale) return result + "…";
+            result.Append(rune);
+        }
+        return result.ToString();
+    }
     private static void Curve(DrawingHandleScreen handle, Vector2 start, Vector2 end, Color color)
     {
         var bend = Math.Max(45, Math.Abs(end.X - start.X) * .45f);
@@ -100,18 +114,18 @@ public sealed class KiasGraphCanvas : Control
             handle.DrawRect(rect, _selected == node.Id ? new Color(.22f, .29f, .38f) : new Color(.12f, .15f, .20f));
             handle.DrawRect(rect, _selected == node.Id ? Color.Cyan : Color.Gray, false);
             var title = KiasGraphCatalog.External(node.Kind) ? $"{node.Kind.ToString().ToUpperInvariant()} {KiasControllerLabels.Profile(node.Profile, node.Ports)}" : Loc.GetString($"kias-controller-node-{node.Kind.ToString().ToLowerInvariant()}");
-            if (title.Length > 32) title = title[..31] + "…";
+            title = Fit(title, Width - 16);
             handle.DrawString(_font, top + new Vector2(8, 18) * (_zoom * UIScale), title, _zoom * UIScale, Color.White);
-            var detail = KiasGraphCatalog.External(node.Kind) ? $"{node.DeviceName} [{node.Matched}]" : $"#{node.Id}";
+            var detail = Fit(KiasControllerLabels.Summary(node), Width - 16);
             handle.DrawString(_font, top + new Vector2(8, 35) * (_zoom * UIScale), detail, _zoom * UIScale, Color.LightGray);
             foreach (var port in node.Ports)
             {
                 var point = Screen(PortPosition(node, port));
                 var color = TypeColor(port.Type);
-                if (_wire is { } pending && (pending.Port.Direction == port.Direction || pending.Port.Type != port.Type)) color = Color.DimGray;
+                if (_wire is { } pending && KiasControllerLabels.Incompatibility(pending.Port, port) != null) color = Color.DimGray;
                 handle.DrawCircle(point, 5 * UIScale, color);
                 var label = Loc.TryGetString(port.Name, out var localized) ? localized : port.Id;
-                if (label.Length > 18) label = label[..17] + "…";
+                label = Fit(label, 112);
                 var textPoint = point + new Vector2(port.Direction == KiasPortDirection.Input ? 10 : -125, 4) * (_zoom * UIScale);
                 handle.DrawString(_font, textPoint, label, _zoom * UIScale, color);
             }
@@ -157,6 +171,9 @@ public sealed class KiasGraphCanvas : Control
     protected override void MouseMove(GUIMouseMoveEventArgs args)
     {
         base.MouseMove(args); _mouse = args.RelativePixelPosition;
+        var point = GraphPosition(_mouse);
+        ToolTip = PortAt(point) is { } hovered ? KiasControllerLabels.PortHelp(hovered.Port)
+            : NodeAt(point) is { } hoveredNode ? KiasControllerLabels.Summary(hoveredNode) : null;
         if (_panning) { _pan += (_mouse - _previous) / UIScale; _previous = _mouse; }
         if (_drag is { } id && _state.Nodes.FirstOrDefault(node => node.Id == id) is { } node)
         {
@@ -173,13 +190,16 @@ public sealed class KiasGraphCanvas : Control
         if (_drag is { } id && _state.Nodes.FirstOrDefault(node => node.Id == id) is { } node)
             Edited?.Invoke(new() { Edit = KiasGraphEdit.Move, Node = id, X = node.X, Y = node.Y });
         _drag = null;
-        if (_wire is { } pending && PortAt(GraphPosition(args.RelativePixelPosition)) is { } target
-            && target.Port.Direction != pending.Port.Direction && target.Port.Type == pending.Port.Type)
+        if (_wire is { } pending && PortAt(GraphPosition(args.RelativePixelPosition)) is { } target)
         {
-            var output = pending.Port.Direction == KiasPortDirection.Output ? pending : (target.Node.Id, target.Port);
-            var input = pending.Port.Direction == KiasPortDirection.Input ? pending : (target.Node.Id, target.Port);
-            Edited?.Invoke(new() { Edit = KiasGraphEdit.Connect, Wire = new()
-                { FromNode = output.Item1, FromPort = output.Item2.Id, ToNode = input.Item1, ToPort = input.Item2.Id } });
+            if (KiasControllerLabels.Incompatibility(pending.Port, target.Port) is { } reason) Feedback?.Invoke(reason);
+            else
+            {
+                var output = pending.Port.Direction == KiasPortDirection.Output ? pending : (target.Node.Id, target.Port);
+                var input = pending.Port.Direction == KiasPortDirection.Input ? pending : (target.Node.Id, target.Port);
+                Edited?.Invoke(new() { Edit = KiasGraphEdit.Connect, Wire = new()
+                    { FromNode = output.Item1, FromPort = output.Item2.Id, ToNode = input.Item1, ToPort = input.Item2.Id } });
+            }
         }
         _wire = null; args.Handle();
     }

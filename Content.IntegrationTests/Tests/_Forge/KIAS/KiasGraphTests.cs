@@ -38,6 +38,32 @@ public sealed class KiasGraphTests
     }
 
     [Test]
+    public void EnumDomainsInferLegacyValuesAndRejectCrossDomainConnections()
+    {
+        var channel = KiasGraphCatalog.Port("Channel", KiasPortType.Enum);
+        channel.EnumDomain = KiasEnumDomain.AudioChannel;
+        var disposition = KiasGraphCatalog.Port("Disposition", KiasPortType.Enum, true);
+        disposition.EnumDomain = KiasEnumDomain.ContactDisposition;
+        IReadOnlyList<KiasGraphPort>? Ports(string id) => id == "Test" ? new[] { channel, disposition } : null;
+        var legacy = Program(KiasNodeKind.EnumConstant, KiasNodeKind.All);
+        legacy.Nodes[0].Config.Enum = 3;
+        Wire(legacy, 1, "Value", 2, "Channel");
+        var compiled = KiasGraphCompiler.Compile(legacy, Ports);
+        Assert.That(compiled.Success, Is.True);
+        Assert.That(compiled.Graph!.Ports[new(1, "Value")].EnumDomain, Is.EqualTo(KiasEnumDomain.AudioChannel));
+        Assert.That(legacy.Nodes[0].Config.EnumDomain, Is.EqualTo(KiasEnumDomain.Unspecified));
+        legacy.Nodes[0].Config.EnumDomain = KiasEnumDomain.Alert;
+        Assert.That(KiasGraphCompiler.Compile(legacy, Ports).Errors, Does.Contain("enum-domain"));
+        legacy.Nodes[0].Config.EnumDomain = KiasEnumDomain.AudioChannel;
+        legacy.Nodes[0].Config.Enum = 99;
+        Assert.That(KiasGraphCompiler.Compile(legacy, Ports).Success, Is.False);
+        var compare = Program(KiasNodeKind.Any, KiasNodeKind.EnumCompare, KiasNodeKind.EnumConstant);
+        compare.Nodes[2].Config.EnumDomain = KiasEnumDomain.AudioChannel;
+        Wire(compare, 1, "Disposition", 2, "A"); Wire(compare, 3, "Value", 2, "B");
+        Assert.That(KiasGraphCompiler.Compile(compare, Ports).Errors, Does.Contain("enum-domain"));
+    }
+
+    [Test]
     public void LogicTruthTablesAndComparisonTypes()
     {
         foreach (var kind in new[] { KiasNodeKind.And, KiasNodeKind.Or, KiasNodeKind.Xor, KiasNodeKind.Nand,

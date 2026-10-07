@@ -1,159 +1,48 @@
-# Migration: KIAS protocols -> controller graphs
+# Presets, legacy configuration and regressions
 
-## Goal
+## Existing presets remain graph programs
 
-The controller graph becomes the **only normal player automation policy layer**. Existing KIAS protocol records are a legacy representation to migrate, not a second permanent engine.
+Do not reintroduce hardcoded protocol actions to fix regressions. Current controller presets remain the automation policy layer.
 
-## Preserve low-level systems
+`atmosphere` is the graph preset localized as «Разгерметизация».
 
-Do not confuse “remove hardcoded protocols” with “delete subsystem logic”. Keep:
+## Depressurization acceptance path
 
-- sensor detection;
-- KIAS raw events;
-- topology;
-- power stats;
-- crew tracking;
-- PDC projectile index/trajectory/interception;
-- FireControl integration;
-- IFF classification with physical prerequisites;
-- safe speaker/relay/light/suppression/navigation actuator APIs;
-- anti-spam/coalescing where it belongs to the output subsystem itself.
+Expected upstream chain:
 
-These are capabilities, not policies.
+1. Air sensor is part of the AirAlarm device list / atmos network.
+2. Sensor crosses threshold through normal atmos logic.
+3. AirAlarm/AtmosAlarmable enters Danger and performs normal alarm behavior.
+4. KIAS observes the normal event and emits `Automation.AtmosDanger` plus context.
+5. `atmosphere` controller graph receives it.
+6. Graph actions execute.
 
-## Remove/deprecate policy execution
+The preset may be corrected if its graph is wrong, but tests must not bypass steps 1–4.
 
-After migration, no normal path should independently iterate legacy protocol records and execute actions that a graph also executes.
+## DeviceList is not legacy garbage
 
-Avoid this failure:
+`DeviceListComponent` is a current native SS14 mechanism used by AirAlarm and other systems. Preserve it.
 
-```text
-WeaponFlash event
- -> old KiasProtocolSystem announces
- -> graph preset announces
- => duplicate speech/siren/PDC action
-```
+The programmable graph's generic DeviceLink ports are an additional automation interface. They do not mean players should manually wire every vent/scrubber/sensor port to replace an AirAlarm device list.
 
-## Preset representation
+## NetworkConfigurator UX
 
-Use a data/prototype-backed graph template format, e.g. `KiasControllerProgramPrototype`.
+A multitool/configurator has list and link modes. For entities that have both DeviceList and DeviceLink capabilities, both workflows must remain reachable and predictable.
 
-A preset is ordinary graph data:
+Regression target:
 
-- nodes;
-- positions;
-- wires;
-- defaults/config;
-- no hidden C# action list.
+- player stores devices in configurator;
+- interacts with AirAlarm in list mode;
+- gets list configuration UI/actions;
+- Set/Add writes the device list;
+- interacting in link mode still exposes port linking.
 
-Programming console `NEW FROM PRESET` copies it into card draft. After that it is just a normal editable program.
+If current mode auto-selection makes the list effectively inaccessible, fix it without breaking explicit link mode.
 
-## Portability rule
+## Preset compatibility after profile rename
 
-Default presets should use `ANY` sensor selectors and `ALL` actuator selectors wherever sensible.
+If user-facing `LightController` is split into `Lighting` and `LightGroupController`, inspect every preset:
 
-They may use selector filters (group/room/tag) when needed. Only use SPECIFIC bindings when the behavior truly depends on a particular physical machine chosen by the shipbuilder/player.
-
-## Expected presets
-
-The coding agent must enumerate the current branch's actual defaults. Expected baseline from the project spec:
-
-- Battle Alert
-- Point Defence orchestration
-- Contact
-- Decompression
-- Fire
-- Emergency Power
-- Anomaly Growth
-- Autopilot Arrival
-- Critical Vessel
-- Medical Assistance
-- MAYDAY
-- any other accepted/default KIAS automations found in current code/docs.
-
-## Example migration mapping
-
-Legacy:
-
-```text
-Trigger: WeaponFlash
-Disposition: Hostile
-Actions:
-  Announce(message)
-  Lights(group=EMERGENCY, true)
-  Pdc(true)
-  Record(message)
-```
-
-Graph:
-
-```text
-ANY WeaponFlashDetector.Triggered
-ANY WeaponFlashDetector.Disposition -> [== Hostile] -> IF.Condition
-Triggered -------------------------------> IF.Trigger
-IF.True -> ALL Speaker.Announce
-         -> ALL/filtered LightController.On
-         -> ALL DefenceController.Enable
-         -> ALL Recorder.Record
-String Constant(message) -> Speaker.Message / Recorder.Message
-```
-
-The exact graph may use cleaner shared signal wiring or helper nodes, but every action must be visible/editable.
-
-## Stateful policies
-
-Legacy cooldown/debounce/threshold semantics become explicit nodes/config:
-
-- cooldown -> Timer/Latch/Edge pattern or dedicated Cooldown node if a small reusable node is justified;
-- threshold -> compare node;
-- sustained condition -> Timer + cancel/reset;
-- escalation -> state/latch nodes.
-
-If a dedicated `Cooldown`/`Debounce` node greatly simplifies faithful migration, it may be added to the internal node catalog as a generic reusable node. Do not add protocol-specific nodes like `BattleAlertNode`.
-
-## Default availability
-
-Do not execute presets magically just because KIAS core exists. The physical-controller model should remain real.
-
-Choose a coherent integration for standard KIAS builds:
-
-- ship/core prototype may spawn/provide preprogrammed controller cards and a rack;
-- construction/lathe may provide blank cards and preset workflow;
-- existing KIAS maps may be updated to include a rack/cards where default automation is expected.
-
-The important rule: active automation is represented by actual graph runtimes/cards, not hidden core policy.
-
-## Legacy save/map compatibility
-
-Before deleting old runtime:
-
-1. identify whether existing maps/saves contain `KiasProtocolComponent.Protocols`;
-2. create deterministic translator from each representable legacy record/action to graph nodes/wires, or provide a one-version explicit importer;
-3. preserve enabled state and all visible actions;
-4. report unsupported legacy edge cases rather than silently dropping them;
-5. test migration;
-6. remove or disable old execution after successful migration.
-
-Do not keep both engines indefinitely “for compatibility”.
-
-## Management console after migration
-
-The management console can show:
-
-- rack/controller status;
-- active program names;
-- faults;
-- high-level automation summary;
-- shortcut/instruction to open programmer.
-
-It should no longer be the main rule editor if that would recreate a second automation UI.
-
-## Definition of migrated
-
-A protocol is migrated only when:
-
-- its trigger data exists as graph input ports;
-- its conditions can be expressed by generic nodes;
-- its actions exist as device/input endpoints;
-- its default graph preset reproduces behavior;
-- tests prove the old hardcoded action path is not also running.
+- presets that intend group-wide configured lighting should use group controllers;
+- presets that intend every directly controllable lamp may use direct Lighting;
+- keep stable serialized IDs/migration where possible; do not silently reinterpret old saved cards.

@@ -38,6 +38,7 @@ public sealed partial class KiasControllerRuntimeSystem
             {
                 writer.Write(port.Id); writer.Write((byte) port.Direction); writer.Write((byte) port.Type);
                 writer.Write(port.Name); writer.Write(port.Description);
+                writer.Write((byte) port.EnumDomain);
             }
         }
         writer.Write(program.Version); writer.Write(program.Name); writer.Write(program.Nodes.Count);
@@ -48,6 +49,7 @@ public sealed partial class KiasControllerRuntimeSystem
             writer.Write(node.DeviceName); writer.Write(node.Room); writer.Write(node.Group);
             writer.Write(node.Config.Bool); writer.Write(node.Config.Number); writer.Write(node.Config.Text);
             writer.Write(node.Config.Enum); writer.Write(node.Config.Seconds); writer.Write((byte) node.Config.Comparison);
+            writer.Write((byte) node.Config.EnumDomain);
             Ports(node.PortSnapshot);
             if (KiasGraphCatalog.External(node.Kind))
             {

@@ -1,100 +1,51 @@
-# Проверка патча KIAS
+# KIAS: validation, 2026-10-08
 
-Ветка `KIAS`, исходная база `4da7b7ee2d`, дата 2026-10-07. Проверена существующая реализация и игровой путь добавленных устройств. Полная таблица исходных пробелов и результата — [PARITY_AUDIT.md](PARITY_AUDIT.md).
+Tested branch: `KIAS`. Base HEAD: `3e067d069ebb45b192db06db8a38354f9f053cca`; evidence refers to the correction patch working tree, including removal of temporary smoke commands. The final commit is recorded in Git history.
 
-## Программируемые контроллеры — 2026-10-07
-
-База контроллеров — `a024edc7a3`; продолжение после пользовательского `539ebeed13`, ветка `KIAS`. Полный текущий набор KIAS: **46/46**, включая нагрузочный стенд. Финальные косметические правки окна отдельно проверены вместе с native sink ports: **47/47** (один layout test и 46 native port cases). Графика живой игровой сессии не проверялась; layout использует настоящий клиент и поддерживаемые размеры окна.
-
-Проверены все 27 обычных presets, строгие типы/циклы/лимиты, StringLatch и keyed Cooldown, восемь физических слотов и APC-нагрузка, dirty eject, lease/ACL/range/revision и атомарный WRITE. Проверены native source без провода, ANY failover и ALL ровно один вызов, разные события/датчики, перенос SPECIFIC без замены UID, сохранение карточки в восьмом слоте и remap привязки после загрузки карты, OFF/DATA/power/eject, отсутствие скрытого старого исполнителя, обратная связь через устройства и независимая исправная карточка. Отдельные тесты проверяют завершающий Shutdown до OFF, отмену обычных ожидающих событий/таймеров и отсутствие старого события после быстрой повторной вставки карточки.
+## Automated checks
 
 ```powershell
+dotnet restore Content.IntegrationTests/Content.IntegrationTests.csproj -m:2 -nr:false
 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --no-restore -m:2 -nr:false --filter 'FullyQualifiedName~Tests._Forge.KIAS' --logger 'console;verbosity=normal'
-dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --no-restore -m:2 -nr:false --filter 'FullyQualifiedName~KiasControllerLayout|FullyQualifiedName~DeviceLinkSinkAllPortsTest&(Name~Kias|Name~AirlockGlass|Name~RadioJammer|Name~WeaponTurretFlare)' --logger 'console;verbosity=normal'
+git diff --check
 ```
 
-Локальные логи: `.kias/kias-controller-final-validation.log` (46/46, 1,1726 мин), `.kias/controller-ui-ports-final.log` (47/47, 57,38 с). Папка логов не публикуется в Git; команды и тесты воспроизводимы. Сборка затронутых Shared/Server/Client, XAML, JSON-as-YAML presets и локализации успешна. `git diff --check` чист. Оба PNG совпадают с предоставленными RSI побайтно; автор/лицензия указаны в metadata. Корневой пакет пользователя и отдельное рабочее дерево RobustToolbox не переоформляются.
+- Restore succeeded. Original baseline: 46/46.
+- Original regressions reproduced before their fixes: WRITE metadata, ALL Speaker and integrated atmosphere DeviceList.
+- Final production build and full KIAS suite: **58 passed, 0 failed, 0 skipped**. This includes controller compiler/runtime/editor/persistence/layout, device integration, native atmosphere pipeline, audio/local speech, fleet and stress tests.
+- Build has zero errors; repository/analyzer warnings remain and were not treated as clean-warning validation.
+- After removing temporary commands, the ordinary graphical client also passed assembly sandbox verification and reached MainScreen with the sandbox enabled: `.kias/clean-client.log`; stderr was empty.
+- `git diff --check`: passed after preserving Markdown hard breaks as `<br>`.
 
-### Нагрузка графов
+Local evidence: `.kias/correction-restore.log`, `.kias/correction-baseline.log`, `.kias/correction-reproductions.log`, `.kias/correction-final-tests.log`.
 
-Каждая схема содержит ровно 100 узлов и 200 проводов: селектор, таймер, ON START, условные узлы, память и Edge с допустимой обратной связью. Первый шкаф имеет восемь независимых карточек; на остальных гридах — по одной. Сценарии: 50 гридов/57 карточек и 200 гридов/207 карточек, всего 20700 узлов/41400 проводов. Все карточки остаются исправны после событий и топологии, выключаются при OFF и холодно запускаются повторно.
+The new regression suite covers both ALL Lighting OFF→ON with native APC/light state and ALL LightController OFF→ON through the physical group controller; missing DATA and native KIAS power; SPECIFIC and ALL local speaker messages with selected/excluded senders and cooldown; native/integrated List mode; ordinary non-KIAS Link; Group UI refresh and selector cache; native AirAlarm device registration/gas/Danger → real atmosphere preset → AtmosClear. Persistence covers names and old/new service-tool groups.
 
-Измерения последнего полного прогона Debug. «KIAS» — сумма измеряемых периодических систем KIAS, а не только графа. Allocations — серверный поток; полный кадр включает остальной движок.
+Layout checks use **850×500, 1200×720, 1600×900**, empty/populated graphs and long labels, every node kind, inspector capabilities/width, localized help, summaries and mismatch feedback. Native RU localization validates all spawnable KIAS entities and graph ports; static RU/EN audit checks duplicate/missing locale keys and all 91 prototype names/descriptions.
 
-| Сценарий | Max / p95 KIAS, мс | Max / сумма allocations KIAS, байт | Max полного серверного кадра, мс |
-|---|---:|---:|---:|
-| Шкаф, 8 карточек, холодный запуск | 2,018 / 1,072 | 832000 / 842032 | 7,171 |
-| Шкаф, прогретые таймеры, 120 кадров | 0,782 / 0,125 | 4512 / 31584 | 6,019 |
-| 50 гридов, холодный запуск | 15,200 / 3,360 | 1214632 / 3789528 | 73,151 |
-| 50 гридов, прогретые таймеры | 0,386 / 0,204 | 10400 / 180352 | 1,300 |
-| 200 гридов, холодный запуск | 5,590 / 4,036 | 1222544 / 11646568 | 239,222 |
-| 200 гридов, события и 207 схем | 7,989 / 2,598 | 457408 / 6965920 | 8,840 |
-| 200 гридов после topology rebuild | 0,282 / 0,247 | 11840 / 318048 | 1,413 |
-| 200 гридов OFF | 0,043 / 0,021 | 192 / 9600 | 1,479 |
-| 200 гридов, холодный перезапуск | 10,213 / 4,077 | 1209808 / 15905080 | 11,336 |
+## Actual graphical client/server smoke
 
-Первый стенд обнаружил 152,786 мс периодической KIAS при массовом перезапуске. Ограничение запуска по времени и кэш неизменяемых compiled graphs уменьшили этот пик до 10,213 мс в полном повторном прогоне. Состояние каждой карточки остаётся отдельным. Целевой бюджет запуска 4 мс не прерывает уже начатую операцию и не является пределом времени всего движка. Холодный полный серверный кадр 239,222 мс и allocations запуска не объявляются устранёнными; результаты не являются production-гарантией.
+Ran `bin/Content.Server/Content.Server.exe` on loopback port 1213 and `bin/Content.Client/Content.Client.exe`, user `KiasLocalSmoke`, RU locale, **1600×900, UI scale 1**. A temporary debug scene spawned physical KIAS machines, DATA/core, two speakers and actual cards. All five windows opened through server `TryOpenUi` with native BUI states; the client rendered screenshots through Clyde.
 
-## Исторические результаты первого прохода
+| Window | Standard | Minimum | Local screenshots |
+|---|---|---|---|
+| Programmer | 1200×720 | 850×500 | `.kias/programmer-standard.png`, `.kias/programmer-minimum.png` |
+| Rack | 650×420 | 430×320 | `.kias/rack-standard.png`, `.kias/rack-minimum.png` |
+| Service tool, Group | 430×380 | 360×300 | `.kias/service-standard.png`, `.kias/service-minimum.png` |
+| Light group controller | 430×380 | 360×300 | `.kias/lighting-standard.png`, `.kias/lighting-minimum.png` |
+| Management | 900×650 | 650×450 | `.kias/management-standard.png`, `.kias/management-minimum.png` |
 
-- Актуальный полный набор KIAS: **26/26**. Последний прогон включает запрет закрытия регистрации без deed/claim, защиту камеры при снятии оптического модуля, восстановление TEST и безопасную герметичность. Проверены создание/снятие беспроводной привязки мультитулом, штатные On/Off-связи, отказ чужому передатчику защищённого грида, чувствительные права владельца и сохранение UID доверенного передатчика.
-- Штатные входные порты затронутых KIAS/AirlockGlass/RadioJammer/WeaponTurretFlare: **46/46**.
-- Отрицательная высота TabContainer: **5/5** (перенос заголовков, скрытие вкладок, большие отступы панели).
-- Нагрузочный стенд отдельно от других тестов: **1/1**.
-- Shared, Server, Client, XAML, прототипы и локализации собраны/загружены. `git diff --check` не обнаружил ошибок пробелов. Интерфейсные ключи RU/EN соответствуют; старые английские названия сущностей используют prototype fallback.
+Inspected these ten frames for readable palette, bounded node summaries, usable toolbar/dropdowns, separate inspector, wrapped local details, grouped sections, minimum-size vertical scrolling and pinned local actions. Narrow windows intentionally shorten long captions with full tooltips; scrolling exposes the remaining fields/content.
 
-Полный набор проверяет deed/ID/PDA, компанию и POI, claim, access wire и чувствительные права; разделение грида и сохранение; редактирование нескольких действий и некорректные сообщения; звуки/локальную речь и подавление повторов; компактные DTO, геометрию покрытия; физические IFF/docking/key/adapter/wireless, scanner connector и kit, native jammer и fire-lock, OFF/ON и TEST. Отдельный тест вентиляции проверяет штатный граф воздуха: закрытую комнату, незавершённый пересчёт, космос, отсутствующую смежную клетку, перегрев и предел обхода.
+Native client UI messages additionally exercised Rename → WRITE → Eject. The replicated physical card name matched the submitted name: `.kias/native-write-result.txt` reports PASS. The rack's running program produced local speech from both speakers in the graphical client. `.kias/native-bui-complete.txt` confirms ten frames; logs are `.kias/smoke-client.log` and `.kias/smoke-server.log`.
 
-Команда:
+## Exact limits
 
-```powershell
-dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj -m:2 -nr:false --filter 'FullyQualifiedName~KIAS' --logger 'console;verbosity=normal'
-```
+- Live interaction was driven through temporary native game commands/UI messages. It was not a manual mouse/keyboard session; the available desktop automation runtime failed to initialize. Dragging, wheel navigation and hover timing were not exercised as user gestures. Their event handlers were reviewed; automated tests cover layout, help strings and connection compatibility.
+- The debug scene bypassed machine power and granted local debug access to isolate BUI rendering; real APC/control-plane behavior is covered by integration regressions.
+- Screenshot saving used `ROBUST_DISABLE_SANDBOX=1` only for the temporary local client process. Both temporary C# commands were removed before final production build/tests; no global setting or shipped debug command was added.
+- All ten images are local ignored artifacts, not media attached to a published PR. The PR checklist remains explicit about this.
+- Live screenshots cover RU at UI scale 1. EN descriptions/keys and other sizes have automated/static coverage; other display scales and a public multiplayer server were not tested.
+- The default server map logged an unrelated pre-existing `invalid FTL state Available` warning. No KIAS assertion or native UI crash occurred during the completed capture.
 
-Нагрузочный прогон после сборки:
-
-```powershell
-dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --no-build --no-restore -m:2 -nr:false --filter 'FullyQualifiedName~KiasFleetTests' --logger 'console;verbosity=normal'
-```
-
-При смене конфигурации TOOLS восстановление зависимостей должно соответствовать сборке. Локальное окружение использует .NET 10. Исправление TabContainer и его пять тестов находятся в рабочем дереве RobustToolbox; gitlink не обновляется этим патчем.
-
-## Нагрузка
-
-Стенд измеряет отдельные серверные update callbacks, собственное периодическое время KIAS, общее время и allocations. Max — худший измеренный кадр, p95 — 95-й процентиль. Холодные кадры отделяются от прогрева.
-
-| Сценарий | Исходный max / p95, мс | Итоговый max / p95, мс |
-|---|---:|---:|
-| 200 сканеров, 800 тел, первые 60 кадров | 137,403 / 2,905 | 150,966 / 6,376 |
-| 200 ПКО, 500 снарядов, первые 60 кадров | 18,180 / 16,010 | 20,659 / 19,650 |
-| 200 оборудованных гридов, прогрев 360 кадров | сопоставимый прогрев не записан | 10,099 / 1,581 |
-| 200 ПКО, 500 снарядов, прогрев 120 кадров | сопоставимый прогрев не записан | 10,497 / 3,378 |
-
-Текущий стенд дополнительно содержит питание, proximity/flash и реальные модули камер/connector. Поэтому старые числа не являются строго идентичным сравнением. Холодные полные серверные кадры не улучшились; их нельзя выдавать за исправленные.
-
-| Прогретая периодическая работа | Max / p95 KIAS, мс | Max / сумма allocations KIAS |
-|---|---:|---:|
-| Crew/proximity/power, 360 кадров | 0,522 / 0,294 | 45288 / 6114208 байт |
-| ПКО с 500 снарядами, 120 кадров | 1,441 / 1,003 | 43616 / 2391656 байт |
-| Полностью оборудованные корабли OFF, 60 кадров | 0,060 / 0,057 | 1152 / 57600 байт |
-
-Полные 360 прогретых кадров crew/proximity/power: 435,64 мс, 21020008 байт сервер + клиент + harness. ПКО, 120 кадров: 302,85 мс, 7384456 байт. Первый холодный OFF-кадр доходил до 443,483 мс, при этом периодическая KIAS занимала максимум 0,031 мс. Это ограничение холодного тестового окружения сохраняется.
-
-Пакеты событий, измеренные целиком на серверном потоке:
-
-| Пакет | Время, мс | Allocations, байт |
-|---|---:|---:|
-| 100 вспышек / 200 детекторов | 8,20 | 3624 |
-| 200 startup/topology rebuild | 11,51 | 2746568 |
-| 200 FTL arrivals | 364,45 | 45328728 |
-| 200 anomaly crossings | 13,74 | 1069272 |
-| 200 cable cuts / explicit rebuild | 41,91 | 7463608 |
-| 200 cable reconnects / explicit rebuild | 57,51 | 8795312 |
-
-Пакеты из 200 синхронных событий — суммарное время вызовов, не отдельный игровой кадр. Очередь обычного DATA-пересчёта ограничена бюджетом. Рассредоточение периодической работы подтверждено; устранение всех холодных, физических и событийных задержек сервера не заявляется.
-
-## Ограничения
-
-Ручная сессия живого сервера и игровые скриншоты не приложены. World overlay и radar geometry проверены кодом/интеграцией, но визуальная оценка в реальном игровом окне остаётся для игрового теста. Нагрузочные результаты относятся к локальному Debug-стенду, не к production-хосту.
-
-Все Deferred/Questionable перечислены в аудите и не реализованы автоматически. Navigation beacon receiver не добавлен; использование уже существующих navmap labels не создаёт этот приёмник. Именованные универсальные группы устройств остаются отложены; редактор карточек реализован следующим проходом.
+Compatibility: version 1 and existing profile IDs remain; a legacy enum constant spanning different known domains now needs separate constants. See [CORRECTION_REPORT.md](CORRECTION_REPORT.md).

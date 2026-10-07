@@ -1,5 +1,4 @@
 using System.Linq;
-using Content.Shared._Forge.BoardingTeleport.Components;
 using Content.Server.Administration.Logs;
 using Content.Server.DeviceLinking.Systems;
 using Content.Server.Shuttles.Components;
@@ -393,14 +392,8 @@ public sealed partial class NetworkConfiguratorSystem : SharedNetworkConfigurato
     {
         var hasLinking = HasComp<DeviceLinkSinkComponent>(target) || HasComp<DeviceLinkSourceComponent>(target);
 
-        if (!configurator.LinkModeActive &&
-            hasLinking &&
-            HasComp<BoardingTeleportPlatformComponent>(target) &&
-            HasComp<DeviceNetworkComponent>(target))
-        {
-            SetMode(configuratorUid, configurator, userUid, false);
+        if (hasLinking && HasComp<DeviceNetworkComponent>(target))
             return;
-        }
 
         if (hasLinking && HasComp<DeviceListComponent>(target) || hasLinking == configurator.LinkModeActive)
             return;

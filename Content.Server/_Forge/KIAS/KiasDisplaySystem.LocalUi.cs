@@ -44,7 +44,12 @@ public sealed partial class KiasDisplaySystem
             if (tool.Mode == KiasServiceMode.Coverage && tool.Target is { } coverageTarget && !TerminatingOrDeleted(coverageTarget)
                 && Transform(coverageTarget).GridUid is { } coverageGrid) tool.Geometry = BuildCoverage(coverageGrid, coverageTarget);
             else if (tool.Target is { } deletedTarget && TerminatingOrDeleted(deletedTarget)) tool.Geometry = null;
-            return new KiasServiceState { Mode = tool.Mode, Message = tool.Message,
+            var selectedGroup = tool.Target is { } selected && !TerminatingOrDeleted(selected)
+                ? TryComp<KiasSpeakerComponent>(selected, out var selectedSpeaker) ? selectedSpeaker.Group
+                    : TryComp<KiasLightControllerComponent>(selected, out var selectedController) ? selectedController.Group
+                    : TryComp<KiasLightGroupComponent>(selected, out var selectedLight) ? selectedLight.Group : string.Empty : string.Empty;
+            return new KiasServiceState { Mode = tool.Mode, Message = tool.Message, Group = tool.Group, CurrentGroup = selectedGroup,
+                GroupKind = tool.Target is { } groupTarget && HasComp<KiasSpeakerComponent>(groupTarget) ? "speaker" : "lighting",
                 Details = tool.Target is { } diagnosticTarget && !TerminatingOrDeleted(diagnosticTarget) ? Diagnostics(diagnosticTarget) : string.Empty,
                 SourceName = tool.Source is { } namedSource && !TerminatingOrDeleted(namedSource) ? Name(namedSource) : string.Empty,
                 TargetName = tool.Target is { } namedTarget && !TerminatingOrDeleted(namedTarget) ? Name(namedTarget) : string.Empty,
@@ -185,12 +190,14 @@ public sealed partial class KiasDisplaySystem
         if (TryComp<KiasSpeakerComponent>(ent, out var speaker))
         {
             speaker.Group = args.Group.Trim().ToUpperInvariant();
+            _kias.Invalidate(grid);
             speaker.Message = args.Message.Trim();
         }
         if (TryComp<KiasLightControllerComponent>(ent, out var light) && float.IsFinite(args.Brightness)
             && args.Color.Length == 7 && args.Color[0] == '#' && args.Color.Skip(1).All(Uri.IsHexDigit))
         {
             light.Group = args.Group.Trim().ToUpperInvariant();
+            _kias.Invalidate(grid);
             light.Color = args.Color;
             light.Brightness = Math.Clamp(args.Brightness, 0, 2);
         }

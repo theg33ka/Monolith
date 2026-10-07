@@ -44,6 +44,12 @@ public sealed class KiasPersistenceTests
             }
             var core = Spawn("KiasCore", 0);
             var recorder = Spawn("KiasRecorder", 1);
+            var tool = Spawn("KiasServiceTool", 1);
+            var service = em.GetComponent<KiasServiceToolComponent>(tool);
+            service.Mode = KiasServiceMode.Group; service.Group = "TEST-42"; service.Message = "custom-announcement";
+            var legacyTool = Spawn("KiasServiceTool", 1);
+            var legacyService = em.GetComponent<KiasServiceToolComponent>(legacyTool);
+            legacyService.Mode = KiasServiceMode.Group; legacyService.Message = "bridge-old";
             var crew = Spawn("KiasCrewServer", 2);
             var rack = Spawn("KiasControllerRack", 0);
             var card = Spawn("KiasProgrammableController", 0);
@@ -112,10 +118,14 @@ public sealed class KiasPersistenceTests
             var rack = candidates.Single(em.HasComponent<KiasControllerRackComponent>);
             var slot = em.System<ItemSlotsSystem>().GetItemOrNull(rack, KiasControllerRackComponent.SlotId(7));
             Assert.That(slot, Is.Not.Null);
+            var savedTools = candidates.Where(em.HasComponent<KiasServiceToolComponent>).Select(em.GetComponent<KiasServiceToolComponent>).ToArray();
+            Assert.That(savedTools.Single(t => t.Message == "custom-announcement").Group, Is.EqualTo("TEST-42"));
+            Assert.That(savedTools.Single(t => t.Message == "bridge-old").Group, Is.EqualTo("BRIDGE-OLD"));
             var savedCard = em.GetComponent<KiasControllerCardComponent>(slot!.Value);
             Assert.That(savedCard.Enabled, Is.False);
             Assert.That(savedCard.Revision, Is.EqualTo(42));
             Assert.That(savedCard.Program.Name, Is.EqualTo("saved-card"));
+            Assert.That(em.GetComponent<MetaDataComponent>(slot.Value).EntityName, Is.EqualTo("saved-card"));
             Assert.That(savedCard.Program.Nodes[0].Binding, Is.EqualTo(relay));
             Assert.That(savedCard.Program.Nodes[0].Id, Is.EqualTo(17));
             Assert.That(savedCard.Program.Nodes[0].X, Is.EqualTo(123));

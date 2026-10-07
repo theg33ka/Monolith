@@ -16,9 +16,12 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
     [Dependency] private ItemSlotsSystem _slots = default!;
     [Dependency] private SharedPowerReceiverSystem _power = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private MetaDataSystem _metadata = default!;
 
     public override void Initialize()
     {
+        SubscribeLocalEvent<KiasControllerCardComponent, MapInitEvent>(OnCardInit);
+        SubscribeLocalEvent<KiasControllerCardComponent, ComponentStartup>(OnCardStartup);
         SubscribeLocalEvent<KiasControllerRackComponent, MapInitEvent>(OnRackInit);
         SubscribeLocalEvent<KiasControllerRackComponent, EntInsertedIntoContainerMessage>(OnRackInsert);
         SubscribeLocalEvent<KiasControllerRackComponent, EntRemovedFromContainerMessage>(OnRackRemove);
@@ -31,6 +34,18 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
         SubscribeLocalEvent<KiasControllerProgrammerComponent, ItemSlotInsertAttemptEvent>(OnProgrammerInsertAttempt);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, ItemSlotEjectAttemptEvent>(OnProgrammerEjectAttempt);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, ContainerIsRemovingAttemptEvent>(OnProgrammerRemoveAttempt);
+    }
+
+    private void OnCardInit(Entity<KiasControllerCardComponent> ent, ref MapInitEvent args) => SyncCardMetadata(ent, ent.Comp);
+
+    private void OnCardStartup(Entity<KiasControllerCardComponent> ent, ref ComponentStartup args) => SyncCardMetadata(ent, ent.Comp);
+
+    public void SyncCardMetadata(EntityUid uid, KiasControllerCardComponent card)
+    {
+        var name = card.Program.Name == "Controller" && card.Revision == 0
+            ? Loc.GetString("ent-KiasProgrammableController") : card.Program.Name;
+        _metadata.SetEntityName(uid, name);
+        _metadata.SetEntityDescription(uid, Loc.GetString("ent-KiasProgrammableController.desc"));
     }
 
     public bool CanConfigure(EntityUid machine, EntityUid actor) => !TerminatingOrDeleted(machine)

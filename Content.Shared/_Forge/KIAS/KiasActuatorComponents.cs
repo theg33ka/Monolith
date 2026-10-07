@@ -1,6 +1,9 @@
 namespace Content.Shared._Forge.KIAS;
 
 [RegisterComponent]
+public sealed partial class KiasLightFixtureComponent : Component;
+
+[RegisterComponent]
 public sealed partial class KiasLightGroupComponent : Component
 {
     [DataField]

@@ -12,7 +12,8 @@ public class KiasLocalWindow : FancyWindow
     public event Action<KiasServiceMode>? ModeChanged;
     public event Action<string>? MessageChanged;
     public event Action? RefreshRequested;
-    private readonly Label _details = new();
+    private string _details = string.Empty;
+    private readonly RichTextLabel _wrappedDetails = new();
     private readonly LineEdit _color = new();
     private readonly LineEdit _brightness = new();
     private readonly BoxContainer _logRows = new() { Orientation = BoxContainer.LayoutOrientation.Vertical };
@@ -32,13 +33,14 @@ public class KiasLocalWindow : FancyWindow
     public KiasLocalWindow()
     {
         SetSize = new Vector2(430, 380);
+        MinSize = new Vector2(360, 300);
         Resizable = true;
         var box = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, Margin = new Thickness(8) };
         _box = box;
-        XamlChildren.Add(box);
-        var scroll = new ScrollContainer { VerticalExpand = true };
+        XamlChildren.Add(KiasUi.Panel(box));
+        var scroll = new ScrollContainer { VerticalExpand = true, HScrollEnabled = false };
         var content = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical };
-        content.AddChild(_details);
+        content.AddChild(_wrappedDetails);
         content.AddChild(_logRows);
         scroll.AddChild(content);
         box.AddChild(scroll);
@@ -49,8 +51,6 @@ public class KiasLocalWindow : FancyWindow
         _locked.Text = Loc.GetString("kias-lock-registration");
         _color.PlaceHolder = Loc.GetString("kias-light-color");
         _brightness.PlaceHolder = Loc.GetString("kias-light-brightness");
-        box.AddChild(_color);
-        box.AddChild(_brightness);
         _filter.PlaceHolder = Loc.GetString("kias-log-filter");
         foreach (var mode in Enum.GetValues<KiasServiceMode>())
             _mode.AddItem(Loc.GetString($"kias-mode-{mode.ToString().ToLowerInvariant()}"), (int) mode);
@@ -59,8 +59,12 @@ public class KiasLocalWindow : FancyWindow
             _page.AddItem(Loc.GetString($"kias-page-{page.ToString().ToLowerInvariant()}"), (int) page);
         _page.OnItemSelected += args => _page.SelectId(args.Id);
         _filter.OnTextChanged += _ => { if (_state != null) UpdateState(_state); };
-        foreach (var control in new Robust.Client.UserInterface.Control[] { _filter, _mode, _page, _room, _range, _group, _message, _locked })
-            box.AddChild(control);
+        foreach (var (control, key) in new (Robust.Client.UserInterface.Control, string)[]
+                 { (_filter, "kias-log-filter"), (_mode, "kias-service-mode"), (_page, "kias-display-page"),
+                     (_room, "kias-mode-room"), (_range, "kias-sensor-range"), (_group, "kias-group-name"),
+                     (_message, "kias-custom-message"), (_color, "kias-light-color"), (_brightness, "kias-light-brightness") })
+            content.AddChild(KiasUi.Field(control, key));
+        content.AddChild(_locked);
         _save.Text = Loc.GetString("kias-save");
         _save.OnPressed += _ => Save();
         box.AddChild(_save);
@@ -89,49 +93,54 @@ public class KiasLocalWindow : FancyWindow
         _filter.Visible = state is KiasRecorderState;
         _room.Visible = state is KiasLocalState;
         _range.Visible = state is KiasScannerState or KiasSensorState or KiasWirelessState;
-        _group.Visible = state is KiasSpeakerState or KiasWirelessState or KiasLightState;
+        _group.Visible = state is KiasSpeakerState or KiasWirelessState or KiasLightState or KiasServiceState { Mode: KiasServiceMode.Group };
         _color.Visible = _brightness.Visible = state is KiasLightState;
         _logRows.Visible = state is KiasRecorderState;
-        _message.Visible = state is KiasSpeakerState or KiasServiceState;
+        _message.Visible = state is KiasSpeakerState or KiasServiceState { Mode: KiasServiceMode.Link or KiasServiceMode.Room };
         _locked.Visible = state is KiasCrewState;
         _save.Visible = state is not KiasRecorderState;
         if (state is KiasLocalState device)
         {
             Title = device.Name;
-            _details.Text = Loc.GetString($"kias-status-{device.Status.ToString().ToLowerInvariant()}");
+            _details = Loc.GetString($"kias-status-{device.Status.ToString().ToLowerInvariant()}");
             if (!_room.HasKeyboardFocus()) _room.Text = device.Room;
         }
         switch (state)
         {
             case KiasWallState wall:
                 Title = Loc.GetString("ent-KiasDisplay");
-                _details.Text = $"Entities: {wall.Entities} // Crew: {wall.Crew}\n{wall.Details}";
+                _details = Loc.GetString("kias-overview-counts", ("devices", wall.Entities), ("crew", wall.Crew)) + "\n" + wall.Details;
                 _page.SelectId((int) wall.Page);
                 break;
             case KiasRecorderState recorder:
                 Title = Loc.GetString("ent-KiasRecorder");
-                _details.Text = Loc.GetString(recorder.Online ? "kias-online" : "kias-status-offline");
+                _details = Loc.GetString(recorder.Online ? "kias-online" : "kias-status-offline");
                 _logRows.RemoveAllChildren();
                 foreach (var entry in recorder.Entries.Where(entry => entry.Contains(_filter.Text, StringComparison.OrdinalIgnoreCase)))
-                    _logRows.AddChild(new Label { Text = entry, Modulate = entry.Contains("[!]") ? Robust.Shared.Maths.Color.OrangeRed : Robust.Shared.Maths.Color.White });
+                    _logRows.AddChild(new Label { Text = entry, ClipText = true, ToolTip = entry, Modulate = entry.Contains("[!]") ? Robust.Shared.Maths.Color.OrangeRed : Robust.Shared.Maths.Color.White });
                 break;
             case KiasServiceState service:
                 Title = Loc.GetString("ent-KiasServiceTool");
                 _mode.SelectId((int) service.Mode);
-                _details.Text = Loc.GetString("kias-service-target", ("source", service.SourceName), ("target", service.TargetName)) + "\n" + service.Details;
+                _details = Loc.GetString("kias-service-target", ("source", service.SourceName), ("target", service.TargetName)) + "\n" + service.Details;
+                if (service.Mode == KiasServiceMode.Group)
+                {
+                    if (!_group.HasKeyboardFocus()) _group.Text = service.Group;
+                    _details += "\n" + Loc.GetString("kias-service-current-group", ("kind", Loc.GetString($"kias-service-group-{service.GroupKind}")), ("group", service.CurrentGroup));
+                }
                 if (!_message.HasKeyboardFocus()) _message.Text = service.Message;
                 break;
             case KiasScannerState scanner:
                 var modules = new[] { KiasScannerModules.Motion, KiasScannerModules.Identity, KiasScannerModules.Biometric, KiasScannerModules.Radiation, KiasScannerModules.Spectral, KiasScannerModules.Connector, KiasScannerModules.Optical, KiasScannerModules.Threat };
-                _details.Text += $"\n{Loc.GetString("kias-scanner-modules")}: {string.Join(", ", modules.Where(module => (scanner.Modules & module) != 0).Select(module => Loc.GetString($"kias-module-{module.ToString().ToLowerInvariant()}")))}";
+                _details += $"\n{Loc.GetString("kias-scanner-modules")}: {string.Join(", ", modules.Where(module => (scanner.Modules & module) != 0).Select(module => Loc.GetString($"kias-module-{module.ToString().ToLowerInvariant()}")))}";
                 if (!_range.HasKeyboardFocus()) _range.Text = scanner.Range.ToString();
                 break;
             case KiasSensorState sensor:
-                _details.Text += $"\n{Loc.GetString("kias-sensor-range")}: {sensor.Range} m / {sensor.Arc}°";
+                _details += $"\n{Loc.GetString("kias-sensor-range")}: {sensor.Range} m / {sensor.Arc}°";
                 if (!_range.HasKeyboardFocus()) _range.Text = sensor.Range.ToString();
                 break;
             case KiasCrewState crew:
-                _details.Text += $"\nCrew: {crew.DetectedCrew}\n{string.Join("\n", crew.Registered)}";
+                _details += "\n" + Loc.GetString("kias-crew-detected", ("crew", crew.DetectedCrew)) + "\n" + string.Join("\n", crew.Registered);
                 _locked.Pressed = crew.Locked;
                 break;
             case KiasSpeakerState speaker:
@@ -139,10 +148,10 @@ public class KiasLocalWindow : FancyWindow
                 if (!_message.HasKeyboardFocus()) _message.Text = speaker.Message;
                 break;
             case KiasResourceState resource:
-                _details.Text += "\n" + resource.Details;
+                _details += "\n" + resource.Details;
                 break;
             case KiasWirelessState wireless:
-                _details.Text += "\n" + Loc.GetString("kias-wireless-trusted", ("devices", string.Join(", ", wireless.TrustedTransmitters)));
+                _details += "\n" + Loc.GetString("kias-wireless-trusted", ("devices", string.Join(", ", wireless.TrustedTransmitters)));
                 if (!_group.HasKeyboardFocus()) _group.Text = wireless.Channel;
                 if (!_range.HasKeyboardFocus()) _range.Text = wireless.Range.ToString();
                 break;
@@ -152,13 +161,17 @@ public class KiasLocalWindow : FancyWindow
                 if (!_brightness.HasKeyboardFocus()) _brightness.Text = light.Brightness.ToString();
                 break;
         }
+        _wrappedDetails.ToolTip = _details;
+        _wrappedDetails.SetMessage(Robust.Shared.Utility.FormattedMessage.FromUnformatted(_details));
+        foreach (var control in new Robust.Client.UserInterface.Control[] { _filter, _mode, _page, _room, _range, _group, _message, _color, _brightness })
+            control.Parent!.Visible = control.Visible;
     }
 
     private void Save()
     {
-        if (_state is KiasServiceState)
+        if (_state is KiasServiceState service)
         {
-            MessageChanged?.Invoke(_message.Text);
+            MessageChanged?.Invoke(service.Mode == KiasServiceMode.Group ? _group.Text : _message.Text);
             return;
         }
         var range = 0f;

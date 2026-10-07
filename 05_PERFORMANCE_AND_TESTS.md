@@ -1,169 +1,126 @@
-# Performance, risks and acceptance — controller graphs
+# Validation, performance and UI acceptance
 
-## Scaling target
+## Rule: correctness first, no fake green status
 
-Assume ~200 KIAS-equipped shuttle grids. Most are idle. Graph support must preserve the original rule: idle/hard-off KIAS is cheap.
+This document defines tests that must pass. Do not pre-fill pass counts before the implementation run.
 
-## Forbidden complexity
+## Automated correctness matrix
 
-- frame × controller × node;
-- frame × selector × every device;
-- event × full graph scan;
-- event × full grid device scan;
-- per-node ECS entity;
-- one independent `Update()` per Timer/Clock node;
-- full BUI graph state spam every tick.
+### Controller card
 
-## Required indexes
+- draft rename does not rename item;
+- WRITE renames item;
+- description correct;
+- eject/reinsert retains identity;
+- map save/load retains name/program consistency.
 
-Prefer explicit registries:
+### Speaker
 
-```text
-active racks
-active controllers
-(grid, profileId) -> Online devices
-(grid, deviceUid, portId) -> SPECIFIC subscribers
-(grid, profileId, portId) -> ANY/ALL subscribers
-scheduled timers/clocks -> centralized scheduler
-```
+- StringConstant -> Message + OnStart -> Announce produces actual local speech;
+- Alarm path works;
+- ALL with 2+ speakers reaches every target exactly once;
+- cooldown still suppresses true repeats appropriately;
+- unrelated speaker groups are not accidentally addressed.
 
-Hard KIAS OFF or rack offline removes its controllers from active registries/subscriptions.
+### Lighting
 
-## ANY/ALL hot-path risk
+- profile discovery distinguishes direct fixtures and group controllers;
+- ALL Lighting controls two or more integrated lights;
+- ANY Lighting controls one deterministic fixture;
+- group controller affects only lights in its group;
+- integrated fixture OFF remains graph-addressable and can be ON again;
+- physically disconnected DATA path still makes endpoint unavailable.
 
-The selector feature must not mean “on every detector event, scan every device and ask its type”. Resolve membership on topology/device/power changes and keep cached sets.
+### NetworkConfigurator / AirAlarm
 
-On output event from a device:
+- list mode can save AirSensor + GasVent + GasScrubber;
+- applying list updates AirAlarm DeviceList;
+- AirAlarm actually receives/syncs devices through DeviceNetwork;
+- link mode still links source/sink ports;
+- KIAS generic DeviceLink bridge still works;
+- non-KIAS list configuration regression test included.
 
-1. identify its current profile(s) cheaply;
-2. dispatch to profile-port subscribers;
-3. include source UID in runtime event metadata;
-4. no allocation-heavy global enumeration.
+### Atmosphere preset
 
-On ALL actuator command, iterate only the cached matching Online set for that profile/filter.
+Use the real chain as far as practical:
 
-On ANY command, pick from the cached set in deterministic stable order. If first disappears, next valid device becomes selection without graph recompilation.
+- configured AirAlarm knows sensor;
+- sensor enters danger threshold / emits normal atmos network alert;
+- AirAlarm becomes Danger and raises normal event;
+- KIAS receives AtmosDanger;
+- installed `atmosphere` preset executes;
+- clear event occurs on recovery.
 
-## Timer scheduling
+A test that calls `KiasProtocolSystem.Trigger(AtmosDanger)` directly is not sufficient for this regression.
 
-Use central scheduler/buckets/min-heap. Stagger clocks/timers naturally. Never synchronize hundreds of clocks simply because all controllers booted in the same tick if jitter/bucketing can avoid a spike without changing semantics materially.
+## Graph editor automated UI tests
 
-Exact one-shot timers should preserve requested duration within normal simulation tolerance.
+Extend existing `KiasControllerLayoutTests` or split focused tests.
 
-## UI
+Run at least:
 
-The editor may be large but only exists for the active user/session. Avoid sending every runtime value every tick.
+- 850x500;
+- 1200x720;
+- 1600x900.
 
-Push:
+Cases:
 
-- structural draft changes;
-- validation results;
-- device/profile match count changes;
-- optional low-rate debug values only while diagnostics are enabled.
+- empty graph;
+- graph with constants, logic, ANY/ALL/SPECIFIC, long names;
+- selected node of every internal configurable category;
+- selected external Lighting/Speaker profile;
+- very long Russian strings.
 
-Rack UI stays tiny/bounded.
+Assertions:
 
-## Protocol migration risk
+- finite/positive DesiredSize;
+- canvas remains usable;
+- palette and inspector stay within their viewport;
+- inspector horizontal scrolling disabled;
+- no generic fields visible for unrelated node kinds;
+- node summary text fits/truncates intentionally;
+- every visible port has non-empty localized name and meaningful description;
+- no raw `Input Set: Bool` style output;
+- long names ellipsize/wrap and provide tooltip;
+- `Lighting` and `LightGroupController` are distinct palette items;
+- wire mismatch produces UI feedback instead of silent no-op.
 
-The biggest correctness risk is accidentally leaving both engines active:
+## Localization audit test
 
-- old `KiasProtocolSystem` performs action;
-- graph preset performs same action;
-- player gets duplicate sirens/PDC toggles/messages.
+Add a data-driven validation over graph profiles/prototypes:
 
-Acceptance requires proving that normal default automation has one active policy path.
+- every player-facing KIAS entity has ru-RU name and description;
+- `KIAS` is Latin in Russian strings;
+- graph node/port/profile labels resolve;
+- each native controller port description is not the generic placeholder;
+- typed enum values resolve to localized labels.
 
-Raw event sources may continue to be shared.
+## Live UI smoke — required
 
-## Persistence risk
+Automated `Measure/Arrange` is necessary but not enough.
 
-Specific entity bindings must save/load safely on the same map but never become cross-grid wildcard matches after moving a physical card.
+Launch a local game using the repo's normal workflow and inspect:
 
-ANY/ALL persist only stable profile/filter config, never matched runtime UIDs.
+1. Programmer with 8–12 nodes and wires.
+2. Programmer at minimum practical window size.
+3. Right inspector for String, Timer, ALL Lighting, Speaker.
+4. Rack with empty/mixed/running/fault slots.
+5. Service multitool in Group mode.
+6. Light group controller local UI.
+7. Management console.
 
-## Core acceptance checklist
+Capture screenshots locally into `.kias/ui-smoke/` or another ignored folder and note resolution/UI scale. Compare readability to the shuttle console reference: section hierarchy, spacing, labels, button grouping, contrast.
 
-### Physical
+Fail the task if:
 
-- controller item uses provided sprite;
-- rack uses provided sprite;
-- programmer separate from rack;
-- rack = 8 slots exactly;
-- 9th rejected;
-- dynamic real power load;
-- no execution outside active rack.
+- fields overlap;
+- horizontal inspector scrollbar appears;
+- important text is clipped with no tooltip;
+- raw technical identifiers dominate normal player UI;
+- controls are present but their purpose is not understandable without source code.
 
-### Runtime
+## Performance regression
 
-- power/DATA/KIAS OFF stop immediately;
-- timers/queues cleared;
-- cold boot on resume;
-- two controllers never share volatile state;
-- 8 cards run independently;
-- evaluation budget faults only the offending controller.
+Do not turn UI/correctness pass into per-frame scans.
 
-### SPECIFIC
-
-- exact device works;
-- stale/deleted target safe;
-- transfer to another ship -> unavailable;
-- no name/prototype auto-rebind.
-
-### ANY
-
-- zero matches = valid no-op;
-- event from each of multiple matching sensors reaches graph;
-- command reaches one matching Online device;
-- deterministic selection;
-- failover after target offline/removal;
-- transferred card automatically works with same profile on new ship.
-
-### ALL
-
-- zero matches = valid no-op;
-- event from each matching sensor reaches graph;
-- command reaches all Online matches once;
-- offline excluded;
-- topology update changes set without recompile;
-- transferred card automatically works with new ship matches.
-
-### Graph correctness
-
-- logic truth tables;
-- IF/ELSE;
-- timer/clock;
-- state nodes;
-- comparisons;
-- type mismatch rejected;
-- cycle detection;
-- stateful feedback allowed;
-- malformed IDs/config rejected.
-
-### DeviceLink
-
-- source -> graph;
-- graph -> sink;
-- existing overload/loop protection intact.
-
-### Protocol migration
-
-- every current default/accepted protocol mapped to graph preset;
-- presets visible/editable in node editor;
-- default portable graphs use ANY/ALL where possible;
-- no duplicate old+new actions;
-- legacy data has tested migration/import path;
-- disabling/removing the controller stops that automation: there is no hidden hardcoded duplicate.
-
-## Stress scenarios
-
-Record total elapsed + allocations + worst/near-worst update duration where harness permits:
-
-- one rack, 8 cards, 800 total nodes;
-- 50 ships with selector-heavy basic warnings;
-- 200 idle-active ships;
-- 200 hard-off ships;
-- event burst from weapon flashes/hull impacts;
-- topology/power flapping;
-- mass rack boot;
-- 0 matching devices vs many matching devices;
-- migrated default Battle Alert across multiple ships.
+Re-run existing KIAS fleet/stress tests after selector/profile changes. Direct-light discovery must remain indexed/cached on topology changes, not scan all lights per graph event.

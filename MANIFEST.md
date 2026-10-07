@@ -1,24 +1,29 @@
 # Package manifest
 
-Generated files and SHA-256:
+Baseline: `3e067d069ebb45b192db06db8a38354f9f053cca`
 
-- `00_AGENT_MASTER_PROMPT.md` — 36002 bytes — `684e9a0dc2b66d308b9e8ee02994ff73912862b3fdf8cb1ae47c2d0881ba3861`
-- `01_REPO_FINDINGS.md` — 7757 bytes — `d545bc3e9fc7b225e602a73a532bc57eceb874ac475ff1a02751439854937b05`
-- `02_TARGET_ARCHITECTURE.md` — 5499 bytes — `b7ba03d2a16bc593726e97ce4f67cbac5a10e82ed742ca5464685e2d1d83fe5b`
-- `03_DEVICE_PROTOCOL_SPEC.md` — 6322 bytes — `a2d35cafc4443b53f6dd650d00e8074a1349ede35ac5078305eeebeb7f3e8182`
-- `04_IMPLEMENTATION_PLAN.md` — 3954 bytes — `4003ea58be3047001d52bbef923095b4655f9ccbda7690706ff7f3f4196e45b0`
-- `05_PERFORMANCE_AND_TESTS.md` — 5100 bytes — `ff211b3796c17fd5c8d4edb5ed0420b0a16b800a060ec3e9197c3b05cbb205f4`
-- `06_REPO_SOURCE_MAP.md` — 3390 bytes — `89571a7d506aea2aa18dc3444455e2fa85f13e3e2e43a52ff8e4412e782f15f7`
-- `07_CONTROLLER_GRAPH_SPEC.md` — 5535 bytes — `30f6a2c900dfc2b776229c37bf33c38cddcec0da775d79f07b2e84d77b83a32d`
-- `08_PROTOCOL_MIGRATION.md` — 5079 bytes — `ad8e0f45033a664d5b9d0b89451fd21614f193b4e9998c99938d96a6ccacd8bb`
-- `09_THIRD_PARTY_REFERENCES.md` — 1213 bytes — `9925912714c99ffd3db572e65a103ca468e3e52414191585812ecdc8d7ab41dd`
-- `README.md` — 3104 bytes — `24099db477cdf2fec5c008cfb63dec8f9371b738497eb129fc32d012942efa91`
-- `assets/README.md` — 681 bytes — `30963c71dd97dd4d7c7b4eab6d0ea88c946af6aaa926a2fa46c303be0734c7b6`
-- `assets/raw/kias_controller_rack.png` — 538 bytes — `8c960ff9fdef5daf6e59626dc499f3bb4127e6b0c4837b0bf6277513d0580676`
-- `assets/raw/kias_programmable_controller.png` — 225 bytes — `c1e73b471f59bd62fefedea8d07fd300254d815e000d26227a4d23c86d518d6f`
-- `assets/rsi_ready/KiasControllerRack.rsi/meta.json` — 113 bytes — `7c287e0e026bdbd465fc5b18713bbf6e1e6869d3e52be31a272d52207af68b98`
-- `assets/rsi_ready/KiasControllerRack.rsi/rack.png` — 538 bytes — `8c960ff9fdef5daf6e59626dc499f3bb4127e6b0c4837b0bf6277513d0580676`
-- `assets/rsi_ready/KiasProgrammableController.rsi/controller.png` — 225 bytes — `c1e73b471f59bd62fefedea8d07fd300254d815e000d26227a4d23c86d518d6f`
-- `assets/rsi_ready/KiasProgrammableController.rsi/meta.json` — 119 bytes — `276aac5b4c853e6cd1e3529e64a0fbfcc75200a2b73cdb8e2564a4c9c3bbcbf5`
-- `history/00_INITIAL_MASTER_PROMPT_APPLIED.md` — 3814 bytes — `c91c2f59a7bfedd4d270a6dbd68297774f633167787304f148f893abc0c79429`
-- `history/01_FIRST_PATCH_PROMPT_APPLIED.md` — 44997 bytes — `8d0e6b5296153aab184df8749ed31ad131a014813a81fd3a320c1ab019d5122c`
+- `00_AGENT_MASTER_PROMPT.md` — 21285 bytes — `6526e13e44b805dd29061f1be0521085ab35aa2eaf343f3a2ecb0aab7e6f88c5`
+- `01_REPO_FINDINGS.md` — 5712 bytes — `ca3e592f94a1d56533c92a15251fa8a6d1278fd90fdf674b903f6fc137692f61`
+- `02_TARGET_ARCHITECTURE.md` — 3155 bytes — `fcf09df388c6e7e0cd215b3d39a1d2dc9726233839764a488a5f37369cdb0c85`
+- `03_DEVICE_PROTOCOL_SPEC.md` — 3111 bytes — `d83eadf8a25bdf9b34d553694c2e3341a3d53fb089b1cd35f3356e1f6843bb8e`
+- `04_IMPLEMENTATION_PLAN.md` — 2149 bytes — `fa394968d6983e0a73f25b4671b72da3c252896a92afffc7a32abb7c82553e98`
+- `05_PERFORMANCE_AND_TESTS.md` — 4382 bytes — `9779480656ee72aaeee63908a34385a38fd9083d510b6f682f567f0f9c419a5a`
+- `06_REPO_SOURCE_MAP.md` — 3244 bytes — `1abc74ae270765d76f45a83fc5233245494bb1a310c8de5bcec16b76ba5d32b3`
+- `07_CONTROLLER_GRAPH_SPEC.md` — 3606 bytes — `59b52edec8b913c76987b5a59c80ae4f2c86fc2afa9f2f1724802a73a1171104`
+- `08_PROTOCOL_MIGRATION.md` — 2128 bytes — `b30924d88fd95d04d72d6acb39626e6afe49697875d42ccdb5b1387e4265b6a8`
+- `09_THIRD_PARTY_REFERENCES.md` — 1234 bytes — `69ee1a33c9731080c38c1b0c7e60ad550c33574c243f4d566c59ec40e958526a`
+- `APPLY.md` — 1793 bytes — `960b610d89ec896155797da0ab0dca25c0de3720edc6c0a7b3e6baece81f2b4a`
+- `Docs/KIAS/ARCHITECTURE.md` — 1522 bytes — `58b2916ebf3f7c12ccb03be74aeff3560d5b7c5f8a9bf1ee7b98f615b3179d3a`
+- `Docs/KIAS/CONTROLLERS.md` — 2450 bytes — `4db586b085a6c95f0269ecf03dad782539077ffba94c07c397f2edd946a4cb48`
+- `Docs/KIAS/PARITY_AUDIT.md` — 2805 bytes — `2aaee4cbcb0cad8b938133af8d4559dadffbaceb93ffbbefe5df402df7da2d9b`
+- `Docs/KIAS/PLAYER_GUIDE.md` — 5800 bytes — `74b6d0cdec1e82537cdba6ecc9273cfcc60aa66ad68bf6f7b15e9ebaf78a4f73`
+- `Docs/KIAS/PULL_REQUEST.md` — 5420 bytes — `8bee746a4edfa7cd82299ea049469301c90221ad8e3d5279d9e9b75c7016b8bf`
+- `Docs/KIAS/README.md` — 842 bytes — `0630557d8694e7c50ebec81cfb52209b5a66faedbc2127e4cf51b652b074238a`
+- `Docs/KIAS/THIRD_PARTY.md` — 712 bytes — `6e2dd9e55c0b7e7ed018a5f6eb1bbbb0228834b41baaae967c09d6516e7f472c`
+- `Docs/KIAS/VALIDATION.md` — 5697 bytes — `83be90d83b321396f9dceb0f6c54974d1b936d7b125b17e22736fca57658f71f`
+- `PATCH_PROMPT.md` — 9838 bytes — `d89dd3dd77c033e683c80728b2b2fe700bfaae09de327c45a621857c7aa79e89`
+- `references/ui_graph_current_overview.png` — 175793 bytes — `08f9853535923216a2fb08e1b12aff6d11b8e8ddd6487421a8675cc0fb2c9c01`
+- `references/ui_graph_inline_value_reference.png` — 40162 bytes — `560d7cf82804ebb392ec9bf5bea6efb13ce05f40cf4f603019dc8fbe864e85a1`
+- `references/ui_shuttle_reference.png` — 45272 bytes — `d8f69324ef9025e36b57fba62dbe489563fa52ffa27c445a1b4fec3915e27b77`
+
+- `Docs/KIAS/CORRECTION_REPORT.md` — 9635 bytes — `9490da122e6de3a15d26e6ffda89e5550b4e008efb04f48252a1712607d8b8af`

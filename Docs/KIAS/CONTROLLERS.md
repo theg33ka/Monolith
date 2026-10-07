@@ -1,45 +1,57 @@
-# Программируемые контроллеры KIAS
+# Programmable KIAS controllers
 
-## Игровой путь
+## Basic workflow
 
-`KiasProgrammableController` — переносимая карточка со схемой. `KiasControllerProgrammer` — отдельный запитанный программатор с одним слотом и нативным редактором. `KiasControllerRack` — запитанный DATA-шкаф с восемью настоящими слотами. Платы и карточка изготавливаются штатными рецептами; предоставленные спрайты используются без изменения PNG.
+1. Insert controller card into programmer.
+2. Name program.
+3. Add nodes/devices/selectors.
+4. Connect compatible typed ports.
+5. Configure only relevant node parameters.
+6. Resolve validation errors.
+7. WRITE.
+8. Eject card and insert into controller rack.
 
-Вставьте карточку в программатор, добавьте узлы из палитры, соедините совместимые порты и нажмите WRITE. Узлы перетаскиваются левой кнопкой; правая кнопка на фоне двигает холст; колесо меняет масштаб. Перетаскивание от порта создаёт провод, правая кнопка на порту удаляет его провода. Поиск фильтрует палитру. Для сохранения нужны открытое окно, дистанция взаимодействия и права KIAS. Только один пользователь редактирует черновик. При ошибке WRITE не меняет карточку. Грязный черновик требует WRITE или явного сброса перед извлечением.
+After WRITE the physical card itself uses the program name.
 
-В программаторе карточка не исполняется. После вставки в Online-шкаф начинается холодный запуск ON START. OFF карточки, потеря питания/DATA, извлечение, удаление или перенос шкафа прекращают исполнение, отменяют таймеры и сбрасывают память. Возврат питания или ON запускает её заново. Нагрузка APC: 100 Вт + 25 Вт на каждую вставленную карточку; полный шкаф — 300 Вт. Девятая карточка отвергается. Окно шкафа показывает восемь слотов, работающие карточки, ошибки и нагрузку.
+## Types
 
-## Типы и узлы
+- Импульс — instantaneous event;
+- Да/Нет — persistent logical state;
+- Число;
+- Строка;
+- Объект;
+- typed enumeration.
 
-Порты имеют тип Signal, Bool, Number, String, Entity или Enum. Цвет и направление обозначены на холсте. Неявных преобразований нет. Signal допускает несколько источников, остальные входы — один.
+Impulse and Bool are intentionally not directly interchangeable.
 
-Каталог: ON START; константы Bool/Number/String/Enum; AND/OR/XOR/NOT/NAND/NOR/XNOR; IF; сравнения Number/Bool/String/Enum; Timer, Clock, Cooldown; Latch, Toggle, Counter, Edge, StringLatch; конкретное устройство, ANY и ALL. StringLatch сохраняет строку до Store/Reset; Saved поступает после обновления Stored. Cooldown разделяет задержки по входному ключу и ограничивает число ключей.
+## Selectors
 
-Пределы: 128 узлов, 256 проводов, 32 внешних узла, 32 провода от одного выхода, текст 256 символов, таймер 0,1–600 секунд. Чистый комбинационный цикл запрещён. Обратная связь через память/время разрешена в пределах бюджета; зацикливание переводит только затронутую карточку в FAULT.
+- SPECIFIC — one physical device;
+- ANY — any/first available matching device for commands;
+- ALL — every matching device.
 
-## Устройства и перенос
+Selector fields like room/group are **filters**.
 
-SPECIFIC сохраняет точный EntityUid. Он работает только с этим устройством на текущем гриде; после переноса карточки не заменяется похожим объектом. ANY и ALL сохраняют профиль и фильтры помещения/группы, находят устройства нового грида и принимают события от каждого подходящего Online-датчика. ANY направляет команду первому Online-совпадению по UID и переходит к следующему при его недоступности. ALL направляет команду каждому совпадению один раз. Ноль совпадений допустим.
+## Lighting
 
-Группа применяется к динамикам и свету; помещение — к метке KIAS устройства. Метаданные показывают число доступных совпадений, наличие устройства и конкретный источник последнего события. Потоки разных датчиков не подавляются общим ограничителем оповещений.
+`ALL Освещение` means all directly controllable fixtures.
 
-Профили: RoomScanner, HullSensor, IntegrityMonitor, CollisionMonitor, AtmosSafety, PowerMonitor, Horizon, WeaponFlashDetector, ProximitySensor, CrewMonitor, NavigationComms, Speaker, Recorder, LightController, Suppression, Relay, DefenceController, Jammer, Decoy, Ventilation, DockingSensor, DeviceAdapter, Automation. Дополнительные native DeviceLink-семейства определяются набором разрешённых source/sink ports; их порты представлены как Signal. Мост наблюдает source без физического провода и вызывает штатный sink через его защиту перегрузки. Он не даёт обхода TEST или ограничений устройства.
+`ALL Контроллеры групп освещения` means physical KIAS group controllers.
 
-## Штатные схемы и старые данные
+These are intentionally different.
 
-Все 27 шаблонов являются обычными редактируемыми узлами и проводами:
+## Speaker
 
-`battle-impact`, `battle-flash`, `battle-manual`, `flash-unknown`, `hull-damage`, `collision`, `atmosphere`, `anomaly`, `contact`, `arrival`, `proximity`, `crew-critical`, `crew-dead`, `vessel-critical`, `power-deficit`, `fire`, `radiation`, `local-threat`, `boarding`, `greeting`, `fire-clear`, `atmos-clear`, `medical-assistance`, `quiet`, `power-lost`, `boot`, `shutdown`.
+Wire a String into `Сообщение`, then an Impulse into `Объявить` or `Тревога`. `Ключ/ID события` is optional context for deduplication/cooldowns and is usually propagated from event sources.
 
-Выбор шаблона заменяет черновик, WRITE записывает его на карточку. Шаблон quiet сохраняет исходное отключение: его нужно включить явно. В консоли управления ручной запуск и тихий режим публикуют события Automation; сброс тревоги публикует AlertReset. Без работающей карточки эти события не запускают действия.
+## Inline readability
 
-Старый исполнитель и редактор правил выведены из нормального пути. Прежние `KiasProtocolRecord` сохраняются для одного переходного периода и доступны через явный импорт в программаторе. Неподдерживаемые условия/цели дают ошибку, без частичного молчаливого переноса. Условия представлены сравнениями, AND и IF, задержки — Cooldown с EventKey. Оповещение и запись в журнал — отдельные видимые узлы. Повтор MAYDAY использует StringLatch, Latch и Clock на 180 секунд; AlertReset останавливает повтор.
+Constants/timers/comparators/selectors display their important configured value on the node so a graph can be read without opening every inspector panel.
 
-При явном выключении ядра только событие Shutdown обрабатывается перед OFF, с пределом 4096 вычислений и 1024 команд. Обычные ожидающие события и все будущие таймеры отменяются. После OFF действий нет. При физической потере питания завершающее действие не гарантируется.
+## Saved-card compatibility
 
-## Исполнение и сохранение
+The group-controller serialized profile remains `LightController`; `Lighting` is the new direct-fixture profile. Existing version-1 graphs are retained. EnumDomain is optional: legacy unspecified enum ports infer their domain through connected ports, including EnumCompare. The compiler rejects mixed known domains instead of treating unrelated integer values as interchangeable. The original saved graph is not modified by inference.
 
-Сервер хранит индексы только подключённых выходов, очередь событий/команд и общий упорядоченный планировщик таймеров. За кадр: до 64 исходных событий, 256 обработок получателей, 128 команд и 128 истекших таймеров, с общим пределом вычислений. Очереди ограничены 4096 элементами. Повтор одной команды в одной причинной цепочке через устройства ограничен 32; независимые события имеют отдельный бюджет. Исключение исполнителя переводит его карточку в FAULT.
+SPECIFIC ignores selector Room/Group filters; ANY/ALL use them. Changing a device's room/group invalidates cached selector membership. Target power does not remove an integrated device from the control plane while core, DATA and anchoring remain valid; native KIAS machinery still needs power.
 
-Холодные запуски ограничены 16 карточками и целевыми 4 мс за кадр; уже начатая отдельная операция не прерывается. Кэш до 128 скомпилированных схем учитывает содержимое программы и схему портов. Схема неизменяема; память, входы, таймеры и состояние всегда отдельны у каждой карточки.
-
-На карте сохраняются версия, имя, стабильные ID, настройки, позиции, провода, привязки, ревизия, флаг включения и содержимое слотов. EntityUid перепривязываются штатным сериализатором карты. Очереди, таймеры и найденные совпадения не сохраняются. Эпоха запуска отбрасывает события, поступившие до новой вставки/холодного запуска. Проверки и замеры приведены в [VALIDATION](VALIDATION.md), источники и лицензии — в [THIRD_PARTY](THIRD_PARTY.md).
+A previously shared integer constant feeding unrelated enum domains must be split into one constant per domain. Such a graph reports an explicit enum-domain error; values are never silently reinterpreted.

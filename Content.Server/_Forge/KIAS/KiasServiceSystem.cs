@@ -25,16 +25,31 @@ public sealed class KiasServiceSystem : EntitySystem
     public override void Initialize()
     {
         SubscribeLocalEvent<KiasServiceToolComponent, AfterInteractEvent>(OnUse);
+        SubscribeLocalEvent<KiasServiceToolComponent, ComponentStartup>(OnStartup);
         SubscribeLocalEvent<KiasServiceToolComponent, GetVerbsEvent<AlternativeVerb>>(OnModes);
         SubscribeLocalEvent<KiasServiceToolComponent, KiasSetMessage>(OnMessage);
         SubscribeLocalEvent<KiasServiceToolComponent, KiasModeMessage>(OnModeMessage);
         SubscribeLocalEvent<KiasAvailabilityChangedEvent>(OnAvailability);
     }
 
+    private void OnStartup(Entity<KiasServiceToolComponent> ent, ref ComponentStartup args)
+    {
+        var legacy = ent.Comp.Message.Trim();
+        if (ent.Comp.Mode == KiasServiceMode.Group && ent.Comp.Group.Length == 0 && legacy.Length is >= 1 and <= 32)
+            ent.Comp.Group = legacy.ToUpperInvariant();
+    }
+
     private void OnMessage(Entity<KiasServiceToolComponent> ent, ref KiasSetMessage args)
     {
         if (args.Message.Length > 256)
             return;
+        if (ent.Comp.Mode == KiasServiceMode.Group)
+        {
+            if (args.Message.Trim().Length > 32) return;
+            ent.Comp.Group = args.Message.Trim().ToUpperInvariant();
+            _display.Refresh(ent);
+            return;
+        }
         ent.Comp.Message = args.Message.Trim()[..Math.Min(args.Message.Trim().Length, 256)];
         _display.Refresh(ent);
     }
@@ -72,7 +87,15 @@ public sealed class KiasServiceSystem : EntitySystem
         if (ent.Comp.Mode == KiasServiceMode.Group && Transform(target).GridUid is { } lightGrid
             && _kias.ActiveGrids.Contains(lightGrid) && _kias.CanConfigure(lightGrid, args.User))
         {
-            var group = ent.Comp.Message.Trim().ToUpperInvariant();
+            ent.Comp.Target = target;
+            var group = ent.Comp.Group.Trim().ToUpperInvariant();
+            if (group.Length == 0)
+            {
+                args.Handled = true;
+                _ui.TryOpenUi(ent.Owner, KiasUiKey.Service, args.User);
+                _display.Refresh(ent);
+                return;
+            }
             if (group.Length is < 1 or > 32)
                 return;
             if (HasComp<Content.Shared.Light.Components.PoweredLightComponent>(target))
@@ -84,7 +107,9 @@ public sealed class KiasServiceSystem : EntitySystem
             else
                 return;
             args.Handled = true;
+            _kias.Invalidate(lightGrid);
             _popup.PopupEntity(Loc.GetString("kias-light-group-set", ("group", group)), target, args.User);
+            _display.Refresh(ent);
             return;
         }
         if (ent.Comp.Mode == KiasServiceMode.Link && ent.Comp.Source is { } monitor
@@ -131,6 +156,7 @@ public sealed class KiasServiceSystem : EntitySystem
             case KiasServiceMode.Room:
                 var room = ent.Comp.Message.Trim();
                 Comp<KiasDeviceComponent>(target).Room = room[..Math.Min(room.Length, 64)];
+                _kias.Invalidate(grid);
                 _popup.PopupEntity(Loc.GetString("kias-room-set", ("room", Comp<KiasDeviceComponent>(target).Room)), target, args.User);
                 break;
             case KiasServiceMode.Link:

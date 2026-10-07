@@ -1,53 +1,32 @@
-# Архитектура KIAS
+# KIAS architecture — current model
 
-Патч ветки `KIAS` развивает существующую реализацию. Исходные пробелы перечислены в [аудите](PARITY_AUDIT.md), подтверждённые проверки — в [VALIDATION.md](VALIDATION.md).
+KIAS is a ship-local automation/data system with programmable controller graphs.
 
-## Ядро и DATA
+## Network plane
 
-`KiasSystem` ведёт реестр устройств каждого грида. Одно работоспособное ядро обслуживает связные DATA-участки с радиусом подключения две клетки. Несколько ядер дают диагностируемый отказ. Топология кешируется; кабели, питание, перемещения и разделение грида ставят сеть в ограниченную очередь пересчёта. До пересчёта операции отвергают устаревшую доступность. Поворот орудия не перестраивает DATA.
+The core and DATA topology determine which KIAS endpoints are reachable. Device discovery and controller selectors are scoped to the rack's current grid.
 
-OFF исключает грид из периодической обработки, прекращает TEST и звук, освобождает ПКО. ON заново проверяет устройства. Настройки и ссылки сохраняются, индексы, аудиодескрипторы и расписания создаются заново.
+## Power plane
 
-## Доступ
+Native KIAS machines normally require their own functional power to be online.
 
-Все изменения проходят `KiasAccessSystem`. Приоритет: штатный deed шаттла → компания → защищённый POI → сохранённый claim → открытый свободный грид. Deed проверяет общий `ShipAccessReaderSystem.HasDeedAccess`, используемый также замком shuttle console. ID в PDA учитывается штатным поиском карт.
+Integrated third-party devices are special: KIAS may disable the target's working power while retaining a live integration/control endpoint. This is required so KIAS can issue the later ON command. Control-plane availability must therefore not be identical to target functional power for `KiasIntegrated` endpoints.
 
-Свободное ядро присваивается свайпом ID/PDA. Claim привязан к аккаунту; новая карта того же игрока не создаёт тупик. `ShipOwnershipComponent` не определяет права KIAS. Гости получают обычное управление без чувствительных операций. Обрыв access wire ядра разрешает обычную конфигурацию, сохраняя ownership и чувствительные права. Регистрация транспондеров открыта по умолчанию.
+## Automation plane
 
-На свободном гриде до claim обычная конфигурация доступна, чувствительные операции и закрытие регистрации недоступны. Это исключает блокировку бесхозного сервера случайным посетителем.
+Controller cards store graph programs. They execute only inside a powered online rack. Graphs are strict typed dataflow/event programs with persistent card data and volatile runtime state.
 
-## UI и диагностика
+## Native systems remain authoritative
 
-Только `KiasManagementConsole` использует полный `KiasManagementState`. Экран, регистратор, мультитул, сканер, датчик, сервер экипажа, динамик, ресурсы, свет и трансивер имеют отдельные компактные DTO и окна. Сервер повторно проверяет права, цели, диапазоны и строки.
+KIAS does not replace DeviceList/DeviceNetwork, AirAlarm logic, light/power systems, speech, or DeviceLink. It observes and controls them through supported APIs.
 
-Открытые UI обновляются при изменении; запросы объединяются. Диагностика вычисляет путь ядро → DATA → устройство по запросу. Локальное покрытие рисует world overlay; дальние датчики используют штатный `ShuttleNavControl` с кругом или сектором. Геометрия не ищет сущности. Закрытие окна, потеря цели, инструмента или дистанции снимают overlay.
+## Lighting model
 
-## Сканеры и интеграция
+Two distinct capabilities exist:
 
-Базовый и расширенный сканеры используют шесть контейнерных слотов. Identity объединяет ID и транспондер; старые предметы сохранены как aliases. Базовый набор: motion, identity, optical, connector. Расширенный корпус допускает биометрию, спектральный и радиационный модули; threat устанавливается отдельно.
+- direct `Lighting`: individual compatible light fixtures;
+- group controllers (serialized profile `LightController`): KIAS controllers that operate a named group of fixtures.
 
-Экипаж обрабатывается по индексу тел и заранее вычисленному покрытию. Optical включает штатную камеру, radiation использует локальный receiver, spectral отслеживает рост аномалии. Connector подключает комнатные устройства через сканер; расходуемый integration kit даёт прямое DATA-подключение. Штатные питание и On/Off-порты сохраняются.
+## UI model
 
-IFF требует физического приёмника. Docking sensor, ключевой выключатель, аварийная кнопка, flip-flop, rotary, wireless transceiver, адаптер, навигационные огни и аварийная антенна представлены физическими прототипами и рецептами. Navigation beacon receiver остаётся отложенным. Названия помещений используют существующие navmap labels, настройки комнаты и сектор относительно центра грида.
-
-Беспроводной приёмник защищённого грида принимает внешние управляющие сигналы только от явно привязанных передатчиков. Список до 16 UID сохраняется. Мультитул создаёт/снимает привязку через access resolver с чувствительными правами приёмника; native DeviceLink передаёт сигнал, а KIAS повторно проверяет доверие, канал, карту и расстояние. Один канал не даёт доступ к чужому кораблю.
-
-## Протоколы и звук
-
-Автоматика исполняется единственным graph runtime из физических карточек в Online rack. `KiasProtocolRecord` оставлен только как сохраняемый источник явного импорта на один переходный период. Старые исполнитель и редактор не используются. Все 27 штатных правил представлены данными `controller_presets.yml`; условия, действия, cooldown и повтор MAYDAY видны обычными узлами и проводами. `KiasProtocolSystem` сохраняет диагностику и безопасные низкоуровневые API, публикуя события Automation. Обычная консоль управляет ручными входными событиями и сбросом тревоги. Архитектура, пределы и жизненный цикл — в [CONTROLLERS](CONTROLLERS.md).
-
-`KiasEmissionGate` независимо ограничивает журнал, речь и звук. Повышение тяжести проходит сразу; повторы суммируются. Четыре звуковых канала используют серверные allowlist presets. Динамики говорят через штатный Say и PlayPvs: имя и чат-бабл принадлежат динамику.
-
-TEST длится пять секунд, блокирует физические действия протоколов и прямых KIAS-соединений, затем восстанавливает тревогу и задержки. OFF прекращает проверку.
-
-## Защита и безопасность
-
-ПКО использует общий индекс снарядов, упреждение, реальные Gun/FireControl, патроны и временную резервацию орудия. Fire-lock запрещает обычный огонь, допускает разрешённое ПКО и снимается при OFF. Помехи используют native jammer с батареей, ложные цели — настоящий GS-002. Сенсор попаданий ограничен 50–100 м и не считает поглощение щитом ударом в корпус.
-
-Пожаротушение расходует картридж. Реле размыкает выбранную HV/MV/LV/DATA-сеть. Восстановление вентиляции проверяет герметичность и безопасный состав связанного воздушного объёма с завершённым пересчётом атмосферы. Питание читается из штатных сетей; нагрузка сбрасывается только настроенными действиями.
-
-Критическое состояние требует тяжёлых повреждений вместе с дефицитом питания либо устойчивой недоступностью экипажа. Медицинский запрос требует зарегистрированного экипажа, бедствия и выдержки времени. MAYDAY требует powered antenna и навигации, отправляется в Traffic с интервалом 180 секунд; медицинский запрос — в Medical.
-
-## Ограничение нагрузки
-
-Обработчики распределены по фазам: crew/proximity примерно 1 Гц, power раз в пять секунд, ПКО десять раз в секунду с бюджетом гридов за кадр. Общий индекс снарядов выключен без активного ПКО. Flash использует пространственный поиск, ранние фильтры и повторно используемые коллекции. Замеры фиксируют отдельные серверные кадры и собственное время KIAS; подтверждённые числа приведены в VALIDATION.
+Player UIs should expose gameplay concepts rather than internal C# names. Technical IDs remain serialization/runtime details.

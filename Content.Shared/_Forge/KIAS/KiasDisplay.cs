@@ -36,6 +36,7 @@ public sealed partial class KiasSpeakerLink
 [RegisterComponent]
 public sealed partial class KiasServiceToolComponent : Component
 {
+    [DataField] public string Group = string.Empty;
     [DataField]
     public KiasServiceMode Mode;
     [DataField]

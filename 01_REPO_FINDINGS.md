@@ -1,168 +1,67 @@
-# Repository findings — controller/graph integration pass
+# KIAS repo findings — correction pass
 
-## Status of this document
+Baseline: `3e067d069ebb45b192db06db8a38354f9f053cca`.
 
-The original repo research pack and the first corrective KIAS patch have already been used. This revision is the handoff for the **programmable controller / graph** pass. The coding agent must re-open the current branch before assuming any path is unchanged.
+## Подтверждённые находки в текущем коде
 
-Historical base research snapshot: `Forge-Station/Monolith main b069ad386d7599ac6b51d9dfcdfba9b6a311f676` (2026-10-06). A later KIAS snapshot inspected during graph planning already had `KiasSystem`, `KiasGridComponent`, `KiasProtocolSystem`, device roles, KIAS events, external sensors and DeviceLink integration. Current local HEAD may be newer.
+### Controller card metadata
 
-## KIAS topology/runtime — reuse, do not replace
+`KiasControllerUiSystem.Edit(... Write ...)` копирует draft в `controller.Program`, обновляет revision/enabled, но не меняет entity metadata физической карточки. Поэтому rack видит program name, а предмет остаётся прототипным `KIAS programmable controller`.
 
-Known relevant paths from the KIAS branch:
+### Inspector показывает всё всем
 
-- `Content.Shared/_Forge/KIAS/KiasComponents.cs`
-- `Content.Shared/_Forge/KIAS/KiasTopology.cs`
-- `Content.Shared/_Forge/KIAS/KiasProtocols.cs`
-- `Content.Server/_Forge/KIAS/KiasGridComponent.cs`
-- `Content.Server/_Forge/KIAS/KiasSystem.cs`
-- `Content.Server/_Forge/KIAS/KiasProtocolSystem.cs`
-- `Content.Server/_Forge/KIAS/KiasHullSystem.cs`
-- `Content.Server/_Forge/KIAS/KiasExternalSensorSystem.cs`
-- `Content.Server/_Forge/KIAS/KiasPowerSystem.cs`
+`KiasControllerWindow.SelectNode()` сейчас безусловно создаёт поля room/group/text/number/seconds/enum/bool/comparison. Большинство полей для большинства node kinds ничего не делает. Это источник основной путаницы на скриншоте.
 
-Findings from that snapshot:
+### Значения constants скрыты в inspector
 
-- `KiasGridComponent` already caches `Devices`, `Cables`, `Online`, roles and a topology object;
-- topology is rebuilt when dirty rather than packet-simulated along every cable;
-- `KiasSystem.IsOnline(device)` is the correct starting primitive for controller device discovery;
-- sensor systems already emit concrete KIAS events;
-- current protocol system is an existing `trigger -> conditions -> actions` rule engine and therefore becomes the main migration target of this pass.
+`KiasGraphCanvas.Draw()` рисует title/detail/ports, но не рисует `node.Config` value. Из-за этого String/Number/Bool/Timer невозможно читать по схеме без выбора узла.
 
-The graph subsystem should sit **on top of** the existing KIAS physical/data topology, not build another network.
+### Port descriptions инфраструктурно есть, UX нет
 
-## Access model — original finding is superseded
+`KiasGraphPort.Description` существует, но native controller profiles почти везде используют общий `kias-controller-port-description`. Inspector печатает только raw `Direction Id: Type`; описание не используется.
 
-The first research pack said `ShipOwnershipComponent.OwnerUserId` was the owner authority. The first corrective patch explicitly replaced that simplistic model. For this pass:
+### Signal и Bool намеренно разные
 
-- use the **current centralized KIAS access resolver** implemented in the branch;
-- preserve deed/ID/company/POI/open-claim precedence and standard wire bypass from the previous patch;
-- programmer/rack WRITE/rebind/security operations must not reintroduce direct `OwnerUserId` checks.
+`KiasGraphMachine.Output()` всегда распространяет `Signal`, а data outputs подавляют одинаковое повторное значение. Compiler требует точное совпадение типов. Это правильная строгая модель, но UI не объясняет её и молча отвергает несовместимые wires.
 
-If the current branch does not contain the expected resolver, stop and reconcile with the applied first-patch context in `history/01_FIRST_PATCH_PROMPT_APPLIED.md` before coding controllers.
+### Speaker message path
 
-## DeviceLinking — reuse as external machine bridge
+`KiasControllerIoSystem.Command()` для Speaker читает `read("Message")`, а не `node.Config.Text`. Поэтому generic inspector field «Текст» на Speaker ложный.
 
-Paths:
+### ALL speaker throttling risk
 
-- `Content.Shared/DeviceLinking/DeviceLinkSourceComponent.cs`
-- `Content.Shared/DeviceLinking/DeviceLinkSinkComponent.cs`
-- `Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs`
-- `Content.Server/DeviceLinking/Systems/DeviceLinkSystem.cs`
-- `Content.Shared/DeviceLinking/DevicePortPrototype.cs`
-- `Content.Client/NetworkConfigurator/NetworkConfiguratorLinkMenu.xaml.cs`
+Speaker command формирует emission key без target. При ALL broadcast несколько адресных speaker commands могут попасть в общий emission gate под одним ключом. Требуется regression test и target-aware semantics.
 
-Important behavior:
+### Lighting profile mismatch
 
-- source/sink ports are prototype-defined;
-- `InvokePort()` supports `NetworkPayload`;
-- boolean logic state is carried in payload for logic-capable devices;
-- local non-device-network links raise `SignalReceivedEvent`;
-- DeviceLink already has invoke/overload protection and link bookkeeping;
-- the existing NetworkConfigurator UI is useful as a visual reference for port linking, but its Bezier drawing implementation should not be copied naively.
+`LightController` profile привязан к `KiasLightController`. Поэтому `ALL Освещение` в UI означает controllers, а не fixtures. Integrated powered light получает `KiasIntegrated`/`KiasDevice` и generic On/Off DeviceLink, но не LightController profile.
 
-Recommendation: DeviceLink is the **boundary adapter**, not the graph's internal wire representation.
+### Integrated OFF -> cannot ON
 
-## Existing SS14 logic/timer semantics
+`KiasSystem.Rebuild()` ставит `NoPower` раньше проверки integrated control path, а `KiasSystem.IsOnline()` дополнительно требует `_power.IsPowered(device)`. `KiasIntegrationSystem.OnSignal()` выключает target через `SetPowerDisabled`. В итоге control endpoint сам исключается из KIAS после OFF.
 
-Known local paths:
+### Group mode service tool
 
-- `Content.Server/DeviceLinking/Components/LogicGateComponent.cs`
-- `Content.Server/DeviceLinking/Systems/LogicGateSystem.cs`
-- `Content.Server/DeviceLinking/Components/SignalTimerComponent.cs`
-- `Content.Server/DeviceLinking/Systems/SignalTimerSystem.cs`
+`KiasServiceSystem` в режиме Group берёт group name из `KiasServiceToolComponent.Message`. `KiasLocalWindow` для service state показывает generic message field. Backend формально может назначать group, но UI semantics непрозрачны.
 
-Existing `LogicGateSystem` already implements OR/AND/XOR/NOR/NAND/XNOR semantics. `SignalTimerSystem` provides established timer behavior. These are good behavior references, but controller logic nodes should be lightweight runtime objects/records, not hidden world entities.
+### Air alarm использует DeviceList, не только DeviceLink
 
-## Dynamic power load support already exists
+`AirAlarm` prototype содержит одновременно `DeviceList`, `DeviceLinkSource`, `DeviceNetwork`, `AtmosAlarmable`. Штатное управление sensors/vents/scrubbers опирается на DeviceList + DeviceNetwork. Ручные source/sink links не заменяют этот список.
 
-Known local path:
+`NetworkConfiguratorSystem.DetermineMode()` особенно чувствителен к entities, у которых одновременно есть DeviceList и DeviceLink ports. Нужно воспроизвести пользовательский regression тестом, прежде чем менять generic logic.
 
-- `Content.Shared/Power/EntitySystems/SharedPowerReceiverSystem.cs`
-- server `PowerReceiverSystem` override.
+### Depressurization preset существует
 
-`SharedPowerReceiverSystem.SetLoad(...)` exists in this codebase. Use it to make the rack load depend on inserted controller count. Do not create a fake watt counter detached from the power net.
+`controller_presets.yml` содержит preset `atmosphere`, локализованный как «Разгерметизация». Значит текущий симптом — не «preset отсутствует», а end-to-end trigger path не происходит в реальном сетапе.
 
-## /tg/station Wiremod — best UX/dataflow reference
+### UI reference
 
-Reference areas:
+`ShuttleConsoleWindow.xaml` использует вложенные PanelContainer, визуальные рамки, отдельную mode bar и явную иерархию. KIAS окна в основном собираются программно в плоские BoxContainer + LineEdit, что объясняет debug-like вид.
 
-- `code/modules/wiremod/core/integrated_circuit.dm`
-- `code/modules/wiremod/core/component.dm`
-- `code/modules/wiremod/core/port.dm`
-- `code/modules/wiremod/core/duplicator.dm`
-- `tgui/packages/tgui/interfaces/IntegratedCircuit/*`
+## Рискованные области
 
-Useful design patterns:
-
-- typed input/output ports;
-- component-relative X/Y;
-- persistent connections;
-- output fan-out;
-- pan/zoom editor;
-- drag-and-drop palette;
-- save/load graph data;
-- explicit component UI data.
-
-Do not port DM/React runtime literally.
-
-## Goob nested filters — reference, not dependency by default
-
-Relevant paths from Goob:
-
-- `Content.Goobstation.Shared/Factory/Filters/CombinedFilterComponent.cs`
-- `Content.Goobstation.Shared/Factory/Filters/AutomationFilterSystem.cs`
-
-Combined filters are useful conceptual reference for recursive AND/OR/XOR/NAND/NOR/XNOR predicates. They are not required for the base controller runtime. Only reuse minimal code if an explicit entity-filter node becomes necessary.
-
-## New core requirement — portable type selectors
-
-The major addition to the previous plan is `ANY` / `ALL` device-type selectors.
-
-A controller device must have a stable **controller profile** independent of a specific EntityUid. Examples:
-
-- `WeaponFlashDetector`
-- `Speaker`
-- `PdcRadar`
-- `DefenceController`
-- `Relay`
-- `RoomScanner`
-
-A profile exposes one stable port schema. Variants/prototypes of the same gameplay device should map to the same profile where practical.
-
-This allows a graph to contain:
-
-```text
-ANY WeaponFlashDetector -> ... -> ALL Speaker
-```
-
-with no specific device UIDs. That card must remain functional after moving to another KIAS ship.
-
-## ALL/ANY exact distinction
-
-**Both** selectors receive/merge output events from every matching Online device, because a sensor event from any physical unit needs to be able to enter the graph.
-
-Their difference is primarily command fan-out:
-
-- `ANY` input/command -> one deterministic matching Online device (`FirstAvailable` baseline);
-- `ALL` input/command -> every matching Online device exactly once.
-
-Selectors should expose metadata such as matched count and source entity where useful.
-
-## Existing protocols become graph presets
-
-The current KIAS protocol engine must not remain a second permanent automation language.
-
-Keep raw event producers and low-level subsystem algorithms. Replace policy/action rules with normal controller graphs and a data/prototype preset library. Default automation should use ANY/ALL selectors so it is portable.
-
-Heavy algorithms such as PDC interception remain optimized subsystem code; the graph controls/enables them rather than reproducing projectile physics node-by-node.
-
-## Licenses / attribution
-
-Known reference license picture from research:
-
-- `/tg/station` code: AGPL v3;
-- Goob code: AGPL-3.0-or-later with repo REUSE metadata;
-- WizDen SS14 code: MIT upstream;
-- Forge/Monolith: project REUSE/mixed-history policy; follow per-file metadata.
-
-Before literal adaptation, inspect the exact source file header/history. Prefer native implementation from concepts. Update `Docs/KIAS/THIRD_PARTY.md` for any substantive external code use.
+- глобальный `DeviceLinkSystem` уже изменён KIAS и должен сохранять vanilla behavior;
+- `NetworkConfiguratorSystem` — общий gameplay code; менять только по воспроизводимому тесту;
+- power semantics нельзя ослаблять для всех KIAS devices ради integrated endpoints;
+- не превращать Lighting profile resolver в prototype-specific switch;
+- enum domain требует schema extension/migration без поломки сохранённых controller cards/presets.

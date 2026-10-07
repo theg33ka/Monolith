@@ -1,236 +1,87 @@
-# Target architecture — KIAS programmable controllers
+# Target architecture — post-implementation correction
 
-## 1. Existing KIAS remains the physical/control plane
+## 1. Three independent concepts: KIAS network, target power, automation graph
 
-The controller subsystem is not another ship network. Existing KIAS owns:
+KIAS DATA connectivity answers: **can KIAS talk to/control this endpoint?**
 
-- active grid/core lifecycle;
-- DATA topology and Online device discovery;
-- power/physical prerequisites;
-- sensor algorithms;
-- actuator subsystem APIs;
-- access/security policy;
-- device diagnostics.
+Device functional power answers: **is the target itself currently powered/working?**
 
-Controllers add a **portable programmable policy/dataflow plane** on top.
+Graph runtime answers: **what logic should execute when events/data arrive?**
 
-## 2. Physical objects
+Do not conflate these.
 
-### KIAS programmable controller
+For a normal native KIAS server/device, losing its required power makes it offline. For a device controlled by an integration endpoint, KIAS may intentionally disable the target's functional power while the integration endpoint remains reachable over KIAS DATA. This distinction is required for OFF -> ON recovery.
 
-Portable item containing only persistent program data. It executes only inside an Online powered controller rack.
+## 2. Controller profiles describe capabilities, not misleading object names
 
-### KIAS controller programming console
+Profiles should map gameplay semantics:
 
-One controller slot + full node editor. It edits a server-side draft and writes atomically to the card.
+- `Lighting` = directly controllable light fixtures;
+- `LightGroupController` = KiasLightController devices;
+- `Speaker`, `Recorder`, sensors, relays, etc. = existing capability families;
+- generic DeviceLink profile remains fallback for legacy ports.
 
-### KIAS controller rack
+A profile resolver may use explicit marker/capability components when a single `component:` prototype field is insufficient.
 
-Powered KIAS device with exactly 8 real controller slots. It owns active runtimes and dynamic power load.
+## 3. Addressing
 
-## 3. Program/runtime split
+`SPECIFIC`: exactly one device.
 
-Persistent card data:
+`ANY`: one deterministic available match for commands; events merge from any match.
 
-- program version/name;
-- nodes;
-- wires;
-- node configs;
-- positions;
-- SPECIFIC bindings;
-- ANY/ALL profile IDs.
+`ALL`: command broadcast to every current match exactly once; events merge from any match.
 
-Runtime only:
+Filters are selector metadata, not device configuration. Room/group fields must be named and shown as filters, not «set room/group» actions.
 
-- compiled adjacency;
-- queues;
-- scheduled timers;
-- volatile state;
-- current matched selector devices;
-- subscriptions;
-- faults.
+## 4. Event vs state
 
-## 4. Typed graph
+`Signal` is an impulse/event. It has no persistent true/false value.
 
-Port types:
+`Bool` is a persistent logical state.
 
-- Signal
-- Bool
-- Number
-- String
-- Entity
-- Enum/ContactDisposition
+The graph keeps strict typing. Conversions are explicit nodes:
 
-No implicit unsafe type conversion.
+- Bool -> Edge -> Signal;
+- Signal -> Toggle/Latch -> Bool.
 
-Node classes:
+The UI must teach this model at the point of interaction.
 
-- lifecycle;
-- constants;
-- logic;
-- control;
-- timing;
-- state;
-- comparison;
-- external device selectors/adapters.
+## 5. Enum domains
 
-## 5. External device addressing
+Do not treat every user-facing enum as a naked integer.
 
-### SPECIFIC
+Port/schema metadata should know its semantic domain where relevant:
 
-Binds to one physical device EntityUid/profile. Portable item keeps the reference/schema, but on another ship it becomes unavailable rather than rebinding.
+- audio channel;
+- contact disposition;
+- KIAS alert;
+- power channel;
+- other actual enums.
 
-### ANY(profile)
+The editor renders localized dropdown values and rejects incompatible enum domains if a safe implementation is practical. Persistence must remain versionable.
 
-Dynamic set of all Online matching devices on the **current rack grid**.
+## 6. Native gameplay systems remain authoritative
 
-- output events from any matching device merge into the node;
-- command input is sent to one deterministic available matching device;
-- `FirstAvailable` is the required baseline;
-- portable across ships.
+KIAS graph does not reimplement:
 
-### ALL(profile)
+- AirAlarm device network/list management;
+- light bulb/power systems;
+- DeviceLink storage/loop protection;
+- speech/chat routing;
+- PDC/fire control;
+- atmos alarm calculations.
 
-Same dynamic match set.
+KIAS should call/bridge existing systems and preserve their normal manual configuration path.
 
-- output events from any matching device merge into the node;
-- command input/value is broadcast to all matching Online devices exactly once;
-- portable across ships.
+## 7. UI architecture
 
-Selectors are valid even with zero matches.
+Separate presentation layers:
 
-## 6. Device profiles
+- graph canvas: dense visual logic;
+- palette: discovery/search;
+- inspector: only selected-node relevant configuration/help;
+- status/validation: errors and current card/network state;
+- device local UIs: focused device configuration;
+- rack/management: operational status.
 
-Use a stable profile abstraction rather than raw prototype identity. One profile owns one port schema. Device variants can implement the same profile.
-
-Suggested descriptor:
-
-```text
-ProfileId
-DisplayName
-PortDescriptors[]
-Optional tags/capabilities
-```
-
-Suggested port descriptor:
-
-```text
-PortId
-Direction
-Type
-Name/Description
-Event-vs-state semantics
-```
-
-A central registry/resolver maps Online KIAS entities to profiles.
-
-## 7. Selector indexes
-
-Maintain indexes similar to:
-
-```text
-(grid, profileId) -> Online matching device set
-(grid, deviceUid, portId) -> SPECIFIC subscribers
-(grid, profileId, portId) -> ANY/ALL subscribers
-```
-
-Topology/device revisions update sets. Do not scan all devices for every event.
-
-## 8. Event-driven runtime
-
-```text
-KIAS/DeviceLink event
- -> indexed graph endpoint(s)
- -> bounded controller queue
- -> node evaluation
- -> output propagation
- -> actuator adapter(s)
-```
-
-No whole-graph per-frame evaluation. Timers/clocks use a central scheduler/buckets/heap.
-
-## 9. Compile/validation
-
-Compile validates:
-
-- node IDs/kinds;
-- ports/directions/types;
-- limits;
-- specific binding metadata;
-- selector profile IDs;
-- configs;
-- pure combinational cycles.
-
-Feedback is allowed only through state/time-breaking nodes.
-
-Runtime has an evaluation budget and faults locally instead of crashing the server.
-
-## 10. Device I/O boundary
-
-A `KiasControllerIoSystem` (or equivalent) is the only normal bridge between graph runtime and gameplay devices.
-
-It should:
-
-- receive typed emissions from KIAS sensors;
-- expose DeviceLink source events where appropriate;
-- validate actuator commands;
-- invoke existing subsystem APIs;
-- enforce same-grid/Online/security rules.
-
-## 11. Protocol architecture after migration
-
-Legacy `KiasProtocolSystem` policy execution is retired/deprecated after migration.
-
-Keep:
-
-- event production;
-- PDC threat tracking/interception;
-- power/network calculations;
-- sensor detection;
-- safe actuator APIs.
-
-Replace:
-
-- `trigger -> conditions -> actions` policy engine;
-- protocol-specific hidden/default actions;
-- a second separate protocol editor.
-
-With:
-
-- normal graph programs;
-- prototype-backed presets;
-- physical cards in racks.
-
-## 12. Default portable patterns
-
-Default protocol/preset graphs should favor type selectors:
-
-```text
-ANY WeaponFlashDetector
- -> hostile compare
- -> IF
- -> ALL Speaker
- -> ALL/filtered EmergencyLightController
- -> ALL DefenceController.Automatic
-```
-
-This is the key portability property: changing shuttle/device instances must not require reprogramming generic automation.
-
-## 13. Access/security
-
-Programming/rebinding/WRITE uses the centralized KIAS access model from the previous patch. Runtime resolution always stays on the rack's current grid.
-
-Cut access wire remains the normal physical bypass where applicable. The graph system must not introduce a new ownership backdoor.
-
-## 14. Power/lifecycle
-
-Rack load is dynamic: base + per inserted controller.
-
-A controller runtime exists only while:
-
-- card is in rack;
-- rack is powered;
-- rack is KIAS Online;
-- grid/core is active.
-
-On stop: clear queue, cancel timers, unregister subscriptions, clear volatile state. On resume: cold boot + ON START.
+Use common reusable KIAS UI helpers/styles for section panels, status badges, field rows and help text instead of recreating ad-hoc controls in each window.

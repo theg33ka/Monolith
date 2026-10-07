@@ -198,7 +198,7 @@ public sealed partial class KiasSystem : EntitySystem
             if (!TryComp<KiasDeviceComponent>(uid, out var device) || TerminatingOrDeleted(uid))
                 continue;
             device.Status = cores.Length > 1 ? KiasDeviceStatus.DuplicateCore
-                : !_power.IsPowered(uid) ? KiasDeviceStatus.NoPower
+                : !HasComp<KiasIntegratedComponent>(uid) && !_power.IsPowered(uid) ? KiasDeviceStatus.NoPower
                 : !runtime.Active ? KiasDeviceStatus.Offline
                 : (HasComp<KiasIntegratedComponent>(uid) ? EntityManager.System<KiasIntegrationSystem>().CanControl(uid)
                     : runtime.Topology.Connected(_map.TileIndicesFor(grid, map, Transform(runtime.Core!.Value).Coordinates),
@@ -224,7 +224,9 @@ public sealed partial class KiasSystem : EntitySystem
     public bool IsOnline(EntityUid device)
     {
         return !TerminatingOrDeleted(device) && TryComp<KiasDeviceComponent>(device, out var comp) && comp.RegisteredGrid is { } grid
-               && !_dirty.Contains(grid) && _active.Contains(grid) && comp.Status == KiasDeviceStatus.Online && _power.IsPowered(device);
+               && !_dirty.Contains(grid) && _active.Contains(grid) && comp.Status == KiasDeviceStatus.Online
+               && (HasComp<KiasIntegratedComponent>(device)
+                   ? EntityManager.System<KiasIntegrationSystem>().CanControl(device) : _power.IsPowered(device));
     }
 
     public bool CanConfigure(EntityUid grid, EntityUid actor)

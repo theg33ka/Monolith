@@ -30,6 +30,7 @@ public sealed class KiasRecorderState : BoundUserInterfaceState
 [Serializable, NetSerializable]
 public sealed class KiasServiceState : BoundUserInterfaceState
 {
+    public string Group = string.Empty, CurrentGroup = string.Empty, GroupKind = "lighting";
     public string Details = string.Empty;
     public string SourceName = string.Empty;
     public string TargetName = string.Empty;
