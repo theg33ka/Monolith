@@ -6,6 +6,7 @@ using Content.Shared.Anomaly.Components;
 using Content.Shared.Atmos.Monitor;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Timing;
+using Content.Shared.Pinpointer;
 
 namespace Content.Server._Forge.KIAS;
 
@@ -16,6 +17,7 @@ public sealed class KiasSafetySystem : EntitySystem
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private KiasDisplaySystem _display = default!;
     [Dependency] private IGameTiming _timing = default!;
+    private readonly KiasEmissionGate _logGate = new();
 
     public override void Initialize()
     {
@@ -23,6 +25,7 @@ public sealed class KiasSafetySystem : EntitySystem
         SubscribeLocalEvent<AtmosAlarmEvent>(OnAtmos);
         SubscribeLocalEvent<KiasAnomalyGrowthEvent>(OnGrowth);
         SubscribeLocalEvent<KiasAtmosStateChangedEvent>(OnAtmosState);
+        SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoval);
     }
 
     private void OnAnomaly(ref AnomalyStabilityChangedEvent args)
@@ -39,7 +42,8 @@ public sealed class KiasSafetySystem : EntitySystem
     private void OnAtmos(AtmosAlarmEvent args)
     {
         if (args.Source is not { } source || !HasComp<AirAlarmComponent>(source)
-            || Transform(source).GridUid is not { } grid || !_kias.HasRole(grid, KiasDeviceRole.Atmosphere))
+            || Transform(source).GridUid is not { } grid || !_kias.HasRole(grid, KiasDeviceRole.Atmosphere)
+            || !HasComp<KiasIntegratedComponent>(source) || !EntityManager.System<KiasIntegrationSystem>().CanControl(source))
             return;
         var ev = new KiasAtmosStateChangedEvent(grid, source, args.AlarmType, Location(grid, source));
         RaiseLocalEvent(grid, ref ev, true);
@@ -47,17 +51,24 @@ public sealed class KiasSafetySystem : EntitySystem
 
     private void OnGrowth(ref KiasAnomalyGrowthEvent args)
     {
-        Publish(args.Grid, Loc.GetString("kias-anomaly-growth", ("location", args.Location)), true);
+        Publish(args.Grid, Loc.GetString("kias-anomaly-growth", ("location", args.Location)), true, announce: false, key: $"anomaly:{args.Source}:{args.Location}");
     }
 
     private void OnAtmosState(ref KiasAtmosStateChangedEvent args)
     {
         if (args.State == AtmosAlarmType.Danger)
-            Publish(args.Grid, Loc.GetString("kias-atmos-danger", ("location", args.Location)), true);
+            Publish(args.Grid, Loc.GetString("kias-atmos-danger", ("location", args.Location)), true, announce: false, key: $"atmos:{args.Source}:{args.Location}");
     }
 
     public string Location(EntityUid grid, EntityUid source)
     {
+        var position = _transform.ToCoordinates(grid, _transform.GetMapCoordinates(source)).Position;
+        if (TryComp<NavMapComponent>(grid, out var nav) && nav.Beacons.Count > 0)
+        {
+            var closest = nav.Beacons.Values.OrderBy(beacon => System.Numerics.Vector2.DistanceSquared(beacon.Position, position)).First();
+            if (System.Numerics.Vector2.DistanceSquared(closest.Position, position) <= 100 && !string.IsNullOrWhiteSpace(closest.Text))
+                return closest.Text;
+        }
         if (TryComp<KiasDeviceComponent>(source, out var device) && !string.IsNullOrWhiteSpace(device.Room))
             return device.Room;
         if (_crew.RoomLabel(grid, source) is { } room)
@@ -72,15 +83,21 @@ public sealed class KiasSafetySystem : EntitySystem
         return Loc.GetString($"kias-sector-{sector}");
     }
 
-    public void Publish(EntityUid grid, string message, bool warning = false, bool announce = true, EntityUid? speaker = null, string group = "")
+    private void OnGridRemoval(GridRemovalEvent args) => _logGate.Remove(args.EntityUid);
+
+    public void Publish(EntityUid grid, string message, bool warning = false, bool announce = true, EntityUid? speaker = null, string group = "", string key = "", KiasAudioChannel? channel = null, bool record = true)
     {
         if (!_kias.ActiveGrids.Contains(grid) || !TryComp<KiasGridComponent>(grid, out var runtime))
             return;
-        if (_kias.HasRole(grid, KiasDeviceRole.Recorder))
+        key = string.IsNullOrEmpty(key) ? $"{speaker}:{group}:{message}" : key;
+        var settings = runtime.Core is { } core && TryComp<KiasAudioComponent>(core, out var audio) ? audio : null;
+        var severity = runtime.Core is { } coreUid && TryComp<KiasProtocolComponent>(coreUid, out var protocols) ? (int) protocols.Alert : warning ? 1 : 0;
+        if (record && _kias.HasRole(grid, KiasDeviceRole.Recorder) && _logGate.Allow(grid, key, _timing.CurTime, settings?.LogCooldown ?? 2, severity, out var repeated))
         {
+            var logMessage = repeated > 0 ? $"{message} ×{repeated + 1}" : message;
             if (runtime.Log.Count >= 64)
                 runtime.Log.Dequeue();
-            runtime.Log.Enqueue($"[{_timing.CurTime:hh\\:mm\\:ss}] {message}");
+            runtime.Log.Enqueue($"[{_timing.CurTime:hh\\:mm\\:ss}] {(warning ? "[!] " : "")}{logMessage}");
             foreach (var uid in runtime.Online)
             {
                 if (!_kias.IsOnline(uid) || !TryComp<KiasRecorderComponent>(uid, out var recorder))
@@ -92,7 +109,7 @@ public sealed class KiasSafetySystem : EntitySystem
         }
         if (announce)
         {
-            var ev = new KiasAnnouncementEvent(grid, message, warning, speaker, group);
+            var ev = new KiasAnnouncementEvent(grid, message, warning, speaker, group, key, channel);
             RaiseLocalEvent(grid, ref ev, true);
         }
         _display.RefreshOpen(grid);

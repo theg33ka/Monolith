@@ -53,6 +53,10 @@ public enum KiasDeviceRole : byte
     MasterSwitch,
     Light,
     PdcWeapon,
+    Iff,
+    Docking,
+    Adapter,
+    Resource,
 }
 
 [Serializable, NetSerializable]
@@ -76,4 +80,4 @@ public readonly record struct KiasAvailabilityChangedEvent(EntityUid Grid, bool 
 public readonly record struct KiasTopologyChangedEvent(EntityUid Grid, uint Revision);
 
 [ByRefEvent]
-public readonly record struct KiasAnnouncementEvent(EntityUid Grid, string Message, bool Warning = false, EntityUid? Speaker = null, string Group = "");
+public readonly record struct KiasAnnouncementEvent(EntityUid Grid, string Message, bool Warning = false, EntityUid? Speaker = null, string Group = "", string Key = "", KiasAudioChannel? Channel = null);

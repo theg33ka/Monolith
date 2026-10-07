@@ -12,7 +12,7 @@ using Robust.Shared.Audio.Systems;
 
 namespace Content.Server._Forge.KIAS;
 
-public sealed class KiasDisplaySystem : EntitySystem
+public sealed partial class KiasDisplaySystem : EntitySystem
 {
     [Dependency] private KiasSystem _kias = default!;
     [Dependency] private UserInterfaceSystem _ui = default!;
@@ -20,43 +20,51 @@ public sealed class KiasDisplaySystem : EntitySystem
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private Robust.Shared.Timing.IGameTiming _timing = default!;
-    private readonly Dictionary<EntityUid, TimeSpan> _toneAfter = new();
+    private readonly Queue<EntityUid> _pendingRefresh = new();
+    private readonly HashSet<EntityUid> _queuedRefresh = new();
 
     public override void Initialize()
     {
         SubscribeLocalEvent<KiasTopologyChangedEvent>(OnTopology, after: new[] { typeof(KiasCrewSystem) });
         SubscribeLocalEvent<KiasAnnouncementEvent>(OnAnnouncement);
         SubscribeLocalEvent<KiasDisplayComponent, BoundUIOpenedEvent>(OnOpen);
+        SubscribeLocalEvent<KiasDisplayComponent, BoundUIClosedEvent>(OnDisplayClosed);
         SubscribeLocalEvent<KiasDisplayComponent, KiasRefreshMessage>(OnRefresh);
         SubscribeLocalEvent<KiasSpeakerComponent, SignalReceivedEvent>(OnSignal);
         SubscribeLocalEvent<KiasSpeakerComponent, ComponentShutdown>(OnSpeakerShutdown);
         SubscribeLocalEvent<KiasCountsChangedEvent>(OnCounts);
         SubscribeLocalEvent<KiasAvailabilityChangedEvent>(OnAvailability);
         SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoval);
+        InitializeLocalUi();
+        SubscribeLocalEvent<KiasManagementComponent, KiasAudioSettingsMessage>(OnAudioSettings);
     }
 
     private void OnTopology(ref KiasTopologyChangedEvent args)
     {
         if (!TryComp<KiasGridComponent>(args.Grid, out var runtime))
             return;
+        RefreshCoverageTools(args.Grid);
         foreach (var uid in runtime.Devices)
         {
             if (!_kias.IsOnline(uid) && TryComp<KiasSpeakerComponent>(uid, out var speaker))
                 speaker.Tone = _audio.Stop(speaker.Tone);
         }
-        if (!runtime.Devices.Any(uid => HasComp<KiasDisplayComponent>(uid) && _ui.IsUiOpen(uid, KiasUiKey.Key)))
+        if (!runtime.Devices.Any(uid => _ui.IsUiOpen(uid, UiKey(uid))))
             return;
-        RefreshTargets(args.Grid, runtime);
+        if (runtime.Devices.Any(uid => HasComp<KiasManagementComponent>(uid) && _ui.IsUiOpen(uid, KiasUiKey.Key)))
+            RefreshTargets(args.Grid, runtime);
         foreach (var uid in runtime.Devices)
         {
-            if (HasComp<KiasDisplayComponent>(uid) && _ui.IsUiOpen(uid, KiasUiKey.Key))
+            if (_ui.IsUiOpen(uid, UiKey(uid)))
                 Refresh(uid);
         }
     }
 
     private void OnOpen(Entity<KiasDisplayComponent> ent, ref BoundUIOpenedEvent args)
     {
-        if (Transform(ent).GridUid is { } grid && TryComp<KiasGridComponent>(grid, out var runtime))
+        _sentStates.Remove(ent);
+        if (HasComp<KiasServiceToolComponent>(ent)) _coverageTools.Add(ent);
+        if (HasComp<KiasManagementComponent>(ent) && Transform(ent).GridUid is { } grid && TryComp<KiasGridComponent>(grid, out var runtime))
             RefreshTargets(grid, runtime);
         Refresh(ent);
     }
@@ -68,13 +76,14 @@ public sealed class KiasDisplaySystem : EntitySystem
 
     public void Refresh(EntityUid display)
     {
-        var state = new KiasUiState();
-        if (TryComp<KiasServiceToolComponent>(display, out var tool))
+        if (!HasComp<KiasManagementComponent>(display))
         {
-            state.ServiceTool = true;
-            state.Message = tool.Message;
-            state.Coverage = tool.Coverage;
+            SetState(display, UiKey(display), BuildLocalState(display));
+            return;
         }
+        var state = new KiasManagementState();
+        if (Transform(display).GridUid is { } audioGrid && AudioSettings(audioGrid) is { } audio)
+            state.Audio = new KiasAudioSettingsView { Notification = audio.Notification, Warning = audio.Warning, Battle = audio.Battle, Emergency = audio.Emergency };
         if (Transform(display).GridUid is { } grid && TryComp<KiasGridComponent>(grid, out var runtime))
         {
             state.Online = _kias.IsOnline(display);
@@ -83,6 +92,7 @@ public sealed class KiasDisplaySystem : EntitySystem
             state.Log = runtime.CrewDetails + "\n" + string.Join("\n", runtime.Log);
             state.CrewDetails = runtime.CrewDetails;
             state.Power = _kias.HasRole(grid, KiasDeviceRole.Power) ? runtime.PowerDetails : Loc.GetString("kias-power-unavailable");
+            if (TryComp<KiasResourceMonitorComponent>(display, out var resources)) state.Resources = ResourceDetails(display, resources, runtime);
             var atmos = new StringBuilder();
             var defence = new StringBuilder();
             var navigation = new StringBuilder();
@@ -105,7 +115,10 @@ public sealed class KiasDisplaySystem : EntitySystem
                 if (TryComp<KiasPdcWeaponComponent>(uid, out var weapon) && weapon.AutomaticGrid != null)
                     defence.AppendLine(Loc.GetString("kias-pdc-reserved", ("weapon", Name(uid))));
                 if (TryComp<KiasDefenceComponent>(uid, out var server))
+                {
                     defence.AppendLine(Loc.GetString(server.PdcEnabled ? "kias-pdc-enabled" : "kias-pdc-disabled"));
+                    if (server.FireLock) defence.AppendLine(Loc.GetString("kias-fire-locked"));
+                }
             }
             foreach (var uid in runtime.ProtocolTargets)
             {
@@ -119,7 +132,7 @@ public sealed class KiasDisplaySystem : EntitySystem
             state.Faults = faults.Length == 0 ? Loc.GetString("kias-no-faults") : faults.ToString();
             if (runtime.Core is { } core && TryComp<KiasProtocolComponent>(core, out var protocols))
             {
-                state.ProtocolsAvailable = state.Online && !state.ServiceTool;
+                state.ProtocolsAvailable = state.Online;
                 state.ProtocolRevision = protocols.Revision;
                 state.Alert = Loc.GetString($"kias-alert-{protocols.Alert.ToString().ToLowerInvariant()}");
                 foreach (var record in protocols.Protocols.Take(32))
@@ -129,23 +142,35 @@ public sealed class KiasDisplaySystem : EntitySystem
                         Disposition = record.Disposition, MinimumValue = record.MinimumValue, RequireCrewUnavailable = record.RequireCrewUnavailable,
                         Target = action.Target is { } target && !TerminatingOrDeleted(target) ? GetNetEntity(target) : null,
                         Group = action.Group, Port = action.Port, Message = action.Message, Value = action.Value,
-                        Enabled = record.Enabled, Cooldown = record.Cooldown });
+                        Enabled = record.Enabled, Cooldown = record.Cooldown, PresetId = record.PresetId,
+                        Actions = record.Actions.Take(8).Select(entry => new KiasProtocolActionView { Kind = entry.Kind,
+                            Target = entry.Target is { } device && !TerminatingOrDeleted(device) ? GetNetEntity(device) : null,
+                            Group = entry.Group, Port = entry.Port, Message = entry.Message, Value = entry.Value }).ToList() });
                 }
             }
         }
         if (TryComp<KiasRecorderComponent>(display, out var recorder))
             state.Log = string.Join("\n", recorder.Entries);
-        _ui.SetUiState(display, KiasUiKey.Key, state);
+        SetState(display, KiasUiKey.Key, state);
     }
 
     public void RefreshOpen(EntityUid grid)
     {
-        if (!TryComp<KiasGridComponent>(grid, out var runtime))
-            return;
-        foreach (var uid in runtime.Devices)
+        if (_queuedRefresh.Add(grid)) _pendingRefresh.Enqueue(grid);
+    }
+
+    public override void Update(float frameTime)
+    {
+        using var measurement = new KiasUpdateMeasurement(_kias);
+        const int gridBudget = 4;
+        for (var i = 0; i < gridBudget && _pendingRefresh.TryDequeue(out var grid); i++)
         {
-            if (HasComp<KiasDisplayComponent>(uid) && _ui.IsUiOpen(uid, KiasUiKey.Key))
-                Refresh(uid);
+            _queuedRefresh.Remove(grid);
+            if (!TryComp<KiasGridComponent>(grid, out var runtime)) continue;
+            foreach (var uid in runtime.Devices)
+            {
+                if (_ui.IsUiOpen(uid, UiKey(uid))) Refresh(uid);
+            }
         }
     }
 
@@ -169,14 +194,15 @@ public sealed class KiasDisplaySystem : EntitySystem
     {
         if (!TryComp<KiasGridComponent>(args.Grid, out var runtime) || !runtime.Active || !runtime.Online.Any(HasComp<KiasSpeakerComponent>))
             return;
-        Announce(args.Grid, args.Message, args.Warning, args.Speaker, args.Group);
+        Announce(args.Grid, args.Message, args.Warning, args.Speaker, args.Group, args.Key, args.Channel);
     }
 
     private void OnAvailability(ref KiasAvailabilityChangedEvent args)
     {
         if (!args.Active)
         {
-            _toneAfter.Remove(args.Grid);
+            _speechGate.Remove(args.Grid);
+            _audioGate.Remove(args.Grid);
             if (TryComp<KiasGridComponent>(args.Grid, out var runtime))
             {
                 foreach (var uid in runtime.Devices)
@@ -188,7 +214,11 @@ public sealed class KiasDisplaySystem : EntitySystem
         }
     }
     private void OnSpeakerShutdown(Entity<KiasSpeakerComponent> ent, ref ComponentShutdown args) => ent.Comp.Tone = _audio.Stop(ent.Comp.Tone);
-    private void OnGridRemoval(GridRemovalEvent args) => _toneAfter.Remove(args.EntityUid);
+    private void OnGridRemoval(GridRemovalEvent args)
+    {
+        _speechGate.Remove(args.EntityUid);
+        _audioGate.Remove(args.EntityUid);
+    }
 
     private void OnSignal(Entity<KiasSpeakerComponent> ent, ref SignalReceivedEvent args)
     {
@@ -202,10 +232,10 @@ public sealed class KiasDisplaySystem : EntitySystem
             return;
         var message = ent.Comp.Links.FirstOrDefault(link => link.Source == trigger && link.SourcePort == sourcePort)?.Message ?? ent.Comp.Message;
         if (!string.IsNullOrWhiteSpace(message))
-            Announce(grid, message, selected: ent.Owner);
+            Announce(grid, message, selected: ent.Owner, key: $"link:{trigger}:{sourcePort}:{ent.Owner}");
     }
 
-    private void Announce(EntityUid grid, string message, bool warning = false, EntityUid? selected = null, string group = "")
+    private void Announce(EntityUid grid, string message, bool warning = false, EntityUid? selected = null, string group = "", string key = "", KiasAudioChannel? requestedChannel = null)
     {
         var speakers = Comp<KiasGridComponent>(grid).Online.Where(uid => _kias.IsOnline(uid)
             && TryComp<KiasSpeakerComponent>(uid, out var speaker)
@@ -213,19 +243,21 @@ public sealed class KiasDisplaySystem : EntitySystem
             && (string.IsNullOrWhiteSpace(group) || group == "SHIP" || speaker.Group == group)).ToArray();
         if (speakers.Length == 0)
             return;
-        var playTone = _toneAfter.GetValueOrDefault(grid) <= _timing.CurTime;
-        if (playTone)
-            _toneAfter[grid] = _timing.CurTime + TimeSpan.FromSeconds(3);
+        var settings = AudioSettings(grid);
+        var alert = Comp<KiasGridComponent>(grid).Core is { } core && TryComp<KiasProtocolComponent>(core, out var protocol) ? protocol.Alert : KiasAlert.Normal;
+        var channel = requestedChannel ?? (alert switch { KiasAlert.Emergency => KiasAudioChannel.Emergency, KiasAlert.Battle => KiasAudioChannel.Battle,
+            _ => warning ? KiasAudioChannel.Warning : KiasAudioChannel.Notification });
+        key = string.IsNullOrEmpty(key) ? $"{selected}:{group}:{message}" : key;
+        var speak = _speechGate.Allow(grid, key, _timing.CurTime, settings?.SpeechCooldown ?? 5, (int) channel, out var repeated);
+        var playTone = _audioGate.Allow(grid, key, _timing.CurTime, settings?.ToneCooldown ?? 10, (int) channel, out _);
+        if (repeated > 0) message += $" ×{repeated + 1}";
         foreach (var speaker in speakers)
         {
-            _chat.TrySendInGameICMessage(speaker, message, InGameICChatType.Speak, hideChat: false,
+            if (speak) _chat.TrySendInGameICMessage(speaker, message, InGameICChatType.Speak, hideChat: false,
                 checkRadioPrefix: false, ignoreActionBlocker: true);
             if (playTone)
             {
-                var component = Comp<KiasSpeakerComponent>(speaker);
-                _audio.Stop(component.Tone);
-                component.Tone = _audio.PlayPvs(new SoundPathSpecifier(warning ? "/Audio/Misc/redalert.ogg" : "/Audio/Effects/alert.ogg"), speaker,
-                    AudioParams.Default.WithVolume(-4))?.Entity;
+                PlayTone(speaker, settings?.Preset(channel) ?? KiasTonePreset.Chime);
             }
         }
     }

@@ -16,6 +16,11 @@ using Robust.Shared.Containers;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Timing;
 using Robust.Shared.Player;
+using Content.Shared.Hands.EntitySystems;
+using Content.Shared.Weapons.Ranged.Components;
+using Content.Shared.SurveillanceCamera.Components;
+using Content.Shared.SurveillanceCamera;
+using Content.Shared.NPC.Systems;
 
 namespace Content.Server._Forge.KIAS;
 
@@ -33,7 +38,11 @@ public sealed class KiasCrewSystem : EntitySystem
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _people = new();
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _transponders = new();
     private readonly Dictionary<EntityUid, Dictionary<Vector2i, List<EntityUid>>> _coverage = new();
-    private TimeSpan _nextScan;
+    private readonly KiasPeriodicScheduler _scans = new(1);
+    private readonly HashSet<EntityUid> _radiationHigh = new();
+    private readonly HashSet<EntityUid> _armed = new();
+    [Dependency] private EntityLookupSystem _lookup = default!;
+    private readonly HashSet<EntityUid> _fauna = new();
 
     public override void Initialize()
     {
@@ -54,12 +63,18 @@ public sealed class KiasCrewSystem : EntitySystem
         SubscribeLocalEvent<KiasRoomScannerComponent, EntInsertedIntoContainerMessage>(OnModuleInserted);
         SubscribeLocalEvent<KiasRoomScannerComponent, EntRemovedFromContainerMessage>(OnModuleRemoved);
         SubscribeLocalEvent<KiasRoomScannerComponent, ComponentShutdown>(OnScannerShutdown);
+        SubscribeLocalEvent<KiasRoomScannerComponent, Content.Server.SurveillanceCamera.SurveillanceCameraSetActiveAttemptEvent>(OnCameraActivate);
         SubscribeLocalEvent<KiasCrewServerComponent, InteractUsingEvent>(OnRegister);
         SubscribeLocalEvent<KiasCrewServerComponent, GetVerbsEvent<AlternativeVerb>>(OnRegistrationVerbs);
         SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoval);
     }
 
     public bool IsKiasTrackedEntity(EntityUid uid) => !HasComp<GhostComponent>(uid) && HasComp<KiasTrackedEntityComponent>(uid);
+
+    private void OnCameraActivate(Entity<KiasRoomScannerComponent> ent, ref Content.Server.SurveillanceCamera.SurveillanceCameraSetActiveAttemptEvent args)
+    {
+        args.Cancelled |= !_kias.IsOnline(ent) || (ent.Comp.Modules & KiasScannerModules.Optical) == 0;
+    }
 
     private void OnMind(Entity<MindContainerComponent> ent, ref MindAddedMessage args)
     {
@@ -75,7 +90,11 @@ public sealed class KiasCrewSystem : EntitySystem
     private void OnTrackedStartup(Entity<KiasTrackedEntityComponent> ent, ref ComponentStartup args) => Index(ent, ref ent.Comp.IndexedGrid, _people);
     private void OnTrackedParent(Entity<KiasTrackedEntityComponent> ent, ref EntParentChangedMessage args) => Index(ent, ref ent.Comp.IndexedGrid, _people);
     private void OnTrackedGrid(Entity<KiasTrackedEntityComponent> ent, ref GridUidChangedEvent args) => Index(ent, ref ent.Comp.IndexedGrid, _people);
-    private void OnTrackedShutdown(Entity<KiasTrackedEntityComponent> ent, ref ComponentShutdown args) => RemoveIndex(ent, ref ent.Comp.IndexedGrid, _people);
+    private void OnTrackedShutdown(Entity<KiasTrackedEntityComponent> ent, ref ComponentShutdown args)
+    {
+        _armed.Remove(ent);
+        RemoveIndex(ent, ref ent.Comp.IndexedGrid, _people);
+    }
     private void OnTransponderStartup(Entity<KiasTransponderComponent> ent, ref ComponentStartup args) => Index(ent, ref ent.Comp.IndexedGrid, _transponders);
     private void OnTransponderParent(Entity<KiasTransponderComponent> ent, ref EntParentChangedMessage args) => Index(ent, ref ent.Comp.IndexedGrid, _transponders);
     private void OnTransponderGrid(Entity<KiasTransponderComponent> ent, ref GridUidChangedEvent args) => Index(ent, ref ent.Comp.IndexedGrid, _transponders);
@@ -110,18 +129,33 @@ public sealed class KiasCrewSystem : EntitySystem
 
     private void OnModuleInserted(Entity<KiasRoomScannerComponent> ent, ref EntInsertedIntoContainerMessage args) => RebuildCoverage(Transform(ent).GridUid);
     private void OnModuleRemoved(Entity<KiasRoomScannerComponent> ent, ref EntRemovedFromContainerMessage args) => RebuildCoverage(Transform(ent).GridUid);
-    private void OnScannerShutdown(Entity<KiasRoomScannerComponent> ent, ref ComponentShutdown args) => RebuildCoverage(Transform(ent).GridUid);
+    private void OnScannerShutdown(Entity<KiasRoomScannerComponent> ent, ref ComponentShutdown args)
+    {
+        _radiationHigh.Remove(ent);
+        RebuildCoverage(Transform(ent).GridUid);
+    }
     private void OnTopology(ref KiasTopologyChangedEvent args) => RebuildCoverage(args.Grid);
     private void OnAvailability(ref KiasAvailabilityChangedEvent args)
     {
         if (!args.Active)
+        {
             _coverage.Remove(args.Grid);
+            _scans.Remove(args.Grid);
+            if (TryComp<KiasGridComponent>(args.Grid, out var runtime))
+                foreach (var device in runtime.Devices)
+                {
+                    if (HasComp<SurveillanceCameraComponent>(device)) EntityManager.System<SharedSurveillanceCameraSystem>().SetActive(device, false);
+                    if (HasComp<KiasRoomScannerComponent>(device)) RemComp<RadiationReceiverComponent>(device);
+                    _radiationHigh.Remove(device);
+                }
+        }
     }
     private void OnGridRemoval(GridRemovalEvent args)
     {
         _people.Remove(args.EntityUid);
         _transponders.Remove(args.EntityUid);
         _coverage.Remove(args.EntityUid);
+        _scans.Remove(args.EntityUid);
     }
 
     public void RebuildCoverage(EntityUid? grid)
@@ -141,11 +175,18 @@ public sealed class KiasCrewSystem : EntitySystem
                 foreach (var item in container.ContainedEntities)
                 {
                     if (TryComp<KiasScannerModuleComponent>(item, out var module))
-                        scanner.Modules |= module.Module;
+                        scanner.Modules |= module.Module is KiasScannerModules.Id or KiasScannerModules.Transponder ? KiasScannerModules.Identity : module.Module;
                 }
             }
+            if ((scanner.Modules & KiasScannerModules.Optical) != 0)
+                EnsureComp<SurveillanceCameraComponent>(device);
+            if (HasComp<SurveillanceCameraComponent>(device))
+                EntityManager.System<SharedSurveillanceCameraSystem>().SetActive(device, (scanner.Modules & KiasScannerModules.Optical) != 0);
             if (scanner.Modules == KiasScannerModules.None)
+            {
+                RemCompDeferred<RadiationReceiverComponent>(device);
                 continue;
+            }
             var tile = _map.TileIndicesFor(uid, map, Transform(device).Coordinates);
             var range = Math.Clamp(scanner.Range, 0, 10);
             for (var x = -range; x <= range; x++)
@@ -158,10 +199,15 @@ public sealed class KiasCrewSystem : EntitySystem
                     coverage.Add(covered, scanners = new List<EntityUid>());
                 scanners.Add(device);
             }
+            if ((scanner.Modules & KiasScannerModules.Radiation) != 0)
+                EnsureComp<RadiationReceiverComponent>(device);
+            else
+                RemCompDeferred<RadiationReceiverComponent>(device);
         }
         if (coverage.Count == 0)
         {
             _coverage.Remove(uid);
+            _scans.Remove(uid);
             if (runtime.Entities != 0 || runtime.Crew != 0 || runtime.CrewDetails.Length != 0)
             {
                 runtime.Entities = 0;
@@ -172,7 +218,16 @@ public sealed class KiasCrewSystem : EntitySystem
             }
         }
         else
+        {
             _coverage[uid] = coverage;
+            _scans.Add(uid, _timing.CurTime);
+        }
+        foreach (var scanner in runtime.Online.ToArray())
+        {
+            if (TryComp<KiasRoomScannerComponent>(scanner, out var component)
+                && (component.Modules & KiasScannerModules.Connector) != 0)
+                EntityManager.System<KiasIntegrationSystem>().ConnectRoom(scanner, component.Range);
+        }
     }
 
     public bool HasCoverage(EntityUid grid, EntityUid source, KiasScannerModules module)
@@ -233,6 +288,40 @@ public sealed class KiasCrewSystem : EntitySystem
         return null;
     }
 
+    public bool IsRegisteredPerson(EntityUid grid, EntityUid person)
+    {
+        if (!_transponders.TryGetValue(grid, out var tokens) || !TryComp<KiasGridComponent>(grid, out var runtime)) return false;
+        foreach (var token in tokens)
+        {
+            if (!TryComp<KiasTransponderComponent>(token, out var transponder) || transponder.Core != runtime.Core
+                || !runtime.Online.Any(uid => TryComp<KiasCrewServerComponent>(uid, out var crew) && crew.Registered.Contains(transponder.Serial))) continue;
+            var carrier = token;
+            for (var depth = 0; depth < 16 && carrier.Valid; depth++)
+            {
+                if (carrier == person) return true;
+                carrier = Transform(carrier).ParentUid;
+            }
+        }
+        return false;
+    }
+
+    public bool HasUnknownAlongside(EntityUid grid, EntityUid injured)
+    {
+        if (!_people.TryGetValue(grid, out var people) || !_coverage.TryGetValue(grid, out var coverage)
+            || !TryComp<MapGridComponent>(grid, out var map)) return false;
+        var tile = _map.TileIndicesFor(grid, map, _transform.ToCoordinates(grid, _transform.GetMapCoordinates(injured)));
+        if (!coverage.TryGetValue(tile, out var room)) return false;
+        foreach (var person in people)
+        {
+            if (person == injured || TerminatingOrDeleted(person) || IsRegisteredPerson(grid, person)
+                || _kias.CanConfigure(grid, person)
+                || TryComp<MobStateComponent>(person, out var state) && state.CurrentState != MobState.Alive) continue;
+            var position = _map.TileIndicesFor(grid, map, _transform.ToCoordinates(grid, _transform.GetMapCoordinates(person)));
+            if (coverage.TryGetValue(position, out var scanners) && scanners.Any(room.Contains)) return true;
+        }
+        return false;
+    }
+
     private void OnRegister(Entity<KiasCrewServerComponent> ent, ref InteractUsingEvent args)
     {
         if (args.Handled || !TryComp<KiasTransponderComponent>(args.Used, out var transponder))
@@ -243,6 +332,8 @@ public sealed class KiasCrewSystem : EntitySystem
             _popup.PopupEntity(Loc.GetString("kias-registration-locked"), ent, args.User);
             return;
         }
+        if (!EntityManager.System<KiasAccessSystem>().CanRegister(grid, args.User, ent.Comp.RegistrationLocked))
+            return;
         if (string.IsNullOrEmpty(transponder.Serial))
             transponder.Serial = Guid.NewGuid().ToString("N");
         transponder.Core = Comp<KiasGridComponent>(grid).Core;
@@ -252,7 +343,8 @@ public sealed class KiasCrewSystem : EntitySystem
 
     private void OnRegistrationVerbs(Entity<KiasCrewServerComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.IsOwner(grid, args.User))
+        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid
+            || !EntityManager.System<KiasAccessSystem>().CanConfigure(grid, args.User, security: true))
             return;
         var component = ent.Comp;
         var server = ent.Owner;
@@ -263,7 +355,7 @@ public sealed class KiasCrewSystem : EntitySystem
             Text = Loc.GetString(locked ? "kias-lock-registration" : "kias-unlock-registration"),
             Act = () =>
             {
-                if (_kias.IsOnline(server) && Transform(server).GridUid == grid && _kias.IsOwner(grid, actor))
+                if (_kias.IsOnline(server) && Transform(server).GridUid == grid && EntityManager.System<KiasAccessSystem>().CanConfigure(grid, actor, security: true))
                     component.RegistrationLocked = locked;
             },
         });
@@ -271,11 +363,12 @@ public sealed class KiasCrewSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
-        if (_coverage.Count == 0 || _timing.CurTime < _nextScan)
-            return;
-        _nextScan = _timing.CurTime + TimeSpan.FromSeconds(1);
-        foreach (var (grid, coverage) in _coverage.ToArray())
-            Scan(grid, coverage);
+        using var measurement = new KiasUpdateMeasurement(_kias);
+        const int gridBudget = 8;
+        for (var i = 0; i < gridBudget && _scans.TryDue(_timing.CurTime, out var grid); i++)
+        {
+            if (_coverage.TryGetValue(grid, out var coverage)) Scan(grid, coverage);
+        }
     }
 
     public void RefreshCounts(EntityUid grid)
@@ -289,6 +382,8 @@ public sealed class KiasCrewSystem : EntitySystem
         if (!TryComp<KiasGridComponent>(grid, out var runtime) || !runtime.Active || !TryComp<MapGridComponent>(grid, out var map))
             return;
         var counts = new Dictionary<EntityUid, int>();
+        _armed.RemoveWhere(uid => TerminatingOrDeleted(uid) || Transform(uid).GridUid == grid
+            && !HasCoverage(grid, uid, KiasScannerModules.Threat));
         var entities = 0;
         var details = new StringBuilder();
         if (_people.TryGetValue(grid, out var people))
@@ -313,6 +408,21 @@ public sealed class KiasCrewSystem : EntitySystem
                 if (counted)
                     entities++;
                 var combined = scanners.Aggregate(KiasScannerModules.None, (flags, scanner) => flags | Modules(scanner));
+                if ((combined & KiasScannerModules.Optical) != 0) details.AppendLine(Name(person));
+                if ((combined & KiasScannerModules.Threat) != 0)
+                {
+                    var armed = EntityManager.System<SharedHandsSystem>().EnumerateHands(person).Any(hand => hand.HeldEntity is { } held && HasComp<GunComponent>(held));
+                    if (armed && _armed.Add(person)) EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.LocalThreat,
+                        message: Loc.GetString("kias-local-threat", ("location", EntityManager.System<KiasSafetySystem>().Location(grid, person))), eventKey: person.ToString());
+                    if (!armed) _armed.Remove(person);
+                }
+                if (runtime.Core is { } core && TryComp<KiasProtocolComponent>(core, out var protocols) && !protocols.CaptainGreeted
+                    && EntityManager.System<KiasAccessSystem>().ResolvePolicy(grid) != KiasAccessPolicy.OpenUnclaimed
+                    && EntityManager.System<KiasAccessSystem>().CanConfigure(grid, person, security: true))
+                {
+                    protocols.CaptainGreeted = true;
+                    EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.CaptainGreeting, message: Loc.GetString("kias-captain-greeting"));
+                }
                 if ((combined & KiasScannerModules.Id) != 0 && _ids.TryFindIdCard(person, out var card))
                     details.AppendLine(card.Comp.FullName ?? Name(person));
                 if ((combined & KiasScannerModules.Biometric) != 0 && TryComp<MobStateComponent>(person, out var state))
@@ -332,6 +442,27 @@ public sealed class KiasCrewSystem : EntitySystem
                 registered.UnionWith(server.Registered);
             if (TryComp<KiasRoomScannerComponent>(device, out var scanner))
             {
+                if ((scanner.Modules & KiasScannerModules.Threat) != 0 && _people.TryGetValue(grid, out var watched))
+                {
+                    _fauna.Clear();
+                    _lookup.GetEntitiesInRange(device, scanner.Range, _fauna);
+                    foreach (var creature in _fauna)
+                    {
+                        if (Transform(creature).GridUid != grid || IsKiasTrackedEntity(creature)
+                            || !TryComp<MobStateComponent>(creature, out var state) || state.CurrentState != MobState.Alive
+                            || !watched.Any(person => !TerminatingOrDeleted(person) && HasCoverage(grid, person, KiasScannerModules.Threat)
+                                && EntityManager.System<NpcFactionSystem>().IsHostileFactionMember(creature, person))) continue;
+                        if (_armed.Add(creature)) EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.LocalThreat,
+                            message: Loc.GetString("kias-local-threat", ("location", EntityManager.System<KiasSafetySystem>().Location(grid, creature))), eventKey: creature.ToString());
+                    }
+                }
+                if ((scanner.Modules & KiasScannerModules.Radiation) != 0 && TryComp<RadiationReceiverComponent>(device, out var radiation))
+                {
+                    var high = radiation.CurrentRadiation >= 1;
+                    if (high && _radiationHigh.Add(device)) EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.Radiation,
+                        value: radiation.CurrentRadiation, message: Loc.GetString("kias-radiation-background", ("location", EntityManager.System<KiasSafetySystem>().Location(grid, device)), ("value", radiation.CurrentRadiation)), eventKey: device.ToString());
+                    if (!high) _radiationHigh.Remove(device);
+                }
                 var count = counts.GetValueOrDefault(device);
                 if (scanner.Entities == 0 && count > 0)
                     _links.InvokePort(device, "KiasMotion");

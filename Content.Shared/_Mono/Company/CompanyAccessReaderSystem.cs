@@ -23,23 +23,18 @@ public sealed partial class CompanyAccessReaderSystem : EntitySystem
         if (args.Cancelled)
             return;
 
-        // Get user's company
-        if (!TryComp<CompanyComponent>(args.User, out var userCompany))
-        {
-            if (entity.Comp.Inverted)
-                return;
-
-            args.Cancel();
-            if (entity.Comp.PopupMessage != null)
-                _popup.PopupClient(Loc.GetString(entity.Comp.PopupMessage), entity, args.User);
-            return;
-        }
-
-        if (!entity.Comp.RequiredCompanies.Contains(userCompany.CompanyName) == !entity.Comp.Inverted)
+        if (!IsAllowed(entity, args.User))
         {
             args.Cancel();
             if (entity.Comp.PopupMessage != null)
                 _popup.PopupClient(Loc.GetString(entity.Comp.PopupMessage), entity, args.User);
         }
+    }
+
+    public bool IsAllowed(EntityUid target, EntityUid user)
+    {
+        if (!TryComp<CompanyAccessReaderComponent>(target, out var reader)) return true;
+        if (!TryComp<CompanyComponent>(user, out var company)) return reader.Inverted;
+        return reader.RequiredCompanies.Contains(company.CompanyName) != reader.Inverted;
     }
 }

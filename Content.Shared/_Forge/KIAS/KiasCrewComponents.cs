@@ -1,9 +1,10 @@
 namespace Content.Shared._Forge.KIAS;
 
 [Flags]
-public enum KiasScannerModules : byte
+public enum KiasScannerModules : ushort
 {
-    None = 0, Motion = 1, Id = 2, Transponder = 4, Biometric = 8, Radiation = 16, Spectral = 32,
+    None = 0, Motion = 1, Id = 2, Transponder = 4, Identity = Id | Transponder, Biometric = 8, Radiation = 16, Spectral = 32,
+    Connector = 64, Optical = 128, Threat = 256,
 }
 
 [RegisterComponent]
@@ -11,6 +12,7 @@ public sealed partial class KiasRoomScannerComponent : Component
 {
     [DataField]
     public int Range = 7;
+    [DataField] public bool Advanced;
     public KiasScannerModules Modules;
     public int Entities;
 }

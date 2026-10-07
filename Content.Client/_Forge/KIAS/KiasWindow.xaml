@@ -6,20 +6,13 @@
         <Label Name="Status"/>
         <Label Name="Counts" Margin="0 8"/>
         <Button Name="RefreshButton" Text="{Loc 'kias-refresh'}"/>
-        <BoxContainer Name="MessageEditor" Orientation="Horizontal" Visible="False">
-            <LineEdit Name="MessageInput" PlaceHolder="{Loc 'kias-custom-message'}" HorizontalExpand="True"/>
-            <Button Name="SaveMessage" Text="{Loc 'kias-save'}"/>
-        </BoxContainer>
         <Label Name="Alert"/>
-        <BoxContainer Name="CoveragePanel" Orientation="Vertical" Visible="False">
-            <Label Text="{Loc 'kias-coverage-colors'}"/>
-            <kias:KiasCoverageControl Name="CoverageMap"/>
-        </BoxContainer>
         <TabContainer Name="Pages" VerticalExpand="True" Margin="0 8">
             <ScrollContainer>
                 <BoxContainer Orientation="Vertical">
                     <Label Name="Devices"/>
                     <Label Name="EventLog"/>
+                    <BoxContainer Name="AudioPanel" Orientation="Vertical" Margin="0 8"/>
                     <BoxContainer Name="ProtocolEditor" Orientation="Vertical" Visible="False" Margin="0 12">
                         <Label Text="{Loc 'kias-protocols-title'}"/>
                         <BoxContainer Orientation="Horizontal">
@@ -33,6 +26,11 @@
                         <LineEdit Name="MinimumInput" Text="0" PlaceHolder="{Loc 'kias-protocol-minimum'}"/>
                         <CheckBox Name="CrewUnavailable" Text="{Loc 'kias-protocol-crew-unavailable'}"/>
                         <Label Text="{Loc 'kias-protocol-action'}"/>
+                        <OptionButton Name="ActionListPicker"/>
+                        <BoxContainer Orientation="Horizontal">
+                            <Button Name="AddAction" Text="{Loc 'kias-add-action'}"/>
+                            <Button Name="RemoveAction" Text="{Loc 'kias-remove-action'}"/>
+                        </BoxContainer>
                         <OptionButton Name="ActionPicker"/>
                         <Label Text="{Loc 'kias-protocol-target'}"/>
                         <OptionButton Name="TargetPicker"/>

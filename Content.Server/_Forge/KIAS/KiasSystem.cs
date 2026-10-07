@@ -24,8 +24,12 @@ public sealed partial class KiasSystem : EntitySystem
 
     private readonly HashSet<EntityUid> _active = new();
     private readonly HashSet<EntityUid> _dirty = new();
+    private readonly Queue<EntityUid> _dirtyQueue = new();
 
     public IReadOnlySet<EntityUid> ActiveGrids => _active;
+    public bool MeasureUpdates;
+    public double MeasuredUpdateMilliseconds;
+    public long MeasuredUpdateBytes;
 
     public override void Initialize()
     {
@@ -52,13 +56,18 @@ public sealed partial class KiasSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
+        using var measurement = new KiasUpdateMeasurement(this);
         base.Update(frameTime);
-        if (_dirty.Count == 0)
+        if (_dirtyQueue.Count == 0)
             return;
-        var dirty = _dirty.ToArray();
-        _dirty.Clear();
-        foreach (var grid in dirty)
+        const int gridBudget = 8;
+        var processed = 0;
+        for (var examined = 0; examined < 128 && processed < gridBudget && _dirtyQueue.TryDequeue(out var grid); examined++)
+        {
+            if (!_dirty.Remove(grid)) continue;
+            processed++;
             Rebuild(grid);
+        }
     }
 
     private void OnDeviceStartup(Entity<KiasDeviceComponent> ent, ref ComponentStartup args) => RegisterDevice(ent);
@@ -66,7 +75,16 @@ public sealed partial class KiasSystem : EntitySystem
     private void OnDeviceParent(Entity<KiasDeviceComponent> ent, ref EntParentChangedMessage args) => RegisterDevice(ent);
     private void OnDeviceGrid(Entity<KiasDeviceComponent> ent, ref GridUidChangedEvent args) => RegisterDevice(ent);
     private void OnDeviceAnchor(Entity<KiasDeviceComponent> ent, ref AnchorStateChangedEvent args) => RegisterDevice(ent);
-    private void OnDevicePower(Entity<KiasDeviceComponent> ent, ref PowerChangedEvent args) => MarkDirty(ent.Comp.RegisteredGrid);
+    private void OnDevicePower(Entity<KiasDeviceComponent> ent, ref PowerChangedEvent args)
+    {
+        if (!args.Powered && ent.Comp.Status == KiasDeviceStatus.Online && ent.Comp.RegisteredGrid is { } grid && _active.Contains(grid))
+        {
+            var message = Loc.GetString("kias-device-power-lost", ("device", Name(ent)));
+            EntityManager.System<KiasSafetySystem>().Publish(grid, message, true, announce: false, key: $"power-lost:{ent.Owner}");
+            EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.PowerLost, message: message, eventKey: ent.Owner.ToString());
+        }
+        MarkDirty(ent.Comp.RegisteredGrid);
+    }
     private void OnDeviceMove(Entity<KiasDeviceComponent> ent, ref MoveEvent args)
     {
         if (!args.OnlyRotation)
@@ -144,13 +162,14 @@ public sealed partial class KiasSystem : EntitySystem
             return;
         if (runtime.Core is { } core && TryComp<KiasCoreComponent>(core, out var component) && !component.Enabled)
             return;
-        _dirty.Add(uid);
+        if (_dirty.Add(uid)) _dirtyQueue.Enqueue(uid);
     }
 
     public void Invalidate(EntityUid grid) => MarkDirty(grid);
 
     public void Rebuild(EntityUid grid)
     {
+        _dirty.Remove(grid);
         if (TerminatingOrDeleted(grid) || !TryComp<KiasGridComponent>(grid, out var runtime) || !TryComp<MapGridComponent>(grid, out var map))
             return;
         var wasActive = runtime.Active;
@@ -181,8 +200,9 @@ public sealed partial class KiasSystem : EntitySystem
             device.Status = cores.Length > 1 ? KiasDeviceStatus.DuplicateCore
                 : !_power.IsPowered(uid) ? KiasDeviceStatus.NoPower
                 : !runtime.Active ? KiasDeviceStatus.Offline
-                : runtime.Topology.Connected(_map.TileIndicesFor(grid, map, Transform(runtime.Core!.Value).Coordinates),
-                    _map.TileIndicesFor(grid, map, Transform(uid).Coordinates)) ? KiasDeviceStatus.Online
+                : (HasComp<KiasIntegratedComponent>(uid) ? EntityManager.System<KiasIntegrationSystem>().CanControl(uid)
+                    : runtime.Topology.Connected(_map.TileIndicesFor(grid, map, Transform(runtime.Core!.Value).Coordinates),
+                    _map.TileIndicesFor(grid, map, Transform(uid).Coordinates))) ? KiasDeviceStatus.Online
                 : KiasDeviceStatus.NoDataPath;
             if (device.Status == KiasDeviceStatus.Online)
             {
@@ -204,16 +224,15 @@ public sealed partial class KiasSystem : EntitySystem
     public bool IsOnline(EntityUid device)
     {
         return !TerminatingOrDeleted(device) && TryComp<KiasDeviceComponent>(device, out var comp) && comp.RegisteredGrid is { } grid
-               && _active.Contains(grid) && comp.Status == KiasDeviceStatus.Online && _power.IsPowered(device);
+               && !_dirty.Contains(grid) && _active.Contains(grid) && comp.Status == KiasDeviceStatus.Online && _power.IsPowered(device);
     }
 
-    public bool IsOwner(EntityUid grid, EntityUid actor)
+    public bool CanConfigure(EntityUid grid, EntityUid actor)
     {
-        return TryComp<ShipOwnershipComponent>(grid, out var ownership)
-               && TryComp<ActorComponent>(actor, out var player) && player.PlayerSession.UserId == ownership.OwnerUserId;
+        return EntityManager.System<KiasAccessSystem>().CanConfigure(grid, actor);
     }
 
-    public bool HasRole(EntityUid grid, KiasDeviceRole role) => _active.Contains(grid) && TryComp<KiasGridComponent>(grid, out var runtime) && runtime.Roles.Contains(role);
+    public bool HasRole(EntityUid grid, KiasDeviceRole role) => !_dirty.Contains(grid) && _active.Contains(grid) && TryComp<KiasGridComponent>(grid, out var runtime) && runtime.Roles.Contains(role);
 
     public void SetEnabled(EntityUid core, bool enabled)
     {
@@ -222,7 +241,8 @@ public sealed partial class KiasSystem : EntitySystem
         var grid = Transform(core).GridUid;
         if (!enabled && grid is { } shuttingDown && _active.Contains(shuttingDown))
         {
-            EntityManager.System<KiasSafetySystem>().Publish(shuttingDown, Loc.GetString("kias-shutdown"));
+            EntityManager.System<KiasSafetySystem>().Publish(shuttingDown, Loc.GetString("kias-shutdown"), announce: false);
+            EntityManager.System<KiasProtocolSystem>().Trigger(shuttingDown, KiasTrigger.Shutdown, message: Loc.GetString("kias-shutdown"));
         }
         comp.Enabled = enabled;
         if (grid is not { } uid)
@@ -231,13 +251,14 @@ public sealed partial class KiasSystem : EntitySystem
         Rebuild(uid);
         if (enabled && _active.Contains(uid))
         {
-            EntityManager.System<KiasSafetySystem>().Publish(uid, Loc.GetString("kias-online"));
+            EntityManager.System<KiasSafetySystem>().Publish(uid, Loc.GetString("kias-online"), announce: false);
+            EntityManager.System<KiasProtocolSystem>().Trigger(uid, KiasTrigger.Boot, message: Loc.GetString("kias-online"));
         }
     }
 
     private void OnCoreVerbs(Entity<KiasCoreComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!args.CanAccess || !args.CanInteract || Transform(ent).GridUid is not { } grid || !IsOwner(grid, args.User))
+        if (!args.CanAccess || !args.CanInteract || Transform(ent).GridUid is not { } grid || !CanConfigure(grid, args.User))
             return;
         var core = ent.Owner;
         var actor = args.User;
@@ -247,7 +268,7 @@ public sealed partial class KiasSystem : EntitySystem
             Text = Loc.GetString(enabled ? "kias-enable" : "kias-disable"),
             Act = () =>
             {
-                if (Transform(core).GridUid == grid && IsOwner(grid, actor))
+                if (Transform(core).GridUid == grid && CanConfigure(grid, actor))
                     SetEnabled(core, enabled);
             },
         });
@@ -258,7 +279,7 @@ public sealed partial class KiasSystem : EntitySystem
         if (args.Handled || !HasComp<KiasMasterKeyComponent>(args.Used))
             return;
         args.Handled = true;
-        if (Transform(ent).GridUid is not { } grid || !IsOwner(grid, args.User))
+        if (Transform(ent).GridUid is not { } grid || !CanConfigure(grid, args.User))
         {
             _popup.PopupEntity(Loc.GetString("kias-owner-only"), ent, args.User);
             return;

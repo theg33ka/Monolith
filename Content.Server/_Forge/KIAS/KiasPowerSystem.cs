@@ -22,7 +22,8 @@ public sealed class KiasPowerSystem : EntitySystem
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _cables = new();
     private readonly Dictionary<EntityUid, bool[]> _deficits = new();
     private readonly HashSet<EntityUid> _scheduled = new();
-    private TimeSpan _nextSample;
+    private readonly KiasPeriodicScheduler _samples = new(5);
+    public bool HasDeficit(EntityUid grid) => _deficits.TryGetValue(grid, out var values) && values.Any(value => value);
 
     public override void Initialize()
     {
@@ -69,6 +70,7 @@ public sealed class KiasPowerSystem : EntitySystem
     {
         _cables.Remove(args.EntityUid);
         _scheduled.Remove(args.EntityUid);
+        _samples.Remove(args.EntityUid);
         _deficits.Remove(args.EntityUid);
     }
 
@@ -77,6 +79,7 @@ public sealed class KiasPowerSystem : EntitySystem
         if (!args.Active)
         {
             _scheduled.Remove(args.Grid);
+            _samples.Remove(args.Grid);
             _deficits.Remove(args.Grid);
         }
     }
@@ -84,9 +87,15 @@ public sealed class KiasPowerSystem : EntitySystem
     private void OnTopology(ref KiasTopologyChangedEvent args)
     {
         if (_kias.HasRole(args.Grid, KiasDeviceRole.Power))
+        {
             _scheduled.Add(args.Grid);
+            _samples.Add(args.Grid, _timing.CurTime);
+        }
         else
+        {
             _scheduled.Remove(args.Grid);
+            _samples.Remove(args.Grid);
+        }
     }
 
     public string Describe(EntityUid grid)
@@ -124,7 +133,7 @@ public sealed class KiasPowerSystem : EntitySystem
             {
                 var ev = new KiasPowerDeficitEvent(grid, (CableType) channel, supply[channel], consumption[channel]);
                 RaiseLocalEvent(grid, ref ev, true);
-                _safety.Publish(grid, Loc.GetString("kias-power-deficit", ("channel", Loc.GetString($"kias-relay-{((CableType) channel).ToString().ToLowerInvariant()}"))), true);
+                _safety.Publish(grid, Loc.GetString("kias-power-deficit", ("channel", Loc.GetString($"kias-relay-{((CableType) channel).ToString().ToLowerInvariant()}"))), true, announce: false, key: $"power:{channel}");
             }
             text.AppendLine(Loc.GetString("kias-power-statistics", ("channel", Loc.GetString($"kias-relay-{((CableType) channel).ToString().ToLowerInvariant()}")),
                 ("supply", MathF.Round(supply[channel] / 1000, 1)), ("demand", MathF.Round(consumption[channel] / 1000, 1))));
@@ -134,10 +143,9 @@ public sealed class KiasPowerSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
-        if (_scheduled.Count == 0 || _timing.CurTime < _nextSample)
-            return;
-        _nextSample = _timing.CurTime + TimeSpan.FromSeconds(5);
-        foreach (var grid in _scheduled.ToArray())
+        using var measurement = new KiasUpdateMeasurement(_kias);
+        const int gridBudget = 4;
+        for (var i = 0; i < gridBudget && _samples.TryDue(_timing.CurTime, out var grid); i++)
         {
             if (TryComp<KiasGridComponent>(grid, out var runtime))
             {

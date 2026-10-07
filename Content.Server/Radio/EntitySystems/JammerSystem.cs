@@ -62,10 +62,27 @@ public sealed partial class JammerSystem : SharedJammerSystem
         if (args.Handled || !args.Complex)
             return;
 
-    var activated = !HasComp<ActiveRadioJammerComponent>(ent) &&
-        _powerCell.TryGetBatteryFromSlot(ent.Owner, out var battery) &&
-        battery.CurrentCharge > GetCurrentWattage(ent);
+    var activated = SetEnabled(ent.Owner, !HasComp<ActiveRadioJammerComponent>(ent));
 
+    var state = Loc.GetString(activated
+        ? "radio-jammer-component-on-state"
+        : "radio-jammer-component-off-state");
+
+    var message = Loc.GetString(
+        "radio-jammer-component-on-use",
+        ("state", state)
+    );
+
+    Popup.PopupEntity(message, args.User, args.User);
+    args.Handled = true;
+    }
+
+    public bool SetEnabled(EntityUid uid, bool enabled)
+    {
+        if (!TryComp<RadioJammerComponent>(uid, out var component)) return false;
+        var ent = new Entity<RadioJammerComponent>(uid, component);
+        if (enabled && HasComp<ActiveRadioJammerComponent>(uid)) return true;
+        var activated = enabled && _powerCell.TryGetBatteryFromSlot(uid, out var battery) && battery.CurrentCharge > GetCurrentWattage(ent);
     if (activated)
     {
         ChangeLEDState(ent.Owner, true);
@@ -98,17 +115,7 @@ public sealed partial class JammerSystem : SharedJammerSystem
         RemCompDeferred<DeviceNetworkJammerComponent>(ent);
     }
 
-    var state = Loc.GetString(activated
-        ? "radio-jammer-component-on-state"
-        : "radio-jammer-component-off-state");
-
-    var message = Loc.GetString(
-        "radio-jammer-component-on-use",
-        ("state", state)
-    );
-
-    Popup.PopupEntity(message, args.User, args.User);
-    args.Handled = true;
+        return activated;
     }
 
     private void OnRadioSendAttempt(ref RadioSendAttemptEvent args)

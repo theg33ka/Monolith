@@ -6,6 +6,8 @@ using Content.Shared.Chemistry.Components;
 using Content.Shared.DeviceLinking.Events;
 using Content.Shared.Verbs;
 using Robust.Shared.Containers;
+using Content.Shared.Light.Components;
+using Content.Shared.Light.EntitySystems;
 
 namespace Content.Server._Forge.KIAS;
 
@@ -62,13 +64,25 @@ public sealed class KiasActuatorSystem : EntitySystem
 
     private void OnGroup(ref KiasSetLightGroupEvent args)
     {
-        if (!_kias.ActiveGrids.Contains(args.Grid) || !_groupLights.TryGetValue(args.Grid, out var lights))
+        if (!_kias.ActiveGrids.Contains(args.Grid) || Comp<KiasGridComponent>(args.Grid).Testing || !_groupLights.TryGetValue(args.Grid, out var lights))
             return;
+        var group = args.Group;
+        var controller = Comp<KiasGridComponent>(args.Grid).Online.OrderBy(uid => uid.Id)
+            .FirstOrDefault(uid => _kias.IsOnline(uid) && TryComp<KiasLightControllerComponent>(uid, out var comp) && comp.Group == group);
+        var settings = controller.Valid ? Comp<KiasLightControllerComponent>(controller) : null;
         foreach (var light in lights.ToArray())
         {
             if (!TerminatingOrDeleted(light) && Transform(light).GridUid == args.Grid
                 && Comp<KiasLightGroupComponent>(light).Group == args.Group)
+            {
+                if (settings != null && _lights.GetBulb(light) is { } bulb && TryComp<LightBulbComponent>(bulb, out var component))
+                {
+                    component.LightEnergy = settings.Brightness;
+                    Dirty(bulb, component);
+                    EntityManager.System<SharedLightBulbSystem>().SetColor(bulb, Color.FromHex(settings.Color));
+                }
                 _lights.SetState(light, args.Enabled);
+            }
         }
     }
 
@@ -83,13 +97,15 @@ public sealed class KiasActuatorSystem : EntitySystem
 
     private void OnLightVerbs(Entity<KiasLightControllerComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent))
+        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User))
             return;
         var uid = ent.Owner;
         foreach (var enabled in new[] { true, false })
         {
             var state = enabled;
-            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString(state ? "kias-lights-on" : "kias-lights-off"), Act = () => SetLights(uid, state) });
+            var actor = args.User;
+            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString(state ? "kias-lights-on" : "kias-lights-off"),
+                Act = () => { if (_kias.CanConfigure(grid, actor)) SetLights(uid, state); } });
         }
     }
 
@@ -101,10 +117,11 @@ public sealed class KiasActuatorSystem : EntitySystem
 
     private void OnSuppressionVerbs(Entity<KiasSuppressionComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent))
+        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User))
             return;
         var uid = ent.Owner;
-        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("kias-suppress"), Act = () => Suppress(uid) });
+        var actor = args.User;
+        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("kias-suppress"), Act = () => { if (_kias.CanConfigure(grid, actor)) Suppress(uid); } });
     }
 
     private void OnSuppressionSignal(Entity<KiasSuppressionComponent> ent, ref SignalReceivedEvent args)
@@ -117,6 +134,7 @@ public sealed class KiasActuatorSystem : EntitySystem
     {
         if (!_kias.IsOnline(uid) || !HasComp<KiasSuppressionComponent>(uid)
             || Transform(uid).GridUid is not { } grid || !_kias.HasRole(grid, KiasDeviceRole.Atmosphere)
+            || Comp<KiasGridComponent>(grid).Testing
             || !_containers.TryGetContainer(uid, "kias-cartridge", out var slot)
             || slot.ContainedEntities.FirstOrDefault() is not { Valid: true } cartridge
             || TerminatingOrDeleted(cartridge) || EntityManager.IsQueuedForDeletion(cartridge)

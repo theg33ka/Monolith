@@ -1,0 +1,240 @@
+using System.Linq;
+using Content.Shared._Forge.KIAS;
+using Content.Shared.UserInterface;
+
+namespace Content.Server._Forge.KIAS;
+
+public sealed partial class KiasDisplaySystem
+{
+    private void InitializeLocalUi()
+    {
+        SubscribeLocalEvent<KiasManagementComponent, ActivatableUIOpenAttemptEvent>(OnManagementAttempt);
+        SubscribeLocalEvent<KiasLocalUiComponent, BoundUIOpenedEvent>(OnLocalOpen);
+        SubscribeLocalEvent<KiasLocalUiComponent, BoundUIClosedEvent>(OnLocalClosed);
+        SubscribeLocalEvent<KiasLocalUiComponent, KiasRefreshMessage>(OnLocalRefresh);
+        SubscribeLocalEvent<KiasLocalUiComponent, KiasDeviceSettingsMessage>(OnDeviceSettings);
+        SubscribeLocalEvent<KiasDisplayComponent, KiasDeviceSettingsMessage>(OnDisplaySettings);
+    }
+
+    private void OnManagementAttempt(Entity<KiasManagementComponent> ent, ref ActivatableUIOpenAttemptEvent args)
+    {
+        if (Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User))
+            args.Cancel();
+    }
+
+    private void OnLocalOpen(Entity<KiasLocalUiComponent> ent, ref BoundUIOpenedEvent args) { _sentStates.Remove(ent); Refresh(ent); }
+    private void OnLocalRefresh(Entity<KiasLocalUiComponent> ent, ref KiasRefreshMessage args) => Refresh(ent);
+
+    public KiasUiKey UiKey(EntityUid uid)
+    {
+        if (HasComp<KiasManagementComponent>(uid)) return KiasUiKey.Key;
+        if (HasComp<KiasServiceToolComponent>(uid)) return KiasUiKey.Service;
+        if (HasComp<KiasRecorderComponent>(uid)) return KiasUiKey.Recorder;
+        if (HasComp<KiasRoomScannerComponent>(uid)) return KiasUiKey.Scanner;
+        if (HasComp<KiasCrewServerComponent>(uid)) return KiasUiKey.Crew;
+        if (HasComp<KiasSpeakerComponent>(uid)) return KiasUiKey.Speaker;
+        if (HasComp<KiasLocalUiComponent>(uid)) return KiasUiKey.Sensor;
+        return KiasUiKey.Wall;
+    }
+
+    public BoundUserInterfaceState BuildLocalState(EntityUid uid)
+    {
+        if (TryComp<KiasServiceToolComponent>(uid, out var tool))
+        {
+            if (tool.Mode == KiasServiceMode.Coverage && tool.Target is { } coverageTarget && !TerminatingOrDeleted(coverageTarget)
+                && Transform(coverageTarget).GridUid is { } coverageGrid) tool.Geometry = BuildCoverage(coverageGrid, coverageTarget);
+            else if (tool.Target is { } deletedTarget && TerminatingOrDeleted(deletedTarget)) tool.Geometry = null;
+            return new KiasServiceState { Mode = tool.Mode, Message = tool.Message,
+                Details = tool.Target is { } diagnosticTarget && !TerminatingOrDeleted(diagnosticTarget) ? Diagnostics(diagnosticTarget) : string.Empty,
+                SourceName = tool.Source is { } namedSource && !TerminatingOrDeleted(namedSource) ? Name(namedSource) : string.Empty,
+                TargetName = tool.Target is { } namedTarget && !TerminatingOrDeleted(namedTarget) ? Name(namedTarget) : string.Empty,
+                Source = tool.Source is { } source && !TerminatingOrDeleted(source) ? GetNetEntity(source) : null,
+                Target = tool.Target is { } target && !TerminatingOrDeleted(target) ? GetNetEntity(target) : null,
+                Geometry = tool.Mode == KiasServiceMode.Coverage ? tool.Geometry : null };
+        }
+        if (TryComp<KiasRecorderComponent>(uid, out var recorder))
+            return new KiasRecorderState { Online = _kias.IsOnline(uid), Entries = recorder.Entries.Concat(recorder.ProtocolEvents).OrderBy(entry => entry, StringComparer.Ordinal).TakeLast(64).ToList() };
+        KiasGridComponent? runtime = null;
+        if (Transform(uid).GridUid is { } grid)
+            TryComp(grid, out runtime);
+        if (TryComp<KiasDisplayComponent>(uid, out var display))
+        {
+            var details = display.Page switch
+            {
+                KiasDisplayPage.Crew => runtime?.CrewDetails,
+                KiasDisplayPage.Power => runtime?.PowerDetails,
+                KiasDisplayPage.Navigation => runtime == null ? null : string.Join("\n", runtime.Log.TakeLast(5)),
+                KiasDisplayPage.Atmos => runtime == null ? null : RoleDetails(runtime, KiasDeviceRole.Atmosphere, KiasDeviceRole.Suppression, KiasDeviceRole.Scanner),
+                KiasDisplayPage.Defence => runtime == null ? null : RoleDetails(runtime, KiasDeviceRole.Defence, KiasDeviceRole.PdcRadar, KiasDeviceRole.PdcWeapon, KiasDeviceRole.Hull),
+                KiasDisplayPage.Faults => runtime == null ? null : string.Join("\n", runtime.Devices.Where(device => !TerminatingOrDeleted(device)
+                    && TryComp<KiasDeviceComponent>(device, out var component) && component.Status != KiasDeviceStatus.Online)
+                    .Take(32).Select(entity => Name(entity))),
+                _ => Loc.GetString(_kias.IsOnline(uid) ? "kias-online" : "kias-status-offline"),
+            };
+            return new KiasWallState { Online = _kias.IsOnline(uid), Entities = runtime?.Entities ?? 0, Crew = runtime?.Crew ?? 0,
+                Page = display.Page, Details = details ?? string.Empty };
+        }
+        KiasLocalState state;
+        if (TryComp<KiasRoomScannerComponent>(uid, out var scanner))
+            state = new KiasScannerState { Range = scanner.Range, Modules = scanner.Modules,
+                Geometry = Transform(uid).GridUid is { } scannerGrid ? BuildCoverage(scannerGrid, uid) : null };
+        else if (TryComp<KiasCrewServerComponent>(uid, out var crew))
+            state = new KiasCrewState { Locked = crew.RegistrationLocked, DetectedCrew = runtime?.Crew ?? 0, Registered = crew.Registered.Take(256).ToList() };
+        else if (TryComp<KiasSpeakerComponent>(uid, out var speaker))
+            state = new KiasSpeakerState { Group = speaker.Group, Message = speaker.Message };
+        else if (TryComp<KiasResourceMonitorComponent>(uid, out var resources))
+            state = new KiasResourceState { Details = ResourceDetails(uid, resources, runtime) };
+        else if (TryComp<KiasWirelessComponent>(uid, out var wireless))
+            state = new KiasWirelessState { Channel = wireless.Channel, Range = wireless.Range,
+                TrustedTransmitters = wireless.TrustedTransmitters.Where(source => !TerminatingOrDeleted(source)).Take(16).Select(source => Name(source)).ToList() };
+        else if (TryComp<KiasLightControllerComponent>(uid, out var light))
+            state = new KiasLightState { Group = light.Group, Color = light.Color, Brightness = light.Brightness };
+        else
+            state = new KiasSensorState { Range = SensorRange(uid), Arc = HasComp<KiasWeaponFlashComponent>(uid) ? 90 : 360,
+                Geometry = Transform(uid).GridUid is { } sensorGrid ? BuildCoverage(sensorGrid, uid) : null };
+        state.Name = Name(uid);
+        if (TryComp<KiasDeviceComponent>(uid, out var device))
+        {
+            state.Status = device.Status;
+            state.Room = device.Room;
+        }
+        return state;
+    }
+
+    public float SensorRange(EntityUid uid)
+    {
+        if (TryComp<KiasHorizonComponent>(uid, out var horizon)) return Math.Clamp(horizon.Range, 0, 2000);
+        if (TryComp<KiasProximityComponent>(uid, out var proximity)) return Math.Clamp(proximity.Range, 0, 500);
+        if (TryComp<KiasWeaponFlashComponent>(uid, out var flash)) return Math.Clamp(flash.Range, 0, 1000);
+        if (TryComp<KiasPdcRadarComponent>(uid, out var radar)) return Math.Clamp(radar.Range, 0, 500);
+        if (TryComp<KiasHullSensorComponent>(uid, out var hull)) return Math.Clamp(hull.Range, 50, 100);
+        return 0;
+    }
+
+    public KiasCoverageGeometry BuildCoverage(EntityUid grid, EntityUid target)
+    {
+        var geometry = new KiasCoverageGeometry { Target = GetNetEntity(target), Grid = GetNetEntity(grid) };
+        if (TryComp<KiasRoomScannerComponent>(target, out var scanner))
+        {
+            geometry.Radius = Math.Clamp(scanner.Range, 0, 10);
+            return geometry;
+        }
+        var range = SensorRange(target);
+        if (HasComp<KiasHorizonComponent>(target) || HasComp<KiasProximityComponent>(target)
+            || HasComp<KiasWeaponFlashComponent>(target) || HasComp<KiasPdcRadarComponent>(target) || HasComp<KiasHullSensorComponent>(target))
+        {
+            geometry.Large = true;
+            geometry.Radius = range;
+            geometry.Arc = HasComp<KiasWeaponFlashComponent>(target) ? 90 : 360;
+            geometry.Shape = geometry.Arc < 360 ? KiasCoverageShape.Sector : KiasCoverageShape.Circle;
+            return geometry;
+        }
+        geometry.Shape = KiasCoverageShape.Data;
+        if (!TryComp<KiasGridComponent>(grid, out var runtime) || runtime.Core is not { } core
+            || !TryComp<Robust.Shared.Map.Components.MapGridComponent>(grid, out var map))
+            return geometry;
+        geometry.Revision = runtime.Revision;
+        var maps = EntityManager.System<SharedMapSystem>();
+        var center = maps.TileIndicesFor(grid, map, Transform(target).Coordinates);
+        var coreTile = maps.TileIndicesFor(grid, map, Transform(core).Coordinates);
+        const int diagnosticRadius = 12;
+        for (var y = -diagnosticRadius; y <= diagnosticRadius; y++)
+        for (var x = -diagnosticRadius; x <= diagnosticRadius; x++)
+        {
+            var tile = center + new Vector2i(x, y);
+            if (runtime.Topology.Connected(coreTile, tile))
+                geometry.Cells.Add(tile);
+        }
+        return geometry;
+    }
+
+    private void OnDisplaySettings(Entity<KiasDisplayComponent> ent, ref KiasDeviceSettingsMessage args)
+    {
+        if (HasComp<KiasManagementComponent>(ent) || HasComp<KiasRecorderComponent>(ent) || HasComp<KiasServiceToolComponent>(ent)
+            || !Enum.IsDefined(args.Page) || Transform(ent).GridUid is not { } grid || !_kias.IsOnline(ent) || !_kias.CanConfigure(grid, args.Actor))
+            return;
+        ent.Comp.Page = args.Page;
+        Refresh(ent);
+        RefreshCoverageTools(grid);
+    }
+
+    private void OnDeviceSettings(Entity<KiasLocalUiComponent> ent, ref KiasDeviceSettingsMessage args)
+    {
+        if (!_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.Actor)
+            || args.Room.Length > 64 || args.Group.Length > 32 || args.Message.Length > 256 || !float.IsFinite(args.Range))
+            return;
+        Comp<KiasDeviceComponent>(ent).Room = args.Room.Trim();
+        if (TryComp<KiasRoomScannerComponent>(ent, out var scanner))
+        {
+            scanner.Range = (int) Math.Clamp(args.Range, 1, 10);
+            EntityManager.System<KiasCrewSystem>().RebuildCoverage(grid);
+        }
+        if (TryComp<KiasHorizonComponent>(ent, out var horizon)) horizon.Range = Math.Clamp(args.Range, 0, 2000);
+        if (TryComp<KiasProximityComponent>(ent, out var proximity)) proximity.Range = Math.Clamp(args.Range, 0, 500);
+        if (TryComp<KiasWeaponFlashComponent>(ent, out var flash)) flash.Range = Math.Clamp(args.Range, 0, 1000);
+        if (TryComp<KiasPdcRadarComponent>(ent, out var radar)) radar.Range = Math.Clamp(args.Range, 0, 500);
+        if (TryComp<KiasHullSensorComponent>(ent, out var hull)) hull.Range = Math.Clamp(args.Range, 50, 100);
+        if (TryComp<KiasWirelessComponent>(ent, out var wireless))
+        {
+            wireless.Channel = args.Group.Trim();
+            wireless.Range = Math.Clamp(args.Range, 1, 200);
+            if (TryComp<Content.Server.DeviceNetwork.Components.WirelessNetworkComponent>(ent, out var nativeWireless)) nativeWireless.Range = (int) wireless.Range;
+        }
+        if (TryComp<KiasCrewServerComponent>(ent, out var crew) && EntityManager.System<KiasAccessSystem>().CanConfigure(grid, args.Actor, security: true))
+            crew.RegistrationLocked = args.LockRegistration;
+        if (TryComp<KiasSpeakerComponent>(ent, out var speaker))
+        {
+            speaker.Group = args.Group.Trim().ToUpperInvariant();
+            speaker.Message = args.Message.Trim();
+        }
+        if (TryComp<KiasLightControllerComponent>(ent, out var light) && float.IsFinite(args.Brightness)
+            && args.Color.Length == 7 && args.Color[0] == '#' && args.Color.Skip(1).All(Uri.IsHexDigit))
+        {
+            light.Group = args.Group.Trim().ToUpperInvariant();
+            light.Color = args.Color;
+            light.Brightness = Math.Clamp(args.Brightness, 0, 2);
+        }
+        Refresh(ent);
+        RefreshCoverageTools(grid);
+    }
+
+    private string RoleDetails(KiasGridComponent runtime, params KiasDeviceRole[] roles) => string.Join("\n",
+        runtime.Devices.Where(uid => !TerminatingOrDeleted(uid) && TryComp<KiasDeviceComponent>(uid, out var device) && roles.Contains(device.Role))
+            .Take(32).Select(uid => $"{Name(uid)}: {Loc.GetString($"kias-status-{Comp<KiasDeviceComponent>(uid).Status.ToString().ToLowerInvariant()}")}"));
+
+    private string Diagnostics(EntityUid target)
+    {
+        if (!TryComp<KiasDeviceComponent>(target, out var device) || Transform(target).GridUid is not { } grid
+            || !TryComp<KiasGridComponent>(grid, out var runtime) || !TryComp<Robust.Shared.Map.Components.MapGridComponent>(grid, out var map)) return string.Empty;
+        var status = Loc.GetString($"kias-status-{device.Status.ToString().ToLowerInvariant()}");
+        var core = runtime.Core;
+        var connection = TryComp<KiasIntegratedComponent>(target, out var integrated) && !integrated.Direct
+            && integrated.Scanner is { } scanner && !TerminatingOrDeleted(scanner) ? scanner : target;
+        var path = core is { } uid ? runtime.Topology.DiagnosticPath(EntityManager.System<SharedMapSystem>().TileIndicesFor(grid, map, Transform(uid).Coordinates),
+            EntityManager.System<SharedMapSystem>().TileIndicesFor(grid, map, Transform(connection).Coordinates)) : new List<Vector2i>();
+        return Loc.GetString("kias-diagnostic-chain", ("core", core is { } source ? Name(source) : "—"), ("target", connection == target ? Name(target) : $"{Name(connection)} → {Name(target)}"),
+            ("status", status), ("nodes", path.Count), ("power", Loc.GetString(EntityManager.System<Content.Shared.Power.EntitySystems.SharedPowerReceiverSystem>().IsPowered(target) ? "kias-online" : "kias-status-nopower")));
+    }
+
+    private string ResourceDetails(EntityUid uid, KiasResourceMonitorComponent resources, KiasGridComponent? runtime)
+    {
+        if (!_kias.IsOnline(uid)) return string.Empty;
+        var lines = new List<string> { runtime?.PowerDetails ?? string.Empty };
+        foreach (var target in resources.Targets.Take(32))
+        {
+            if (TerminatingOrDeleted(target) || Transform(target).GridUid != Transform(uid).GridUid) continue;
+            if (TryComp<Content.Shared.Stacks.StackComponent>(target, out var stack) && stack.Count > 0) lines.Add($"{Name(target)}: {stack.Count}");
+            if (TryComp<Content.Shared.Power.Components.BatteryComponent>(target, out var battery) && battery.CurrentCharge > 0) lines.Add($"{Name(target)}: {battery.CurrentCharge:F0} / {battery.MaxCharge:F0} J");
+            var ammo = new Content.Shared.Weapons.Ranged.Events.GetAmmoCountEvent();
+            RaiseLocalEvent(target, ref ammo);
+            if (ammo.Count > 0) lines.Add($"{Name(target)}: {ammo.Count} / {ammo.Capacity}");
+            if (HasComp<Content.Shared.Chemistry.Components.SolutionManager.SolutionContainerManagerComponent>(target))
+            {
+                foreach (var (name, solution) in EntityManager.System<Content.Shared.Chemistry.EntitySystems.SharedSolutionContainerSystem>()
+                    .EnumerateSolutions(new Entity<Content.Shared.Chemistry.Components.SolutionManager.SolutionContainerManagerComponent?>(target, null)))
+                    if (solution.Comp.Solution.Volume > 0) lines.Add($"{Name(target)} / {name}: {solution.Comp.Solution.Volume} u");
+            }
+        }
+        return string.Join("\n", lines);
+    }
+}

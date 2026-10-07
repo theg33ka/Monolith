@@ -97,6 +97,7 @@ public sealed class KiasProtocolTests
             var core = Spawn("KiasCore", 0);
             Spawn("KiasNavigationServer", 1);
             Spawn("KiasRecorder", 2);
+            Spawn("KiasMaydayAntenna", 3);
             var relay = Spawn("KiasRelay", 4);
             em.EnsureComponent<IFFComponent>(map.Grid);
             var config = em.GetComponent<KiasProtocolComponent>(core);
@@ -117,7 +118,8 @@ public sealed class KiasProtocolTests
             config.Cooldowns.Clear();
             engine.Trigger(map.Grid, KiasTrigger.Manual);
             Assert.That(em.GetComponent<KiasRelayComponent>(relay).Closed, Is.False);
-            Assert.That(runtime.Log.Count, Is.EqualTo(2));
+            Assert.That(runtime.Log.Count, Is.EqualTo(1));
+            kias.Rebuild(map.Grid);
             Assert.That(engine.Mayday(map.Grid, "Test distress"), Is.True);
             Assert.That(engine.Mayday(map.Grid, "Repeat"), Is.False);
             Assert.That(em.System<SharedShuttleSystem>().GetIFFLabel(map.Grid), Does.Contain("[MAYDAY]"));

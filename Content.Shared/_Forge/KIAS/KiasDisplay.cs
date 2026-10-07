@@ -3,7 +3,11 @@ using Robust.Shared.Serialization;
 namespace Content.Shared._Forge.KIAS;
 
 [RegisterComponent]
-public sealed partial class KiasDisplayComponent : Component;
+public sealed partial class KiasDisplayComponent : Component
+{
+    [DataField]
+    public KiasDisplayPage Page;
+}
 
 [RegisterComponent]
 public sealed partial class KiasSpeakerComponent : Component
@@ -37,29 +41,29 @@ public sealed partial class KiasServiceToolComponent : Component
     [DataField]
     public string Message = string.Empty;
     public EntityUid? Source;
+    public EntityUid? Target;
+    public KiasCoverageGeometry? Geometry;
     public TimeSpan NextTest;
-    public List<byte> Coverage = new();
 }
 
 public enum KiasServiceMode : byte { Link, Diagnose, Coverage, Test, Group, Room }
 
 [Serializable, NetSerializable]
-public enum KiasUiKey : byte { Key }
+public enum KiasUiKey : byte { Key, Wall, Recorder, Service, Scanner, Sensor, Crew, Speaker }
 
 [Serializable, NetSerializable]
-public sealed class KiasUiState : BoundUserInterfaceState
+public sealed class KiasManagementState : BoundUserInterfaceState
 {
+    public KiasAudioSettingsView? Audio;
     public bool Online;
     public int Entities;
     public int Crew;
     public string Devices = string.Empty;
     public string Log = string.Empty;
-    public bool ServiceTool;
-    public string Message = string.Empty;
     public string Atmos = string.Empty;
-    public List<byte> Coverage = new();
     public string CrewDetails = string.Empty;
     public string Power = string.Empty;
+    public string Resources = string.Empty;
     public string Defence = string.Empty;
     public string Navigation = string.Empty;
     public string Faults = string.Empty;
@@ -80,6 +84,8 @@ public sealed class KiasUiTarget
 [Serializable, NetSerializable]
 public sealed class KiasProtocolView
 {
+    public string PresetId = string.Empty;
+    public List<KiasProtocolActionView> Actions = new();
     public KiasTrigger Trigger;
     public KiasContactDisposition? Disposition;
     public float MinimumValue;
@@ -92,6 +98,17 @@ public sealed class KiasProtocolView
     public bool Value;
     public bool Enabled;
     public float Cooldown;
+}
+
+[Serializable, NetSerializable]
+public sealed class KiasProtocolActionView
+{
+    public KiasActionKind Kind;
+    public NetEntity? Target;
+    public string Group = string.Empty;
+    public string Port = string.Empty;
+    public string Message = string.Empty;
+    public bool Value = true;
 }
 
 [Serializable, NetSerializable]

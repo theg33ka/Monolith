@@ -26,6 +26,7 @@ public sealed class KiasPersistenceTests
         var loader = em.System<MapLoaderSystem>();
         var path = new ResPath("/Maps/Test/KiasRoundTrip.yml");
         var serial = Guid.NewGuid().ToString("N");
+        var owner = new Robust.Shared.Network.NetUserId(Guid.NewGuid());
         await server.WaitAssertion(() =>
         {
             for (var x = 0; x < 9; x++)
@@ -45,6 +46,23 @@ public sealed class KiasPersistenceTests
             var relay = Spawn("KiasRelay", 4);
             var speaker = Spawn("KiasSpeaker", 6);
             var scanner = Spawn("KiasRoomScanner", 7);
+            var wireless = Spawn("KiasWirelessTransceiver", 7);
+            var transmitter = Spawn("KiasWirelessTransceiver", 7);
+            em.GetComponent<KiasWirelessComponent>(transmitter).Channel = "peer";
+            var monitor = Spawn("KiasResourceMonitor", 8);
+            em.GetComponent<KiasWirelessComponent>(wireless).Channel = "saved-channel";
+            em.GetComponent<KiasWirelessComponent>(wireless).Range = 123;
+            em.GetComponent<KiasWirelessComponent>(wireless).TrustedTransmitters.Add(transmitter);
+            em.GetComponent<KiasResourceMonitorComponent>(monitor).Targets.Add(speaker);
+            em.GetComponent<KiasRoomScannerComponent>(scanner).Range = 4;
+            em.GetComponent<KiasDeviceComponent>(scanner).Room = "saved-room";
+            em.EnsureComponent<KiasClaimComponent>(map.Grid).Owner = owner;
+            var audio = em.GetComponent<KiasAudioComponent>(core);
+            audio.Notification = KiasTonePreset.Silent;
+            audio.Warning = KiasTonePreset.BlueAlert;
+            audio.Battle = KiasTonePreset.Buzzer;
+            audio.Emergency = KiasTonePreset.RedAlert;
+            audio.PreviewAfter = TimeSpan.FromHours(1);
             em.GetComponent<KiasSpeakerComponent>(speaker).Links.Add(new KiasSpeakerLink { Source = scanner, SourcePort = "KiasMotion", Message = "Saved custom message" });
             var token = em.SpawnEntity("KiasCrewTransponder", new EntityCoordinates(map.Grid, 2.5f, 0.5f));
             var tokenComponent = em.GetComponent<KiasTransponderComponent>(token);
@@ -52,8 +70,9 @@ public sealed class KiasPersistenceTests
             tokenComponent.Core = core;
             em.GetComponent<KiasCrewServerComponent>(crew).Registered.Add(serial);
             em.GetComponent<KiasRecorderComponent>(recorder).Entries.Add("Saved event");
-            var protocol = new KiasProtocolRecord { Trigger = KiasTrigger.HullImpact, Cooldown = 30 };
+            var protocol = new KiasProtocolRecord { Trigger = KiasTrigger.HullImpact, Cooldown = 30, Enabled = false, PresetId = "saved-preset" };
             protocol.Actions.Add(new KiasProtocolAction { Kind = KiasActionKind.Relay, Target = relay, Value = false });
+            protocol.Actions.Add(new KiasProtocolAction { Kind = KiasActionKind.Announce, Group = "EMERGENCY", Message = "saved-message" });
             em.GetComponent<KiasProtocolComponent>(core).Protocols.Clear();
             em.GetComponent<KiasProtocolComponent>(core).Protocols.Add(protocol);
             em.System<KiasSystem>().Rebuild(map.Grid);
@@ -81,6 +100,12 @@ public sealed class KiasPersistenceTests
             var crew = candidates.Single(em.HasComponent<KiasCrewServerComponent>);
             var speaker = candidates.Single(em.HasComponent<KiasSpeakerComponent>);
             var scanner = candidates.Single(em.HasComponent<KiasRoomScannerComponent>);
+            var wireless = candidates.Single(uid => em.HasComponent<KiasWirelessComponent>(uid)
+                && em.GetComponent<KiasWirelessComponent>(uid).Channel == "saved-channel");
+            var transmitter = candidates.Single(uid => em.HasComponent<KiasWirelessComponent>(uid)
+                && em.GetComponent<KiasWirelessComponent>(uid).Channel == "peer");
+            var monitor = candidates.Single(em.HasComponent<KiasResourceMonitorComponent>);
+            var audio = em.GetComponent<KiasAudioComponent>(core);
             var tokens = em.EntityQueryEnumerator<KiasTransponderComponent>();
             Assert.That(tokens.MoveNext(out _, out var token), Is.True);
             Assert.Multiple(() =>
@@ -91,7 +116,24 @@ public sealed class KiasPersistenceTests
                 Assert.That(token.Core, Is.EqualTo(core));
                 Assert.That(em.GetComponent<KiasCrewServerComponent>(crew).Registered, Does.Contain(serial));
                 Assert.That(em.GetComponent<KiasRecorderComponent>(recorder).Entries, Does.Contain("Saved event"));
-                Assert.That(em.GetComponent<KiasProtocolComponent>(core).Protocols.Single().Actions.Single().Target, Is.EqualTo(relay));
+                var protocol = em.GetComponent<KiasProtocolComponent>(core).Protocols.Single();
+                Assert.That(protocol.Actions[0].Target, Is.EqualTo(relay));
+                Assert.That(protocol.Actions[1].Message, Is.EqualTo("saved-message"));
+                Assert.That(protocol.Actions, Has.Count.EqualTo(2));
+                Assert.That(protocol.Enabled, Is.False);
+                Assert.That(protocol.PresetId, Is.EqualTo("saved-preset"));
+                Assert.That(em.GetComponent<KiasClaimComponent>(loadedGrid).Owner, Is.EqualTo(owner));
+                Assert.That(audio.Notification, Is.EqualTo(KiasTonePreset.Silent));
+                Assert.That(audio.Warning, Is.EqualTo(KiasTonePreset.BlueAlert));
+                Assert.That(audio.Battle, Is.EqualTo(KiasTonePreset.Buzzer));
+                Assert.That(audio.Emergency, Is.EqualTo(KiasTonePreset.RedAlert));
+                Assert.That(audio.PreviewAfter, Is.EqualTo(TimeSpan.Zero));
+                Assert.That(em.GetComponent<KiasWirelessComponent>(wireless).Channel, Is.EqualTo("saved-channel"));
+                Assert.That(em.GetComponent<KiasWirelessComponent>(wireless).Range, Is.EqualTo(123));
+                Assert.That(em.GetComponent<KiasWirelessComponent>(wireless).TrustedTransmitters, Does.Contain(transmitter));
+                Assert.That(em.GetComponent<KiasResourceMonitorComponent>(monitor).Targets.Single(), Is.EqualTo(speaker));
+                Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Range, Is.EqualTo(4));
+                Assert.That(em.GetComponent<KiasDeviceComponent>(scanner).Room, Is.EqualTo("saved-room"));
                 Assert.That(em.GetComponent<KiasSpeakerComponent>(speaker).Links.Single().Source, Is.EqualTo(scanner));
                 Assert.That(em.GetComponent<KiasSpeakerComponent>(speaker).Links.Single().Message, Is.EqualTo("Saved custom message"));
             });

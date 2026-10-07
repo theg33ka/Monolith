@@ -27,4 +27,5 @@ public sealed partial class KiasRecorderComponent : Component
 {
     [DataField]
     public List<string> Entries = new();
+    [DataField] public List<string> ProtocolEvents = new();
 }

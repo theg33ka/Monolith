@@ -7,6 +7,7 @@ public sealed partial class KiasDefenceComponent : Component
 {
     [DataField]
     public bool PdcEnabled;
+    [DataField] public bool FireLock;
 }
 
 [RegisterComponent]

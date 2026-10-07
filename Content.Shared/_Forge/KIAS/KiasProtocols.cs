@@ -3,8 +3,8 @@ using Robust.Shared.GameStates;
 
 namespace Content.Shared._Forge.KIAS;
 
-public enum KiasTrigger : byte { HullImpact, HullDamage, Collision, AtmosDanger, AnomalyGrowth, Contact, Arrival, WeaponFlash, Proximity, CrewCritical, CrewDead, VesselCritical, PowerDeficit, Manual, Fire }
-public enum KiasActionKind : byte { Announce, Record, Lights, Suppression, Relay, Pdc, DevicePort, Mayday }
+public enum KiasTrigger : byte { HullImpact, HullDamage, Collision, AtmosDanger, AnomalyGrowth, Contact, Arrival, WeaponFlash, Proximity, CrewCritical, CrewDead, VesselCritical, PowerDeficit, Manual, Fire, Docked, Undocked, Radiation, LocalThreat, Boarding, CaptainGreeting, FireClear, AtmosClear, CrewUnavailable, QuietMode, PowerLost, Boot, Shutdown }
+public enum KiasActionKind : byte { Announce, Record, Lights, Suppression, Relay, Pdc, DevicePort, Mayday, MedicalHelp, Jammer, Decoy, RestoreVentilation, FireLock }
 public enum KiasAlert : byte { Normal, Contact, Battle, Emergency }
 
 [RegisterComponent, NetworkedComponent]
@@ -19,15 +19,25 @@ public sealed partial class KiasProtocolComponent : Component
     public float CriticalDamageThreshold = 300;
     public KiasAlert Alert;
     public readonly Dictionary<int, TimeSpan> Cooldowns = new();
+    public readonly Dictionary<(int Protocol, string Source), TimeSpan> EventCooldowns = new();
     public TimeSpan MaydayAfter;
     public TimeSpan DamageWindow;
     public float RecentDamage;
     public uint Revision;
+    public TimeSpan DamageEvidenceUntil;
+    public TimeSpan CrewUnavailableSince;
+    public TimeSpan MedicalAfter;
+    public string MaydayReason = string.Empty;
+    public bool CriticalLatched;
+    public bool CaptainGreeted;
+    public TimeSpan CrewDistressUntil;
 }
 
 [DataDefinition]
 public sealed partial class KiasProtocolRecord
 {
+    [DataField]
+    public string PresetId = string.Empty;
     [DataField]
     public bool Enabled = true;
     [DataField]
@@ -64,6 +74,7 @@ public sealed partial class KiasProtocolAction
 [Serializable, NetSerializable]
 public sealed class KiasProtocolMessage : BoundUserInterfaceMessage
 {
+    public List<KiasProtocolActionView>? Actions;
     public int Index;
     public bool Delete;
     public KiasTrigger Trigger;
@@ -86,7 +97,16 @@ public sealed class KiasControlMessage : BoundUserInterfaceMessage
     public bool Reset;
 }
 
+[Serializable, NetSerializable]
+public sealed class KiasRunProtocolMessage : BoundUserInterfaceMessage
+{
+    public int Index;
+}
+
 [ByRefEvent]
 public readonly record struct KiasCrewDistressEvent(EntityUid Grid, EntityUid Person, bool Dead);
 [ByRefEvent]
 public readonly record struct KiasFireDetectedEvent(EntityUid Grid, EntityUid Source);
+
+[ByRefEvent]
+public readonly record struct KiasProtocolFiredEvent(EntityUid Grid, KiasTrigger Trigger, int Index, string PresetId, string Source);

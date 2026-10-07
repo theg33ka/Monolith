@@ -5,6 +5,8 @@ using Content.Shared.DeviceLinking.Events;
 using Content.Shared.DeviceNetwork;
 using Content.Shared.DeviceNetwork.Events;
 using Content.Shared.DeviceNetwork.Components;
+using Content.Shared._Forge.KIAS;
+using Content.Server._Forge.KIAS;
 
 namespace Content.Server.DeviceLinking.Systems;
 
@@ -48,6 +50,12 @@ public sealed partial class DeviceLinkSystem : SharedDeviceLinkSystem
     private void InvokeDirect(Entity<DeviceLinkSourceComponent> source, Entity<DeviceLinkSinkComponent?> sink, string sourcePort, string sinkPort, NetworkPayload? data)
     {
         if (!Resolve(sink, ref sink.Comp))
+            return;
+
+        if (HasComp<KiasDeviceComponent>(source)
+            && Transform(source).GridUid is { } grid
+            && TryComp<KiasGridComponent>(grid, out var runtime) && runtime.Testing
+            && !HasComp<KiasSpeakerComponent>(sink))
             return;
 
         var invokeCounter = GetEffectiveInvokeCounter(sink.Comp);

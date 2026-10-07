@@ -14,6 +14,8 @@ public sealed partial class KiasLightControllerComponent : Component
 {
     [DataField]
     public string Group = "CABIN";
+    [DataField] public string Color = "#FFFFFF";
+    [DataField] public float Brightness = 0.8f;
 }
 
 [RegisterComponent]

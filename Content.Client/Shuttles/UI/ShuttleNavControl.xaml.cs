@@ -606,6 +606,7 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         // Draw shields
         DrawShields(handle, xform, worldToShuttle);
         DrawAnnihilatorZones(handle, worldToView, xform.MapID); // Forge-Change
+        DrawSensorCoverage(handle, worldToView, xform.MapID);
 
         // Frontier Corvax: north line drawing
         DrawNorthLine(handle, worldRot);
@@ -1124,6 +1125,8 @@ public partial class ShuttleNavControl : BaseShuttleControl // Mono
         handle.DrawLine(verts[3], verts[0], color);
         handle.DrawCircle(p, 3f * UIScale, color, true);
     }
+
+    protected virtual void DrawSensorCoverage(DrawingHandleScreen handle, Matrix3x2 worldToView, MapId mapId) { }
 
     private void DrawAnnihilatorZones(DrawingHandleScreen handle, Matrix3x2 worldToView, MapId currentMapId)
     {

@@ -18,6 +18,7 @@
   - type: WirelessNetworkConnection
     range: 700
   - type: GunSignalControl
+  - type: KiasDecoyLauncher
   - type: Gun
     fireRate: 3
     recoil: 1

@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Server.Shuttles.Events;
 using Content.Server.Shuttles.Systems;
 using Content.Shared._Forge.KIAS;
@@ -53,6 +54,8 @@ public sealed class KiasNavigationSystem : EntitySystem
 
     public KiasContactDisposition Classify(EntityUid ownGrid, EntityUid contact)
     {
+        if (!TryComp<KiasGridComponent>(ownGrid, out var runtime) || !runtime.Online.Any(uid => _kias.IsOnline(uid) && HasComp<KiasIffReceiverComponent>(uid)))
+            return KiasContactDisposition.Unknown;
         if (_shuttles.GetIFFLabel(contact) == null)
             return KiasContactDisposition.Unknown;
         if (TryComp<CompanyComponent>(ownGrid, out var ownCompany) && TryComp<CompanyComponent>(contact, out var company)
@@ -76,12 +79,12 @@ public sealed class KiasNavigationSystem : EntitySystem
         _notifications.Publish(args.Grid, Loc.GetString("kias-contact",
             ("disposition", Loc.GetString($"kias-contact-{args.Disposition.ToString().ToLowerInvariant()}")),
             ("range", MathF.Round(args.Distance / 1000f, 1)), ("bearing", Math.Round(args.Bearing))),
-            args.Disposition is KiasContactDisposition.Unknown or KiasContactDisposition.Hostile);
+            args.Disposition is KiasContactDisposition.Unknown or KiasContactDisposition.Hostile, announce: false, key: $"contact:{args.Contact}");
     }
 
     private void OnAutopilot(ref KiasAutopilotArrivedEvent args)
     {
         if (_kias.HasRole(args.Grid, KiasDeviceRole.Navigation))
-            _notifications.Publish(args.Grid, Loc.GetString("kias-autopilot-arrived"));
+            _notifications.Publish(args.Grid, Loc.GetString("kias-autopilot-arrived"), announce: false);
     }
 }

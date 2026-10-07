@@ -19,19 +19,33 @@ public sealed class KiasServiceSystem : EntitySystem
     [Dependency] private SharedMapSystem _map = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private Robust.Server.GameObjects.UserInterfaceSystem _ui = default!;
-    private readonly Dictionary<EntityUid, (TimeSpan Until, bool Previous)> _tests = new();
+    private readonly Dictionary<EntityUid, (TimeSpan Until, bool Previous, KiasAlert Alert,
+        Dictionary<int, TimeSpan> Cooldowns, Dictionary<(int Protocol, string Source), TimeSpan> EventCooldowns)> _tests = new();
 
     public override void Initialize()
     {
         SubscribeLocalEvent<KiasServiceToolComponent, AfterInteractEvent>(OnUse);
         SubscribeLocalEvent<KiasServiceToolComponent, GetVerbsEvent<AlternativeVerb>>(OnModes);
         SubscribeLocalEvent<KiasServiceToolComponent, KiasSetMessage>(OnMessage);
+        SubscribeLocalEvent<KiasServiceToolComponent, KiasModeMessage>(OnModeMessage);
         SubscribeLocalEvent<KiasAvailabilityChangedEvent>(OnAvailability);
     }
 
     private void OnMessage(Entity<KiasServiceToolComponent> ent, ref KiasSetMessage args)
     {
+        if (args.Message.Length > 256)
+            return;
         ent.Comp.Message = args.Message.Trim()[..Math.Min(args.Message.Trim().Length, 256)];
+        _display.Refresh(ent);
+    }
+
+    private void OnModeMessage(Entity<KiasServiceToolComponent> ent, ref KiasModeMessage args)
+    {
+        if (!Enum.IsDefined(args.Mode)) return;
+        ent.Comp.Mode = args.Mode;
+        ent.Comp.Source = null;
+        ent.Comp.Target = null;
+        ent.Comp.Geometry = null;
         _display.Refresh(ent);
     }
 
@@ -46,7 +60,7 @@ public sealed class KiasServiceSystem : EntitySystem
             args.Verbs.Add(new AlternativeVerb
             {
                 Text = Loc.GetString($"kias-mode-{mode.ToString().ToLowerInvariant()}"),
-                Act = () => { tool.Mode = selected; tool.Source = null; },
+                Act = () => { tool.Mode = selected; tool.Source = null; tool.Geometry = null; _display.Refresh(ent); },
             });
         }
     }
@@ -56,7 +70,7 @@ public sealed class KiasServiceSystem : EntitySystem
         if (args.Handled || !args.CanReach || args.Target is not { } target)
             return;
         if (ent.Comp.Mode == KiasServiceMode.Group && Transform(target).GridUid is { } lightGrid
-            && _kias.ActiveGrids.Contains(lightGrid))
+            && _kias.ActiveGrids.Contains(lightGrid) && _kias.CanConfigure(lightGrid, args.User))
         {
             var group = ent.Comp.Message.Trim().ToUpperInvariant();
             if (group.Length is < 1 or > 32)
@@ -73,15 +87,41 @@ public sealed class KiasServiceSystem : EntitySystem
             _popup.PopupEntity(Loc.GetString("kias-light-group-set", ("group", group)), target, args.User);
             return;
         }
-        if (!HasComp<KiasDeviceComponent>(target))
+        if (ent.Comp.Mode == KiasServiceMode.Link && ent.Comp.Source is { } monitor
+            && TryComp<KiasResourceMonitorComponent>(monitor, out var resources))
+        {
+            if (_kias.IsOnline(monitor) && Transform(monitor).GridUid is { } resourceGrid
+                && Transform(target).GridUid == resourceGrid && _kias.CanConfigure(resourceGrid, args.User))
+            {
+                if (resources.Targets.Contains(target)) resources.Targets.Remove(target);
+                else if (resources.Targets.Count < 32) resources.Targets.Add(target);
+                ent.Comp.Source = null;
+                args.Handled = true;
+            }
+            return;
+        }
+        if (!HasComp<KiasDeviceComponent>(target) && !(ent.Comp.Mode == KiasServiceMode.Link && HasComp<DeviceLinkSinkComponent>(target)))
             return;
         args.Handled = true;
+        ent.Comp.Target = target;
+        if (Transform(target).GridUid is not { } accessGrid || !_kias.CanConfigure(accessGrid, args.User))
+        {
+            _popup.PopupEntity(Loc.GetString("kias-owner-only"), target, args.User);
+            return;
+        }
         if (ent.Comp.Mode == KiasServiceMode.Diagnose)
         {
             _popup.PopupEntity(Loc.GetString("kias-device-status", ("status", Loc.GetString($"kias-status-{Comp<KiasDeviceComponent>(target).Status.ToString().ToLowerInvariant()}"))), target, args.User);
             return;
         }
-        if (!_kias.IsOnline(target) || Transform(target).GridUid is not { } grid)
+        if (ent.Comp.Mode == KiasServiceMode.Coverage)
+        {
+            ent.Comp.Geometry = _display.BuildCoverage(accessGrid, target);
+            _ui.TryOpenUi(ent.Owner, KiasUiKey.Service, args.User);
+            _display.Refresh(ent);
+            return;
+        }
+        if (HasComp<KiasDeviceComponent>(target) && !_kias.IsOnline(target) || Transform(target).GridUid is not { } grid)
         {
             _popup.PopupEntity(Loc.GetString("kias-status-offline"), target, args.User);
             return;
@@ -94,7 +134,35 @@ public sealed class KiasServiceSystem : EntitySystem
                 _popup.PopupEntity(Loc.GetString("kias-room-set", ("room", Comp<KiasDeviceComponent>(target).Room)), target, args.User);
                 break;
             case KiasServiceMode.Link:
-                if (HasComp<DeviceLinkSourceComponent>(target))
+                if (ent.Comp.Source is { } transmitter && transmitter != target && HasComp<KiasWirelessComponent>(transmitter)
+                    && HasComp<KiasWirelessComponent>(target) && Transform(transmitter).GridUid != grid)
+                {
+                    if (!EntityManager.System<KiasAccessSystem>().SetWirelessTrust(target, transmitter, args.User)) break;
+                    if (Comp<KiasWirelessComponent>(target).TrustedTransmitters.Contains(transmitter))
+                        _links.LinkDefaults(args.User, transmitter, target);
+                    else
+                        _links.RemoveSinkFromSource(transmitter, target);
+                    ent.Comp.Source = null;
+                    _display.RefreshOpen(grid);
+                    _popup.PopupEntity(Loc.GetString("kias-wireless-trust-updated"), target, args.User);
+                    break;
+                }
+                if (ent.Comp.Source is { } selectedSource && selectedSource != target && _kias.IsOnline(selectedSource)
+                    && Transform(selectedSource).GridUid == grid && HasComp<DeviceLinkSinkComponent>(target))
+                {
+                    _links.LinkDefaults(args.User, selectedSource, target);
+                    if (TryComp<KiasSpeakerComponent>(target, out var selectedSpeaker))
+                    {
+                        foreach (var (sourcePort, sinkPort) in _links.GetLinks(selectedSource, target))
+                        {
+                            if (sinkPort.ToString() != "KiasAnnounce") continue;
+                            selectedSpeaker.Links.RemoveAll(link => link.Source == selectedSource && link.SourcePort == sourcePort.ToString());
+                            selectedSpeaker.Links.Add(new KiasSpeakerLink { Source = selectedSource, SourcePort = sourcePort, Message = ent.Comp.Message });
+                        }
+                    }
+                    ent.Comp.Source = null;
+                }
+                else if (HasComp<DeviceLinkSourceComponent>(target) || HasComp<KiasResourceMonitorComponent>(target))
                 {
                     ent.Comp.Source = target;
                     _popup.PopupEntity(Loc.GetString("kias-source-selected"), target, args.User);
@@ -117,8 +185,9 @@ public sealed class KiasServiceSystem : EntitySystem
                 _popup.PopupEntity(Loc.GetString("kias-device-status", ("status", Loc.GetString($"kias-status-{Comp<KiasDeviceComponent>(target).Status.ToString().ToLowerInvariant()}"))), target, args.User);
                 break;
             case KiasServiceMode.Coverage:
-                ent.Comp.Coverage = Coverage(grid, target);
-                _ui.TryOpenUi(ent.Owner, KiasUiKey.Key, args.User);
+                ent.Comp.Target = target;
+                ent.Comp.Geometry = EntityManager.System<KiasDisplaySystem>().BuildCoverage(grid, target);
+                _ui.TryOpenUi(ent.Owner, KiasUiKey.Service, args.User);
                 _display.Refresh(ent);
                 break;
             case KiasServiceMode.Test:
@@ -129,7 +198,10 @@ public sealed class KiasServiceSystem : EntitySystem
                 }
                 ent.Comp.NextTest = _timing.CurTime + TimeSpan.FromSeconds(10);
                 var runtime = Comp<KiasGridComponent>(grid);
-                _tests[grid] = (_timing.CurTime + TimeSpan.FromSeconds(5), runtime.Testing);
+                var protocols = runtime.Core is { } core ? Comp<KiasProtocolComponent>(core) : null;
+                _tests[grid] = (_timing.CurTime + TimeSpan.FromSeconds(5), runtime.Testing,
+                    protocols?.Alert ?? KiasAlert.Normal, protocols == null ? new() : new(protocols.Cooldowns),
+                    protocols == null ? new() : new(protocols.EventCooldowns));
                 runtime.Testing = true;
                 var announce = new KiasAnnouncementEvent(grid, Loc.GetString("kias-test-start"));
                 RaiseLocalEvent(grid, ref announce, true);
@@ -141,29 +213,9 @@ public sealed class KiasServiceSystem : EntitySystem
         }
     }
 
-    private List<byte> Coverage(EntityUid grid, EntityUid target)
-    {
-        var cells = new List<byte>();
-        if (!TryComp<MapGridComponent>(grid, out var map) || !TryComp<KiasGridComponent>(grid, out var runtime) || runtime.Core is not { } core)
-            return cells;
-        var origin = _map.TileIndicesFor(grid, map, Transform(target).Coordinates);
-        var coreTile = _map.TileIndicesFor(grid, map, Transform(core).Coordinates);
-        var cables = runtime.Cables.Where(uid => !TerminatingOrDeleted(uid))
-            .Select(uid => _map.TileIndicesFor(grid, map, Transform(uid).Coordinates)).ToHashSet();
-        for (var y = 4; y >= -4; y--)
-        for (var x = -4; x <= 4; x++)
-        {
-            var tile = origin + new Vector2i(x, y);
-            var flags = runtime.Topology.Connected(coreTile, tile) ? 1 : 0;
-            if (cables.Contains(tile)) flags |= 2;
-            if (x == 0 && y == 0) flags |= 4;
-            cells.Add((byte) flags);
-        }
-        return cells;
-    }
-
     public override void Update(float frameTime)
     {
+        using var measurement = new KiasUpdateMeasurement(_kias);
         if (_tests.Count == 0)
             return;
         foreach (var (grid, test) in _tests.ToArray())
@@ -173,6 +225,14 @@ public sealed class KiasServiceSystem : EntitySystem
             else if (_timing.CurTime >= test.Until)
             {
                 Comp<KiasGridComponent>(grid).Testing = test.Previous;
+                if (Comp<KiasGridComponent>(grid).Core is { } core && TryComp<KiasProtocolComponent>(core, out var protocols))
+                {
+                    protocols.Alert = test.Alert;
+                    protocols.Cooldowns.Clear();
+                    foreach (var (key, value) in test.Cooldowns) protocols.Cooldowns[key] = value;
+                    protocols.EventCooldowns.Clear();
+                    foreach (var (key, value) in test.EventCooldowns) protocols.EventCooldowns[key] = value;
+                }
                 _tests.Remove(grid);
                 var announce = new KiasAnnouncementEvent(grid, Loc.GetString("kias-test-done"));
                 RaiseLocalEvent(grid, ref announce, true);

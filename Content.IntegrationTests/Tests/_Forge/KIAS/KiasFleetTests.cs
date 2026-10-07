@@ -1,5 +1,9 @@
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Robust.Shared.Timing;
+using Stopwatch = System.Diagnostics.Stopwatch;
 using System.Numerics;
 using Content.Server._Forge.KIAS;
 using Content.Server.Power.Components;
@@ -45,12 +49,57 @@ public sealed class KiasFleetTests
             action();
             measurements.Add($"KIAS {label}: {watch.Elapsed.TotalMilliseconds:F2} ms, {GC.GetAllocatedBytesForCurrentThread() - allocated} server-thread bytes");
         }
-        async Task Ticks(string label)
+        async Task Ticks(string label, int ticks = 60)
         {
+            var samples = new List<double>();
+            var bytes = new List<long>();
+            var ownSamples = new List<double>();
+            var ownBytes = new List<long>();
+            long start = 0;
+            long startBytes = 0;
+            object? loop = null;
+            EventHandler<FrameEventArgs> before = (_, _) =>
+            {
+                start = Stopwatch.GetTimestamp(); startBytes = GC.GetAllocatedBytesForCurrentThread();
+                kias.MeasuredUpdateMilliseconds = 0; kias.MeasuredUpdateBytes = 0;
+            };
+            EventHandler<FrameEventArgs> after = (_, _) =>
+            {
+                samples.Add(Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+                bytes.Add(GC.GetAllocatedBytesForCurrentThread() - startBytes);
+                ownSamples.Add(kias.MeasuredUpdateMilliseconds);
+                ownBytes.Add(kias.MeasuredUpdateBytes);
+            };
+            await pair.Server.WaitAssertion(() =>
+            {
+                for (var type = pair.Server.GetType(); type != null; type = type.BaseType)
+                {
+                    if (type.GetField("GameLoop", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly) is not { } field) continue;
+                    loop = field.GetValue(pair.Server);
+                    break;
+                }
+                Assert.That(loop, Is.Not.Null);
+                kias.MeasureUpdates = true;
+                loop!.GetType().GetEvent("Input")!.AddEventHandler(loop, before);
+                loop.GetType().GetEvent("Update")!.AddEventHandler(loop, after);
+            });
             var allocated = GC.GetTotalAllocatedBytes();
             var watch = Stopwatch.StartNew();
-            await pair.RunTicksSync(60);
-            TestContext.WriteLine($"KIAS {label}, 60 complete engine ticks: {watch.Elapsed.TotalMilliseconds:F2} ms, {GC.GetTotalAllocatedBytes() - allocated} total bytes (server + client + harness)");
+            try { await pair.RunTicksSync(ticks); }
+            finally
+            {
+                await pair.Server.WaitAssertion(() =>
+                {
+                    loop!.GetType().GetEvent("Input")!.RemoveEventHandler(loop, before);
+                    loop.GetType().GetEvent("Update")!.RemoveEventHandler(loop, after);
+                    kias.MeasureUpdates = false;
+                });
+            }
+            TestContext.WriteLine($"KIAS {label}, {ticks} complete engine ticks: {watch.Elapsed.TotalMilliseconds:F2} ms, {GC.GetTotalAllocatedBytes() - allocated} total bytes (server + client + harness)");
+            samples.Sort();
+            TestContext.WriteLine($"KIAS {label}, server ticks: max {samples.Max():F3} ms, p95 {samples[(int) (samples.Count * 0.95)]:F3} ms, max {bytes.Max()} bytes, sum {bytes.Sum()} bytes");
+            ownSamples.Sort();
+            TestContext.WriteLine($"KIAS {label}, periodic KIAS updates: max {ownSamples.Max():F3} ms, p95 {ownSamples[(int) (ownSamples.Count * 0.95)]:F3} ms, max {ownBytes.Max()} bytes, sum {ownBytes.Sum()} bytes");
         }
         await pair.Server.WaitAssertion(() =>
         {
@@ -95,6 +144,9 @@ public sealed class KiasFleetTests
                 Spawn("KiasHorizon", ship.Grid, 7);
                 defence.Add(Spawn("KiasDefenceServer", ship.Grid, 8));
                 Spawn("KiasPdcRadar", ship.Grid, 9);
+                Spawn("KiasPowerServer", ship.Grid, 2);
+                Spawn("KiasProximitySensor", ship.Grid, 7);
+                Spawn("KiasWeaponFlashDetector", ship.Grid, 8);
                 var containers = em.System<SharedContainerSystem>();
                 var module = em.SpawnEntity("KiasSpectralModule", new EntityCoordinates(ship.Grid, 1.5f, 0.5f));
                 containers.Insert(module, containers.GetContainer(scanner, "kias-module-3"));
@@ -111,6 +163,7 @@ public sealed class KiasFleetTests
             }
         });
         await Ticks("200 scanners / 800 indexed sapient bodies");
+        await Ticks("200 equipped grids warm (crew/proximity/power)", 360);
         await pair.Server.WaitAssertion(() =>
         {
             foreach (var ship in fleet)
@@ -140,9 +193,18 @@ public sealed class KiasFleetTests
                 }
             });
             await Ticks($"{scenario.Radars} active PDC radars / {scenario.Shots} projectiles");
+            if (scenario.Radars == 200 && scenario.Shots == 500) await Ticks("200 PDC / 500 projectiles warm", 120);
         }
         await pair.Server.WaitAssertion(() =>
         {
+            Measure("100 weapon flashes / 200 online detectors", () =>
+            {
+                for (var i = 0; i < 100; i++)
+                {
+                    var shot = new KiasWeaponFiredEvent(fleet[100].Core);
+                    em.EventBus.RaiseLocalEvent(fleet[100].Core, ref shot, true);
+                }
+            });
             Measure("200 FTL arrivals", () =>
             {
                 foreach (var ship in fleet)

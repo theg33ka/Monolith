@@ -17,8 +17,10 @@ public sealed class KiasExternalSensorSystem : EntitySystem
     [Dependency] private SharedMapSystem _map = default!;
     [Dependency] private IGameTiming _timing = default!;
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _proximity = new();
-    private readonly Dictionary<EntityUid, TimeSpan> _flashAfter = new();
-    private TimeSpan _nextScan;
+    private readonly KiasPeriodicScheduler _scans = new(1);
+    private readonly HashSet<Entity<KiasWeaponFlashComponent>> _flashLookup = new();
+    private readonly HashSet<EntityUid> _announced = new();
+    private bool _processingFlash;
 
     public override void Initialize()
     {
@@ -39,11 +41,11 @@ public sealed class KiasExternalSensorSystem : EntitySystem
 
     private void Clear(EntityUid grid)
     {
-        _flashAfter.Remove(grid);
         if (!_proximity.Remove(grid, out var sensors))
             return;
         foreach (var uid in sensors)
         {
+            _scans.Remove(uid);
             if (TryComp<KiasProximityComponent>(uid, out var sensor))
                 sensor.Contacts.Clear();
         }
@@ -61,28 +63,40 @@ public sealed class KiasExternalSensorSystem : EntitySystem
         {
             foreach (var removed in previous.Except(sensors))
             {
+                _scans.Remove(removed);
                 if (TryComp<KiasProximityComponent>(removed, out var sensor))
                     sensor.Contacts.Clear();
             }
         }
         if (sensors.Count > 0)
+        {
             _proximity[args.Grid] = sensors;
+            foreach (var uid in sensors) _scans.Add(uid, _timing.CurTime);
+        }
         else
             _proximity.Remove(args.Grid);
     }
 
     private void OnFired(ref KiasWeaponFiredEvent args)
     {
-        if (_kias.ActiveGrids.Count == 0 || TerminatingOrDeleted(args.Source))
+        if (_processingFlash || _kias.ActiveGrids.Count == 0 || TerminatingOrDeleted(args.Source))
             return;
-        var source = _transform.GetMapCoordinates(args.Source);
-        var sourceGrid = Transform(args.Source).GridUid;
-        var announced = new HashSet<EntityUid>();
-        foreach (var detector in _lookup.GetEntitiesInRange<KiasWeaponFlashComponent>(source, 1000))
+        _processingFlash = true;
+        try { ProcessFire(args.Source); }
+        finally { _processingFlash = false; }
+    }
+
+    private void ProcessFire(EntityUid sourceUid)
+    {
+        var source = _transform.GetMapCoordinates(sourceUid);
+        var sourceGrid = Transform(sourceUid).GridUid;
+        _announced.Clear();
+        _flashLookup.Clear();
+        _lookup.GetEntitiesInRange(source, 1000, _flashLookup);
+        foreach (var detector in _flashLookup)
         {
             if (!_kias.IsOnline(detector) || Transform(detector).GridUid is not { } grid || grid == sourceGrid
-                || !_kias.HasRole(grid, KiasDeviceRole.Defence) || announced.Contains(grid)
-                || _flashAfter.GetValueOrDefault(grid) > _timing.CurTime)
+                || !_kias.HasRole(grid, KiasDeviceRole.Defence) || _announced.Contains(grid))
                 continue;
             var position = _transform.GetMapCoordinates(detector);
             var offset = source.Position - position.Position;
@@ -92,10 +106,9 @@ public sealed class KiasExternalSensorSystem : EntitySystem
             var forward = _transform.GetWorldRotation(detector).ToWorldVec();
             if (Vector2.Dot(Vector2.Normalize(offset), forward) < MathF.Cos(MathF.PI / 4))
                 continue;
-            announced.Add(grid);
-            _flashAfter[grid] = _timing.CurTime + TimeSpan.FromSeconds(3);
+            _announced.Add(grid);
             var disposition = sourceGrid is { } ship ? _navigation.Classify(grid, ship) : KiasContactDisposition.Unknown;
-            var ev = new KiasWeaponFlashEvent(grid, args.Source, disposition);
+            var ev = new KiasWeaponFlashEvent(grid, sourceUid, disposition);
             RaiseLocalEvent(grid, ref ev, true);
         }
     }
@@ -103,23 +116,21 @@ public sealed class KiasExternalSensorSystem : EntitySystem
     private void OnFlash(ref KiasWeaponFlashEvent args)
     {
         if (args.Disposition is KiasContactDisposition.Hostile or KiasContactDisposition.Unknown)
-            _safety.Publish(args.Grid, Loc.GetString("kias-weapon-flash"), true);
+            _safety.Publish(args.Grid, Loc.GetString("kias-weapon-flash"), true, announce: false, key: $"flash:{args.Source}");
     }
 
     private void OnProximity(ref KiasProximityEvent args) => _safety.Publish(args.Grid,
         Loc.GetString("kias-proximity-contact", ("range", MathF.Round(args.Distance)),
             ("disposition", Loc.GetString($"kias-contact-{args.Disposition.ToString().ToLowerInvariant()}"))),
-        args.Disposition is KiasContactDisposition.Hostile or KiasContactDisposition.Unknown);
+        args.Disposition is KiasContactDisposition.Hostile or KiasContactDisposition.Unknown, announce: false, key: $"proximity:{args.Contact}");
 
     public override void Update(float frameTime)
     {
-        if (_proximity.Count == 0 || _timing.CurTime < _nextScan)
-            return;
-        _nextScan = _timing.CurTime + TimeSpan.FromSeconds(1);
-        foreach (var (grid, sensors) in _proximity.ToArray())
-        foreach (var uid in sensors)
+        using var measurement = new KiasUpdateMeasurement(_kias);
+        const int sensorBudget = 8;
+        for (var i = 0; i < sensorBudget && _scans.TryDue(_timing.CurTime, out var uid); i++)
         {
-            if (!_kias.IsOnline(uid) || !TryComp<KiasProximityComponent>(uid, out var sensor))
+            if (!_kias.IsOnline(uid) || !TryComp<KiasProximityComponent>(uid, out var sensor) || Transform(uid).GridUid is not { } grid)
                 continue;
             var position = _transform.GetMapCoordinates(uid);
             var range = Math.Clamp(sensor.Range, 0, 500);

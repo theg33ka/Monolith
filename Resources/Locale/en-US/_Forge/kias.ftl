@@ -1,4 +1,12 @@
 kias-shutdown = KIAS shutting down.
+kias-sensor-range = Range
+kias-scanner-modules = Installed modules
+kias-log-filter = Filter log
+kias-service-target = Source: {$source}; selected device: {$target}
+ent-KiasManagementConsole = KIAS management console
+ent-KiasManagementConsoleBoard = KIAS management console board
+kias-claimed = KIAS claimed. Use your ID or PDA for access; a replacement ID for the same owner also works.
+kias-claim-protected = KIAS already has an access policy. Swiping an ID does not transfer a protected system.
 kias-online = KIAS online.
 kias-enable = Enable KIAS
 kias-disable = Shut down KIAS
@@ -144,42 +152,166 @@ kias-protocol-minimum = Minimum event value (damage, speed, range or deficit)
 kias-protocol-crew-unavailable = Require distress AND no responsive registered crew
 
 
-ent-KiasAtmosServerBoard = KIAS atmosphere server circuit board
+ent-KiasAtmosServerBoard = KIAS atmos server board
 
-ent-KiasCollisionMonitorBoard = KIAS collision monitor circuit board
+ent-KiasCollisionMonitorBoard = KIAS collision monitor board
 
-ent-KiasCoreBoard = KIAS core circuit board
+ent-KiasCoreBoard = KIAS core board
 
-ent-KiasCrewServerBoard = KIAS crew server circuit board
+ent-KiasCrewServerBoard = KIAS crew server board
 
-ent-KiasDefenceServerBoard = KIAS defence server circuit board
+ent-KiasDefenceServerBoard = KIAS defence server board
 
-ent-KiasDisplayBoard = KIAS display circuit board
+ent-KiasDisplayBoard = KIAS display board
 
-ent-KiasHorizonBoard = KIAS Horizon bluespace interferometer circuit board
+ent-KiasHorizonBoard = KIAS horizon board
 
-ent-KiasHullSensorBoard = KIAS hull impact sensor circuit board
+ent-KiasHullSensorBoard = KIAS hull sensor board
 
-ent-KiasIntegrityMonitorBoard = KIAS hull integrity monitor circuit board
+ent-KiasIntegrityMonitorBoard = KIAS integrity monitor board
 
-ent-KiasLightControllerBoard = KIAS light group controller circuit board
+ent-KiasLightControllerBoard = KIAS light controller board
 
-ent-KiasNavigationServerBoard = KIAS navigation server circuit board
+ent-KiasNavigationServerBoard = KIAS navigation server board
 
-ent-KiasPdcRadarBoard = KIAS point defence radar circuit board
+ent-KiasPdcRadarBoard = KIAS pdc radar board
 
-ent-KiasPowerServerBoard = KIAS power server circuit board
+ent-KiasPowerServerBoard = KIAS power server board
 
-ent-KiasProximitySensorBoard = KIAS proximity sensor circuit board
+ent-KiasProximitySensorBoard = KIAS proximity sensor board
 
-ent-KiasRecorderBoard = KIAS recorder circuit board
+ent-KiasRecorderBoard = KIAS recorder board
 
-ent-KiasRelayBoard = KIAS four channel relay circuit board
+ent-KiasRelayBoard = KIAS relay board
 
-ent-KiasRoomScannerBoard = KIAS modular room scanner circuit board
+ent-KiasRoomScannerBoard = KIAS room scanner board
 
-ent-KiasSpeakerBoard = KIAS speaker circuit board
+ent-KiasSpeakerBoard = KIAS speaker board
 
-ent-KiasSuppressionBoard = KIAS fire suppression module circuit board
+ent-KiasSuppressionBoard = KIAS suppression board
 
-ent-KiasWeaponFlashDetectorBoard = KIAS weapon flash detector circuit board
+ent-KiasWeaponFlashDetectorBoard = KIAS weapon flash detector board
+
+kias-add-action = Add action
+kias-remove-action = Remove action
+
+kias-audio-notification = Notification
+kias-audio-warning = Warning
+kias-audio-battle = Battle alarm
+kias-audio-emergency = Emergency alarm
+kias-audio-preview = Preview
+kias-tone-silent = Silent
+kias-tone-chime = Chime
+kias-tone-buzzer = Buzzer
+kias-tone-bluealert = Blue alert
+kias-tone-redalert = Red alert
+kias-tone-reactoralarm = Reactor alarm
+
+kias-trigger-docked = Docked
+kias-trigger-undocked = Undocked
+kias-port-emergency = Emergency button
+kias-position-zero = Position 0
+kias-position-one = Position 1
+kias-position-two = Position 2
+kias-position-three = Position 3
+kias-emergency-button-name = KIAS emergency button
+kias-emergency-button-description = Starts the manual emergency protocol through a linked receiver.
+
+ent-KiasIffReceiver = KIAS IFF receiver
+ent-KiasIffReceiverBoard = KIAS IFF receiver board
+ent-KiasDockingSensor = KIAS docking sensor
+ent-KiasDockingSensorBoard = KIAS docking sensor board
+ent-KiasDeviceAdapter = KIAS device adapter
+ent-KiasDeviceAdapterBoard = KIAS device adapter board
+ent-KiasWirelessTransceiver = KIAS wireless transceiver
+ent-KiasWirelessTransceiverBoard = KIAS wireless transceiver board
+ent-KiasKeySwitch = KIAS key switch
+ent-KiasKeySwitchBoard = KIAS key switch board
+ent-KiasRotarySwitch = KIAS rotary switch
+ent-KiasRotarySwitchBoard = KIAS rotary switch board
+ent-KiasResourceMonitor = KIAS resource monitor
+ent-KiasResourceMonitorBoard = KIAS resource monitor board
+ent-KiasFlipFlop = KIAS flip-flop
+ent-KiasFlipFlopBoard = KIAS flip-flop board
+ent-KiasEmergencyReceiver = KIAS emergency receiver
+ent-KiasEmergencyReceiverBoard = KIAS emergency receiver board
+ent-KiasEmergencyButton = KIAS emergency button
+ent-KiasNavigationLight = KIAS navigation light
+ent-KiasAdvancedRoomScanner = KIAS advanced room scanner
+ent-KiasAdvancedRoomScannerBoard = KIAS advanced room scanner board
+ent-KiasIntegrationKit = KIAS integration kit
+ent-KiasMaydayAntenna = KIAS mayday antenna
+ent-KiasMaydayAntennaBoard = KIAS mayday antenna board
+ent-KiasIdentityModule = KIAS identity module
+ent-KiasConnectorModule = KIAS connector module
+ent-KiasOpticalModule = KIAS optical module
+ent-KiasThreatModule = KIAS threat module
+kias-run-selected-protocol = Run selected protocol
+kias-diagnostic-chain = { $core } → DATA ({ $nodes } cables) → { $target }. Status: { $status }. Power: { $power }.
+kias-fire-locked = LockedKIAS: firing locked by a KIAS protocol.
+kias-action-firelock = Fire lock
+kias-trigger-powerlost = Device power loss
+kias-trigger-boot = KIAS startup
+kias-trigger-shutdown = KIAS shutdown
+kias-device-power-lost = Power lost: { $device }.
+kias-preset-power-lost = Power loss
+kias-preset-boot = Startup
+kias-preset-shutdown = Shutdown
+ent-KiasJammer = KIAS electronic warfare module
+ent-KiasJammerBoard = KIAS jammer board
+kias-boarding = Suspicious activity during crew injury: { $location }.
+kias-fire-clear = Fire extinguished: { $location }.
+kias-atmos-clear = Atmosphere restored: { $location }.
+kias-captain-greeting = Welcome aboard, captain.
+kias-local-threat = Threat scanner detected a weapon or hostile fauna: { $location }.
+kias-radiation-background = High background radiation: { $location }, { $value } rad/s.
+kias-medical-help = KIAS aboard { $ship }: medical assistance may be required. Crew unavailable for an extended period. Coordinates: { $x }, { $y }. Reason: { $reason }.
+kias-light-color = Light color (#RRGGBB)
+kias-light-brightness = Brightness (0–2)
+kias-module-motion = Motion / presence
+kias-module-identity = ID / crew transponder
+kias-module-biometric = Biometrics
+kias-module-radiation = Radiation
+kias-module-spectral = Spectral
+kias-module-connector = Device connector
+kias-module-optical = Camera
+kias-module-threat = Optical threat recognition
+kias-trigger-radiation = radiation
+kias-trigger-localthreat = Local threat
+kias-trigger-boarding = boarding
+kias-trigger-captaingreeting = Captain greeting
+kias-trigger-fireclear = Fire cleared
+kias-trigger-atmosclear = Atmosphere restored
+kias-trigger-crewunavailable = Crew unavailable
+kias-trigger-quietmode = Quiet mode
+kias-action-medicalhelp = Request medical assistance
+kias-action-jammer = Electronic warfare
+kias-action-decoy = Launch decoys
+kias-action-restoreventilation = Restore ventilation
+kias-preset-battle-impact = battle impact
+kias-preset-battle-flash = battle flash
+kias-preset-battle-manual = battle manual
+kias-preset-flash-unknown = flash unknown
+kias-preset-hull-damage = hull damage
+kias-preset-collision = collision
+kias-preset-atmosphere = atmosphere
+kias-preset-anomaly = anomaly
+kias-preset-contact = contact
+kias-preset-arrival = arrival
+kias-preset-proximity = proximity
+kias-preset-crew-critical = crew critical
+kias-preset-crew-dead = crew dead
+kias-preset-vessel-critical = vessel critical
+kias-preset-power-deficit = power deficit
+kias-preset-fire = fire
+kias-preset-radiation = radiation
+kias-preset-local-threat = local threat
+kias-preset-boarding = boarding
+kias-preset-greeting = greeting
+kias-preset-fire-clear = fire clear
+kias-preset-atmos-clear = atmos clear
+kias-preset-medical-assistance = medical assistance
+kias-preset-quiet = quiet
+
+kias-wireless-trust-updated = Trusted transmitter pairing updated.
+kias-wireless-trusted = Trusted transmitters: { $devices }

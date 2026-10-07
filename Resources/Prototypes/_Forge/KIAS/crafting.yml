@@ -444,6 +444,16 @@
 - type: latheRecipePack
   id: KiasBoards
   recipes:
+  - KiasManagementConsoleBoard
+  - KiasFlipFlopBoard
+  - KiasEmergencyReceiverBoard
+  - KiasIffReceiverBoard
+  - KiasDockingSensorBoard
+  - KiasDeviceAdapterBoard
+  - KiasWirelessTransceiverBoard
+  - KiasKeySwitchBoard
+  - KiasRotarySwitchBoard
+  - KiasResourceMonitorBoard
   - KiasCoreBoard
   - KiasDefenceServerBoard
   - KiasAtmosServerBoard
@@ -453,6 +463,14 @@
   - KiasRecorderBoard
   - KiasSpeakerBoard
   - KiasRoomScannerBoard
+  - KiasAdvancedRoomScannerBoard
+  - KiasMaydayAntennaBoard
+  - KiasIntegrationKit
+  - KiasJammerBoard
+  - KiasIdentityModule
+  - KiasConnectorModule
+  - KiasOpticalModule
+  - KiasThreatModule
   - KiasHorizonBoard
   - KiasHullSensorBoard
   - KiasIntegrityMonitorBoard

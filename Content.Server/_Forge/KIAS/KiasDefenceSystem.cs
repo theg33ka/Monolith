@@ -14,6 +14,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Timing;
+using Content.Shared.Examine;
 
 namespace Content.Server._Forge.KIAS;
 
@@ -33,10 +34,13 @@ public sealed class KiasDefenceSystem : EntitySystem
     private readonly Dictionary<(MapId Map, Vector2i Cell), List<EntityUid>> _buckets = new();
     private readonly Stack<List<EntityUid>> _bucketPool = new();
     private TimeSpan _nextScan;
+    private readonly KiasPeriodicScheduler _scans = new(0.1);
     private readonly Dictionary<EntityUid, (EntityUid Target, EntityUid Grid, Vector2 Previous)> _interceptors = new();
 
     public override void Initialize()
     {
+        SubscribeLocalEvent<FireControllableComponent, ShotAttemptedEvent>(OnLockedShot);
+        SubscribeLocalEvent<FireControllableComponent, ExaminedEvent>(OnFireLockExamine);
         SubscribeLocalEvent<ShipWeaponProjectileComponent, ComponentStartup>(OnProjectileStartup);
         SubscribeLocalEvent<ShipWeaponProjectileComponent, ComponentShutdown>(OnProjectileShutdown);
         SubscribeLocalEvent<KiasTopologyChangedEvent>(OnTopology);
@@ -59,6 +63,7 @@ public sealed class KiasDefenceSystem : EntitySystem
     private void OnGridRemoved(GridRemovalEvent args)
     {
         _enabledGrids.Remove(args.EntityUid);
+        _scans.Remove(args.EntityUid);
         ClearIdleIndex();
         foreach (var uid in _reserved.ToArray())
         {
@@ -84,6 +89,7 @@ public sealed class KiasDefenceSystem : EntitySystem
         {
             var first = _enabledGrids.Count == 0;
             _enabledGrids.Add(grid);
+            _scans.Add(grid, _timing.CurTime);
             if (first)
             {
                 var query = EntityQueryEnumerator<ShipWeaponProjectileComponent>();
@@ -92,7 +98,10 @@ public sealed class KiasDefenceSystem : EntitySystem
             }
         }
         else
+        {
             _enabledGrids.Remove(grid);
+            _scans.Remove(grid);
+        }
         ClearIdleIndex();
         foreach (var uid in _reserved.ToArray())
         {
@@ -123,7 +132,7 @@ public sealed class KiasDefenceSystem : EntitySystem
 
     public bool SetEnabled(EntityUid server, EntityUid user, bool enabled)
     {
-        if (!_kias.IsOnline(server) || Transform(server).GridUid is not { } grid || !_kias.IsOwner(grid, user)
+        if (!_kias.IsOnline(server) || Transform(server).GridUid is not { } grid || !_kias.CanConfigure(grid, user)
             || !TryComp<KiasDefenceComponent>(server, out var comp))
             return false;
         comp.PdcEnabled = enabled;
@@ -141,7 +150,7 @@ public sealed class KiasDefenceSystem : EntitySystem
 
     private void OnVerbs(Entity<KiasDefenceComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!args.CanAccess || !args.CanInteract || Transform(ent).GridUid is not { } grid || !_kias.IsOwner(grid, args.User))
+        if (!args.CanAccess || !args.CanInteract || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User))
             return;
         var uid = ent.Owner;
         var user = args.User;
@@ -151,6 +160,11 @@ public sealed class KiasDefenceSystem : EntitySystem
 
     public bool AuthorizeFire(EntityUid uid, bool automatic, EntityUid? user = null)
     {
+        if (!automatic && IsFireLocked(uid) && !HasComp<KiasDecoyLauncherComponent>(uid))
+        {
+            if (user is { } actor) _popup.PopupEntity(Loc.GetString("kias-fire-locked"), uid, actor);
+            return false;
+        }
         if (!TryComp<KiasPdcWeaponComponent>(uid, out var weapon))
             return !automatic;
         if (!automatic)
@@ -168,6 +182,21 @@ public sealed class KiasDefenceSystem : EntitySystem
         }
         return weapon.ManualUntil <= _timing.CurTime && weapon.AutomaticGrid is { } grid
             && _enabledGrids.Contains(grid) && _kias.IsOnline(uid) && _fire.CanFireWeapons(grid);
+    }
+
+    public bool IsFireLocked(EntityUid weapon) => Transform(weapon).GridUid is { } grid
+        && _kias.HasRole(grid, KiasDeviceRole.Defence) && Comp<KiasGridComponent>(grid).Online
+            .Any(uid => _kias.IsOnline(uid) && TryComp<KiasDefenceComponent>(uid, out var defence) && defence.FireLock);
+
+    private void OnLockedShot(Entity<FireControllableComponent> ent, ref ShotAttemptedEvent args)
+    {
+        var automatic = TryComp<KiasPdcWeaponComponent>(ent, out var pdc) && pdc.AutomaticGrid != null && args.User == ent.Owner;
+        if (!AuthorizeFire(ent, automatic, args.User)) args.Cancel();
+    }
+
+    private void OnFireLockExamine(Entity<FireControllableComponent> ent, ref ExaminedEvent args)
+    {
+        if (IsFireLocked(ent)) args.PushMarkup(Loc.GetString("kias-fire-locked"));
     }
 
     private void OnShot(Entity<KiasPdcWeaponComponent> ent, ref ShotAttemptedEvent args)
@@ -245,8 +274,17 @@ public sealed class KiasDefenceSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
-        if (_enabledGrids.Count == 0 || _timing.CurTime < _nextScan)
+        using var measurement = new KiasUpdateMeasurement(_kias);
+        if (_enabledGrids.Count == 0)
             return;
+        if (_timing.CurTime >= _nextScan)
+            RebuildProjectileIndex();
+        const int gridBudget = 40;
+        for (var i = 0; i < gridBudget && _scans.TryDue(_timing.CurTime, out var grid); i++) Scan(grid);
+    }
+
+    private void RebuildProjectileIndex()
+    {
         _nextScan = _timing.CurTime + TimeSpan.FromSeconds(0.1);
         CheckInterceptions();
         foreach (var uid in _reserved.ToArray())
@@ -271,8 +309,6 @@ public sealed class KiasDefenceSystem : EntitySystem
                 _buckets.Add(key, bucket = _bucketPool.TryPop(out var cached) ? cached : new());
             bucket.Add(uid);
         }
-        foreach (var grid in _enabledGrids.ToArray())
-            Scan(grid);
     }
 
     private void Scan(EntityUid grid)
@@ -298,7 +334,7 @@ public sealed class KiasDefenceSystem : EntitySystem
                     continue;
                 foreach (var projectile in bucket)
                 {
-                    var shot = Comp<ProjectileComponent>(projectile);
+                    if (TerminatingOrDeleted(projectile) || !TryComp<ProjectileComponent>(projectile, out var shot) || shot.ProjectileSpent) continue;
                     if (shot.Shooter is { } shooter && !Deleted(shooter) && Transform(shooter).GridUid == grid)
                         continue;
                     var target = _transform.GetMapCoordinates(projectile).Position;

@@ -133,37 +133,140 @@
   - type: Machine
     board: KiasCoreBoard
   - type: KiasCore
+  - type: KiasAudio
+  - type: KiasClaimable
+  - type: AccessReader
+  - type: WiresPanel
+  - type: Wires
+    layoutId: KiasAccess
+  - type: UserInterface
+    interfaces:
+      enum.WiresUiKey.Key:
+        type: WiresBoundUserInterface
   - type: KiasProtocol
     protocols:
-    - trigger: HullImpact
+    - presetId: battle-impact
+      trigger: HullImpact
       actions:
+      - kind: Announce
       - kind: Lights
         group: EMERGENCY
         value: true
-    - trigger: HullImpact
-      actions:
       - kind: Pdc
         value: true
-    - trigger: WeaponFlash
+    - presetId: battle-flash
+      trigger: WeaponFlash
       disposition: Hostile
       actions:
+      - kind: Announce
       - kind: Lights
         group: EMERGENCY
         value: true
-    - trigger: WeaponFlash
-      disposition: Hostile
-      actions:
       - kind: Pdc
         value: true
-    - trigger: Manual
+    - presetId: battle-manual
+      trigger: Manual
       actions:
+      - kind: Announce
       - kind: Lights
         group: EMERGENCY
         value: true
-    - trigger: Manual
-      actions:
       - kind: Pdc
         value: true
+    - presetId: flash-unknown
+      trigger: WeaponFlash
+      disposition: Unknown
+      actions: [{ kind: Announce }]
+    - presetId: hull-damage
+      trigger: HullDamage
+      actions: [{ kind: Announce }]
+    - presetId: collision
+      trigger: Collision
+      actions: [{ kind: Announce }]
+    - presetId: atmosphere
+      trigger: AtmosDanger
+      actions: [{ kind: Announce }]
+    - presetId: anomaly
+      trigger: AnomalyGrowth
+      actions: [{ kind: Announce }]
+    - presetId: contact
+      trigger: Contact
+      actions: [{ kind: Announce }]
+    - presetId: arrival
+      trigger: Arrival
+      actions: [{ kind: Announce }]
+    - presetId: proximity
+      trigger: Proximity
+      actions: [{ kind: Announce }]
+    - presetId: crew-critical
+      trigger: CrewCritical
+      actions: [{ kind: Announce }]
+    - presetId: crew-dead
+      trigger: CrewDead
+      actions: [{ kind: Announce }]
+    - presetId: vessel-critical
+      trigger: VesselCritical
+      actions: [{ kind: Announce }, { kind: Mayday }]
+    - presetId: power-deficit
+      trigger: PowerDeficit
+      actions: [{ kind: Announce }]
+    - presetId: fire
+      trigger: Fire
+      actions: [{ kind: Announce }]
+    - presetId: radiation
+      enabled: true
+      trigger: Radiation
+      actions:
+      - kind: Announce
+    - presetId: local-threat
+      enabled: true
+      trigger: LocalThreat
+      actions:
+      - kind: Announce
+    - presetId: boarding
+      enabled: true
+      trigger: Boarding
+      actions:
+      - kind: Announce
+    - presetId: greeting
+      enabled: true
+      trigger: CaptainGreeting
+      actions:
+      - kind: Announce
+    - presetId: fire-clear
+      enabled: true
+      trigger: FireClear
+      actions:
+      - kind: Announce
+    - presetId: atmos-clear
+      enabled: true
+      trigger: AtmosClear
+      actions:
+      - kind: Announce
+    - presetId: medical-assistance
+      enabled: true
+      trigger: CrewUnavailable
+      requireCrewUnavailable: true
+      cooldown: 180
+      actions:
+      - kind: MedicalHelp
+      - kind: Record
+    - presetId: quiet
+      enabled: false
+      trigger: QuietMode
+      actions:
+      - kind: Lights
+        group: QUIET
+        value: false
+    - presetId: power-lost
+      trigger: PowerLost
+      actions: [{ kind: Announce }]
+    - presetId: boot
+      trigger: Boot
+      actions: [{ kind: Announce }]
+    - presetId: shutdown
+      trigger: Shutdown
+      actions: [{ kind: Announce }]
   - type: KiasDevice
     role: Core
 
@@ -208,6 +311,13 @@
   - type: KiasCrewServer
   - type: KiasDevice
     role: Crew
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Crew
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Crew:
+        type: KiasLocalBoundUserInterface
 
 - type: entity
   id: KiasNavigationServer
@@ -229,13 +339,20 @@
   - type: KiasDevice
     role: Recorder
   - type: KiasRecorder
+  - type: Destructible
+    thresholds:
+    - trigger: !type:DamageTrigger
+        damage: 2000
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [Destruction]
   - type: KiasDisplay
   - type: ActivatableUI
-    key: enum.KiasUiKey.Key
+    key: enum.KiasUiKey.Recorder
   - type: UserInterface
     interfaces:
-      enum.KiasUiKey.Key:
-        type: KiasBoundUserInterface
+      enum.KiasUiKey.Recorder:
+        type: KiasLocalBoundUserInterface
 
 - type: sinkPort
   id: KiasAnnounce
@@ -261,6 +378,13 @@
     - state: speaker
   - type: DeviceLinkSink
     ports: [KiasAnnounce]
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Speaker
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Speaker:
+        type: KiasLocalBoundUserInterface
 
 - type: entity
   id: KiasDisplay
@@ -283,11 +407,11 @@
     role: Display
   - type: KiasDisplay
   - type: ActivatableUI
-    key: enum.KiasUiKey.Key
+    key: enum.KiasUiKey.Wall
   - type: UserInterface
     interfaces:
-      enum.KiasUiKey.Key:
-        type: KiasBoundUserInterface
+      enum.KiasUiKey.Wall:
+        type: KiasLocalBoundUserInterface
 
 - type: entity
   id: KiasServiceTool
@@ -302,12 +426,12 @@
   - type: KiasServiceTool
   - type: KiasDisplay
   - type: ActivatableUI
-    key: enum.KiasUiKey.Key
+    key: enum.KiasUiKey.Service
     inHandsOnly: true
   - type: UserInterface
     interfaces:
-      enum.KiasUiKey.Key:
-        type: KiasBoundUserInterface
+      enum.KiasUiKey.Service:
+        type: KiasLocalBoundUserInterface
 
 - type: sourcePort
   id: KiasMotion
@@ -318,13 +442,29 @@
 - type: entity
   id: KiasRoomScanner
   parent: BaseKiasWallDevice
-  name: KIAS modular room scanner
+  name: KIAS basic room scanner
   components:
   - type: Machine
     board: KiasRoomScannerBoard
   - type: KiasDevice
     role: Scanner
   - type: KiasRoomScanner
+  - type: Eye
+  - type: SurveillanceCamera
+    active: false
+    nameSet: true
+    networkSet: true
+    useEntityNameAsCameraId: true
+  - type: DeviceNetwork
+    deviceNetId: Wireless
+    receiveFrequencyId: SurveillanceCameraGeneral
+    transmitFrequencyId: SurveillanceCamera
+  - type: WirelessNetworkConnection
+    range: 200
+  - type: Sprite
+    sprite: Structures/Wallmounts/camera.rsi
+    layers:
+    - state: camera
   - type: DeviceLinkSource
     ports: [KiasMotion]
   - type: ItemSlots
@@ -332,23 +472,25 @@
       kias-module-1:
         startingItem: KiasMotionModule
         whitelist:
-          components: [KiasScannerModule]
+          tags: [KiasBasicModule]
       kias-module-2:
-        startingItem: KiasTransponderModule
+        startingItem: KiasIdentityModule
         whitelist:
-          components: [KiasScannerModule]
+          tags: [KiasBasicModule]
       kias-module-3:
         whitelist:
-          components: [KiasScannerModule]
+          tags: [KiasBasicModule]
       kias-module-4:
         whitelist:
-          components: [KiasScannerModule]
+          tags: [KiasBasicModule]
       kias-module-5:
+        startingItem: KiasOpticalModule
         whitelist:
-          components: [KiasScannerModule]
+          tags: [KiasBasicModule]
       kias-module-6:
+        startingItem: KiasConnectorModule
         whitelist:
-          components: [KiasScannerModule]
+          tags: [KiasBasicModule]
   - type: ContainerContainer
     containers:
       kias-module-1: !type:ContainerSlot
@@ -357,6 +499,13 @@
       kias-module-4: !type:ContainerSlot
       kias-module-5: !type:ContainerSlot
       kias-module-6: !type:ContainerSlot
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Scanner
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Scanner:
+        type: KiasLocalBoundUserInterface
 
 - type: entity
   id: BaseKiasScannerModule
@@ -378,13 +527,19 @@
   - type: KiasScannerModule
     module: Motion
 
+  - type: Tag
+    tags: [KiasBasicModule]
+
 - type: entity
   id: KiasIdModule
   parent: BaseKiasScannerModule
   name: KIAS ID module
   components:
   - type: KiasScannerModule
-    module: Id
+    module: Identity
+
+  - type: Tag
+    tags: [KiasBasicModule]
 
 - type: entity
   id: KiasTransponderModule
@@ -392,7 +547,10 @@
   name: KIAS transponder module
   components:
   - type: KiasScannerModule
-    module: Transponder
+    module: Identity
+
+  - type: Tag
+    tags: [KiasBasicModule]
 
 - type: entity
   id: KiasBiometricModule
@@ -402,6 +560,9 @@
   - type: KiasScannerModule
     module: Biometric
 
+  - type: Tag
+    tags: [KiasAdvancedModule]
+
 - type: entity
   id: KiasRadiationModule
   parent: BaseKiasScannerModule
@@ -410,6 +571,9 @@
   - type: KiasScannerModule
     module: Radiation
 
+  - type: Tag
+    tags: [KiasAdvancedModule]
+
 - type: entity
   id: KiasSpectralModule
   parent: BaseKiasScannerModule
@@ -417,6 +581,9 @@
   components:
   - type: KiasScannerModule
     module: Spectral
+
+  - type: Tag
+    tags: [KiasAdvancedModule]
 
 - type: entity
   id: KiasCrewTransponder
@@ -442,6 +609,13 @@
   - type: KiasDevice
     role: Horizon
   - type: KiasHorizon
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Sensor
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Sensor:
+        type: KiasLocalBoundUserInterface
 
 - type: entity
   id: KiasMasterKey
@@ -498,6 +672,13 @@
   - type: KiasDevice
     role: Light
   - type: KiasLightController
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Sensor
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Sensor:
+        type: KiasLocalBoundUserInterface
   - type: DeviceLinkSink
     ports: [On, Off]
 
@@ -564,6 +745,13 @@
   - type: KiasDevice
     role: PdcRadar
   - type: KiasPdcRadar
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Sensor
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Sensor:
+        type: KiasLocalBoundUserInterface
 
 - type: entity
   id: KiasWeaponFlashDetector
@@ -575,6 +763,13 @@
   - type: KiasDevice
     role: WeaponFlash
   - type: KiasWeaponFlash
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Sensor
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Sensor:
+        type: KiasLocalBoundUserInterface
 
 - type: entity
   id: KiasProximitySensor
@@ -586,3 +781,15 @@
   - type: KiasDevice
     role: Proximity
   - type: KiasProximity
+  - type: KiasLocalUi
+  - type: ActivatableUI
+    key: enum.KiasUiKey.Sensor
+  - type: UserInterface
+    interfaces:
+      enum.KiasUiKey.Sensor:
+        type: KiasLocalBoundUserInterface
+
+- type: wireLayout
+  id: KiasAccess
+  wires:
+  - !type:AccessWireAction

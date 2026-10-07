@@ -27,14 +27,20 @@ public sealed class KiasHullSystem : EntitySystem
         SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoval);
     }
 
-    public bool HasMonitor<T>(EntityUid grid) where T : Component
+    public bool HasMonitor<T>(EntityUid grid, EntityUid? source = null) where T : Component
     {
         if (!_kias.HasRole(grid, KiasDeviceRole.Defence) || !TryComp<KiasGridComponent>(grid, out var runtime))
             return false;
         foreach (var device in runtime.Online)
         {
             if (HasComp<T>(device) && _kias.IsOnline(device))
+            {
+                if (source is { } target && typeof(T) == typeof(KiasHullSensorComponent)
+                    && !TerminatingOrDeleted(target) && TryComp<KiasHullSensorComponent>(device, out var sensor)
+                    && System.Numerics.Vector2.DistanceSquared(Transform(device).LocalPosition, Transform(target).LocalPosition)
+                        > Math.Clamp(sensor.Range, 50, 100) * Math.Clamp(sensor.Range, 50, 100)) continue;
                 return true;
+            }
         }
         return false;
     }
@@ -47,7 +53,7 @@ public sealed class KiasHullSystem : EntitySystem
 
     private void OnImpact(ref KiasHullImpactEvent args)
     {
-        if (HasMonitor<KiasHullSensorComponent>(args.Grid))
+        if (HasMonitor<KiasHullSensorComponent>(args.Grid, args.Structure))
             Accumulate(args.Grid, args.Structure, 1, 1);
     }
 
@@ -87,7 +93,7 @@ public sealed class KiasHullSystem : EntitySystem
         if (pairs.Count >= 32)
             return;
         pairs.Add(args.OtherGrid, _timing.CurTime + TimeSpan.FromSeconds(3));
-        _safety.Publish(args.Grid, Loc.GetString("kias-grid-collision", ("speed", args.RelativeSpeed)), true);
+        _safety.Publish(args.Grid, Loc.GetString("kias-grid-collision", ("speed", args.RelativeSpeed)), true, announce: false, key: $"collision:{args.OtherGrid}");
     }
 
     public bool DetectsCollision(EntityUid grid, float speed)
@@ -116,6 +122,7 @@ public sealed class KiasHullSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
+        using var measurement = new KiasUpdateMeasurement(_kias);
         if (_due.Count == 0 || _timing.CurTime < _nextFlush)
             return;
         foreach (var grid in _due.Where(p => p.Value <= _timing.CurTime).Select(p => p.Key).ToArray())
@@ -129,7 +136,7 @@ public sealed class KiasHullSystem : EntitySystem
                     continue;
                 var message = key.Kind switch { 1 => "kias-hull-impact", 2 => "kias-hull-destroyed", _ => "kias-hull-damage" };
                 _safety.Publish(grid, Loc.GetString(message,
-                    ("location", key.Location), ("amount", value)), true);
+                    ("location", key.Location), ("amount", value)), true, announce: false, key: $"hull:{key.Kind}:{key.Location}");
             }
         }
         if (_due.Count > 0)

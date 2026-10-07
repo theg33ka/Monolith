@@ -1,3 +1,4 @@
+#pragma warning disable RA0002
 using Content.Server._Forge.KIAS;
 using Content.Server.Power.Components;
 using Content.Shared._Forge.KIAS;
@@ -92,7 +93,7 @@ public sealed class KiasGridTests
             var spectral = em.SpawnEntity("KiasSpectralModule", new EntityCoordinates(map.Grid, 5.5f, 1.5f));
             Assert.That(containers.Insert(spectral, containers.GetContainer(scanner, "kias-module-3")), Is.True);
             var anomaly = em.SpawnEntity(null, new EntityCoordinates(map.Grid, 5.5f, 1.5f));
-            em.AddComponent<AnomalyComponent>(anomaly);
+            em.AddComponent(anomaly, new AnomalyComponent { InitialStabilityRange = (0, 0) });
             var anomalies = em.System<SharedAnomalySystem>();
             anomalies.ChangeAnomalyStability(anomaly, -1f);
             var log = em.GetComponent<KiasGridComponent>(map.Grid).Log;
@@ -103,7 +104,7 @@ public sealed class KiasGridTests
             Assert.That(log.Count, Is.EqualTo(before + 1));
             anomalies.ChangeAnomalyStability(anomaly, -0.7f);
             anomalies.ChangeAnomalyStability(anomaly, 0.6f);
-            Assert.That(log.Count, Is.EqualTo(before + 2));
+            Assert.That(log.Count, Is.EqualTo(before + 1));
             Assert.That(log.Last(), Does.Contain(em.System<KiasSafetySystem>().Location(map.Grid, anomaly)));
             em.DeleteEntity(anomaly);
             var transform = em.System<SharedTransformSystem>();
@@ -202,6 +203,11 @@ public sealed class KiasGridTests
             var core = em.SpawnEntity("KiasCore", coordinates);
             var key = em.SpawnEntity("KiasMasterKey", coordinates);
             var kias = em.System<KiasSystem>();
+            em.EnsureComponent<ShuttleDeedComponent>(map.Grid).ShuttleUid = map.Grid.Owner;
+            var deedId = em.SpawnEntity("PassengerIDCard", coordinates);
+            em.EnsureComponent<ShuttleDeedComponent>(deedId).ShuttleUid = map.Grid.Owner;
+            Assert.That(em.System<Content.Shared.Hands.EntitySystems.SharedHandsSystem>().TryPickup(body, deedId), Is.True);
+            kias.Rebuild(map.Grid);
             var keyUse = new InteractUsingEvent(npc, key, core, coordinates);
             em.EventBus.RaiseLocalEvent(core, keyUse);
             Assert.That(em.GetComponent<KiasCoreComponent>(core).Enabled, Is.True);

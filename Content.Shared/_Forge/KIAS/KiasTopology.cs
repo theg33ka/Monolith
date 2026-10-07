@@ -57,4 +57,33 @@ public sealed class KiasTopology
                && _coverage.TryGetValue(deviceTile, out var deviceNetworks)
                && coreNetworks.Overlaps(deviceNetworks);
     }
+
+    public List<Vector2i> DiagnosticPath(Vector2i coreTile, Vector2i deviceTile)
+    {
+        var parents = new Dictionary<Vector2i, Vector2i?>();
+        var queue = new Queue<Vector2i>();
+        foreach (var tile in _segments.Keys)
+        {
+            if ((tile - coreTile).LengthSquared > 4) continue;
+            parents[tile] = null;
+            queue.Enqueue(tile);
+        }
+        while (parents.Count <= 4096 && queue.TryDequeue(out var tile))
+        {
+            if ((tile - deviceTile).LengthSquared <= 4)
+            {
+                var path = new List<Vector2i>();
+                Vector2i? current = tile;
+                while (current is { } step) { path.Add(step); current = parents[step]; }
+                path.Reverse();
+                return path;
+            }
+            foreach (var offset in Neighbours)
+            {
+                var next = tile + offset;
+                if (_segments.ContainsKey(next) && parents.TryAdd(next, tile)) queue.Enqueue(next);
+            }
+        }
+        return new List<Vector2i>();
+    }
 }

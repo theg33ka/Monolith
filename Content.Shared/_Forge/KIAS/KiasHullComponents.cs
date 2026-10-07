@@ -4,7 +4,10 @@ namespace Content.Shared._Forge.KIAS;
 public sealed partial class KiasHullStructureComponent : Component;
 
 [RegisterComponent]
-public sealed partial class KiasHullSensorComponent : Component;
+public sealed partial class KiasHullSensorComponent : Component
+{
+    [DataField] public float Range = 100;
+}
 
 [RegisterComponent]
 public sealed partial class KiasIntegrityMonitorComponent : Component;

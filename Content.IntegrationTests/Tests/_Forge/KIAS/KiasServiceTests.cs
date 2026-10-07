@@ -1,3 +1,4 @@
+#pragma warning disable RA0002
 using System.Linq;
 using Content.Client._Forge.KIAS;
 using Content.Server._Forge.KIAS;
@@ -27,6 +28,7 @@ public sealed class KiasServiceTests
         var em = pair.Server.ResolveDependency<IEntityManager>();
         EntityUid core = default;
         EntityUid server = default;
+        var splitOwner = new Robust.Shared.Network.NetUserId(Guid.NewGuid());
         await pair.Server.WaitAssertion(() =>
         {
             pair.Server.ResolveDependency<Robust.Shared.Configuration.IConfigurationManager>().SetCVar(Robust.Shared.CVars.GridSplitting, true);
@@ -42,6 +44,7 @@ public sealed class KiasServiceTests
             em.RemoveComponent<ApcPowerReceiverComponent>(core);
             em.RemoveComponent<ApcPowerReceiverComponent>(server);
             em.System<KiasSystem>().Rebuild(map.Grid);
+            em.EnsureComponent<KiasClaimComponent>(map.Grid).Owner = splitOwner;
             em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(3, 0), Tile.Empty);
             em.System<Robust.Server.Physics.GridFixtureSystem>().CheckSplits(map.Grid);
         });
@@ -51,6 +54,8 @@ public sealed class KiasServiceTests
             var coreGrid = em.GetComponent<TransformComponent>(core).GridUid!.Value;
             var otherGrid = em.GetComponent<TransformComponent>(server).GridUid!.Value;
             Assert.That(coreGrid, Is.Not.EqualTo(otherGrid));
+            Assert.That(em.GetComponent<KiasClaimComponent>(coreGrid).Owner, Is.EqualTo(splitOwner));
+            Assert.That(em.GetComponent<KiasClaimComponent>(otherGrid).Owner, Is.EqualTo(splitOwner));
             Assert.That(em.GetComponent<KiasGridComponent>(coreGrid).Devices, Does.Not.Contain(server));
             Assert.That(em.GetComponent<KiasGridComponent>(otherGrid).Devices, Does.Contain(server));
             Assert.That(em.System<KiasSystem>().ActiveGrids, Does.Contain(coreGrid));
@@ -83,11 +88,24 @@ public sealed class KiasServiceTests
                 return uid;
             }
             var core = Spawn("KiasCore", map.Grid, 0);
-            var display = Spawn("KiasDisplay", map.Grid, 1);
+            var display = Spawn("KiasManagementConsole", map.Grid, 1);
             var defence = Spawn("KiasDefenceServer", map.Grid, 2);
             var crewServer = Spawn("KiasCrewServer", map.Grid, 3);
+            var serviceTool = em.SpawnEntity("KiasServiceTool", new EntityCoordinates(map.Grid, 0.5f, 0.5f));
+            var logger = Spawn("KiasRecorder", map.Grid, 4);
+            var wall = Spawn("KiasDisplay", map.Grid, 5);
             var foreign = Spawn("KiasRelay", other.Grid, 0);
             em.System<KiasSystem>().Rebuild(map.Grid);
+            var uiSystem = em.System<KiasDisplaySystem>();
+            Assert.That(uiSystem.BuildLocalState(serviceTool), Is.TypeOf<KiasServiceState>());
+            Assert.That(uiSystem.BuildLocalState(logger), Is.TypeOf<KiasRecorderState>());
+            Assert.That(uiSystem.BuildLocalState(wall), Is.TypeOf<KiasWallState>());
+            Assert.That(uiSystem.BuildLocalState(crewServer), Is.TypeOf<KiasCrewState>());
+            Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).ProtocolTargets, Is.Empty);
+            em.EnsureComponent<ShuttleDeedComponent>(map.Grid).ShuttleUid = map.Grid.Owner;
+            var deedId = em.SpawnEntity("PassengerIDCard", new EntityCoordinates(map.Grid, 0.5f, 0.5f));
+            em.EnsureComponent<ShuttleDeedComponent>(deedId).ShuttleUid = map.Grid.Owner;
+            Assert.That(em.System<Content.Shared.Hands.EntitySystems.SharedHandsSystem>().TryPickup(actor, deedId), Is.True);
             var registration = em.GetComponent<KiasCrewServerComponent>(crewServer);
             Assert.That(registration.RegistrationLocked, Is.False);
             AlternativeVerb? RegistrationVerb(EntityUid user, string key)
@@ -97,10 +115,10 @@ public sealed class KiasServiceTests
                 return verbs.Verbs.SingleOrDefault(verb => verb.Text == Loc.GetString(key));
             }
             Assert.That(RegistrationVerb(stranger, "kias-lock-registration"), Is.Null);
-            em.RemoveComponent<ShipOwnershipComponent>(map.Grid);
-            Assert.That(RegistrationVerb(actor, "kias-lock-registration"), Is.Null);
+            em.RemoveComponent<ShuttleDeedComponent>(map.Grid);
+            Assert.That(RegistrationVerb(actor, "kias-lock-registration"), Is.Null, "A grid without a deed or claim must stay open for registration.");
             Assert.That(registration.RegistrationLocked, Is.False);
-            em.EnsureComponent<ShipOwnershipComponent>(map.Grid).OwnerUserId = session.UserId;
+            em.EnsureComponent<ShuttleDeedComponent>(map.Grid).ShuttleUid = map.Grid.Owner;
             var lockVerb = RegistrationVerb(actor, "kias-lock-registration");
             Assert.That(lockVerb, Is.Not.Null);
             lockVerb!.Act!();
@@ -122,6 +140,36 @@ public sealed class KiasServiceTests
             edit.Target = null;
             em.EventBus.RaiseLocalEvent(display, edit);
             Assert.That(protocols.Protocols, Has.Count.EqualTo(1));
+            edit.Actions = new()
+            {
+                new() { Kind = KiasActionKind.Record, Message = "first" },
+                new() { Kind = KiasActionKind.Lights, Group = "EMERGENCY", Value = false },
+                new() { Kind = KiasActionKind.Record, Message = "third" },
+            };
+            em.EventBus.RaiseLocalEvent(display, edit);
+            Assert.That(protocols.Protocols[0].Actions.Select(action => action.Message), Is.EqualTo(new[] { "first", "", "third" }));
+            edit.Actions.RemoveAt(1);
+            em.EventBus.RaiseLocalEvent(display, edit);
+            Assert.That(protocols.Protocols[0].Actions, Has.Count.EqualTo(2));
+            edit.Actions[1].Target = em.GetNetEntity(foreign);
+            em.EventBus.RaiseLocalEvent(display, edit);
+            Assert.That(protocols.Protocols[0].Actions[1].Target, Is.Null);
+            var audio = em.GetComponent<KiasAudioComponent>(core);
+            var audioEdit = new KiasAudioSettingsMessage { Actor = stranger, Channel = KiasAudioChannel.Emergency, Preset = KiasTonePreset.Silent };
+            em.EventBus.RaiseLocalEvent(display, audioEdit);
+            Assert.That(audio.Emergency, Is.EqualTo(KiasTonePreset.ReactorAlarm));
+            audioEdit.Actor = actor;
+            em.EventBus.RaiseLocalEvent(display, audioEdit);
+            Assert.That(audio.Emergency, Is.EqualTo(KiasTonePreset.Silent));
+            audioEdit.Preset = (KiasTonePreset) 255;
+            em.EventBus.RaiseLocalEvent(display, audioEdit);
+            Assert.That(audio.Emergency, Is.EqualTo(KiasTonePreset.Silent));
+            audioEdit.Preset = KiasTonePreset.Silent;
+            audioEdit.Preview = true;
+            em.EventBus.RaiseLocalEvent(display, audioEdit);
+            var previewAfter = audio.PreviewAfter;
+            em.EventBus.RaiseLocalEvent(display, audioEdit);
+            Assert.That(audio.PreviewAfter, Is.EqualTo(previewAfter));
             Assert.That(em.System<KiasDefenceSystem>().SetEnabled(defence, stranger, true), Is.False);
             Assert.That(em.System<KiasDefenceSystem>().SetEnabled(defence, actor, true), Is.True);
             protocols.Alert = KiasAlert.Emergency;
@@ -135,11 +183,13 @@ public sealed class KiasServiceTests
         await pair.Client.WaitAssertion(() =>
         {
             using var window = new KiasWindow();
-            var state = new KiasUiState { Online = true, ServiceTool = true, ProtocolsAvailable = true, Entities = 4, Crew = 2 };
-            for (var i = 0; i < 81; i++)
-                state.Coverage.Add((byte) (i == 40 ? 7 : 1));
+            var state = new KiasManagementState { Online = true, ProtocolsAvailable = true, Entities = 4, Crew = 2 };
             state.Protocols.Add(new KiasProtocolView { Trigger = KiasTrigger.Fire, Action = KiasActionKind.Suppression, Cooldown = 10, Enabled = true });
             Assert.DoesNotThrow(() => window.UpdateState(state));
+            using var serviceWindow = new KiasServiceWindow();
+            Assert.DoesNotThrow(() => serviceWindow.UpdateState(new KiasServiceState { Mode = KiasServiceMode.Link, Message = "Local only" }));
+            using var scannerWindow = new KiasScannerWindow();
+            Assert.DoesNotThrow(() => scannerWindow.UpdateState(new KiasScannerState { Range = 7, Modules = KiasScannerModules.Motion }));
             state.ProtocolRevision++;
             Assert.DoesNotThrow(() => window.UpdateState(state));
         });
@@ -155,6 +205,7 @@ public sealed class KiasServiceTests
         EntityUid core = default;
         EntityUid scanner = default;
         EntityUid tool = default;
+        EntityUid adapter = default;
         await pair.Server.WaitAssertion(() =>
         {
             var maps = em.System<SharedMapSystem>();
@@ -163,19 +214,30 @@ public sealed class KiasServiceTests
             em.SpawnEntity("KiasDataCable", new EntityCoordinates(map.Grid, 0.5f, 0.5f));
             core = em.SpawnEntity("KiasCore", new EntityCoordinates(map.Grid, 0.5f, 0.5f));
             scanner = em.SpawnEntity("KiasRoomScanner", new EntityCoordinates(map.Grid, 1.5f, 0.5f));
+            adapter = em.SpawnEntity("KiasDeviceAdapter", new EntityCoordinates(map.Grid, 1.5f, 0.5f));
             em.RemoveComponent<ApcPowerReceiverComponent>(core);
             em.RemoveComponent<ApcPowerReceiverComponent>(scanner);
+            em.RemoveComponent<ApcPowerReceiverComponent>(adapter);
+            em.System<Content.Server.DeviceLinking.Systems.DeviceLinkSystem>().SaveLinks(null, scanner, adapter, new() { ("KiasMotion", "On") });
             tool = em.SpawnEntity("KiasServiceTool", new EntityCoordinates(map.Grid, 0.5f, 0.5f));
             em.GetComponent<KiasServiceToolComponent>(tool).Mode = KiasServiceMode.Test;
             em.System<KiasSystem>().Rebuild(map.Grid);
+            var protocols = em.GetComponent<KiasProtocolComponent>(core);
+            protocols.Alert = KiasAlert.Contact;
+            protocols.Cooldowns[100] = TimeSpan.FromSeconds(100);
             var use = new AfterInteractEvent(core, tool, scanner, new EntityCoordinates(map.Grid, 1.5f, 0.5f), true);
             em.EventBus.RaiseLocalEvent(tool, use);
             Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Testing, Is.True);
+            Assert.That(em.GetComponent<KiasDeviceAdapterComponent>(adapter).State, Is.False);
+            protocols.Alert = KiasAlert.Emergency;
+            protocols.Cooldowns[100] = TimeSpan.FromSeconds(200);
         });
         await pair.RunTicksSync(310);
         await pair.Server.WaitAssertion(() =>
         {
             Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Testing, Is.False);
+            Assert.That(em.GetComponent<KiasProtocolComponent>(core).Alert, Is.EqualTo(KiasAlert.Contact));
+            Assert.That(em.GetComponent<KiasProtocolComponent>(core).Cooldowns[100], Is.EqualTo(TimeSpan.FromSeconds(100)));
             var transform = em.System<SharedTransformSystem>();
             transform.Unanchor(scanner);
             transform.SetCoordinates(scanner, new EntityCoordinates(map.Grid, 6.5f, 0.5f));

@@ -240,7 +240,7 @@ public abstract partial class SharedDeviceLinkSystem : EntitySystem
         foreach (var source in sources)
         {
             if (source.DefaultLinks == null)
-                return new List<(string, string)>();
+                continue;
 
             foreach (var defaultLink in source.DefaultLinks)
             {
