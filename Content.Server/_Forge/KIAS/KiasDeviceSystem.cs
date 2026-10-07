@@ -3,6 +3,8 @@ using System.Numerics;
 using Content.Server.DeviceLinking.Systems;
 using Content.Server.Shuttles.Events;
 using Content.Shared._Forge.KIAS;
+using Content.Shared._Forge.KIAS.Controllers;
+using Content.Server._Forge.KIAS.Controllers;
 using Content.Shared.DeviceLinking;
 using Content.Shared.DeviceLinking.Events;
 using Content.Shared.Interaction;
@@ -55,6 +57,9 @@ public sealed class KiasDeviceSystem : EntitySystem
         {
             if (!_kias.IsOnline(uid) || !HasComp<KiasDockingSensorComponent>(uid)) continue;
             detected = true;
+            var controllers = EntityManager.System<KiasControllerIoSystem>();
+            controllers.Emit(uid, "DockingSensor", "State", KiasGraphValue.Boolean(docked));
+            controllers.Emit(uid, "DockingSensor", docked ? "Docked" : "Undocked", KiasGraphValue.Pulse);
             _links.SendSignal(uid, "DockStatus", docked);
             _links.InvokePort(uid, docked ? "KiasDocked" : "KiasUndocked");
         }
@@ -85,6 +90,7 @@ public sealed class KiasDeviceSystem : EntitySystem
         }
         if (args.Port is not ("On" or "Off" or "Toggle" or "Pressed")) return;
         ent.Comp.State = args.Port switch { "On" => true, "Off" => false, _ => !ent.Comp.State };
+        EntityManager.System<KiasControllerIoSystem>().Emit(ent, "DeviceAdapter", "State", KiasGraphValue.Boolean(ent.Comp.State));
         _links.SendSignal(ent, "Status", ent.Comp.State);
         _links.InvokePort(ent, ent.Comp.State ? "On" : "Off");
     }

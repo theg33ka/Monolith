@@ -57,6 +57,7 @@ public enum KiasDeviceRole : byte
     Docking,
     Adapter,
     Resource,
+    Controller,
 }
 
 [Serializable, NetSerializable]

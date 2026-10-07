@@ -20,6 +20,11 @@ namespace Content.Server._Forge.KIAS;
 
 public sealed class KiasDefenceSystem : EntitySystem
 {
+    public void SetFireLock(EntityUid server, bool enabled)
+    {
+        if (EntityManager.System<KiasSystem>().IsOnline(server) && TryComp<KiasDefenceComponent>(server, out var component))
+            component.FireLock = enabled;
+    }
     [Dependency] private KiasSystem _kias = default!;
     [Dependency] private FireControlSystem _fire = default!;
     [Dependency] private SharedGunSystem _guns = default!;

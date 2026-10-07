@@ -8,12 +8,37 @@ public sealed class KiasRecorderSystem : EntitySystem
 {
     [Dependency] private KiasSystem _kias = default!;
     [Dependency] private IGameTiming _timing = default!;
+    private readonly KiasEmissionGate _controllerGate = new();
+    private readonly KiasEmissionGate _gridGate = new();
+    public void Record(EntityUid target, string message, string key)
+    {
+        if (!_kias.IsOnline(target) || !TryComp<KiasRecorderComponent>(target, out var recorder)
+            || Transform(target).GridUid is not { } grid || !TryComp<KiasGridComponent>(grid, out var runtime)) return;
+        var settings = runtime.Core is { } core && TryComp<KiasAudioComponent>(core, out var audio) ? audio : null;
+        var severity = runtime.Core is { } uid && TryComp<KiasProtocolComponent>(uid, out var state) ? (int) state.Alert : 0;
+        if (!_controllerGate.Allow(target, key, _timing.CurTime, settings?.LogCooldown ?? 2, severity, out var repeated)) return;
+        message = message[..Math.Min(message.Length, 256)];
+        var entry = $"[{_timing.CurTime:hh\\:mm\\:ss}] [P] {message}" + (repeated > 0 ? $" ×{repeated + 1}" : string.Empty);
+        while (recorder.Entries.Count >= 64) recorder.Entries.RemoveAt(0);
+        recorder.Entries.Add(entry);
+        if (_gridGate.Allow(grid, key, _timing.CurTime, settings?.LogCooldown ?? 2, severity, out _))
+        {
+            while (runtime.Log.Count >= 64) runtime.Log.Dequeue();
+            runtime.Log.Enqueue(entry);
+        }
+        EntityManager.System<KiasDisplaySystem>().RefreshOpen(grid);
+    }
     public override void Initialize()
     {
         SubscribeLocalEvent<KiasRecorderComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<KiasTopologyChangedEvent>(OnTopology);
         SubscribeLocalEvent<KiasProtocolFiredEvent>(OnProtocol);
+        SubscribeLocalEvent<KiasRecorderComponent, ComponentShutdown>(OnShutdown);
+        SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoved);
     }
+
+    private void OnShutdown(Entity<KiasRecorderComponent> ent, ref ComponentShutdown args) => _controllerGate.Remove(ent.Owner);
+    private void OnGridRemoved(GridRemovalEvent args) => _gridGate.Remove(args.EntityUid);
 
     private void OnProtocol(ref KiasProtocolFiredEvent args)
     {

@@ -1,66 +1,53 @@
-<p align="center"> <img alt="Frontier Station 14" width="880" height="300" src="https://raw.githubusercontent.com/Monolith-Station/Monolith/89d435f0d2c54c4b0e6c3b1bf4493c9c908a6ac7/Resources/Textures/_Mono/Logo/logo.png?raw=true" /></p>
+# KIAS — programmable controller / graph integration pack
 
-**Corvax Forge Monolith** - это русскоязычное ответвление **Monolith**, форка [Monolith](https://github.com/Monolith-Station), которое работает на движке [Robust Toolbox](https://github.com/space-wizards/RobustToolbox), написанном на C#.
+This is the **next implementation handoff** after the original KIAS master implementation and the first corrective patch/pass were reported as successfully applied.
 
-В этой сборке представлены собственные наработки, адаптации и контент, созданный русскоязычным комьюнити.
-Если вы хотите разместить сервер или разрабатывать контент для **Corvax Forge Monolith**, используйте этот репозиторий. Он включает **RobustToolbox** и контент-пак для создания новых дополнений.
+The target is a physical PLC/Wiremod-style automation layer integrated into the existing KIAS:
 
-## Ссылки
+- removable programmable controller cards;
+- a separate programming console;
+- a powered 8-slot controller rack;
+- native Robust UI node editor;
+- strict typed ports;
+- SPECIFIC device bindings;
+- portable `ANY <device type>` and `ALL <device type>` selector nodes;
+- event-driven server runtime;
+- migration of current hardcoded KIAS protocols into ordinary editable graph presets.
 
-<div class="header" align="center">
+## Critical new portability rule
 
-[Discord](https://discord.gg/7wDwSPde58) | [Steam](https://store.steampowered.com/app/1255460/Space_Station_14/) | [Boosty](https://boosty.to/corvaxforge) | [Вики](https://station14.ru/wiki/%D0%9F%D0%BE%D1%80%D1%82%D0%B0%D0%BB:Frontier)
+A controller may address a **device profile**, not only a concrete entity.
 
+`ANY WeaponFlashDetector` merges trigger events from any detector on the current KIAS grid and sends commands to one deterministic available detector/device.
 
-</div> 
+`ALL Speaker` merges events from all matching devices and broadcasts incoming commands to every matching Online speaker.
 
-## Сборка
+Because ANY/ALL persist only a stable profile ID, a generic card can be moved to another shuttle and continue to work without rebinding. SPECIFIC nodes deliberately do not auto-rebind.
 
-Обратитесь к [руководству Space Wizards](https://docs.spacestation14.com/en/general-development/setup/setting-up-a-development-environment.html) по настройке среды разработки для получения общей информации, но имейте в виду, что Corvax Forge Monolith — это не то же самое, и многие вещи могут не применяться.
-Мы предоставляем несколько скриптов, показанных ниже, чтобы упростить работу.
+## Files
 
-### Необходимые программы
+- `00_AGENT_MASTER_PROMPT.md` — **give this to the coding agent for the new pass**.
+- `01_REPO_FINDINGS.md` — updated repo/reuse findings and superseded assumptions.
+- `02_TARGET_ARCHITECTURE.md` — controller architecture.
+- `03_DEVICE_PROTOCOL_SPEC.md` — device profiles/ports and graph preset behavior.
+- `04_IMPLEMENTATION_PLAN.md` — ordered implementation phases.
+- `05_PERFORMANCE_AND_TESTS.md` — selector/runtime performance rules and acceptance.
+- `06_REPO_SOURCE_MAP.md` — quick path/reference map.
+- `07_CONTROLLER_GRAPH_SPEC.md` — precise graph + ANY/ALL semantics.
+- `08_PROTOCOL_MIGRATION.md` — how to remove hardcoded protocol policy and replace it with graph presets.
+- `09_THIRD_PARTY_REFERENCES.md` — license/attribution checklist.
+- `assets/` — the two supplied game sprites, raw and convenience RSI wrappers.
+- `history/` — the already-applied initial master prompt and first patch prompt for context only.
 
-- Git
-- .NET SDK 10.0.X
+## Non-negotiables
 
-### Windows
-
-```
-1. Клонируйте этот репозиторий
-2. Запустите `Scripts/bat/updateEngine.bat` в терминале или в проводнике, чтобы загрузить движок
-3. Запустите `Scripts/bat/buildAllDebug.bat` после внесения любых изменений в исходный код
-4. Запустите `Scripts/bat/runQuickAll.bat`, чтобы запустить клиент и сервер
-5. Подключитесь к localhost в клиенте и играйте
-```
-
-### Linux
-```
-1. Клонируйте этот репозиторий
-2. Запустите `Scripts/sh/updateEngine.sh` в терминале, чтобы загрузить движок
-3. Запустите `Scripts/sh/buildAllDebug.sh` после внесения любых изменений в исходный код
-4. Запустите `Scripts/sh/runQuickAll.sh`, чтобы запустить клиент и сервер
-5. Подключитесь к localhost в клиенте и играйте
-```
-## Корабельная автоматика КИАС
-
-[Руководство игрока, архитектура и результаты проверок](Docs/KIAS/README.md).
-
-## Лицензия
-
-Смотрите заголовки REUSE для подробной информации о лицензировании каждого файла и о том, под какими именно лицензиями были сделаны вклады. Работа в целом лицензируется под GNU Affero General Public License версии 3.0.
-
-По умолчанию оригинальный код, добавленный в кодовую базу Monolith после коммита 04d8ce483f638320d1b85a7aaacdf01442757363, распространяется под лицензией Mozilla Public License версии 2.0 с удалённым Exhibit B. См. LICENSE-MPL.txt.
-
-Контент, добавленный в этот репозиторий после коммита 2fca06eaba205ae6fe3aceb8ae2a0594f0effee0, лицензируется под GNU Affero General Public License версии 3.0, если не указано иное. См. LICENSE-AGPLv3.txt.
-
-Контент, добавленный в этот репозиторий до коммита 2fca06eaba205ae6fe3aceb8ae2a0594f0effee0, лицензируется под лицензией MIT, если не указано иное. См. LICENSE-MIT.txt.
-
-Коммит 2fca06eaba205ae6fe3aceb8ae2a0594f0effee0 был отправлен 1 июля 2024 года в 16:04 UTC.
-
-Большинство ассетов лицензированы под CC-BY-SA 3.0, если не указано иное. Ассеты имеют информацию о лицензии и авторских правах в файле метаданных. Пример.
-
-Обратите внимание, что некоторые ассеты лицензированы под некоммерческой лицензией CC-BY-NC-SA 3.0 или похожими некоммерческими лицензиями, и их необходимо удалить, если вы хотите использовать этот проект в коммерческих целях.
-
-Обратите внимание, что некоторые ассеты лицензированы под All rights reserved т.е. всё права на их использование, копирование, изменение остаются за Corvax Forge данные ассеты необходимо удалить, если вы хотите использовать данный проект.
-
+- Do not rebuild/replace existing KIAS topology, access, sensors, PDC or physical prerequisite systems when they can be reused.
+- Preserve the corrected KIAS access model and standard wire hacking from the first patch.
+- Controller execution is server-authoritative and event-driven.
+- No per-node ECS entities or per-node `Update()` loops.
+- Rack has exactly 8 slots and real dynamic power use.
+- ANY/ALL matching never crosses the rack's current grid.
+- Portable default automations use ANY/ALL instead of concrete UIDs wherever possible.
+- Existing KIAS protocols are migrated to graphs; do not leave a second hidden rule engine active in parallel.
+- Heavy subsystem algorithms (PDC interception, sensor physics, etc.) remain in optimized systems and are orchestrated by graphs.
+- Target scaling remains roughly 200 KIAS-equipped grids.

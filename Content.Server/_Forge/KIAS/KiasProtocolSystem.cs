@@ -3,6 +3,8 @@ using Content.Server.Atmos.Monitor.Components;
 using Content.Server.Atmos.Monitor.Systems;
 using Content.Server.Radio.EntitySystems;
 using Content.Shared._Forge.KIAS;
+using Content.Shared._Forge.KIAS.Controllers;
+using Content.Server._Forge.KIAS.Controllers;
 using Content.Shared.Atmos.Monitor;
 using Content.Shared.DeviceLinking;
 using Content.Shared.DeviceLinking.Events;
@@ -16,6 +18,21 @@ namespace Content.Server._Forge.KIAS;
 
 public sealed class KiasProtocolSystem : EntitySystem
 {
+    public void SetAlert(EntityUid grid, KiasAlert alert)
+    {
+        if (TryProtocol(grid, out var protocols)) protocols.Alert = alert;
+    }
+    public void ResetAlert(EntityUid grid)
+    {
+        if (!TryProtocol(grid, out var protocols)) return;
+        protocols.Alert = KiasAlert.Normal;
+        protocols.MaydayReason = string.Empty;
+        protocols.CriticalLatched = false;
+        _shuttles.SetKiasMayday(grid, false);
+        if (Comp<KiasGridComponent>(grid).Core is { } core)
+            EntityManager.System<KiasControllerIoSystem>().Emit(core, "Automation", "AlertReset", KiasGraphValue.Pulse);
+        _display.RefreshOpen(grid);
+    }
     [Dependency] private KiasSystem _kias = default!;
     [Dependency] private KiasSafetySystem _safety = default!;
     [Dependency] private KiasCrewSystem _crew = default!;
@@ -252,6 +269,16 @@ public sealed class KiasProtocolSystem : EntitySystem
             return;
         try
         {
+            if (Comp<KiasGridComponent>(grid).Core is { } source)
+            {
+                var controllers = EntityManager.System<KiasControllerIoSystem>();
+                controllers.Emit(source, "Automation", "Message", KiasGraphValue.String(message ?? Loc.GetString($"kias-trigger-{trigger.ToString().ToLowerInvariant()}")));
+                controllers.Emit(source, "Automation", "Value", KiasGraphValue.Numeric(value));
+                controllers.Emit(source, "Automation", "Disposition", KiasGraphValue.Enumeration(disposition is { } contact ? (int) contact : -1));
+                controllers.Emit(source, "Automation", "CrewUnavailable", KiasGraphValue.Boolean(_crew.CrewUnavailable(grid)));
+                controllers.Emit(source, "Automation", "EventKey", KiasGraphValue.String(eventKey ?? string.Empty));
+                controllers.Emit(source, "Automation", trigger.ToString(), KiasGraphValue.Pulse);
+            }
             if (trigger is KiasTrigger.HullImpact or KiasTrigger.Collision or KiasTrigger.Manual || trigger == KiasTrigger.WeaponFlash && disposition == KiasContactDisposition.Hostile)
                 protocols.Alert = (KiasAlert) Math.Max((int) protocols.Alert, (int) KiasAlert.Battle);
             else if (trigger is KiasTrigger.CrewCritical or KiasTrigger.CrewDead or KiasTrigger.VesselCritical or KiasTrigger.AtmosDanger or KiasTrigger.Fire or KiasTrigger.Boarding)

@@ -23,9 +23,22 @@ public sealed partial class DeviceLinkSystem : SharedDeviceLinkSystem
     }
 
     #region Sending & Receiving
+    public bool InvokeSink(EntityUid source, EntityUid target, string port, NetworkPayload? data = null)
+    {
+        if (!TryComp<DeviceLinkSourceComponent>(source, out var sourceComp)
+            || !TryComp<DeviceLinkSinkComponent>(target, out var sink) || !sink.Ports.Contains(port)) return false;
+        InvokeDirect((source, sourceComp), (target, sink), "Controller", port, data);
+        return true;
+    }
+
     public override void InvokePort(EntityUid uid, string port, NetworkPayload? data = null, DeviceLinkSourceComponent? sourceComponent = null)
     {
-        if (!Resolve(uid, ref sourceComponent) || !sourceComponent.Outputs.TryGetValue(port, out var sinks))
+        if (!Resolve(uid, ref sourceComponent) || !sourceComponent.Ports.Contains(port))
+            return;
+
+        var invoked = new DeviceLinkPortInvokedEvent(port, data);
+        RaiseLocalEvent(uid, ref invoked);
+        if (!sourceComponent.Outputs.TryGetValue(port, out var sinks))
             return;
 
         foreach (var sinkUid in sinks)

@@ -1,6 +1,8 @@
 using System.Linq;
 using System.Numerics;
 using Content.Shared._Forge.KIAS;
+using Content.Shared._Forge.KIAS.Controllers;
+using Content.Server._Forge.KIAS.Controllers;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Timing;
@@ -12,6 +14,7 @@ public sealed class KiasExternalSensorSystem : EntitySystem
     [Dependency] private KiasSystem _kias = default!;
     [Dependency] private KiasNavigationSystem _navigation = default!;
     [Dependency] private KiasSafetySystem _safety = default!;
+    [Dependency] private KiasControllerIoSystem _controllers = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
     [Dependency] private SharedMapSystem _map = default!;
@@ -96,7 +99,7 @@ public sealed class KiasExternalSensorSystem : EntitySystem
         foreach (var detector in _flashLookup)
         {
             if (!_kias.IsOnline(detector) || Transform(detector).GridUid is not { } grid || grid == sourceGrid
-                || !_kias.HasRole(grid, KiasDeviceRole.Defence) || _announced.Contains(grid))
+                || !_kias.HasRole(grid, KiasDeviceRole.Defence))
                 continue;
             var position = _transform.GetMapCoordinates(detector);
             var offset = source.Position - position.Position;
@@ -106,8 +109,12 @@ public sealed class KiasExternalSensorSystem : EntitySystem
             var forward = _transform.GetWorldRotation(detector).ToWorldVec();
             if (Vector2.Dot(Vector2.Normalize(offset), forward) < MathF.Cos(MathF.PI / 4))
                 continue;
-            _announced.Add(grid);
             var disposition = sourceGrid is { } ship ? _navigation.Classify(grid, ship) : KiasContactDisposition.Unknown;
+            _controllers.Emit(detector, "WeaponFlashDetector", "Source", KiasGraphValue.Reference(sourceUid));
+            _controllers.Emit(detector, "WeaponFlashDetector", "Disposition", KiasGraphValue.Enumeration((int) disposition));
+            _controllers.Emit(detector, "WeaponFlashDetector", "Triggered", KiasGraphValue.Pulse);
+            if (!_announced.Add(grid))
+                continue;
             var ev = new KiasWeaponFlashEvent(grid, sourceUid, disposition);
             RaiseLocalEvent(grid, ref ev, true);
         }
@@ -148,7 +155,12 @@ public sealed class KiasExternalSensorSystem : EntitySystem
                 current.Add(contact);
                 if (sensor.Contacts.Contains(contact))
                     continue;
-                var ev = new KiasProximityEvent(grid, contact, distance, _navigation.Classify(grid, contact));
+                var disposition = _navigation.Classify(grid, contact);
+                _controllers.Emit(uid, "ProximitySensor", "ContactEntity", KiasGraphValue.Reference(contact));
+                _controllers.Emit(uid, "ProximitySensor", "Distance", KiasGraphValue.Numeric(distance));
+                _controllers.Emit(uid, "ProximitySensor", "Disposition", KiasGraphValue.Enumeration((int) disposition));
+                _controllers.Emit(uid, "ProximitySensor", "Contact", KiasGraphValue.Pulse);
+                var ev = new KiasProximityEvent(grid, contact, distance, disposition);
                 RaiseLocalEvent(grid, ref ev, true);
             }
             sensor.Contacts.Clear();

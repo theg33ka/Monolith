@@ -2,6 +2,8 @@ using System.Linq;
 using Content.Server.Shuttles.Events;
 using Content.Server.Shuttles.Systems;
 using Content.Shared._Forge.KIAS;
+using Content.Shared._Forge.KIAS.Controllers;
+using Content.Server._Forge.KIAS.Controllers;
 using Content.Shared._Mono.Company;
 using Content.Shared.NPC.Prototypes;
 using Content.Shared.NPC.Systems;
@@ -37,7 +39,7 @@ public sealed class KiasNavigationSystem : EntitySystem
         foreach (var horizon in _lookup.GetEntitiesInRange<KiasHorizonComponent>(arrival, 2000f))
         {
             if (!_kias.IsOnline(horizon) || Transform(horizon).GridUid is not { } grid || grid == args.Entity
-                || !_kias.HasRole(grid, KiasDeviceRole.Navigation) || announced.Contains(grid))
+                || !_kias.HasRole(grid, KiasDeviceRole.Navigation))
                 continue;
             var position = _transform.GetMapCoordinates(horizon);
             if (position.MapId != arrival.MapId)
@@ -46,8 +48,14 @@ public sealed class KiasNavigationSystem : EntitySystem
             var range = Math.Clamp(horizon.Comp.Range, 0, 2000f);
             if (offset.LengthSquared() > range * range)
                 continue;
-            announced.Add(grid);
             var ev = new KiasBluespaceDisturbanceEvent(grid, args.Entity, offset.Length(), (Angle.FromWorldVec(offset).Degrees + 360) % 360, Classify(grid, args.Entity));
+            var controllers = EntityManager.System<KiasControllerIoSystem>();
+            controllers.Emit(horizon, "Horizon", "ContactEntity", KiasGraphValue.Reference(args.Entity));
+            controllers.Emit(horizon, "Horizon", "Distance", KiasGraphValue.Numeric(ev.Distance));
+            controllers.Emit(horizon, "Horizon", "Bearing", KiasGraphValue.Numeric(ev.Bearing));
+            controllers.Emit(horizon, "Horizon", "Disposition", KiasGraphValue.Enumeration((int) ev.Disposition));
+            controllers.Emit(horizon, "Horizon", "Contact", KiasGraphValue.Pulse);
+            if (!announced.Add(grid)) continue;
             RaiseLocalEvent(grid, ref ev, true);
         }
     }

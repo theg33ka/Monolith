@@ -444,6 +444,8 @@
 - type: latheRecipePack
   id: KiasBoards
   recipes:
+  - KiasControllerRackBoard
+  - KiasControllerProgrammerBoard
   - KiasManagementConsoleBoard
   - KiasFlipFlopBoard
   - KiasEmergencyReceiverBoard
@@ -486,6 +488,7 @@
 - type: latheRecipePack
   id: KiasTools
   recipes:
+  - KiasProgrammableController
   - KiasServiceTool
   - KiasMasterKey
   - KiasCrewTransponder

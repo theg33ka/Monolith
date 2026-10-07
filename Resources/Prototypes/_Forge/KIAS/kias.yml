@@ -286,6 +286,7 @@
   parent: BaseKiasServer
   name: KIAS atmosphere server
   components:
+  - type: KiasAtmosProfile
   - type: Machine
     board: KiasAtmosServerBoard
   - type: KiasDevice
@@ -296,6 +297,7 @@
   parent: BaseKiasServer
   name: KIAS power server
   components:
+  - type: KiasPowerProfile
   - type: Machine
     board: KiasPowerServerBoard
   - type: KiasDevice
@@ -324,6 +326,7 @@
   parent: BaseKiasServer
   name: KIAS navigation server
   components:
+  - type: KiasNavigationProfile
   - type: Machine
     board: KiasNavigationServerBoard
   - type: KiasDevice
