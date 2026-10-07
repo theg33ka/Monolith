@@ -74,7 +74,7 @@ public sealed partial class KiasControllerIoSystem
                         && TryComp<KiasProtocolComponent>(core, out var state)) requested = (KiasAlert) Math.Max((int) requested, (int) state.Alert);
                     EntityManager.System<KiasProtocolSystem>().SetAlert(grid, requested);
                 }
-                else if (port == "Manual") EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.Manual);
+                else if (port == "RunManual") EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.Manual);
                 else if (port == "SetQuietMode") EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.QuietMode);
                 else if (port == "ResetAlert") EntityManager.System<KiasProtocolSystem>().ResetAlert(grid);
                 break;

@@ -99,7 +99,8 @@ public sealed class KiasGraphCanvas : Control
             if (!rect.Intersects(UIBox2.FromDimensions(Vector2.Zero, PixelSize))) continue;
             handle.DrawRect(rect, _selected == node.Id ? new Color(.22f, .29f, .38f) : new Color(.12f, .15f, .20f));
             handle.DrawRect(rect, _selected == node.Id ? Color.Cyan : Color.Gray, false);
-            var title = KiasGraphCatalog.External(node.Kind) ? $"{node.Kind.ToString().ToUpperInvariant()} {node.Profile}" : Loc.GetString($"kias-controller-node-{node.Kind.ToString().ToLowerInvariant()}");
+            var title = KiasGraphCatalog.External(node.Kind) ? $"{node.Kind.ToString().ToUpperInvariant()} {KiasControllerLabels.Profile(node.Profile, node.Ports)}" : Loc.GetString($"kias-controller-node-{node.Kind.ToString().ToLowerInvariant()}");
+            if (title.Length > 32) title = title[..31] + "…";
             handle.DrawString(_font, top + new Vector2(8, 18) * (_zoom * UIScale), title, _zoom * UIScale, Color.White);
             var detail = KiasGraphCatalog.External(node.Kind) ? $"{node.DeviceName} [{node.Matched}]" : $"#{node.Id}";
             handle.DrawString(_font, top + new Vector2(8, 35) * (_zoom * UIScale), detail, _zoom * UIScale, Color.LightGray);

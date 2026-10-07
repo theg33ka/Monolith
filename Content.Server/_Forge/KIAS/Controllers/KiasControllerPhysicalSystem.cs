@@ -93,6 +93,7 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
     private void OnRackExamine(Entity<KiasControllerRackComponent> ent, ref ExaminedEvent args)
     {
         args.PushMarkup(Loc.GetString("kias-controller-rack-examine", ("count", Inserted(ent)),
+            ("running", EntityManager.System<KiasControllerRuntimeSystem>().RunningCount(ent)),
             ("load", ent.Comp.CurrentLoad), ("status", Loc.GetString(_kias.IsOnline(ent) ? "kias-status-online" : "kias-status-offline"))));
     }
 

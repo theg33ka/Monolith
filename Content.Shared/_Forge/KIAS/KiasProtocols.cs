@@ -95,6 +95,7 @@ public sealed class KiasProtocolMessage : BoundUserInterfaceMessage
 public sealed class KiasControlMessage : BoundUserInterfaceMessage
 {
     public bool Reset;
+    public bool Quiet;
 }
 
 [Serializable, NetSerializable]
@@ -110,3 +111,13 @@ public readonly record struct KiasFireDetectedEvent(EntityUid Grid, EntityUid So
 
 [ByRefEvent]
 public readonly record struct KiasProtocolFiredEvent(EntityUid Grid, KiasTrigger Trigger, int Index, string PresetId, string Source);
+[Serializable, NetSerializable]
+public sealed class KiasProtocolActionView
+{
+    public KiasActionKind Kind;
+    public NetEntity? Target;
+    public string Group = string.Empty;
+    public string Port = string.Empty;
+    public string Message = string.Empty;
+    public bool Value = true;
+}

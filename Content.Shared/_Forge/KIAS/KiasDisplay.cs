@@ -68,47 +68,7 @@ public sealed class KiasManagementState : BoundUserInterfaceState
     public string Navigation = string.Empty;
     public string Faults = string.Empty;
     public string Alert = string.Empty;
-    public bool ProtocolsAvailable;
-    public uint ProtocolRevision;
-    public List<KiasProtocolView> Protocols = new();
-    public List<KiasUiTarget> Targets = new();
-}
-
-[Serializable, NetSerializable]
-public sealed class KiasUiTarget
-{
-    public NetEntity Entity;
-    public string Name = string.Empty;
-}
-
-[Serializable, NetSerializable]
-public sealed class KiasProtocolView
-{
-    public string PresetId = string.Empty;
-    public List<KiasProtocolActionView> Actions = new();
-    public KiasTrigger Trigger;
-    public KiasContactDisposition? Disposition;
-    public float MinimumValue;
-    public bool RequireCrewUnavailable;
-    public KiasActionKind Action;
-    public NetEntity? Target;
-    public string Group = string.Empty;
-    public string Port = string.Empty;
-    public string Message = string.Empty;
-    public bool Value;
-    public bool Enabled;
-    public float Cooldown;
-}
-
-[Serializable, NetSerializable]
-public sealed class KiasProtocolActionView
-{
-    public KiasActionKind Kind;
-    public NetEntity? Target;
-    public string Group = string.Empty;
-    public string Port = string.Empty;
-    public string Message = string.Empty;
-    public bool Value = true;
+    public string Automation = string.Empty;
 }
 
 [Serializable, NetSerializable]

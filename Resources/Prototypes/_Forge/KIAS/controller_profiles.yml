@@ -12,6 +12,7 @@
   - { id: AnomalyGrowth, direction: Output, type: Signal, name: kias-controller-port-anomalygrowth, description: kias-controller-port-description }
   - { id: Radiation, direction: Output, type: Signal, name: kias-controller-port-radiation, description: kias-controller-port-description }
   - { id: Threat, direction: Output, type: Signal, name: kias-controller-port-threat, description: kias-controller-port-description }
+  - { id: FaunaThreat, direction: Output, type: Signal, name: kias-controller-port-faunathreat, description: kias-controller-port-description }
 
 - type: kiasControllerProfile
   id: HullSensor
@@ -226,10 +227,10 @@
   - { id: Message, direction: Output, type: String, name: kias-controller-port-message, description: kias-controller-port-description }
   - { id: Value, direction: Output, type: Number, name: kias-controller-port-value, description: kias-controller-port-description }
   - { id: Disposition, direction: Output, type: Enum, name: kias-controller-port-disposition, description: kias-controller-port-description }
-  - { id: CrewUnavailable, direction: Output, type: Bool, name: kias-controller-port-crewunavailable, description: kias-controller-port-description }
+  - { id: AllCrewUnavailable, direction: Output, type: Bool, name: kias-controller-port-allcrewunavailable, description: kias-controller-port-description }
   - { id: Alert, direction: Input, type: Enum, name: kias-controller-port-alert, description: kias-controller-port-description }
   - { id: SetAlert, direction: Input, type: Signal, name: kias-controller-port-setalert, description: kias-controller-port-description }
   - { id: EscalateAlert, direction: Input, type: Signal, name: kias-controller-port-escalatealert, description: kias-controller-port-description }
   - { id: EventKey, direction: Output, type: String, name: kias-controller-port-eventkey, description: kias-controller-port-description }
-  - { id: Manual, direction: Input, type: Signal, name: kias-controller-port-manual, description: kias-controller-port-description }
+  - { id: RunManual, direction: Input, type: Signal, name: kias-controller-port-runmanual, description: kias-controller-port-description }
   - { id: ResetAlert, direction: Input, type: Signal, name: kias-controller-port-resetalert, description: kias-controller-port-description }

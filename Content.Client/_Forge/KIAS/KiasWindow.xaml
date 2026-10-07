@@ -1,7 +1,7 @@
 <controls:FancyWindow xmlns="https://spacestation14.io"
                       xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
                       xmlns:kias="clr-namespace:Content.Client._Forge.KIAS"
-                      Title="{Loc 'kias-window-title'}" SetSize="900 650" Resizable="True">
+                      Title="{Loc 'kias-window-title'}" SetSize="900 650" MinSize="650 450" Resizable="True">
     <BoxContainer Orientation="Vertical" Margin="8">
         <Label Name="Status"/>
         <Label Name="Counts" Margin="0 8"/>
@@ -13,37 +13,12 @@
                     <Label Name="Devices"/>
                     <Label Name="EventLog"/>
                     <BoxContainer Name="AudioPanel" Orientation="Vertical" Margin="0 8"/>
-                    <BoxContainer Name="ProtocolEditor" Orientation="Vertical" Visible="False" Margin="0 12">
-                        <Label Text="{Loc 'kias-protocols-title'}"/>
-                        <BoxContainer Orientation="Horizontal">
-                            <Button Name="RunManual" Text="{Loc 'kias-run-manual'}"/>
-                            <Button Name="ResetAlert" Text="{Loc 'kias-reset-alert'}"/>
-                        </BoxContainer>
-                        <OptionButton Name="ProtocolPicker"/>
-                        <Label Text="{Loc 'kias-protocol-trigger'}"/>
-                        <OptionButton Name="TriggerPicker"/>
-                        <OptionButton Name="DispositionPicker"/>
-                        <LineEdit Name="MinimumInput" Text="0" PlaceHolder="{Loc 'kias-protocol-minimum'}"/>
-                        <CheckBox Name="CrewUnavailable" Text="{Loc 'kias-protocol-crew-unavailable'}"/>
-                        <Label Text="{Loc 'kias-protocol-action'}"/>
-                        <OptionButton Name="ActionListPicker"/>
-                        <BoxContainer Orientation="Horizontal">
-                            <Button Name="AddAction" Text="{Loc 'kias-add-action'}"/>
-                            <Button Name="RemoveAction" Text="{Loc 'kias-remove-action'}"/>
-                        </BoxContainer>
-                        <OptionButton Name="ActionPicker"/>
-                        <Label Text="{Loc 'kias-protocol-target'}"/>
-                        <OptionButton Name="TargetPicker"/>
-                        <LineEdit Name="GroupInput" PlaceHolder="{Loc 'kias-protocol-group'}"/>
-                        <LineEdit Name="PortInput" PlaceHolder="{Loc 'kias-protocol-port'}"/>
-                        <LineEdit Name="ProtocolMessage" PlaceHolder="{Loc 'kias-custom-message'}"/>
-                        <LineEdit Name="CooldownInput" PlaceHolder="{Loc 'kias-protocol-cooldown'}" Text="10"/>
-                        <CheckBox Name="ProtocolEnabled" Text="{Loc 'kias-protocol-enabled'}" Pressed="True"/>
-                        <CheckBox Name="ActionValue" Text="{Loc 'kias-protocol-value'}" Pressed="True"/>
-                        <BoxContainer Orientation="Horizontal">
-                            <Button Name="SaveProtocol" Text="{Loc 'kias-save'}"/>
-                            <Button Name="RemoveProtocol" Text="{Loc 'kias-remove'}"/>
-                        </BoxContainer>
+                    <Label Name="Automation"/>
+                    <Label Text="{Loc 'kias-controller-management-help'}"/>
+                    <BoxContainer Orientation="Horizontal">
+                        <Button Name="RunManual" Text="{Loc 'kias-run-manual'}"/>
+                        <Button Name="RunQuiet" Text="{Loc 'kias-controller-quiet'}"/>
+                        <Button Name="ResetAlert" Text="{Loc 'kias-reset-alert'}"/>
                     </BoxContainer>
                 </BoxContainer>
             </ScrollContainer>

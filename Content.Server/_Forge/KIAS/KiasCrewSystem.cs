@@ -471,6 +471,7 @@ public sealed class KiasCrewSystem : EntitySystem
                             || !TryComp<MobStateComponent>(creature, out var state) || state.CurrentState != MobState.Alive
                             || !watched.Any(person => !TerminatingOrDeleted(person) && HasCoverage(grid, person, KiasScannerModules.Threat)
                                 && EntityManager.System<NpcFactionSystem>().IsHostileFactionMember(creature, person))) continue;
+                        EntityManager.System<KiasControllerIoSystem>().Emit(device, "RoomScanner", "FaunaThreat", KiasGraphValue.Pulse);
                         if (_armed.Add(creature)) EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.LocalThreat,
                             message: Loc.GetString("kias-local-threat", ("location", EntityManager.System<KiasSafetySystem>().Location(grid, creature))), eventKey: creature.ToString());
                     }

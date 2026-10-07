@@ -206,4 +206,57 @@ public sealed class KiasGraphTests
         Assert.That(program.Nodes[0].Config.Number, Is.Zero);
         Assert.That(program.Wires[0].FromPort, Is.EqualTo("Pulse"));
     }
+    [Test]
+    public void CooldownKeepsIndependentSourceKeysAndBoundsUntrustedStreams()
+    {
+        var program = Program(KiasNodeKind.Cooldown, KiasNodeKind.All);
+        Wire(program, 1, "Ready", 2, "Trigger");
+        var commands = 0;
+        var machine = Machine(program, (_, port, _) => { if (port == "Trigger") commands++; });
+        foreach (var key in new[] { "fore", "aft", "fore" })
+        {
+            machine.Input(1, "Key", KiasGraphValue.String(key));
+            machine.Input(1, "Trigger", KiasGraphValue.Pulse);
+        }
+        Assert.That(commands, Is.EqualTo(2));
+        machine.Input(1, "Reset", KiasGraphValue.Pulse);
+        machine.Input(1, "Trigger", KiasGraphValue.Pulse);
+        Assert.That(commands, Is.EqualTo(3));
+        for (var i = 0; i < 512; i++)
+        {
+            machine.Input(1, "Key", KiasGraphValue.String($"source-{i}"));
+            machine.Input(1, "Trigger", KiasGraphValue.Pulse);
+        }
+        Assert.That(machine.Active, Is.False);
+        Assert.That(machine.Fault, Is.EqualTo("cooldown-budget"));
+    }
+
+    [Test]
+    public void StringLatchStoresBeforePulseAndResetsOnColdBoot()
+    {
+        var program = Program(KiasNodeKind.StringLatch, KiasNodeKind.All);
+        program.Nodes[0].Config.Text = "initial";
+        Wire(program, 1, "Stored", 2, "Message");
+        Wire(program, 1, "Saved", 2, "Trigger");
+        KiasGraphMachine machine = null!;
+        string? captured = null;
+        var compiled = KiasGraphCompiler.Compile(program, Profile);
+        Assert.That(compiled.Errors, Is.Empty);
+        machine = new(compiled.Graph!, (_, port, _) =>
+        {
+            if (port == "Trigger") captured = machine.InputValue(2, "Message").Text;
+        }, (_, _, _) => { }, () => 10);
+        machine.Start();
+        machine.Input(1, "Value", KiasGraphValue.String("distress reason"));
+        Assert.That(machine.Value(1, "Stored").Text, Is.EqualTo("initial"));
+        machine.Input(1, "Store", KiasGraphValue.Pulse);
+        Assert.That(captured, Is.EqualTo("distress reason"));
+        machine.Input(1, "Value", KiasGraphValue.String("later event"));
+        Assert.That(machine.Value(1, "Stored").Text, Is.EqualTo("distress reason"));
+        machine.Start();
+        Assert.That(machine.Value(1, "Stored").Text, Is.EqualTo("initial"));
+        machine.Input(1, "Store", KiasGraphValue.Pulse);
+        Assert.That(machine.Value(1, "Stored").Type, Is.EqualTo(KiasPortType.String));
+        Assert.That(machine.Value(1, "Stored").Text, Is.Empty);
+    }
 }

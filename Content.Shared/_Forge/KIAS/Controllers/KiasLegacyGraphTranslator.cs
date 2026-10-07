@@ -45,7 +45,7 @@ public static class KiasLegacyGraphTranslator
         if (record.RequireCrewUnavailable)
         {
             var both = Node(KiasNodeKind.And, column: 2, row: 2);
-            Wire(condition, "Value", both, "A"); Wire(source, "CrewUnavailable", both, "B"); condition = both;
+            Wire(condition, "Value", both, "A"); Wire(source, "AllCrewUnavailable", both, "B"); condition = both;
         }
         var gate = Node(KiasNodeKind.If, column: 3);
         Wire(condition, "Value", gate, "Condition");

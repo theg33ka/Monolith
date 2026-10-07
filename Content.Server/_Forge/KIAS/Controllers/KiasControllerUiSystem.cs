@@ -19,8 +19,11 @@ public sealed class KiasControllerUiSystem : EntitySystem
     [Dependency] private ItemSlotsSystem _slots = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
 
+    private readonly HashSet<EntityUid> _openProgrammers = new();
+
     public override void Initialize()
     {
+        SubscribeLocalEvent<KiasTopologyChangedEvent>(OnTopology, after: new[] { typeof(KiasControllerRuntimeSystem) });
         SubscribeLocalEvent<KiasControllerProgrammerComponent, BoundUIOpenedEvent>(OnOpen);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, BoundUIClosedEvent>(OnClose);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, KiasControllerEditMessage>(OnEdit);
@@ -40,6 +43,7 @@ public sealed class KiasControllerUiSystem : EntitySystem
             _ui.CloseUi(ent.Owner, args.UiKey, args.Actor);
             return;
         }
+        _openProgrammers.Add(ent.Owner);
         ent.Comp.Editor = args.Actor;
         Refresh(ent);
     }
@@ -47,6 +51,18 @@ public sealed class KiasControllerUiSystem : EntitySystem
     private void OnClose(Entity<KiasControllerProgrammerComponent> ent, ref BoundUIClosedEvent args)
     {
         if (ent.Comp.Editor == args.Actor) ent.Comp.Editor = null;
+        if (!_ui.IsUiOpen(ent.Owner, KiasControllerUiKey.Programmer)) _openProgrammers.Remove(ent.Owner);
+    }
+
+    private void OnTopology(ref KiasTopologyChangedEvent args)
+    {
+        foreach (var uid in _openProgrammers.ToArray())
+        {
+            if (TerminatingOrDeleted(uid) || !_ui.IsUiOpen(uid, KiasControllerUiKey.Programmer))
+            { _openProgrammers.Remove(uid); continue; }
+            if (Transform(uid).GridUid == args.Grid && TryComp<KiasControllerProgrammerComponent>(uid, out var programmer))
+                Refresh((uid, programmer));
+        }
     }
 
     public void Refresh(Entity<KiasControllerProgrammerComponent> ent)
@@ -92,7 +108,7 @@ public sealed class KiasControllerUiSystem : EntitySystem
         if (state.Online && Transform(ent).GridUid is { } current)
             foreach (var profile in state.Profiles)
                 foreach (var uid in _io.Devices(current, profile.Id).Take(256))
-                    if (_kias.IsOnline(uid)) state.Devices.Add(new() { Entity = GetNetEntity(uid), Name = Name(uid), Profile = profile.Id });
+                    if (state.Devices.Count < 256 && _kias.IsOnline(uid)) state.Devices.Add(new() { Entity = GetNetEntity(uid), Name = Name(uid), Profile = profile.Id });
         _ui.SetUiState(ent.Owner, KiasControllerUiKey.Programmer, state);
     }
 

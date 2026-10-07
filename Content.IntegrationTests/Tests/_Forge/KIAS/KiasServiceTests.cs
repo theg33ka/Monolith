@@ -65,7 +65,7 @@ public sealed class KiasServiceTests
     }
 
     [Test]
-    public async Task OwnerConfigurationRejectsForeignTargetsAndClientWindowBuilds()
+    public async Task OwnerConfigurationRejectsRetiredProtocolEditsAndClientWindowBuilds()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Dirty = true });
         var map = await pair.CreateTestMap();
@@ -139,21 +139,10 @@ public sealed class KiasServiceTests
             Assert.That(protocols.Protocols, Is.Empty);
             edit.Target = null;
             em.EventBus.RaiseLocalEvent(display, edit);
-            Assert.That(protocols.Protocols, Has.Count.EqualTo(1));
-            edit.Actions = new()
-            {
-                new() { Kind = KiasActionKind.Record, Message = "first" },
-                new() { Kind = KiasActionKind.Lights, Group = "EMERGENCY", Value = false },
-                new() { Kind = KiasActionKind.Record, Message = "third" },
-            };
+            Assert.That(protocols.Protocols, Is.Empty, "The retired editor cannot create invisible policies, even for an owner.");
+            edit.Actions = new() { new() { Kind = KiasActionKind.Record, Message = "retired" } };
             em.EventBus.RaiseLocalEvent(display, edit);
-            Assert.That(protocols.Protocols[0].Actions.Select(action => action.Message), Is.EqualTo(new[] { "first", "", "third" }));
-            edit.Actions.RemoveAt(1);
-            em.EventBus.RaiseLocalEvent(display, edit);
-            Assert.That(protocols.Protocols[0].Actions, Has.Count.EqualTo(2));
-            edit.Actions[1].Target = em.GetNetEntity(foreign);
-            em.EventBus.RaiseLocalEvent(display, edit);
-            Assert.That(protocols.Protocols[0].Actions[1].Target, Is.Null);
+            Assert.That(protocols.Protocols, Is.Empty);
             var audio = em.GetComponent<KiasAudioComponent>(core);
             var audioEdit = new KiasAudioSettingsMessage { Actor = stranger, Channel = KiasAudioChannel.Emergency, Preset = KiasTonePreset.Silent };
             em.EventBus.RaiseLocalEvent(display, audioEdit);
@@ -183,14 +172,13 @@ public sealed class KiasServiceTests
         await pair.Client.WaitAssertion(() =>
         {
             using var window = new KiasWindow();
-            var state = new KiasManagementState { Online = true, ProtocolsAvailable = true, Entities = 4, Crew = 2 };
-            state.Protocols.Add(new KiasProtocolView { Trigger = KiasTrigger.Fire, Action = KiasActionKind.Suppression, Cooldown = 10, Enabled = true });
+            var state = new KiasManagementState { Online = true, Entities = 4, Crew = 2 };
             Assert.DoesNotThrow(() => window.UpdateState(state));
             using var serviceWindow = new KiasServiceWindow();
             Assert.DoesNotThrow(() => serviceWindow.UpdateState(new KiasServiceState { Mode = KiasServiceMode.Link, Message = "Local only" }));
             using var scannerWindow = new KiasScannerWindow();
             Assert.DoesNotThrow(() => scannerWindow.UpdateState(new KiasScannerState { Range = 7, Modules = KiasScannerModules.Motion }));
-            state.ProtocolRevision++;
+            state.Automation = "2 cards";
             Assert.DoesNotThrow(() => window.UpdateState(state));
         });
         await pair.CleanReturnAsync();

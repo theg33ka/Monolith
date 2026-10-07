@@ -36,12 +36,8 @@ public sealed class KiasProtocolSystem : EntitySystem
     [Dependency] private KiasSystem _kias = default!;
     [Dependency] private KiasSafetySystem _safety = default!;
     [Dependency] private KiasCrewSystem _crew = default!;
-    [Dependency] private KiasActuatorSystem _actuators = default!;
-    [Dependency] private KiasRelaySystem _relays = default!;
-    [Dependency] private KiasDefenceSystem _defence = default!;
     [Dependency] private RadioSystem _radio = default!;
     [Dependency] private SharedShuttleSystem _shuttles = default!;
-    [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private KiasDisplaySystem _display = default!;
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private KiasHullSystem _hull = default!;
@@ -64,11 +60,9 @@ public sealed class KiasProtocolSystem : EntitySystem
         SubscribeLocalEvent<MobStateChangedEvent>(OnMobState);
         SubscribeLocalEvent<AtmosAlarmEvent>(OnFireAlarm);
         SubscribeLocalEvent<KiasPowerDeficitEvent>(OnPowerDeficit);
-        SubscribeLocalEvent<KiasDisplayComponent, KiasProtocolMessage>(OnConfigure);
         SubscribeLocalEvent<KiasDisplayComponent, KiasControlMessage>(OnControl);
         SubscribeLocalEvent<KiasAvailabilityChangedEvent>(OnAvailability);
         SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoved);
-        SubscribeLocalEvent<KiasManagementComponent, KiasRunProtocolMessage>(OnRunProtocol);
     }
 
     private void OnImpact(ref KiasHullImpactEvent args)
@@ -91,27 +85,6 @@ public sealed class KiasProtocolSystem : EntitySystem
     private bool HasDistress(EntityUid grid, KiasProtocolComponent protocols) => protocols.DamageEvidenceUntil > _timing.CurTime
         || protocols.CrewDistressUntil > _timing.CurTime || EntityManager.System<KiasPowerSystem>().HasDeficit(grid)
         || _fireAlarms.Any(alarm => !TerminatingOrDeleted(alarm) && Transform(alarm).GridUid == grid);
-
-    private void OnRunProtocol(Entity<KiasManagementComponent> ent, ref KiasRunProtocolMessage args)
-    {
-        if (!_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.Actor)
-            || !TryProtocol(grid, out var config) || args.Index < 0 || args.Index >= config.Protocols.Count
-            || config.Cooldowns.GetValueOrDefault(args.Index) > _timing.CurTime || !_executing.Add(grid)) return;
-        try
-        {
-            var record = config.Protocols[args.Index];
-            if (record.RequireCrewUnavailable && !_crew.CrewUnavailable(grid)) return;
-            config.Cooldowns[args.Index] = _timing.CurTime + TimeSpan.FromSeconds(Math.Clamp(record.Cooldown, 1, 600));
-            var fired = new KiasProtocolFiredEvent(grid, record.Trigger, args.Index, record.PresetId, $"manual:{args.Index}");
-            RaiseLocalEvent(grid, ref fired, true);
-            foreach (var action in record.Actions.Take(8).ToArray())
-            {
-                if (!_kias.ActiveGrids.Contains(grid)) break;
-                Execute(grid, action, record.Trigger, null, $"manual:{args.Index}");
-            }
-        }
-        finally { _executing.Remove(grid); _display.RefreshOpen(grid); }
-    }
 
     private EntityUid Antenna(EntityUid grid) => TryComp<KiasGridComponent>(grid, out var runtime)
         ? runtime.Online.FirstOrDefault(uid => HasComp<KiasMaydayAntennaComponent>(uid) && _kias.IsOnline(uid)) : default;
@@ -154,7 +127,6 @@ public sealed class KiasProtocolSystem : EntitySystem
             if (protocols.MaydayReason.Length > 0)
             {
                 _shuttles.SetKiasMayday(grid, Antenna(grid).Valid);
-                if (protocols.MaydayAfter <= _timing.CurTime) Mayday(grid, protocols.MaydayReason);
             }
             if (!distress && protocols.MaydayReason.Length == 0) _emergencies.Remove(grid);
         }
@@ -265,152 +237,20 @@ public sealed class KiasProtocolSystem : EntitySystem
 
     public void Trigger(EntityUid grid, KiasTrigger trigger, KiasContactDisposition? disposition = null, float value = 0, string? message = null, string? eventKey = null)
     {
-        if (!TryProtocol(grid, out var protocols) || !_executing.Add(grid))
-            return;
+        if (!TryProtocol(grid, out _) || !_executing.Add(grid)) return;
         try
         {
-            if (Comp<KiasGridComponent>(grid).Core is { } source)
-            {
-                var controllers = EntityManager.System<KiasControllerIoSystem>();
-                controllers.Emit(source, "Automation", "Message", KiasGraphValue.String(message ?? Loc.GetString($"kias-trigger-{trigger.ToString().ToLowerInvariant()}")));
-                controllers.Emit(source, "Automation", "Value", KiasGraphValue.Numeric(value));
-                controllers.Emit(source, "Automation", "Disposition", KiasGraphValue.Enumeration(disposition is { } contact ? (int) contact : -1));
-                controllers.Emit(source, "Automation", "CrewUnavailable", KiasGraphValue.Boolean(_crew.CrewUnavailable(grid)));
-                controllers.Emit(source, "Automation", "EventKey", KiasGraphValue.String(eventKey ?? string.Empty));
-                controllers.Emit(source, "Automation", trigger.ToString(), KiasGraphValue.Pulse);
-            }
-            if (trigger is KiasTrigger.HullImpact or KiasTrigger.Collision or KiasTrigger.Manual || trigger == KiasTrigger.WeaponFlash && disposition == KiasContactDisposition.Hostile)
-                protocols.Alert = (KiasAlert) Math.Max((int) protocols.Alert, (int) KiasAlert.Battle);
-            else if (trigger is KiasTrigger.CrewCritical or KiasTrigger.CrewDead or KiasTrigger.VesselCritical or KiasTrigger.AtmosDanger or KiasTrigger.Fire or KiasTrigger.Boarding)
-                protocols.Alert = (KiasAlert) Math.Max((int) protocols.Alert, (int) KiasAlert.Emergency);
-            else if (trigger == KiasTrigger.Contact && protocols.Alert == KiasAlert.Normal)
-                protocols.Alert = KiasAlert.Contact;
-            foreach (var (record, index) in protocols.Protocols.Take(32).Select((p, i) => (p, i)))
-            {
-                var cooldown = eventKey == null ? protocols.Cooldowns.GetValueOrDefault(index)
-                    : protocols.EventCooldowns.GetValueOrDefault((index, eventKey));
-                if (!record.Enabled || record.Trigger != trigger || record.Disposition != null && record.Disposition != disposition
-                    || value < record.MinimumValue || cooldown > _timing.CurTime)
-                    continue;
-                if (record.RequireCrewUnavailable && (trigger is not (KiasTrigger.CrewCritical or KiasTrigger.CrewDead
-                        or KiasTrigger.VesselCritical or KiasTrigger.AtmosDanger or KiasTrigger.Fire or KiasTrigger.PowerDeficit or KiasTrigger.CrewUnavailable)
-                    || !_crew.CrewUnavailable(grid)))
-                    continue;
-                var due = _timing.CurTime + TimeSpan.FromSeconds(Math.Clamp(record.Cooldown, 1, 600));
-                if (eventKey == null) protocols.Cooldowns[index] = due;
-                else
-                {
-                    if (protocols.EventCooldowns.Count >= 512)
-                        foreach (var key in protocols.EventCooldowns.Where(pair => pair.Value <= _timing.CurTime).Select(pair => pair.Key).ToArray()) protocols.EventCooldowns.Remove(key);
-                    if (protocols.EventCooldowns.Count < 512) protocols.EventCooldowns[(index, eventKey)] = due;
-                }
-                var fired = new KiasProtocolFiredEvent(grid, trigger, index, record.PresetId, eventKey ?? "—");
-                RaiseLocalEvent(grid, ref fired, true);
-                foreach (var action in record.Actions.Take(8).ToArray())
-                {
-                    if (!_kias.ActiveGrids.Contains(grid))
-                        break;
-                    Execute(grid, action, trigger, message, eventKey);
-                }
-            }
+            if (Comp<KiasGridComponent>(grid).Core is not { } source) return;
+            var controllers = EntityManager.System<KiasControllerIoSystem>();
+            controllers.Emit(source, "Automation", "Message", KiasGraphValue.String(message ?? Loc.GetString($"kias-trigger-{trigger.ToString().ToLowerInvariant()}")));
+            controllers.Emit(source, "Automation", "Value", KiasGraphValue.Numeric(value));
+            controllers.Emit(source, "Automation", "Disposition", KiasGraphValue.Enumeration(disposition is { } contact ? (int) contact : -1));
+            controllers.Emit(source, "Automation", "AllCrewUnavailable", KiasGraphValue.Boolean(_crew.CrewUnavailable(grid)));
+            controllers.Emit(source, "Automation", "EventKey", KiasGraphValue.String(eventKey ?? string.Empty));
+            controllers.Emit(source, "Automation", trigger.ToString(), KiasGraphValue.Pulse);
         }
-        finally
-        {
-            _executing.Remove(grid);
-            _display.RefreshOpen(grid);
-        }
+        finally { _executing.Remove(grid); _display.RefreshOpen(grid); }
     }
-
-    private void Execute(EntityUid grid, KiasProtocolAction action, KiasTrigger trigger, string? notification, string? eventKey)
-    {
-        var message = string.IsNullOrWhiteSpace(action.Message) ? notification ?? Loc.GetString($"kias-trigger-{trigger.ToString().ToLowerInvariant()}") : action.Message[..Math.Min(action.Message.Length, 256)];
-        if (action.Kind == KiasActionKind.Announce || action.Kind == KiasActionKind.Record)
-        {
-            if (action.Target is { } speaker && (TerminatingOrDeleted(speaker) || Transform(speaker).GridUid != grid))
-                return;
-            _safety.Publish(grid, message, true, announce: action.Kind == KiasActionKind.Announce, speaker: action.Target,
-                group: action.Group, key: $"protocol:{trigger}:{eventKey}:{action.Target}:{action.Group}:{action.Message}",
-                channel: Channel(trigger), record: action.Kind == KiasActionKind.Record);
-            return;
-        }
-        if (Comp<KiasGridComponent>(grid).Testing)
-            return;
-        if (action.Kind == KiasActionKind.MedicalHelp)
-        {
-            MedicalHelp(grid, message);
-            return;
-        }
-        if (action.Kind == KiasActionKind.Mayday)
-        {
-            Mayday(grid, message);
-            return;
-        }
-        if (action.Kind == KiasActionKind.Lights)
-        {
-            var ev = new KiasSetLightGroupEvent(grid, action.Group, action.Value);
-            RaiseLocalEvent(grid, ref ev, true);
-            return;
-        }
-        if (action.Kind == KiasActionKind.Pdc && action.Target == null)
-        {
-            foreach (var server in Comp<KiasGridComponent>(grid).Online.ToArray())
-            {
-                if (HasComp<KiasDefenceComponent>(server))
-                    _defence.SetAutomatic(server, action.Value);
-            }
-            return;
-        }
-        if (action.Kind == KiasActionKind.FireLock)
-        {
-            foreach (var server in Comp<KiasGridComponent>(grid).Online)
-                if (_kias.IsOnline(server) && TryComp<KiasDefenceComponent>(server, out var defence)) defence.FireLock = action.Value;
-            return;
-        }
-        if (action.Target is not { } target || TerminatingOrDeleted(target) || Transform(target).GridUid != grid)
-            return;
-        if (HasComp<KiasDeviceComponent>(target) && !_kias.IsOnline(target)
-            && !(HasComp<KiasIntegratedComponent>(target) && EntityManager.System<KiasIntegrationSystem>().CanControl(target)))
-            return;
-        switch (action.Kind)
-        {
-            case KiasActionKind.Suppression:
-                _actuators.Suppress(target);
-                break;
-            case KiasActionKind.Relay:
-                _relays.SetClosed(target, action.Value);
-                break;
-            case KiasActionKind.Pdc:
-                _defence.SetAutomatic(target, action.Value);
-                break;
-            case KiasActionKind.Jammer:
-                if (_kias.HasRole(grid, KiasDeviceRole.Defence))
-                    EntityManager.System<JammerSystem>().SetEnabled(target, action.Value);
-                break;
-            case KiasActionKind.Decoy:
-                if (_kias.HasRole(grid, KiasDeviceRole.Defence))
-                    EntityManager.System<KiasCountermeasureSystem>().Deploy(target);
-                break;
-            case KiasActionKind.RestoreVentilation:
-                if (_kias.HasRole(grid, KiasDeviceRole.Atmosphere))
-                    EntityManager.System<KiasVentilationSystem>().Restore(target);
-                break;
-            case KiasActionKind.DevicePort:
-                if (TryComp<DeviceLinkSinkComponent>(target, out var sink) && sink.Ports.Any(p => p.ToString() == action.Port))
-                {
-                    var ev = new SignalReceivedEvent(action.Port, Comp<KiasGridComponent>(grid).Core);
-                    RaiseLocalEvent(target, ref ev);
-                }
-                break;
-        }
-    }
-
-    private static KiasAudioChannel Channel(KiasTrigger trigger) => trigger switch
-    {
-        KiasTrigger.HullImpact or KiasTrigger.Collision or KiasTrigger.WeaponFlash or KiasTrigger.Manual => KiasAudioChannel.Battle,
-        KiasTrigger.CrewCritical or KiasTrigger.CrewDead or KiasTrigger.VesselCritical or KiasTrigger.AtmosDanger or KiasTrigger.Fire => KiasAudioChannel.Emergency,
-        KiasTrigger.HullDamage or KiasTrigger.AnomalyGrowth or KiasTrigger.PowerDeficit or KiasTrigger.Proximity => KiasAudioChannel.Warning,
-        _ => KiasAudioChannel.Notification,
-    };
 
     public bool Mayday(EntityUid grid, string reason)
     {
@@ -465,68 +305,7 @@ public sealed class KiasProtocolSystem : EntitySystem
         if (!HasComp<KiasManagementComponent>(ent) || Transform(ent).GridUid is not { } grid || !_kias.IsOnline(ent) || !_kias.CanConfigure(grid, args.Actor)
             || !TryProtocol(grid, out var protocols))
             return;
-        if (args.Reset)
-        {
-            protocols.Alert = KiasAlert.Normal;
-            protocols.MaydayReason = string.Empty;
-            protocols.CriticalLatched = false;
-            _shuttles.SetKiasMayday(grid, false);
-            _display.RefreshOpen(grid);
-        }
-        else
-            Trigger(grid, KiasTrigger.Manual);
-    }
-
-    private void OnConfigure(Entity<KiasDisplayComponent> ent, ref KiasProtocolMessage args)
-    {
-        if (!HasComp<KiasManagementComponent>(ent) || Transform(ent).GridUid is not { } grid || !_kias.IsOnline(ent) || !_kias.CanConfigure(grid, args.Actor)
-            || !TryProtocol(grid, out var protocols))
-        {
-            _popup.PopupEntity(Loc.GetString("kias-config-owner"), ent, args.Actor);
-            return;
-        }
-        if (args.Index < 0 || args.Index > protocols.Protocols.Count || args.Index >= 32)
-            return;
-        if (args.Delete)
-        {
-            if (args.Index < protocols.Protocols.Count)
-                protocols.Protocols.RemoveAt(args.Index);
-            protocols.Cooldowns.Clear();
-            protocols.EventCooldowns.Clear();
-            protocols.Revision++;
-            _display.Refresh(ent);
-            return;
-        }
-        if (!Enum.IsDefined(args.Trigger) || !Enum.IsDefined(args.Action) || !float.IsFinite(args.Cooldown)
-            || !float.IsFinite(args.MinimumValue) || args.Disposition is { } disposition && !Enum.IsDefined(disposition))
-            return;
-        var record = new KiasProtocolRecord { Trigger = args.Trigger, Enabled = args.Enabled, Cooldown = Math.Clamp(args.Cooldown, 1, 600),
-            Disposition = args.Disposition, MinimumValue = Math.Clamp(args.MinimumValue, 0, 1000000), RequireCrewUnavailable = args.RequireCrewUnavailable };
-        var actions = args.Actions ?? new List<KiasProtocolActionView> { new() { Kind = args.Action, Target = args.Target,
-            Value = args.Value, Group = args.Group, Port = args.Port, Message = args.Message } };
-        if (actions.Count > 8) return;
-        foreach (var action in actions)
-        {
-            if (!Enum.IsDefined(action.Kind) || action.Group.Length > 32 || action.Port.Length > 64 || action.Message.Length > 256) return;
-            EntityUid? target = null;
-            if (action.Target is { } net)
-            {
-                if (!TryGetEntity(net, out target) || target is not { } uid || TerminatingOrDeleted(uid) || Transform(uid).GridUid != grid) return;
-            }
-            record.Actions.Add(new KiasProtocolAction { Kind = action.Kind, Target = target, Value = action.Value,
-                Group = action.Group.Trim(), Port = action.Port.Trim(), Message = action.Message.Trim() });
-        }
-        if (args.Index == protocols.Protocols.Count)
-            protocols.Protocols.Add(record);
-        else
-        {
-            record.PresetId = protocols.Protocols[args.Index].PresetId;
-            if (args.Actions == null) record.Actions.AddRange(protocols.Protocols[args.Index].Actions.Skip(1).Take(7));
-            protocols.Protocols[args.Index] = record;
-        }
-        protocols.Cooldowns.Remove(args.Index);
-        protocols.EventCooldowns.Clear();
-        protocols.Revision++;
-        _display.Refresh(ent);
+        if (args.Reset) ResetAlert(grid);
+        else Trigger(grid, args.Quiet ? KiasTrigger.QuietMode : KiasTrigger.Manual);
     }
 }

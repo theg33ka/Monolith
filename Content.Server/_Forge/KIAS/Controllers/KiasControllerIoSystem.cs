@@ -40,7 +40,7 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
             : NativeSchema(uid) is { } ports && LinkId(ports) == profile);
     public string? NativeSinkProfile(EntityUid uid, string port)
     {
-        if (TerminatingOrDeleted(uid) || !TryComp<DeviceLinkSinkComponent>(uid, out var sink) || !sink.Ports.Contains(port)
+        if (TerminatingOrDeleted(uid) || !TryComp<DeviceLinkSinkComponent>(uid, out var sink) || !sink.Ports.Any(candidate => candidate == port)
             || NativeSchema(uid) is not { } ports) return null;
         var profile = LinkId(ports);
         if (_linkSchemas.Count >= 4096 && !_linkSchemas.ContainsKey(profile)) return null;

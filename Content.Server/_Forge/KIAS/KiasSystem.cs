@@ -242,7 +242,8 @@ public sealed partial class KiasSystem : EntitySystem
         if (!enabled && grid is { } shuttingDown && _active.Contains(shuttingDown))
         {
             EntityManager.System<KiasSafetySystem>().Publish(shuttingDown, Loc.GetString("kias-shutdown"), announce: false);
-            EntityManager.System<KiasProtocolSystem>().Trigger(shuttingDown, KiasTrigger.Shutdown, message: Loc.GetString("kias-shutdown"));
+            EntityManager.System<Controllers.KiasControllerRuntimeSystem>().FinishBeforeShutdown(shuttingDown,
+                () => EntityManager.System<KiasProtocolSystem>().Trigger(shuttingDown, KiasTrigger.Shutdown, message: Loc.GetString("kias-shutdown")));
         }
         comp.Enabled = enabled;
         if (grid is not { } uid)

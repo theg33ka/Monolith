@@ -6,6 +6,7 @@ using Content.Server.DeviceLinking.Systems;
 using Content.Server.Power.Components;
 using Content.Server.Radio.EntitySystems;
 using Content.Shared._Forge.KIAS;
+using Content.Shared._Forge.KIAS.Controllers;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.DeviceLinking.Events;
 using Content.Shared.Interaction;
@@ -95,6 +96,7 @@ public sealed class KiasParityTests
         await using var pair = await PoolManager.GetServerClient();
         var map = await pair.CreateTestMap();
         var em = pair.Server.ResolveDependency<IEntityManager>();
+        EntityUid core = default, defence = default, recorder = default, weapon = default;
         await pair.Server.WaitAssertion(() =>
         {
             for (var x = 0; x < 5; x++)
@@ -108,24 +110,40 @@ public sealed class KiasParityTests
                 em.RemoveComponent<ApcPowerReceiverComponent>(uid);
                 return uid;
             }
-            var core = Spawn("KiasCore", 0);
-            var defence = Spawn("KiasDefenceServer", 1);
-            var recorder = Spawn("KiasRecorder", 2);
+            core = Spawn("KiasCore", 0);
+            defence = Spawn("KiasDefenceServer", 1);
+            recorder = Spawn("KiasRecorder", 2);
             var console = Spawn("KiasManagementConsole", 3);
-            var weapon = Spawn("WeaponTurretFlare", 4);
+            weapon = Spawn("WeaponTurretFlare", 4);
             var kias = em.System<KiasSystem>();
             kias.Rebuild(map.Grid);
             var protocols = em.GetComponent<KiasProtocolComponent>(core);
             protocols.Protocols.Clear();
             protocols.Protocols.Add(new KiasProtocolRecord { Trigger = KiasTrigger.CrewCritical, Cooldown = 60,
                 Actions = new List<KiasProtocolAction> { new() { Kind = KiasActionKind.Record, Message = "injured" } } });
+            var rack = Spawn("KiasControllerRack", 0);
+            var card = Spawn("KiasProgrammableController", 0);
+            var io = em.System<Content.Server._Forge.KIAS.Controllers.KiasControllerIoSystem>();
+            var imported = KiasLegacyGraphTranslator.Import(protocols.Protocols[0], io.Supports, io.NativeSinkProfile);
+            Assert.That(imported.Errors, Is.Empty);
+            em.GetComponent<KiasControllerCardComponent>(card).Program = imported.Program!;
+            kias.Rebuild(map.Grid);
+            Assert.That(em.System<ItemSlotsSystem>().TryInsert(rack, KiasControllerRackComponent.SlotId(0), card, null), Is.True);
+        });
+        await pair.RunTicksSync(40);
+        await pair.Server.WaitAssertion(() =>
+        {
             var engine = em.System<KiasProtocolSystem>();
             engine.Trigger(map.Grid, KiasTrigger.CrewCritical, eventKey: "fore");
             engine.Trigger(map.Grid, KiasTrigger.CrewCritical, eventKey: "aft");
-            Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Log, Has.Count.EqualTo(2));
             engine.Trigger(map.Grid, KiasTrigger.CrewCritical, eventKey: "fore");
+        });
+        await pair.RunTicksSync(8);
+        await pair.Server.WaitAssertion(() =>
+        {
             Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Log, Has.Count.EqualTo(2));
-            Assert.That(em.GetComponent<KiasRecorderComponent>(recorder).ProtocolEvents, Has.Count.EqualTo(2));
+            Assert.That(em.GetComponent<KiasRecorderComponent>(recorder).Entries.Count(e => e.Contains("injured")), Is.EqualTo(2));
+            var kias = em.System<KiasSystem>();
             em.GetComponent<KiasDefenceComponent>(defence).FireLock = true;
             Assert.That(em.System<KiasDefenceSystem>().IsFireLocked(weapon), Is.True);
             kias.SetEnabled(core, false);

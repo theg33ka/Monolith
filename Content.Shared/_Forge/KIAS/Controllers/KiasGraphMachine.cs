@@ -191,7 +191,7 @@ public sealed class KiasGraphMachine
                 _memory[node.Id] = KiasGraphValue.Boolean(value); Bool(value); break;
             case KiasNodeKind.StringLatch:
                 if (changed is not ("Store" or "Reset")) break;
-                _memory[node.Id] = changed == "Reset" ? KiasGraphValue.String(node.Config.Text) : Read("Value");
+                _memory[node.Id] = changed == "Reset" ? KiasGraphValue.String(node.Config.Text) : KiasGraphValue.String(Read("Value").Text ?? string.Empty);
                 Output(node.Id, "Stored", _memory[node.Id], true);
                 if (changed == "Store") Output(node.Id, "Saved", KiasGraphValue.Pulse);
                 break;

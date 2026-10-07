@@ -51,8 +51,6 @@ public sealed partial class KiasDisplaySystem : EntitySystem
         }
         if (!runtime.Devices.Any(uid => _ui.IsUiOpen(uid, UiKey(uid))))
             return;
-        if (runtime.Devices.Any(uid => HasComp<KiasManagementComponent>(uid) && _ui.IsUiOpen(uid, KiasUiKey.Key)))
-            RefreshTargets(args.Grid, runtime);
         foreach (var uid in runtime.Devices)
         {
             if (_ui.IsUiOpen(uid, UiKey(uid)))
@@ -64,8 +62,6 @@ public sealed partial class KiasDisplaySystem : EntitySystem
     {
         _sentStates.Remove(ent);
         if (HasComp<KiasServiceToolComponent>(ent)) _coverageTools.Add(ent);
-        if (HasComp<KiasManagementComponent>(ent) && Transform(ent).GridUid is { } grid && TryComp<KiasGridComponent>(grid, out var runtime))
-            RefreshTargets(grid, runtime);
         Refresh(ent);
     }
     private void OnCounts(ref KiasCountsChangedEvent args)
@@ -120,11 +116,9 @@ public sealed partial class KiasDisplaySystem : EntitySystem
                     if (server.FireLock) defence.AppendLine(Loc.GetString("kias-fire-locked"));
                 }
             }
-            foreach (var uid in runtime.ProtocolTargets)
-            {
-                if (!TerminatingOrDeleted(uid) && Transform(uid).GridUid == grid)
-                    state.Targets.Add(new KiasUiTarget { Entity = GetNetEntity(uid), Name = Name(uid) });
-            }
+            var controllerRuntime = EntityManager.System<Controllers.KiasControllerRuntimeSystem>();
+            state.Automation = Loc.GetString("kias-controller-management-status",
+                ("running", runtime.Devices.Where(HasComp<Content.Shared._Forge.KIAS.Controllers.KiasControllerRackComponent>).Sum(controllerRuntime.RunningCount)));
             state.Devices = devices.ToString();
             state.Atmos = atmos.ToString();
             state.Defence = defence.ToString();
@@ -132,21 +126,7 @@ public sealed partial class KiasDisplaySystem : EntitySystem
             state.Faults = faults.Length == 0 ? Loc.GetString("kias-no-faults") : faults.ToString();
             if (runtime.Core is { } core && TryComp<KiasProtocolComponent>(core, out var protocols))
             {
-                state.ProtocolsAvailable = state.Online;
-                state.ProtocolRevision = protocols.Revision;
                 state.Alert = Loc.GetString($"kias-alert-{protocols.Alert.ToString().ToLowerInvariant()}");
-                foreach (var record in protocols.Protocols.Take(32))
-                {
-                    var action = record.Actions.FirstOrDefault() ?? new KiasProtocolAction();
-                    state.Protocols.Add(new KiasProtocolView { Trigger = record.Trigger, Action = action.Kind,
-                        Disposition = record.Disposition, MinimumValue = record.MinimumValue, RequireCrewUnavailable = record.RequireCrewUnavailable,
-                        Target = action.Target is { } target && !TerminatingOrDeleted(target) ? GetNetEntity(target) : null,
-                        Group = action.Group, Port = action.Port, Message = action.Message, Value = action.Value,
-                        Enabled = record.Enabled, Cooldown = record.Cooldown, PresetId = record.PresetId,
-                        Actions = record.Actions.Take(8).Select(entry => new KiasProtocolActionView { Kind = entry.Kind,
-                            Target = entry.Target is { } device && !TerminatingOrDeleted(device) ? GetNetEntity(device) : null,
-                            Group = entry.Group, Port = entry.Port, Message = entry.Message, Value = entry.Value }).ToList() });
-                }
             }
         }
         if (TryComp<KiasRecorderComponent>(display, out var recorder))
@@ -171,22 +151,6 @@ public sealed partial class KiasDisplaySystem : EntitySystem
             {
                 if (_ui.IsUiOpen(uid, UiKey(uid))) Refresh(uid);
             }
-        }
-    }
-
-    private void RefreshTargets(EntityUid grid, KiasGridComponent runtime)
-    {
-        if (!TryComp<MapGridComponent>(grid, out var map))
-            return;
-        var candidates = new HashSet<EntityUid>();
-        _lookup.GetLocalEntitiesIntersecting(grid, map.LocalAABB, candidates);
-        runtime.ProtocolTargets.Clear();
-        foreach (var uid in candidates.OrderBy(uid => uid.Id))
-        {
-            if (!TerminatingOrDeleted(uid) && Transform(uid).GridUid == grid && (HasComp<KiasDeviceComponent>(uid) || HasComp<DeviceLinkSinkComponent>(uid)))
-                runtime.ProtocolTargets.Add(uid);
-            if (runtime.ProtocolTargets.Count >= 128)
-                break;
         }
     }
 

@@ -10,14 +10,10 @@ namespace Content.Client._Forge.KIAS;
 public sealed partial class KiasWindow : FancyWindow
 {
     public event Action? RefreshRequested;
-    public event Action<KiasProtocolMessage>? ProtocolChanged;
     public event Action<bool>? ControlRequested;
     public event Action<KiasAudioSettingsMessage>? AudioChanged;
-    public event Action<int>? RunProtocolRequested;
+    public event Action? QuietRequested;
     private readonly Dictionary<KiasAudioChannel, OptionButton> _tonePickers = new();
-    private KiasManagementState? _state;
-    private List<KiasProtocolActionView> _actions = new();
-    private int _actionIndex;
 
     public KiasWindow()
     {
@@ -42,43 +38,12 @@ public sealed partial class KiasWindow : FancyWindow
             _tonePickers[channel] = picker;
         }
         RefreshButton.OnPressed += _ => RefreshRequested?.Invoke();
-        var runSelected = new Button { Text = Loc.GetString("kias-run-selected-protocol") };
-        runSelected.OnPressed += _ => RunProtocolRequested?.Invoke(ProtocolPicker.SelectedId);
-        AudioPanel.AddChild(runSelected);
         var pages = new[] { "overview", "atmos", "crew", "power", "defence", "navigation", "faults" };
         for (var i = 0; i < pages.Length; i++)
             Pages.SetTabTitle(i, Loc.GetString($"kias-page-{pages[i]}"));
-        foreach (var trigger in Enum.GetValues<KiasTrigger>())
-            TriggerPicker.AddItem(Loc.GetString($"kias-trigger-{trigger.ToString().ToLowerInvariant()}"), (int) trigger);
-        foreach (var action in Enum.GetValues<KiasActionKind>())
-            ActionPicker.AddItem(Loc.GetString($"kias-action-{action.ToString().ToLowerInvariant()}"), (int) action);
-        DispositionPicker.AddItem(Loc.GetString("kias-protocol-any-contact"), 0);
-        foreach (var disposition in Enum.GetValues<KiasContactDisposition>())
-            DispositionPicker.AddItem(Loc.GetString($"kias-contact-{disposition.ToString().ToLowerInvariant()}"), (int) disposition + 1);
-        DispositionPicker.OnItemSelected += args => DispositionPicker.SelectId(args.Id);
-        TriggerPicker.OnItemSelected += args => TriggerPicker.SelectId(args.Id);
-        ActionPicker.OnItemSelected += args => ActionPicker.SelectId(args.Id);
-        TargetPicker.OnItemSelected += args => TargetPicker.SelectId(args.Id);
-        ProtocolPicker.OnItemSelected += args => { ProtocolPicker.SelectId(args.Id); PopulateProtocol(args.Id); };
-        ActionListPicker.OnItemSelected += args => { StoreAction(); _actionIndex = args.Id; PopulateAction(); };
-        AddAction.OnPressed += _ =>
-        {
-            StoreAction();
-            if (_actions.Count >= 8) return;
-            _actions.Add(new KiasProtocolActionView());
-            _actionIndex = _actions.Count - 1;
-            PopulateAction();
-        };
-        RemoveAction.OnPressed += _ =>
-        {
-            if (_actionIndex >= 0 && _actionIndex < _actions.Count) _actions.RemoveAt(_actionIndex);
-            _actionIndex = Math.Max(0, Math.Min(_actionIndex, _actions.Count - 1));
-            PopulateAction();
-        };
-        SaveProtocol.OnPressed += _ => SubmitProtocol(false);
-        RemoveProtocol.OnPressed += _ => SubmitProtocol(true);
         RunManual.OnPressed += _ => ControlRequested?.Invoke(false);
         ResetAlert.OnPressed += _ => ControlRequested?.Invoke(true);
+        RunQuiet.OnPressed += _ => QuietRequested?.Invoke();
     }
 
     public void UpdateState(KiasManagementState state)
@@ -102,94 +67,7 @@ public sealed partial class KiasWindow : FancyWindow
         NavigationDetails.Text = state.Navigation;
         FaultDetails.Text = state.Faults;
         Alert.Text = state.Alert;
-        ProtocolEditor.Visible = state.ProtocolsAvailable;
-        NetEntity? previousTarget = null;
-        var previousIndex = TargetPicker.SelectedId - 1;
-        if (_state != null && previousIndex >= 0 && previousIndex < _state.Targets.Count)
-            previousTarget = _state.Targets[previousIndex].Entity;
-        TargetPicker.Clear();
-        TargetPicker.AddItem(Loc.GetString("kias-protocol-whole-ship"), 0);
-        for (var i = 0; i < state.Targets.Count; i++)
-            TargetPicker.AddItem(state.Targets[i].Name, i + 1);
-        TargetPicker.SelectId(state.Targets.FindIndex(entry => entry.Entity == previousTarget) + 1);
-        if (_state == null || _state.ProtocolRevision != state.ProtocolRevision)
-        {
-            var selected = Math.Min(ProtocolPicker.SelectedId, state.Protocols.Count);
-            _state = state;
-            ProtocolPicker.Clear();
-            for (var i = 0; i < state.Protocols.Count; i++)
-            {
-                var record = state.Protocols[i];
-                var title = Loc.TryGetString($"kias-preset-{record.PresetId}", out var presetName) ? presetName
-                    : Loc.GetString($"kias-trigger-{record.Trigger.ToString().ToLowerInvariant()}");
-                ProtocolPicker.AddItem($"{i + 1}. {title}", i);
-            }
-            ProtocolPicker.AddItem(Loc.GetString("kias-protocol-new"), state.Protocols.Count);
-            ProtocolPicker.SelectId(selected);
-            PopulateProtocol(selected);
-        }
-        else
-            _state = state;
-    }
-
-    private void PopulateProtocol(int index)
-    {
-        if (_state == null)
-            return;
-        var protocol = index < _state.Protocols.Count ? _state.Protocols[index] : new KiasProtocolView { Enabled = true, Value = true, Cooldown = 10 };
-        TriggerPicker.SelectId((int) protocol.Trigger);
-        DispositionPicker.SelectId(protocol.Disposition is { } disposition ? (int) disposition + 1 : 0);
-        MinimumInput.Text = protocol.MinimumValue.ToString();
-        CrewUnavailable.Pressed = protocol.RequireCrewUnavailable;
-        _actions = protocol.Actions.ConvertAll(action => new KiasProtocolActionView { Kind = action.Kind, Target = action.Target,
-            Group = action.Group, Port = action.Port, Message = action.Message, Value = action.Value });
-        if (index >= _state.Protocols.Count) _actions.Add(new KiasProtocolActionView());
-        _actionIndex = 0;
-        PopulateAction();
-        CooldownInput.Text = protocol.Cooldown.ToString();
-        ProtocolEnabled.Pressed = protocol.Enabled;
-    }
-
-    private void StoreAction()
-    {
-        if (_state == null || _actionIndex < 0 || _actionIndex >= _actions.Count) return;
-        var selected = TargetPicker.SelectedId - 1;
-        _actions[_actionIndex] = new KiasProtocolActionView { Kind = (KiasActionKind) ActionPicker.SelectedId,
-            Target = selected >= 0 && selected < _state.Targets.Count ? _state.Targets[selected].Entity : null,
-            Group = GroupInput.Text, Port = PortInput.Text, Message = ProtocolMessage.Text, Value = ActionValue.Pressed };
-    }
-
-    private void PopulateAction()
-    {
-        ActionListPicker.Clear();
-        for (var i = 0; i < _actions.Count; i++)
-            ActionListPicker.AddItem($"{i + 1}. {Loc.GetString($"kias-action-{_actions[i].Kind.ToString().ToLowerInvariant()}")}", i);
-        RemoveAction.Disabled = _actions.Count == 0;
-        AddAction.Disabled = _actions.Count >= 8;
-        if (_state == null || _actions.Count == 0) return;
-        ActionListPicker.SelectId(_actionIndex);
-        var action = _actions[_actionIndex];
-        ActionPicker.SelectId((int) action.Kind);
-        TargetPicker.SelectId(_state.Targets.FindIndex(entry => entry.Entity == action.Target) + 1);
-        GroupInput.Text = action.Group;
-        PortInput.Text = action.Port;
-        ProtocolMessage.Text = action.Message;
-        ActionValue.Pressed = action.Value;
-    }
-
-    private void SubmitProtocol(bool delete)
-    {
-        if (_state == null || !float.TryParse(CooldownInput.Text, out var cooldown) || !float.TryParse(MinimumInput.Text, out var minimum))
-            return;
-        var selected = TargetPicker.SelectedId - 1;
-        StoreAction();
-        ProtocolChanged?.Invoke(new KiasProtocolMessage { Index = ProtocolPicker.SelectedId, Delete = delete,
-            Actions = _actions,
-            Trigger = (KiasTrigger) TriggerPicker.SelectedId, Action = (KiasActionKind) ActionPicker.SelectedId,
-            Disposition = DispositionPicker.SelectedId == 0 ? null : (KiasContactDisposition) (DispositionPicker.SelectedId - 1),
-            MinimumValue = minimum, RequireCrewUnavailable = CrewUnavailable.Pressed,
-            Target = selected >= 0 && selected < _state.Targets.Count ? _state.Targets[selected].Entity : null,
-            Group = GroupInput.Text, Port = PortInput.Text, Message = ProtocolMessage.Text, Value = ActionValue.Pressed,
-            Enabled = ProtocolEnabled.Pressed, Cooldown = cooldown });
+        Automation.Text = state.Automation;
+        RunManual.Disabled = RunQuiet.Disabled = ResetAlert.Disabled = !state.Online;
     }
 }

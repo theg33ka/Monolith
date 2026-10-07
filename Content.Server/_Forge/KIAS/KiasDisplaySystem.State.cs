@@ -59,8 +59,7 @@ public sealed partial class KiasDisplaySystem
             (KiasManagementState x, KiasManagementState y) => x.Online == y.Online && x.Entities == y.Entities && x.Crew == y.Crew
                 && x.Devices == y.Devices && x.Log == y.Log && x.Atmos == y.Atmos && x.CrewDetails == y.CrewDetails && x.Power == y.Power
                 && x.Defence == y.Defence && x.Navigation == y.Navigation && x.Faults == y.Faults && x.Alert == y.Alert && x.Resources == y.Resources
-                && x.ProtocolsAvailable == y.ProtocolsAvailable && x.ProtocolRevision == y.ProtocolRevision
-                && x.Targets.Select(target => (target.Entity, target.Name)).SequenceEqual(y.Targets.Select(target => (target.Entity, target.Name)))
+                && x.Automation == y.Automation
                 && (x.Audio?.Notification, x.Audio?.Warning, x.Audio?.Battle, x.Audio?.Emergency) == (y.Audio?.Notification, y.Audio?.Warning, y.Audio?.Battle, y.Audio?.Emergency),
             _ => false,
         };

@@ -82,13 +82,15 @@ public sealed class KiasControllerWindow : FancyWindow
         _write.Disabled = !state.HasCard || !state.Online || state.Errors.Count > 0;
         _discard.Disabled = !state.HasCard || !state.Dirty; _eject.Disabled = !state.HasCard || state.Dirty;
         _name.Text = state.Name;
-        _status.Text = Loc.GetString("kias-controller-editor-status", ("card", state.HasCard), ("online", state.Online), ("dirty", state.Dirty),
-            ("nodes", state.Nodes.Count), ("wires", state.Wires.Count)) + (state.Errors.Count == 0 ? string.Empty : "\n" + string.Join(", ", state.Errors));
+        _status.Text = Loc.GetString("kias-controller-editor-status", ("card", Loc.GetString(state.HasCard ? "kias-controller-present" : "kias-controller-absent")),
+            ("online", Loc.GetString(state.Online ? "kias-status-online" : "kias-status-offline")),
+            ("dirty", Loc.GetString(state.Dirty ? "kias-controller-unsaved" : "kias-controller-saved")),
+            ("nodes", state.Nodes.Count), ("wires", state.Wires.Count)) + (state.Errors.Count == 0 ? string.Empty : "\n" + string.Join(", ", state.Errors.Select(KiasControllerLabels.Error)));
         var selectedPreset = _presets.SelectedId; var selectedLegacy = _legacy.SelectedId;
         _presets.Clear(); _legacy.Clear();
-        for (var i = 0; i < state.Presets.Count; i++) _presets.AddItem(state.Presets[i], i);
+        for (var i = 0; i < state.Presets.Count; i++) _presets.AddItem(Loc.TryGetString($"kias-preset-{state.Presets[i]}", out var presetTitle) ? presetTitle : state.Presets[i], i);
         if (state.Presets.Count > 0) _presets.SelectId(Math.Clamp(selectedPreset, 0, state.Presets.Count - 1));
-        for (var i = 0; i < state.Legacy.Count; i++) _legacy.AddItem(state.Legacy[i], i);
+        for (var i = 0; i < state.Legacy.Count; i++) _legacy.AddItem(Loc.TryGetString($"kias-preset-{state.Legacy[i]}", out var legacyTitle) ? legacyTitle : state.Legacy[i], i);
         if (state.Legacy.Count > 0) _legacy.SelectId(Math.Clamp(selectedLegacy, 0, state.Legacy.Count - 1));
         RebuildPalette(); _canvas.SetState(state);
     }
@@ -109,17 +111,28 @@ public sealed class KiasControllerWindow : FancyWindow
     private void RebuildPalette()
     {
         _palette.RemoveAllChildren();
-        _palette.AddChild(new Label { Text = Loc.GetString("kias-controller-logic") });
-        foreach (var kind in Enum.GetValues<KiasNodeKind>())
-            if (!KiasGraphCatalog.External(kind)) PaletteItem(Loc.GetString($"kias-controller-node-{kind.ToString().ToLowerInvariant()}"), kind);
-        _palette.AddChild(new Label { Text = "ANY / ALL" });
-        foreach (var profile in _state.Profiles)
+        foreach (var category in new[] { "logic", "values", "state" })
         {
-            PaletteItem($"ANY {profile.Id}", KiasNodeKind.Any, profile.Id);
-            PaletteItem($"ALL {profile.Id}", KiasNodeKind.All, profile.Id);
+            _palette.AddChild(new Label { Text = Loc.GetString($"kias-controller-{category}") });
+            foreach (var kind in Enum.GetValues<KiasNodeKind>())
+            {
+                if (KiasGraphCatalog.External(kind)) continue;
+                var group = kind is KiasNodeKind.BoolConstant or KiasNodeKind.NumberConstant or KiasNodeKind.StringConstant or KiasNodeKind.EnumConstant
+                    ? "values" : kind is KiasNodeKind.Timer or KiasNodeKind.Clock or KiasNodeKind.Latch or KiasNodeKind.StringLatch
+                        or KiasNodeKind.Toggle or KiasNodeKind.Counter or KiasNodeKind.Edge or KiasNodeKind.Cooldown ? "state" : "logic";
+                if (category == group) PaletteItem(Loc.GetString($"kias-controller-node-{kind.ToString().ToLowerInvariant()}"), kind);
+            }
+        }
+        foreach (var kind in new[] { KiasNodeKind.Any, KiasNodeKind.All })
+        {
+            _palette.AddChild(new Label { Text = Loc.GetString(kind == KiasNodeKind.Any ? "kias-controller-any" : "kias-controller-all") });
+            foreach (var profile in _state.Profiles)
+                PaletteItem($"{kind.ToString().ToUpperInvariant()} {KiasControllerLabels.Profile(profile.Id, profile.Ports)}", kind, profile.Id);
         }
         _palette.AddChild(new Label { Text = Loc.GetString("kias-controller-devices") });
-        foreach (var device in _state.Devices) PaletteItem($"{device.Name} ({device.Profile})", KiasNodeKind.Specific, device.Profile, device.Entity);
+        foreach (var device in _state.Devices)
+            PaletteItem($"{device.Name} ({KiasControllerLabels.Profile(device.Profile, _state.Profiles.First(p => p.Id == device.Profile).Ports)})",
+                KiasNodeKind.Specific, device.Profile, device.Entity);
     }
     private LineEdit Field(string key, string text)
     {
@@ -129,14 +142,14 @@ public sealed class KiasControllerWindow : FancyWindow
     private void SelectNode(KiasGraphNodeView? node)
     {
         _settings.RemoveAllChildren(); if (node == null) return;
-        _settings.AddChild(new Label { Text = $"#{node.Id}: {node.Kind}" });
-        if (KiasGraphCatalog.External(node.Kind)) _settings.AddChild(new Label { Text = $"{node.Profile}\n{node.DeviceName}\n{Loc.GetString("kias-controller-matches")}: {node.Matched}" });
+        _settings.AddChild(new Label { Text = $"#{node.Id}: {Loc.GetString($"kias-controller-node-{node.Kind.ToString().ToLowerInvariant()}")}" });
+        if (KiasGraphCatalog.External(node.Kind)) _settings.AddChild(new Label { Text = $"{KiasControllerLabels.Profile(node.Profile, node.Ports)}\n{node.DeviceName}\n{Loc.GetString("kias-controller-matches")}: {node.Matched}" });
         var room = Field("kias-mode-room", node.Room); var group = Field("kias-mode-group", node.Group);
         var text = Field("kias-controller-text", node.Config.Text);
         var number = Field("kias-controller-number", node.Config.Number.ToString(CultureInfo.InvariantCulture));
         var seconds = Field("kias-controller-seconds", node.Config.Seconds.ToString(CultureInfo.InvariantCulture));
         var enumValue = Field("kias-controller-enum", node.Config.Enum.ToString(CultureInfo.InvariantCulture));
-        var boolean = new CheckBox { Text = "Bool", Pressed = node.Config.Bool }; _settings.AddChild(boolean);
+        var boolean = new CheckBox { Text = Loc.GetString("kias-controller-bool"), Pressed = node.Config.Bool }; _settings.AddChild(boolean);
         var comparison = new OptionButton();
         foreach (var item in Enum.GetValues<KiasComparison>()) comparison.AddItem(Loc.GetString($"kias-controller-comparison-{item.ToString().ToLowerInvariant()}"), (int) item);
         comparison.SelectId((int) node.Config.Comparison); comparison.OnItemSelected += args => comparison.SelectId(args.Id); _settings.AddChild(comparison);
@@ -167,11 +180,11 @@ public sealed class KiasControllerRackWindow : FancyWindow
     public void UpdateState(KiasControllerRackState state)
     {
         _rows.RemoveAllChildren();
-        _rows.AddChild(new Label { Text = Loc.GetString("kias-controller-rack-status", ("online", state.Online), ("running", state.Running), ("load", state.Load)) });
+        _rows.AddChild(new Label { Text = Loc.GetString("kias-controller-rack-status", ("online", Loc.GetString(state.Online ? "kias-status-online" : "kias-status-offline")), ("running", state.Running), ("load", state.Load)) });
         for (var i = 0; i < state.Slots.Count; i++)
         {
             var slot = i; var item = state.Slots[i]; var row = new BoxContainer(); _rows.AddChild(row);
-            row.AddChild(new Label { HorizontalExpand = true, Text = $"{i + 1}. {item.Name} {item.Status} {item.Fault}" });
+            row.AddChild(new Label { HorizontalExpand = true, Text = $"{i + 1}. {item.Name} {(Loc.TryGetString($"kias-controller-status-{item.Status.ToLowerInvariant()}", out var status) ? status : item.Status)} {KiasControllerLabels.Error(item.Fault)}" });
             var toggle = new Button { Text = item.Enabled ? "OFF" : "ON", Disabled = !item.Inserted };
             toggle.OnPressed += _ => Changed?.Invoke(new() { Slot = slot, Enabled = !item.Enabled }); row.AddChild(toggle);
             var eject = new Button { Text = Loc.GetString("kias-controller-eject"), Disabled = !item.Inserted };

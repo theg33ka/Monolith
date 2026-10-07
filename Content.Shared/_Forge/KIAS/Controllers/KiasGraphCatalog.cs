@@ -11,7 +11,7 @@ public static class KiasGraphCatalog
     public static KiasGraphPort Port(string id, KiasPortType type, bool output = false) => new()
     {
         Id = id, Type = type, Direction = output ? KiasPortDirection.Output : KiasPortDirection.Input,
-        Name = $"kias-controller-port-{id.ToLowerInvariant()}", Description = "kias-controller-port-description"
+        Name = $"kias-controller-port-{id.TrimStart('$').ToLowerInvariant()}", Description = "kias-controller-port-description"
     };
 
     public static List<KiasGraphPort> InternalPorts(KiasNodeKind kind)

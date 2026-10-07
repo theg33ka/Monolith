@@ -7,6 +7,8 @@ using Content.Server.DeviceLinking.Systems;
 using Content.Server.Power.Components;
 using Content.Server.Shuttles.Events;
 using Content.Shared._Forge.KIAS;
+using Content.Shared._Forge.KIAS.Controllers;
+using Content.Shared.Containers.ItemSlots;
 using Content.Shared._Mono.Company;
 using Content.Shared.DeviceLinking.Events;
 using Content.Shared.Doors.Components;
@@ -28,6 +30,7 @@ public sealed class KiasDeviceTests
         await using var pair = await PoolManager.GetServerClient();
         var map = await pair.CreateTestMap();
         var em = pair.Server.ResolveDependency<IEntityManager>();
+        EntityUid dockSource = default, dockContact = default;
         await pair.Server.WaitAssertion(() =>
         {
             var maps = em.System<SharedMapSystem>();
@@ -48,6 +51,7 @@ public sealed class KiasDeviceTests
             var core = Spawn("KiasCore", map.Grid, 0);
             var iff = Spawn("KiasIffReceiver", map.Grid, 1);
             var dock = Spawn("KiasDockingSensor", map.Grid, 2);
+            dockSource = dock;
             var adapter = Spawn("KiasDeviceAdapter", map.Grid, 3);
             var keySwitch = Spawn("KiasKeySwitch", map.Grid, 4);
             var rotary = Spawn("KiasRotarySwitch", map.Grid, 5);
@@ -79,6 +83,7 @@ public sealed class KiasDeviceTests
             Assert.That(((KiasResourceState) em.System<KiasDisplaySystem>().BuildLocalState(monitor)).Details, Does.Contain("50"));
 
             var contact = maps.CreateGridEntity(map.MapId);
+            dockContact = contact.Owner;
             maps.SetTile(contact, contact.Comp, Vector2i.Zero, map.Tile.Tile);
             transforms.SetLocalPosition(contact, new Vector2(100, 0));
             em.AddComponent<IFFComponent>(contact);
@@ -92,8 +97,14 @@ public sealed class KiasDeviceTests
             var config = em.GetComponent<KiasProtocolComponent>(core);
             config.Protocols.Clear();
             config.Protocols.Add(new KiasProtocolRecord { Trigger = KiasTrigger.Docked, Actions = new() { new() { Kind = KiasActionKind.Record, Message = "Dock detected" } } });
-            em.EventBus.RaiseLocalEvent(dock, new DockEvent { GridAUid = map.Grid, GridBUid = contact }, true);
-            Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Log, Has.Some.Contains("Dock detected"));
+            var rack = Spawn("KiasControllerRack", map.Grid, 0);
+            var card = Spawn("KiasProgrammableController", map.Grid, 0);
+            var io = em.System<Content.Server._Forge.KIAS.Controllers.KiasControllerIoSystem>();
+            var imported = KiasLegacyGraphTranslator.Import(config.Protocols[0], io.Supports, io.NativeSinkProfile);
+            Assert.That(imported.Errors, Is.Empty);
+            em.GetComponent<KiasControllerCardComponent>(card).Program = imported.Program!;
+            kias.Rebuild(map.Grid);
+            Assert.That(em.System<ItemSlotsSystem>().TryInsert(rack, KiasControllerRackComponent.SlotId(0), card, null), Is.True);
 
             em.RemoveComponent<CompanyComponent>(contact);
             em.SpawnEntity("KiasDataCable", new EntityCoordinates(contact, 0.5f, 0.5f));
@@ -146,6 +157,11 @@ public sealed class KiasDeviceTests
             em.EventBus.RaiseLocalEvent(keySwitch, new ActivateInWorldEvent(actor, keySwitch, true));
             Assert.That(em.GetComponent<KiasCoreComponent>(core).Enabled, Is.True);
         });
+        await pair.RunTicksSync(40);
+        await pair.Server.WaitAssertion(() => em.EventBus.RaiseLocalEvent(dockSource,
+            new DockEvent { GridAUid = map.Grid, GridBUid = dockContact }, true));
+        await pair.RunTicksSync(8);
+        await pair.Server.WaitAssertion(() => Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Log, Has.Some.Contains("Dock detected")));
         await pair.CleanReturnAsync();
     }
 }
