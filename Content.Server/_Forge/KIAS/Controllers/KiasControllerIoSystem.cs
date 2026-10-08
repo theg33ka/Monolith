@@ -6,6 +6,7 @@ using Content.Shared.DeviceLinking;
 using Content.Shared.DeviceLinking.Events;
 using System.Security.Cryptography;
 using System.Text;
+using Robust.Shared.Timing;
 
 namespace Content.Server._Forge.KIAS.Controllers;
 
@@ -19,7 +20,17 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
     private readonly Dictionary<EntityUid, EntityUid> _profileGrids = new();
     private readonly Dictionary<EntityUid, HashSet<string>> _gridProfiles = new();
     private readonly Dictionary<string, List<KiasGraphPort>> _linkSchemas = new();
+    [Dependency] private IGameTiming _timing = default!;
+    private readonly Dictionary<EntityUid, Dictionary<(string Profile, string Port), (KiasGraphValue Value, TimeSpan At)>> _outputs = new();
     public event Action<EntityUid, string, string, KiasGraphValue>? Emitted;
+
+    public bool TryOutput(EntityUid device, string profile, string port, out KiasGraphValue value, out TimeSpan at)
+    {
+        value = default; at = default;
+        if (TerminatingOrDeleted(device) || !_kias.IsOnline(device) || !_outputs.TryGetValue(device, out var outputs)
+            || !outputs.TryGetValue((profile, port), out var snapshot)) return false;
+        value = snapshot.Value; at = snapshot.At; return true;
+    }
 
     public override void Initialize()
     {
@@ -123,6 +134,7 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
         foreach (var uid in previous)
         {
             if (_profileGrids.GetValueOrDefault(uid) != grid) continue;
+            _outputs.Remove(uid);
             _profiles.Remove(uid);
             _profileGrids.Remove(uid);
         }
@@ -174,6 +186,8 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
         }
         if (!_kias.IsOnline(device) || !Profiles(device).Contains(profile)
             || Schema(profile)?.Any(item => item.Id == port && item.Direction == KiasPortDirection.Output && item.Type == value.Type) != true) return;
+        if (!_outputs.TryGetValue(device, out var outputs)) _outputs[device] = outputs = new();
+        outputs[(profile, port)] = (value, _timing.CurTime);
         Emitted?.Invoke(device, profile, port, value);
     }
 }

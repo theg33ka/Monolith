@@ -484,6 +484,7 @@
         whitelist:
           components: [KiasScannerModule]
       kias-module-3:
+        startingItem: KiasThreatModule
         whitelist:
           components: [KiasScannerModule]
       kias-module-4:

@@ -128,20 +128,20 @@ public sealed class KiasServiceSystem : EntitySystem
         if (!HasComp<KiasDeviceComponent>(target) && !(ent.Comp.Mode == KiasServiceMode.Link && HasComp<DeviceLinkSinkComponent>(target)))
             return;
         args.Handled = true;
-        ent.Comp.Target = target;
         if (Transform(target).GridUid is not { } accessGrid || !_kias.CanConfigure(accessGrid, args.User))
         {
             _popup.PopupEntity(Loc.GetString("kias-owner-only"), target, args.User);
             return;
         }
+        ent.Comp.Target = target;
         if (ent.Comp.Mode == KiasServiceMode.Diagnose)
         {
             _popup.PopupEntity(Loc.GetString("kias-device-status", ("status", Loc.GetString($"kias-status-{Comp<KiasDeviceComponent>(target).Status.ToString().ToLowerInvariant()}"))), target, args.User);
             return;
         }
-        if (ent.Comp.Mode == KiasServiceMode.Coverage)
+        if (ent.Comp.Mode is KiasServiceMode.Coverage or KiasServiceMode.Monitor)
         {
-            ent.Comp.Geometry = _display.BuildCoverage(accessGrid, target);
+            ent.Comp.Geometry = ent.Comp.Mode == KiasServiceMode.Coverage ? _display.BuildCoverage(accessGrid, target) : null;
             _ui.TryOpenUi(ent.Owner, KiasUiKey.Service, args.User);
             _display.Refresh(ent);
             return;

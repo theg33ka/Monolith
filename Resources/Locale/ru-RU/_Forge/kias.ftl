@@ -821,3 +821,10 @@ kias-controller-enable = Включить
 
 kias-controller-status-empty = Пустой слот
 kias-group-name = Название группы
+
+kias-mode-monitor = Мониторинг выходов
+kias-monitor-title = Текущие выходы (обновляются раз в секунду)
+kias-monitor-offline = Устройство отключено: текущие выходы недоступны.
+kias-monitor-unset = ещё нет данных
+kias-monitor-pulse = последний импульс: { $seconds } с назад
+kias-monitor-no-outputs = У устройства нет выходных портов.

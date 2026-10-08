@@ -2,6 +2,8 @@
 
 Current documentation is split by audience:
 
+- `FAUNA_MONITOR.md` — обнаружение фауны, мониторинг выходов и проверка кириллицы;
+- `CORE_SPRITE.md` — новый спрайт ядра 32×64, происхождение и промпт;
 - `UI_STABILITY.md` — дополнительное исправление пересчёта сети, кнопок шкафа и подсказок;
 - `CORRECTION_REPORT.md` — причины ошибок, решения и совместимость;
 - `ARCHITECTURE.md` — current technical model;

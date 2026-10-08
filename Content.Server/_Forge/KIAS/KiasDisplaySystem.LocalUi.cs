@@ -1,6 +1,9 @@
 using System.Linq;
 using Content.Shared._Forge.KIAS;
 using Content.Shared.UserInterface;
+using Content.Shared._Forge.KIAS.Controllers;
+using Content.Server._Forge.KIAS.Controllers;
+using System.Globalization;
 
 namespace Content.Server._Forge.KIAS;
 
@@ -50,7 +53,7 @@ public sealed partial class KiasDisplaySystem
                     : TryComp<KiasLightGroupComponent>(selected, out var selectedLight) ? selectedLight.Group : string.Empty : string.Empty;
             return new KiasServiceState { Mode = tool.Mode, Message = tool.Message, Group = tool.Group, CurrentGroup = selectedGroup,
                 GroupKind = tool.Target is { } groupTarget && HasComp<KiasSpeakerComponent>(groupTarget) ? "speaker" : "lighting",
-                Details = tool.Target is { } diagnosticTarget && !TerminatingOrDeleted(diagnosticTarget) ? Diagnostics(diagnosticTarget) : string.Empty,
+                Details = tool.Target is { } diagnosticTarget && !TerminatingOrDeleted(diagnosticTarget) ? Diagnostics(diagnosticTarget) + (tool.Mode == KiasServiceMode.Monitor ? "\n" + OutputDetails(diagnosticTarget) : string.Empty) : string.Empty,
                 SourceName = tool.Source is { } namedSource && !TerminatingOrDeleted(namedSource) ? Name(namedSource) : string.Empty,
                 TargetName = tool.Target is { } namedTarget && !TerminatingOrDeleted(namedTarget) ? Name(namedTarget) : string.Empty,
                 Source = tool.Source is { } source && !TerminatingOrDeleted(source) ? GetNetEntity(source) : null,
@@ -208,6 +211,42 @@ public sealed partial class KiasDisplaySystem
     private string RoleDetails(KiasGridComponent runtime, params KiasDeviceRole[] roles) => string.Join("\n",
         runtime.Devices.Where(uid => !TerminatingOrDeleted(uid) && TryComp<KiasDeviceComponent>(uid, out var device) && roles.Contains(device.Role))
             .Take(32).Select(uid => $"{Name(uid)}: {Loc.GetString($"kias-status-{Comp<KiasDeviceComponent>(uid).Status.ToString().ToLowerInvariant()}")}"));
+
+    private string OutputDetails(EntityUid target)
+    {
+        if (!_kias.IsOnline(target)) return Loc.GetString("kias-monitor-offline");
+        var io = EntityManager.System<KiasControllerIoSystem>();
+        var lines = new List<string> { Loc.GetString("kias-monitor-title") };
+        foreach (var profile in io.Profiles(target).Order())
+        {
+            if (io.Schema(profile) is not { } schema) continue;
+            var ports = schema.Where(port => port.Direction == KiasPortDirection.Output).ToArray();
+            if (ports.Length == 0) continue;
+            lines.Add(Loc.TryGetString($"kias-controller-profile-{profile.ToLowerInvariant()}", out var label) ? label : Loc.GetString("kias-controller-native-profile"));
+            foreach (var port in ports)
+            {
+                var text = Loc.GetString("kias-monitor-unset");
+                if (io.TryOutput(target, profile, port.Id, out var value, out var at))
+                {
+                    text = value.Type switch
+                    {
+                        KiasPortType.Signal => Loc.GetString("kias-monitor-pulse", ("seconds", Math.Max(0, (int) (_timing.CurTime - at).TotalSeconds))),
+                        KiasPortType.Bool => Loc.GetString(value.Bool ? "kias-controller-yes" : "kias-controller-no"),
+                        KiasPortType.Number => value.Number.ToString("G", CultureInfo.InvariantCulture),
+                        KiasPortType.String => $"“{value.Text}”",
+                        KiasPortType.Entity => value.Entity is { } entity && !TerminatingOrDeleted(entity) ? Name(entity) : "—",
+                        KiasPortType.Enum => Loc.TryGetString($"kias-controller-enum-{port.EnumDomain.ToString().ToLowerInvariant()}-{value.Enum}", out var choice) ? choice : value.Enum.ToString(),
+                        _ => text,
+                    };
+                }
+                var name = Loc.TryGetString(port.Name, out var localized) ? localized : port.Id;
+                var type = Loc.GetString($"kias-controller-type-{port.Type.ToString().ToLowerInvariant()}");
+                lines.Add($"  {name} ({type}): {text}");
+            }
+        }
+        if (lines.Count == 1) lines.Add(Loc.GetString("kias-monitor-no-outputs"));
+        return string.Join("\n", lines);
+    }
 
     private string Diagnostics(EntityUid target)
     {

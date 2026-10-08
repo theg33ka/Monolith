@@ -22,6 +22,7 @@ public sealed partial class KiasDisplaySystem : EntitySystem
     [Dependency] private Robust.Shared.Timing.IGameTiming _timing = default!;
     private readonly Queue<EntityUid> _pendingRefresh = new();
     private readonly HashSet<EntityUid> _queuedRefresh = new();
+    private TimeSpan _nextMonitorRefresh;
 
     public override void Initialize()
     {
@@ -142,6 +143,15 @@ public sealed partial class KiasDisplaySystem : EntitySystem
     public override void Update(float frameTime)
     {
         using var measurement = new KiasUpdateMeasurement(_kias);
+        if (_timing.CurTime >= _nextMonitorRefresh && _coverageTools.Count > 0)
+        {
+            _nextMonitorRefresh = _timing.CurTime + TimeSpan.FromSeconds(1);
+            foreach (var tool in _coverageTools.ToArray())
+            {
+                if (TerminatingOrDeleted(tool) || !_ui.IsUiOpen(tool, KiasUiKey.Service)) { _coverageTools.Remove(tool); continue; }
+                if (TryComp<KiasServiceToolComponent>(tool, out var component) && component.Mode == KiasServiceMode.Monitor) Refresh(tool);
+            }
+        }
         const int gridBudget = 4;
         for (var i = 0; i < gridBudget && _pendingRefresh.TryDequeue(out var grid); i++)
         {

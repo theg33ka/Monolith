@@ -98,7 +98,7 @@ public class KiasLocalWindow : FancyWindow
         _logRows.Visible = state is KiasRecorderState;
         _message.Visible = state is KiasSpeakerState or KiasServiceState { Mode: KiasServiceMode.Link or KiasServiceMode.Room };
         _locked.Visible = state is KiasCrewState;
-        _save.Visible = state is not KiasRecorderState;
+        _save.Visible = state is not KiasRecorderState and not KiasServiceState { Mode: KiasServiceMode.Monitor };
         if (state is KiasLocalState device)
         {
             Title = device.Name;

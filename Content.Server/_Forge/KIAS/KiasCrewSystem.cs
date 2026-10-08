@@ -461,7 +461,7 @@ public sealed class KiasCrewSystem : EntitySystem
                 registered.UnionWith(server.Registered);
             if (TryComp<KiasRoomScannerComponent>(device, out var scanner))
             {
-                if ((scanner.Modules & KiasScannerModules.Threat) != 0 && _people.TryGetValue(grid, out var watched))
+                if ((scanner.Modules & KiasScannerModules.Threat) != 0)
                 {
                     _fauna.Clear();
                     _lookup.GetEntitiesInRange(device, scanner.Range, _fauna);
@@ -469,8 +469,11 @@ public sealed class KiasCrewSystem : EntitySystem
                     {
                         if (Transform(creature).GridUid != grid || IsKiasTrackedEntity(creature)
                             || !TryComp<MobStateComponent>(creature, out var state) || state.CurrentState != MobState.Alive
-                            || !watched.Any(person => !TerminatingOrDeleted(person) && HasCoverage(grid, person, KiasScannerModules.Threat)
-                                && EntityManager.System<NpcFactionSystem>().IsHostileFactionMember(creature, person))) continue;
+                            || !ScannersCovering(grid, creature, KiasScannerModules.Threat).Contains(device)
+                            || !(EntityManager.System<NpcFactionSystem>().IsFactionHostile("NanoTrasen", creature)
+                                || _people.TryGetValue(grid, out var watched) && watched.Any(person => !TerminatingOrDeleted(person)
+                                    && HasCoverage(grid, person, KiasScannerModules.Threat)
+                                    && EntityManager.System<NpcFactionSystem>().IsHostileFactionMember(creature, person)))) continue;
                         EntityManager.System<KiasControllerIoSystem>().Emit(device, "RoomScanner", "FaunaThreat", KiasGraphValue.Pulse);
                         if (_armed.Add(creature)) EntityManager.System<KiasProtocolSystem>().Trigger(grid, KiasTrigger.LocalThreat,
                             message: Loc.GetString("kias-local-threat", ("location", EntityManager.System<KiasSafetySystem>().Location(grid, creature))), eventKey: creature.ToString());

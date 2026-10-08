@@ -130,6 +130,21 @@
   parent: BaseKiasServer
   name: KIAS core
   components:
+  - type: Sprite
+    sprite: _Forge/KIAS/KiasCore.rsi
+    offset: 0, 0.5
+    layers:
+    - state: core
+  - type: GenericVisualizer
+    visuals:
+      enum.KiasVisuals.Status:
+        0:
+          enum.KiasDeviceStatus.Online: { color: White }
+          enum.KiasDeviceStatus.Offline: { color: Gray }
+          enum.KiasDeviceStatus.NoPower: { color: Gray }
+          enum.KiasDeviceStatus.NoDataPath: { color: Orange }
+          enum.KiasDeviceStatus.Disconnected: { color: Gray }
+          enum.KiasDeviceStatus.DuplicateCore: { color: Red }
   - type: Machine
     board: KiasCoreBoard
   - type: KiasCore

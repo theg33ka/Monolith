@@ -854,3 +854,10 @@ kias-controller-enable = Enable
 
 kias-controller-status-empty = Empty slot
 kias-group-name = Group name
+
+kias-mode-monitor = Monitor outputs
+kias-monitor-title = Current outputs (updated every second)
+kias-monitor-offline = Device offline: current outputs are unavailable.
+kias-monitor-unset = no data yet
+kias-monitor-pulse = last impulse: { $seconds } s ago
+kias-monitor-no-outputs = This device has no output ports.

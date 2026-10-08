@@ -52,7 +52,7 @@ public sealed class KiasParityTests
             var starter = KiasScannerModules.Identity | KiasScannerModules.Connector | KiasScannerModules.Optical;
             Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Modules & starter, Is.EqualTo(starter));
             Assert.That(em.GetComponent<KiasRoomScannerComponent>(advanced).Modules & KiasScannerModules.Biometric, Is.EqualTo(KiasScannerModules.Biometric));
-            Assert.That(em.GetComponent<KiasRoomScannerComponent>(advanced).Modules & KiasScannerModules.Threat, Is.EqualTo(KiasScannerModules.None));
+            Assert.That(em.GetComponent<KiasRoomScannerComponent>(advanced).Modules & KiasScannerModules.Threat, Is.EqualTo(KiasScannerModules.Threat));
             Assert.That(kias.IsOnline(alarm), Is.True, "The room module bridges a native alarm outside the DATA service radius.");
             Assert.That(em.GetComponent<KiasIntegratedComponent>(alarm).Scanner, Is.EqualTo(scanner));
             Assert.That(em.System<JammerSystem>().SetEnabled(jammer, true), Is.True);

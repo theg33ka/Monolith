@@ -47,7 +47,7 @@ public sealed partial class KiasServiceToolComponent : Component
     public TimeSpan NextTest;
 }
 
-public enum KiasServiceMode : byte { Link, Diagnose, Coverage, Test, Group, Room }
+public enum KiasServiceMode : byte { Link, Diagnose, Coverage, Test, Group, Room, Monitor }
 
 [Serializable, NetSerializable]
 public enum KiasUiKey : byte { Key, Wall, Recorder, Service, Scanner, Sensor, Crew, Speaker }

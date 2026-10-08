@@ -114,15 +114,18 @@ public sealed class KiasControllerCorrectionTests
         await pair.CleanReturnAsync();
     }
 
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task GraphSelectorsSpeakFromEverySelectedSpeakerAndKeepCooldown(bool broadcast)
+    [TestCase(false, "graph-speaker-broadcast")]
+    [TestCase(true, "graph-speaker-broadcast")]
+    [TestCase(false, "Внимание! В отсеке № 3 опасная фауна. Ёж, щит, подъём.")]
+    [TestCase(true, "Внимание! В отсеке № 3 опасная фауна. Ёж, щит, подъём.")]
+    public async Task GraphSelectorsSpeakFromEverySelectedSpeakerAndKeepCooldown(bool broadcast, string text)
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Dirty = true });
         var map = await pair.CreateTestMap();
         var em = pair.Server.ResolveDependency<IEntityManager>();
         var received = new List<ChatMessage>();
-        EntityUid rack = default, card = default;
+        EntityUid rack = default, card = default, programmer = default, actor = default;
+        NetEntity programmerNet = default;
         var speakers = new List<NetEntity>();
         var excluded = new List<NetEntity>();
         await pair.Client.WaitAssertion(() => pair.Client.ResolveDependency<IUserInterfaceManager>().GetUIController<ChatUIController>().MessageAdded += received.Add);
@@ -137,9 +140,11 @@ public sealed class KiasControllerCorrectionTests
             }
             var session = pair.Server.ResolveDependency<IPlayerManager>().Sessions.Single();
             var mind = em.System<SharedMindSystem>().CreateMind(session.UserId);
-            em.System<SharedMindSystem>().TransferTo(mind, Spawn("MobHuman"));
+            actor = Spawn("MobHuman");
+            em.System<SharedMindSystem>().TransferTo(mind, actor);
             Spawn("KiasCore"); Spawn("KiasDataCable");
             rack = Spawn("KiasControllerRack");
+            programmer = Spawn("KiasControllerProgrammer"); programmerNet = em.GetNetEntity(programmer);
             for (var i = 0; i < 3; i++)
             {
                 var speaker = Spawn("KiasSpeaker");
@@ -151,7 +156,7 @@ public sealed class KiasControllerCorrectionTests
             var program = em.GetComponent<KiasControllerCardComponent>(card).Program;
             program.Nodes.AddRange(new KiasControllerNode[]
             {
-                new() { Id = 1, Kind = KiasNodeKind.StringConstant, Config = new() { Text = "graph-speaker-broadcast" } },
+                new() { Id = 1, Kind = KiasNodeKind.StringConstant, Config = new() { Text = string.Empty } },
                 new() { Id = 2, Kind = KiasNodeKind.OnStart },
                 new() { Id = 3, Kind = broadcast ? KiasNodeKind.All : KiasNodeKind.Specific,
                     Profile = "Speaker", Binding = broadcast ? null : em.GetEntity(speakers[0]), Group = broadcast ? "TEST" : "STALE" }
@@ -159,22 +164,48 @@ public sealed class KiasControllerCorrectionTests
             program.Wires.Add(new() { FromNode = 1, FromPort = "Value", ToNode = 3, ToPort = "Message" });
             program.Wires.Add(new() { FromNode = 2, FromPort = "Started", ToNode = 3, ToPort = "Announce" });
             em.System<KiasSystem>().Rebuild(map.Grid);
+            Assert.That(em.System<ItemSlotsSystem>().TryInsert(programmer, KiasControllerProgrammerComponent.SlotId, card, actor), Is.True);
+            Assert.That(em.System<Robust.Server.GameObjects.UserInterfaceSystem>().TryOpenUi(programmer, KiasControllerUiKey.Programmer, actor), Is.True);
         });
+        await pair.RunTicksSync(20);
+        async Task ClientEdit(KiasGraphEdit action) => await pair.Client.WaitAssertion(() =>
+        {
+            var clientEntities = pair.Client.ResolveDependency<IEntityManager>();
+            var uid = clientEntities.GetEntity(programmerNet);
+            var ui = clientEntities.System<Robust.Client.GameObjects.UserInterfaceSystem>();
+            Assert.That(ui.TryGetUiState<KiasControllerEditorState>(uid, KiasControllerUiKey.Programmer, out var state), Is.True);
+            ui.ClientSendUiMessage(uid, KiasControllerUiKey.Programmer, new KiasControllerEditMessage
+                { Edit = action, Revision = state!.Revision, Node = 1, Config = new() { Text = text } });
+        });
+        await ClientEdit(KiasGraphEdit.Configure);
         await pair.RunTicksSync(10);
-        await pair.Server.WaitAssertion(() => Assert.That(em.System<ItemSlotsSystem>().TryInsert(rack, KiasControllerRackComponent.SlotId(0), card, null), Is.True));
+        await pair.Server.WaitAssertion(() =>
+        {
+            Assert.That(em.GetComponent<KiasControllerProgrammerComponent>(programmer).Draft!.Nodes[0].Config.Text, Is.EqualTo(text));
+            Assert.That(em.GetComponent<KiasControllerCardComponent>(card).Program.Nodes[0].Config.Text, Is.Empty);
+        });
+        await ClientEdit(KiasGraphEdit.Write);
+        await pair.RunTicksSync(10);
+        await pair.Server.WaitAssertion(() =>
+        {
+            Assert.That(em.GetComponent<KiasControllerCardComponent>(card).Program.Nodes[0].Config.Text, Is.EqualTo(text));
+            em.System<Robust.Server.GameObjects.UserInterfaceSystem>().CloseUi(programmer, KiasControllerUiKey.Programmer, actor);
+            Assert.That(em.System<ItemSlotsSystem>().TryEject(programmer, KiasControllerProgrammerComponent.SlotId, actor, out _), Is.True);
+            Assert.That(em.System<ItemSlotsSystem>().TryInsert(rack, KiasControllerRackComponent.SlotId(0), card, null), Is.True);
+        });
         await pair.RunTicksSync(20);
         await pair.Server.WaitAssertion(() =>
         {
             var runtime = em.System<KiasControllerRuntimeSystem>();
             Assert.That(runtime.Running(card), Is.True, runtime.Fault(card));
-            Assert.That(runtime.LastValue(card, 1, "Value").Text, Is.EqualTo("graph-speaker-broadcast"));
+            Assert.That(runtime.LastValue(card, 1, "Value").Text, Is.EqualTo(text));
             Assert.That(em.System<KiasControllerIoSystem>().Match(map.Grid,
                 em.GetComponent<KiasControllerCardComponent>(card).Program.Nodes[2]).Count, Is.EqualTo(speakers.Count));
         });
         await pair.Client.WaitAssertion(() =>
         {
             foreach (var speaker in speakers)
-                Assert.That(received.Count(message => message.SenderEntity == speaker && message.Channel == ChatChannel.Local && message.Message.Contains("graph-speaker-broadcast", StringComparison.OrdinalIgnoreCase)), Is.EqualTo(1), string.Join("\n", received.Select(message => $"{message.SenderEntity} {message.Channel}: {message.Message}")));
+                Assert.That(received.Count(message => message.SenderEntity == speaker && message.Channel == ChatChannel.Local && message.Message.Contains(text, StringComparison.OrdinalIgnoreCase)), Is.EqualTo(1), string.Join("\n", received.Select(message => $"{message.SenderEntity} {message.Channel}: {message.Message}")));
             Assert.That(received.Any(message => excluded.Contains(message.SenderEntity)), Is.False);
             received.Clear();
         });
@@ -186,7 +217,7 @@ public sealed class KiasControllerCorrectionTests
         await pair.RunTicksSync(10);
         await pair.Client.WaitAssertion(() =>
         {
-            Assert.That(received.Any(message => message.Message.Contains("graph-speaker-broadcast", StringComparison.OrdinalIgnoreCase)), Is.False);
+            Assert.That(received.Any(message => message.Message.Contains(text, StringComparison.OrdinalIgnoreCase)), Is.False);
             pair.Client.ResolveDependency<IUserInterfaceManager>().GetUIController<ChatUIController>().MessageAdded -= received.Add;
         });
         await pair.CleanReturnAsync();

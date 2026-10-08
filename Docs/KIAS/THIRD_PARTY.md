@@ -15,3 +15,7 @@ NetworkConfigurator/DeviceList is an existing native gameplay mechanism and must
 Wiremod/Integrated Circuits remains conceptual inspiration for typed node graphs. No external runtime/UI code should be copied blindly.
 
 Any newly copied third-party code/assets must follow the repository's attribution/licensing rules.
+
+## Core sprite
+
+The new `KiasCore.rsi` sprite was generated with the built-in OpenAI imagegen tool for Forge on 2026-10-08 and exported to 32×64. Its RSI metadata records CC-BY-SA-3.0 and generated provenance. The existing controller/rack credits to Hurtsay remain separate. See [CORE_SPRITE.md](CORE_SPRITE.md) for the complete generation prompt.
