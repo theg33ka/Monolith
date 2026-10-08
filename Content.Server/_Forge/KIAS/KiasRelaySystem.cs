@@ -2,6 +2,8 @@ using Content.Server.NodeContainer.EntitySystems;
 using Content.Server.Power.Components;
 using Content.Shared._Forge.KIAS;
 using Content.Shared.Interaction;
+using Content.Shared.Examine;
+using Content.Shared.Popups;
 using Content.Shared.NodeContainer;
 using Content.Shared.Power;
 using Content.Shared.Power.EntitySystems;
@@ -19,6 +21,9 @@ public sealed class KiasRelaySystem : EntitySystem
     [Dependency] private SharedToolSystem _tools = default!;
     [Dependency] private SharedPowerReceiverSystem _power = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private SharedInteractionSystem _interaction = default!;
+    private static readonly CableType[] Channels = Enum.GetValues<CableType>();
     private readonly Dictionary<(EntityUid Grid, Vector2i Tile, CableType Channel), HashSet<EntityUid>> _open = new();
 
     public override void Initialize()
@@ -31,6 +36,7 @@ public sealed class KiasRelaySystem : EntitySystem
         SubscribeLocalEvent<KiasRelayComponent, MoveEvent>(OnMove);
         SubscribeLocalEvent<KiasRelayComponent, GetVerbsEvent<AlternativeVerb>>(OnVerbs);
         SubscribeLocalEvent<KiasRelayComponent, InteractUsingEvent>(OnTool);
+        SubscribeLocalEvent<KiasRelayComponent, ExaminedEvent>(OnExamine);
     }
 
     private void OnStartup(Entity<KiasRelayComponent> ent, ref ComponentStartup args) => Refresh(ent);
@@ -105,39 +111,56 @@ public sealed class KiasRelaySystem : EntitySystem
     {
         if (!CanOperate(uid) || !TryComp<KiasRelayComponent>(uid, out var relay))
             return false;
+        if (relay.Closed == closed) return true;
         relay.Closed = closed;
         Refresh((uid, relay));
         return true;
     }
 
-    public bool SetChannel(EntityUid uid, CableType channel)
+    public bool SetChannel(EntityUid uid, CableType channel, EntityUid? actor = null)
     {
-        if (!CanOperate(uid) || !Enum.IsDefined(channel) || !TryComp<KiasRelayComponent>(uid, out var relay))
+        if (!CanOperate(uid) || !Enum.IsDefined(channel) || !TryComp<KiasRelayComponent>(uid, out var relay)
+            || actor is { } user && !CanAdjust(uid, user))
             return false;
+        if (relay.Channel == channel) return true;
         relay.Channel = channel;
         Refresh((uid, relay));
+        if (actor is { } recipient) _popup.PopupEntity(Loc.GetString("kias-relay-channel-changed", ("channel", ChannelName(channel))), uid, recipient);
         return true;
+    }
+
+    private bool CanAdjust(EntityUid uid, EntityUid actor) => !TerminatingOrDeleted(uid) && !TerminatingOrDeleted(actor) && Transform(uid).GridUid is { } grid
+        && _kias.CanConfigure(grid, actor) && _interaction.InRangeUnobstructed(actor, uid);
+
+    private string ChannelName(CableType channel) => Loc.GetString($"kias-relay-channel-{channel.ToString().ToLowerInvariant()}");
+
+    private void OnExamine(Entity<KiasRelayComponent> ent, ref ExaminedEvent args)
+    {
+        if (!args.IsInDetailsRange) return;
+        args.PushText(Loc.GetString("kias-relay-examine", ("channel", ChannelName(ent.Comp.Channel)),
+            ("state", Loc.GetString(ent.Comp.Closed ? "kias-relay-closed" : "kias-relay-opened"))));
     }
 
     private void OnVerbs(Entity<KiasRelayComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!args.CanAccess || !args.CanInteract || !CanOperate(ent))
+        if (!args.CanAccess || !args.CanInteract || !CanOperate(ent) || !CanAdjust(ent, args.User))
             return;
         var uid = ent.Owner;
+        var actor = args.User;
         var closed = !ent.Comp.Closed;
-        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString(closed ? "kias-relay-close" : "kias-relay-open"), Act = () => SetClosed(uid, closed) });
-        foreach (var channel in Enum.GetValues<CableType>())
+        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString(closed ? "kias-relay-close" : "kias-relay-open"), Act = () => { if (CanAdjust(uid, actor)) SetClosed(uid, closed); } });
+        foreach (var channel in Channels)
         {
             var selected = channel;
-            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString($"kias-relay-{channel.ToString().ToLowerInvariant()}"), Act = () => SetChannel(uid, selected) });
+            args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString($"kias-relay-{channel.ToString().ToLowerInvariant()}"), Act = () => SetChannel(uid, selected, actor) });
         }
     }
 
     private void OnTool(Entity<KiasRelayComponent> ent, ref InteractUsingEvent args)
     {
-        if (!args.Handled && _tools.HasQuality(args.Used, "Screwing") && CanOperate(ent))
+        if (!args.Handled && _tools.HasQuality(args.Used, "Screwing") && CanOperate(ent) && CanAdjust(ent, args.User))
         {
-            args.Handled = SetChannel(ent, (CableType) (((int) ent.Comp.Channel + 1) % 4));
+            args.Handled = SetChannel(ent, Channels[(Array.IndexOf(Channels, ent.Comp.Channel) + 1) % Channels.Length], args.User);
         }
     }
 }

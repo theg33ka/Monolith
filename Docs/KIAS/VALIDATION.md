@@ -1,5 +1,18 @@
 # KIAS: validation, 2026-10-08
 
+## Патч T01–T10 от 2026-10-08
+
+Дополнение после уточнения T06: **91/91 в Debug и 91/91 в Release**, журналы `core-full.log`, `core-production-tests.log`. Ядро переведено в слой `Mobs` после RED→GREEN проверки с направленным окном и персонажем (`core-red.log`). Повторный настоящий buildAllRelease.bat: exit 0, 0 ошибок, 1852 предупреждения, 00:01:03.16 (`core-release.log`). Последующие пункты с 90/90 сохраняют историю первого прохода.
+
+Ветка `KIAS`, база `e32aecc197fed90b5947354bbad7b2c24add7911`. Актуальный отчёт и точные команды: [PATCH_20261008_REPORT.md](PATCH_20261008_REPORT.md). Исторические результаты ниже относятся к предыдущим патчам.
+
+- Полный KIAS-фильтр: **90 passed, 0 failed, 0 skipped** в Debug и отдельно в Release; `.kias/patch-20261008/full.log`, `production-tests.log`.
+- Настоящий `Scripts/bat/buildAllRelease.bat`: exit **0**, **0 ошибок**, 4237 предупреждений, 00:01:45.17; `release.log`, `release-exit.txt`.
+- Настоящий `runQuickAll.bat` создал оба приложения. Повторный запуск его дочерних скриптов с записью stdout подтвердил клиентский **MainScreen** и серверный **Ready**; `client-startup.log`, `server-startup.log`. Сервер слушает UDP 1212. Скрипты запускают Debug; Release проверен отдельно.
+- Проверка ресурсов: 6 файлов прототипов, RU/EN по 665 уникальных ключей, 65 RSI/128 состояний, ядро 32×64. `git diff --check` без ошибок.
+- Проверены scanner handoff/detach/Direct, 30 idle ticks, реальные DeviceLink-сигналы динамика и пожаротушения, физическое охлаждение hotspot, один расход картриджа и перезарядка, диапазоны layout 850/1200/1600.
+- **T06 дополнительно исправлен после уточнения пользователя**: слой ядра `Objects → Mobs`; регрессия на клиентских спрайтах направленного окна и персонажа воспроизвела 0 вместо 5 до исправления. Новейшие результаты приведены в дополнении отчёта. Ручной игровой smoke и новые screenshots не выполнены; заменены нативными headless UI/сетевыми/физическими тестами. Коммиты и push не выполнялись.
+
 Tested branch: `KIAS`. Base HEAD: `3e067d069ebb45b192db06db8a38354f9f053cca`; evidence refers to the correction patch working tree, including removal of temporary smoke commands. The final commit is recorded in Git history.
 
 ## Automated checks

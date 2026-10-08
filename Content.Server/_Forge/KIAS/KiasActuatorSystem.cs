@@ -5,6 +5,8 @@ using Content.Shared._Forge.KIAS;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.DeviceLinking.Events;
 using Content.Shared.Verbs;
+using Content.Shared.Popups;
+using Content.Shared.Interaction;
 using Robust.Shared.Containers;
 using Content.Shared.Light.Components;
 using Content.Shared.Light.EntitySystems;
@@ -19,6 +21,8 @@ public sealed class KiasActuatorSystem : EntitySystem
     [Dependency] private SmokeSystem _smoke = default!;
     [Dependency] private KiasSafetySystem _safety = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private SharedInteractionSystem _interaction = default!;
     private readonly Dictionary<EntityUid, HashSet<EntityUid>> _groupLights = new();
 
     public override void Initialize()
@@ -125,21 +129,25 @@ public sealed class KiasActuatorSystem : EntitySystem
 
     private void OnSuppressionVerbs(Entity<KiasSuppressionComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!args.CanAccess || !args.CanInteract || !_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User))
+        if (!args.CanAccess || !args.CanInteract || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User))
             return;
         var uid = ent.Owner;
         var actor = args.User;
-        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("kias-suppress"), Act = () => { if (_kias.CanConfigure(grid, actor)) Suppress(uid); } });
+        args.Verbs.Add(new AlternativeVerb { Text = Loc.GetString("kias-suppress"), Act = () => Suppress(uid, actor) });
     }
 
     private void OnSuppressionSignal(Entity<KiasSuppressionComponent> ent, ref SignalReceivedEvent args)
     {
-        if (args.Port == "KiasSuppress")
+        if (args.Port == "KiasSuppress" && (args.Trigger is not { } source
+            || !TerminatingOrDeleted(source) && Transform(source).GridUid == Transform(ent).GridUid
+            && (!HasComp<KiasDeviceComponent>(source) || _kias.IsOnline(source))))
             Suppress(ent);
     }
 
-    public bool Suppress(EntityUid uid)
+    public bool Suppress(EntityUid uid, EntityUid? actor = null)
     {
+        if (TerminatingOrDeleted(uid) || actor is { } user && (Transform(uid).GridUid is not { } actorGrid
+            || !_kias.CanConfigure(actorGrid, user) || !_interaction.InRangeUnobstructed(user, uid))) return false;
         if (!_kias.IsOnline(uid) || !HasComp<KiasSuppressionComponent>(uid)
             || Transform(uid).GridUid is not { } grid || !_kias.HasRole(grid, KiasDeviceRole.Atmosphere)
             || Comp<KiasGridComponent>(grid).Testing
@@ -147,7 +155,17 @@ public sealed class KiasActuatorSystem : EntitySystem
             || slot.ContainedEntities.FirstOrDefault() is not { Valid: true } cartridge
             || TerminatingOrDeleted(cartridge) || EntityManager.IsQueuedForDeletion(cartridge)
             || !HasComp<KiasSuppressionCartridgeComponent>(cartridge))
+        {
+            if (actor is { } recipient)
+            {
+                var reason = !_kias.IsOnline(uid) ? "kias-suppression-offline"
+                    : Transform(uid).GridUid is { } current && !_kias.HasRole(current, KiasDeviceRole.Atmosphere) ? "kias-suppression-no-atmosphere"
+                    : Transform(uid).GridUid is { } testing && Comp<KiasGridComponent>(testing).Testing ? "kias-suppression-testing"
+                    : "kias-suppression-empty";
+                _popup.PopupEntity(Loc.GetString(reason), uid, recipient);
+            }
             return false;
+        }
         var solution = new Solution();
         solution.AddReagent("Water", 100);
         var foam = Spawn("Foam", Transform(uid).Coordinates);

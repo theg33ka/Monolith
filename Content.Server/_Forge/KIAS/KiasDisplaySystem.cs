@@ -204,7 +204,8 @@ public sealed partial class KiasDisplaySystem : EntitySystem
         if (trigger is { } source && (TerminatingOrDeleted(source) || Transform(source).GridUid != grid
             || HasComp<KiasDeviceComponent>(source) && !_kias.IsOnline(source)))
             return;
-        var message = ent.Comp.Links.FirstOrDefault(link => link.Source == trigger && link.SourcePort == sourcePort)?.Message ?? ent.Comp.Message;
+        var linkedMessage = ent.Comp.Links.FirstOrDefault(link => link.Source == trigger && link.SourcePort == sourcePort)?.Message;
+        var message = string.IsNullOrWhiteSpace(linkedMessage) ? ent.Comp.Message : linkedMessage;
         if (!string.IsNullOrWhiteSpace(message))
             Announce(grid, message, selected: ent.Owner, key: $"link:{trigger}:{sourcePort}:{ent.Owner}");
     }

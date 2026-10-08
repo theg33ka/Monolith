@@ -176,6 +176,7 @@ public class KiasLocalWindow : FancyWindow
                 _locked.Pressed = crew.Locked;
                 break;
             case KiasSpeakerState speaker:
+                _details += "\n" + Loc.GetString("kias-speaker-link-help");
                 if (!_group.HasKeyboardFocus()) _group.Text = speaker.Group;
                 if (!_message.HasKeyboardFocus()) _message.Text = speaker.Message;
                 break;

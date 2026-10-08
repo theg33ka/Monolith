@@ -3,6 +3,7 @@ using System.Linq;
 using Content.Client.UserInterface.Systems.Chat;
 using Content.Server._Forge.KIAS;
 using Content.Server.Power.Components;
+using Content.Server.DeviceLinking.Systems;
 using Content.Shared._Forge.KIAS;
 using Content.Shared.Chat;
 using Content.Shared.DeviceLinking.Events;
@@ -28,6 +29,7 @@ public sealed class KiasSpeakerTests
         EntityUid speaker = default;
         EntityUid other = default;
         EntityUid scanner = default;
+        EntityUid rotary = default;
         EntityUid core = default;
         NetEntity speakerNet = default;
         NetEntity otherNet = default;
@@ -54,6 +56,7 @@ public sealed class KiasSpeakerTests
             speaker = Spawn("KiasSpeaker", 2);
             other = Spawn("KiasSpeaker", 3);
             scanner = Spawn("KiasRoomScanner", 4);
+            rotary = Spawn("KiasRotarySwitch", 4);
             em.GetComponent<KiasSpeakerComponent>(speaker).Group = "MEDICAL";
             em.GetComponent<KiasSpeakerComponent>(other).Group = "ENGINEERING";
             speakerNet = em.GetNetEntity(speaker);
@@ -86,6 +89,21 @@ public sealed class KiasSpeakerTests
         {
             Assert.That(received.Any(msg => msg.SenderEntity == speakerNet && msg.Channel == ChatChannel.Local), Is.True);
             Assert.That(received.Any(msg => msg.SenderEntity == otherNet), Is.False, "A direct link must speak only from its sink speaker.");
+        });
+        await pair.Server.WaitAssertion(() =>
+        {
+            var links = em.System<DeviceLinkSystem>();
+            links.LinkDefaults(rotary, rotary, speaker);
+            Assert.That(links.GetLinks(rotary, speaker).Any(link => link.source.ToString() == "KiasPosition3" && link.sink.ToString() == "KiasAnnounce"), Is.True);
+            var component = em.GetComponent<KiasSpeakerComponent>(speaker);
+            component.Message = "KIAS configured switch message";
+            component.Links.Add(new KiasSpeakerLink { Source = rotary, SourcePort = "KiasPosition3", Message = "" });
+            links.SendSignal(rotary, "KiasPosition3", true);
+        });
+        await pair.RunTicksSync(5);
+        await pair.Client.WaitAssertion(() =>
+        {
+            Assert.That(received.Any(msg => msg.SenderEntity == speakerNet && msg.Message.Contains("KIAS configured switch message")), Is.True);
         });
         await pair.Server.WaitAssertion(() =>
         {

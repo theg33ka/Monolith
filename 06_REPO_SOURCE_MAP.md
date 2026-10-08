@@ -1,81 +1,46 @@
-# Source map for the correction pass
+# Current source map (checked on `KIAS`, `e32aecc197f...`)
 
-## Graph UI
+## New TODO → source
 
-- `Content.Client/_Forge/KIAS/Controllers/KiasControllerWindow.cs`
-  - toolbar, palette, inspector; current all-fields-for-all-nodes behavior.
-- `Content.Client/_Forge/KIAS/Controllers/KiasGraphCanvas.cs`
-  - node drawing, values, ports, wires, pan/zoom.
-- `Content.Client/_Forge/KIAS/Controllers/KiasControllerLabels.cs`
-  - localized profile/port/error labels.
-- `Content.Client/_Forge/KIAS/KiasLocalWindow.cs`
-  - generic local/service/device configuration UI.
-- `Content.Client/_Forge/KIAS/KiasWindow.xaml(.cs)`
-  - management UI.
+| Task | Files, relevant confirmed paths |
+| --- | --- |
+| T01 ID / T02 room | `Content.Server/_Forge/KIAS/KiasDeviceIdentitySystem.cs`, `Content.Shared/_Forge/KIAS/KiasComponents.cs`, `Content.Server/_Forge/KIAS/Controllers/KiasControllerUiSystem.cs`, `Content.Shared/_Forge/KIAS/Controllers/KiasControllerProgram.cs`, `Content.Client/_Forge/KIAS/Controllers/KiasControllerWindow.cs`, `KiasControllerLabels.cs` |
+| T03/T04 palette/labels | `Content.Client/_Forge/KIAS/Controllers/KiasControllerWindow.cs`, `KiasGraphCanvas.cs`, `Content.Client/_Forge/KIAS/KiasUi.cs`, `Resources/Locale/ru-RU/_Forge/kias.ftl`, `Resources/Locale/en-US/_Forge/kias.ftl` |
+| T05 Kit | `Resources/Prototypes/_Forge/KIAS/devices.yml` (`id: KiasIntegrationKit`); `Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi` |
+| T06 Core | `Resources/Prototypes/_Forge/KIAS/kias.yml` (`id: KiasCore`, `parent: BaseKiasServer`, RSI/offset), `Resources/Textures/_Forge/KIAS/KiasCore.rsi`, `Docs/KIAS/CORE_SPRITE.md`, `KiasSpriteTests.cs` |
+| T07 Relay | `Content.Server/_Forge/KIAS/KiasRelaySystem.cs`, `Content.Shared/_Forge/KIAS/KiasRelayComponent.cs`, `Resources/Prototypes/_Forge/KIAS/kias.yml`, `Resources/Locale/*/_Forge/kias.ftl`, `KiasRelayTests.cs` |
+| T08 Scanner | `Content.Server/_Forge/KIAS/KiasCrewSystem.cs` (`RebuildCoverage`), `Content.Server/_Forge/KIAS/KiasIntegrationSystem.cs` (`ConnectRoom`, `Integrate`, `CanControl`), `Content.Server/_Forge/KIAS/KiasServiceSystem.cs`, `Content.Shared/_Forge/KIAS/KiasCrewComponents.cs`, `KiasDeviceConfigurationTests.cs`, `KiasUiStabilityTests.cs` |
+| T09 button/speaker | `Content.Server/_Forge/KIAS/KiasDeviceSystem.cs`, `Content.Server/_Forge/KIAS/Controllers/KiasControllerIoSystem.cs` & `KiasControllerIoSystem.Commands.cs`, `Content.Server/_Forge/KIAS/KiasDisplaySystem.Audio.cs`, `Resources/Prototypes/_Forge/KIAS/devices.yml` (`id: KiasEmergencyButton`), `kias.yml` (`id: KiasSpeaker`), `controller_profiles.yml`, source/sink port prototypes/defaultLinks, `KiasSpeakerTests.cs` |
+| T10 suppression | `Content.Server/_Forge/KIAS/KiasActuatorSystem.cs` (`Suppress()`), `Content.Server/_Forge/KIAS/KiasProtocolSystem.cs` (`OnFireAlarm`), `Content.Server/_Forge/KIAS/KiasSafetySystem.cs`, `Controllers/KiasControllerIoSystem.Commands.cs`, `Resources/Prototypes/_Forge/KIAS/kias.yml` (`KiasSuppression`, `KiasSuppress`, `KiasSuppressionCartridge`), `controller_presets.yml`, `KiasActuatorTests.cs` and `KiasProtocolTests.cs` |
 
-## Graph schema/runtime
+## Preexisting architecture and key tests
 
-- `Content.Shared/_Forge/KIAS/Controllers/KiasControllerProgram.cs`
-- `Content.Shared/_Forge/KIAS/Controllers/KiasGraphCatalog.cs`
-- `Content.Shared/_Forge/KIAS/Controllers/KiasGraphCompiler.cs`
-- `Content.Shared/_Forge/KIAS/Controllers/KiasGraphMachine.cs`
-- `Content.Server/_Forge/KIAS/Controllers/KiasControllerRuntimeSystem.cs`
-- `Content.Server/_Forge/KIAS/Controllers/KiasControllerIoSystem*.cs`
-- `Content.Server/_Forge/KIAS/Controllers/KiasControllerUiSystem.cs`
+- `Content.Server/_Forge/KIAS/KiasSystem.cs` — topology, online/device list, manager power state.
+- `Content.Server/_Forge/KIAS/KiasRelaySystem.cs` — `_open` indexed by `(Grid,Tile,Channel)`, `QueueReflood` of nearby node containers.
+- `Content.Server/_Forge/KIAS/Controllers/KiasControllerRuntimeSystem.cs`, `Content.Shared/_Forge/KIAS/Controllers/{KiasGraphMachine,KiasGraphCompiler,KiasGraphCatalog}.cs` — graph execution/strict port types.
+- `Content.Server/DeviceLinking/Systems/DeviceLinkSystem.cs`, `Content.Server/DeviceNetwork/Systems/{NetworkConfiguratorSystem,DeviceListSystem}.cs` — core gameplay integration (do not patch speculatively).
+- `Content.Server/Atmos/Monitor/Systems/{AirAlarmSystem,AtmosAlarmableSystem}.cs` — real danger chain.
+- `Content.IntegrationTests/Tests/_Forge/KIAS/` contains 30+ existing suites; locate closest suite, do not invent new test runner.
+- `Content.Client/Shuttles/UI/ShuttleConsoleWindow.xaml` — in-repo visual hierarchy reference.
+- `Docs/KIAS/VALIDATION.md`, `Docs/KIAS/UI_STABILITY.md`, `Docs/KIAS/DEVICE_IDENTIFICATION.md` — historical verification; report current results separately.
 
-## Speaker/audio
+## Exact Windows batch files — previously missed by agent
 
-- `Content.Server/_Forge/KIAS/Controllers/KiasControllerIoSystem.Commands.cs`
-- `Content.Server/_Forge/KIAS/KiasSafetySystem.cs`
-- `Content.Server/_Forge/KIAS/KiasDisplaySystem.cs`
-- `Content.Server/_Forge/KIAS/KiasDisplaySystem.Audio.cs`
-- `Content.Shared/_Forge/KIAS/KiasAudio.cs`
-- `Content.Shared/_Forge/KIAS/KiasDisplay.cs`
+```text
+Monolith\Scripts\bat\buildAllRelease.bat
+Monolith\Scripts\bat\runQuickAll.bat
+```
 
-## Lighting/integration/power
+`buildAllRelease.bat` content on inspected commit:
 
-- `Content.Server/_Forge/KIAS/KiasActuatorSystem.cs`
-- `Content.Server/_Forge/KIAS/KiasIntegrationSystem.cs`
-- `Content.Server/_Forge/KIAS/KiasSystem.cs`
-- `Content.Shared/_Forge/KIAS/KiasActuatorComponents.cs`
-- `Resources/Prototypes/_Forge/KIAS/controller_profiles.yml`
-- `Resources/Prototypes/_Forge/KIAS/kias.yml`
-- `Resources/Prototypes/_Forge/KIAS/devices.yml`
+```bat
+@echo off
+cd ../../
+call git submodule update --init --recursive
+call dotnet build -c Release
+pause
+```
 
-## NetworkConfigurator / DeviceList / atmosphere
+`runQuickAll.bat` launches sibling `runQuickServer.bat` and `runQuickClient.bat` with `start`. **Run these scripts with CWD `Scripts\bat`**, and handle `pause` in the release script. Check success of spawned processes, not simply exit of launcher.
 
-- `Content.Server/DeviceNetwork/Systems/NetworkConfiguratorSystem.cs`
-- `Content.Server/DeviceNetwork/Systems/DeviceListSystem.cs`
-- `Content.Shared/DeviceNetwork/Components/DeviceListComponent.cs`
-- `Content.Server/DeviceLinking/Systems/DeviceLinkSystem.cs`
-- `Content.Server/Atmos/Monitor/Systems/AirAlarmSystem.cs`
-- `Content.Server/Atmos/Monitor/Systems/AtmosAlarmableSystem.cs`
-- `Resources/Prototypes/Entities/Structures/Wallmounts/air_alarm.yml`
-
-## Presets/localization
-
-- `Resources/Prototypes/_Forge/KIAS/controller_presets.yml`
-- `Resources/Locale/ru-RU/_Forge/kias.ftl`
-- `Resources/Locale/en-US/_Forge/kias.ftl`
-- `Resources/Prototypes/_Forge/KIAS/controllers.yml`
-- `Resources/Prototypes/_Forge/KIAS/crafting.yml`
-
-## UI quality references in the same repo
-
-- `Content.Client/Shuttles/UI/ShuttleConsoleWindow.xaml(.cs)`
-- `Content.Client/Shuttles/UI/ShuttleNavControl.xaml.cs`
-- `Content.Client/NetworkConfigurator/*`
-
-## Existing tests to extend
-
-- `Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerLayoutTests.cs`
-- `KiasControllerRuntimeTests.cs`
-- `KiasControllerEditorTests.cs`
-- `KiasSpeakerTests.cs`
-- `KiasDeviceTests.cs`
-- `KiasParityTests.cs`
-- `KiasVentilationTests.cs`
-- `KiasPersistenceTests.cs`
-- `KiasFleetTests.cs`
-
-Prefer extending the closest existing suite instead of creating dozens of tiny test fixtures without reason.
+**Agent:** recheck all paths and historical assumptions on your actual working tree, do not treat this map as a substitute for code.

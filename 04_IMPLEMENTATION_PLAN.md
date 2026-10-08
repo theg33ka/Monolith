@@ -1,51 +1,45 @@
-# Ordered implementation plan — correctness/UI pass
+# Implementation plan — time-boxed, evidence-first
 
-## Phase 0 — reproduce first
+This is a prioritized **implementation task**. Time goals guide scheduling but never justify skipping verification or claiming green before running tests.
 
-Create minimal failing tests/smokes for:
+## Phase A, 0–8 min: baseline & reproduction
 
-- card name after WRITE;
-- controller -> Speaker;
-- ALL Speaker broadcast;
-- integrated light OFF -> ON;
-- ALL Lighting vs ALL LightGroupController distinction;
-- AirAlarm DeviceList multitool workflow;
-- real atmos danger -> KIAS preset path.
+- `git status --short`, `git branch --show-current`, `git rev-parse HEAD`, note dirty changes. Record timestamp and current branch. If not `KIAS`, stop before modifying the wrong branch.
+- Read code path map and real tests. Check contributor/PR rules, existing engine/dependency readiness.
+- Run quick baseline relevant tests, identify current failures before patch. Read screenshot files.
+- Make a compact red/green board for T01–T10. For uncertain T09/T10, first ascertain exact instance and trigger route, not invent a fix.
 
-Do not start with cosmetic refactor before correctness failures are captured.
+## Phase B, 8–32 min: observable functional failures first
 
-## Phase 1 — card metadata + speaker correctness
+- T07: relay popup and examine + enum cycling, couple of tests.
+- T08: scanner reconciliation and stale cleanup. This is highest loop/regression risk: test scanner 1/2, out-of-range, unanchor, direct kit and idempotence first.
+- T09: trace misleading button/speaker suggestion; narrow metadata/link correction, verify vanilla ports and speaker graph unaffected.
+- T10: end-to-end suppression, real cartridge/foam/fire, false-negative diagnostics; repair true failing step, avoid new system.
+- Run focused tests after each change; maintain patch checkpoints, not branches full of dead debug instrumentation.
 
-Small isolated fixes first. Add regression tests.
+## Phase C, ~32–45 min: UI and sprites
 
-## Phase 2 — integrated control-plane power semantics
+- T01 + T02 together (short label in hierarchical device palette + full diagnostic ID).
+- T03 adaptive sidebar and readability while preserving inspector/canvas, test small and large widths.
+- T04 localized `Шаблон:` label.
+- T05 kit 0.75 → 0.60 appearance test.
+- T06 core screenshot reproduction then minimal world-sprite/placement correction, real before/after captures.
 
-Introduce the minimal distinction needed for KiasIntegrated endpoints. Re-run native KIAS power/off tests to prove normal devices still go offline when expected.
+## Phase D, ~45–60 min: broad validation
 
-## Phase 3 — lighting profile split
+- Targeted red→green, then all KIAS integration tests, YAML/RSI/locales, diff check.
+- Run `Scripts\bat\buildAllRelease.bat` from `Scripts\bat` working directory. Collect exact log, monitor exit status; script includes `pause`. Do not rely on an unrelated command to claim this step succeeded.
+- Run `Scripts\bat\runQuickAll.bat` from its folder. Verify launched server and client actually start without KIAS errors; connect game, not just processes.
+- Game smoke step-by-step from `11_LIVE_SMOKE_CHECKLIST.md`, screenshot proof for all three UI images at minimum and gameplay action logs.
 
-Add direct Lighting capability and rename existing LightController profile for user-facing semantics. Update presets only where they intentionally target group controllers. Verify old saved cards/presets migrate or keep stable IDs cleanly.
+## Phase E, ~60–75 min as useful: protect future regressions
 
-## Phase 4 — restore DeviceList workflow
+- Recheck old passes: all KIAS cards/presets, ALL/ANY/SPECIFIC binding, air alarm + vents + scrubbers DeviceList, speaker Cyrillic text, fauna detection, UI rack control focus, idempotent topology and tooltip stability, relay isolation with multi-channel cables, direct/auto scanner precedence, real extinguish. Include non-KIAS DeviceLink/atmos smoke.
+- Amend `Docs/KIAS/VALIDATION.md` with only actually executed tests, exact limitations; concise final report with file paths.
 
-Reproduce why AirAlarm cannot be configured through normal list workflow. Fix the smallest relevant layer. Preserve port-link mode and generic DeviceLink behavior.
+## Exit/decision criteria
 
-## Phase 5 — graph schema/help
-
-Add port descriptions/domains and any versioned metadata needed. Avoid rewriting runtime value representation unless necessary.
-
-## Phase 6 — inspector + canvas readability
-
-Capability-driven inspector, inline configured values, tooltips, wire incompatibility feedback, selector filter labels.
-
-## Phase 7 — KIAS visual design pass
-
-Create reusable section/status/field UI helpers/styles. Apply to programmer, rack, management/local/service windows. Use ShuttleConsole visual hierarchy as an in-repo quality reference, not a literal skin copy.
-
-## Phase 8 — localization
-
-Audit all KIAS player-facing prototypes and graph strings. `KIAS` remains Latin. Add concise `.desc`.
-
-## Phase 9 — end-to-end validation
-
-Automated suites + live client smoke + screenshots. Only after this update `Docs/KIAS/VALIDATION.md` with measured actual results.
+- **Done** means code changed + regression covered + build script finished successfully + client/server started + real user path smoke or explicit human follow-up marked.
+- If Release build fails: fix if from patch; if external, isolate and report exact command/log/reason. **Never** start an old binary while claiming new build verified.
+- If no GUI access: test with actual native UI lifecycle and add explicit manual verification steps; do **not** mark visual smoke PASS.
+- Do not add frivolous features, blanket catch blocks, global architecture rewrites, re-generated sprite packs, or endless test loops merely to fill time.

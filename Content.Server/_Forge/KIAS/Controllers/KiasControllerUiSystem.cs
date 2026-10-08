@@ -111,6 +111,8 @@ public sealed class KiasControllerUiSystem : EntitySystem
         if (state.Online && Transform(ent).GridUid is { } current)
         {
             var identities = EntityManager.System<KiasDeviceIdentitySystem>();
+            if (TryComp<KiasGridComponent>(current, out var inventory))
+                state.Identifiers = inventory.Devices.Where(uid => !TerminatingOrDeleted(uid)).Select(identities.Identifier).ToList();
             var rooms = identities.Rooms(current, state.Profiles.SelectMany(profile => _io.Devices(current, profile.Id)));
             foreach (var profile in state.Profiles)
                 foreach (var uid in _io.Devices(current, profile.Id).Take(256))

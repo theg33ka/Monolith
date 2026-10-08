@@ -21,14 +21,54 @@ public sealed class KiasIntegrationSystem : EntitySystem
     [Dependency] private SharedMapSystem _maps = default!;
     private readonly HashSet<EntityUid> _nearby = new();
     private readonly HashSet<EntityUid> _pendingRooms = new();
+    private readonly Dictionary<EntityUid, EntityUid> _automatic = new();
+    private readonly Dictionary<EntityUid, HashSet<EntityUid>> _byGrid = new();
 
     public override void Initialize()
     {
         SubscribeLocalEvent<KiasIntegrationKitComponent, AfterInteractEvent>(OnInstall);
         SubscribeLocalEvent<KiasIntegratedComponent, SignalReceivedEvent>(OnSignal);
         SubscribeLocalEvent<KiasIntegratedComponent, MapInitEvent>(OnIntegratedInit);
+        SubscribeLocalEvent<KiasIntegratedComponent, ComponentStartup>(OnIntegratedStartup);
+        SubscribeLocalEvent<KiasIntegratedComponent, ComponentShutdown>(OnIntegratedShutdown);
+        SubscribeLocalEvent<KiasIntegratedComponent, GridUidChangedEvent>(OnIntegratedGrid);
+        SubscribeLocalEvent<KiasIntegratedComponent, AnchorStateChangedEvent>(OnIntegratedAnchor);
+        SubscribeLocalEvent<KiasIntegratedComponent, MoveEvent>(OnIntegratedMove);
         EntityManager.EntityInitialized += OnNativeInitialized;
         SubscribeLocalEvent<ApcPowerReceiverComponent, AnchorStateChangedEvent>(OnNativeAnchor);
+    }
+
+    private void OnIntegratedStartup(Entity<KiasIntegratedComponent> ent, ref ComponentStartup args) => Track(ent);
+    private void OnIntegratedGrid(Entity<KiasIntegratedComponent> ent, ref GridUidChangedEvent args) => Track(ent);
+    private void OnIntegratedAnchor(Entity<KiasIntegratedComponent> ent, ref AnchorStateChangedEvent args) => Track(ent);
+    private void OnIntegratedMove(Entity<KiasIntegratedComponent> ent, ref MoveEvent args)
+    {
+        if (!args.OnlyRotation) Track(ent);
+    }
+    private void OnIntegratedShutdown(Entity<KiasIntegratedComponent> ent, ref ComponentShutdown args)
+    {
+        Untrack(ent);
+    }
+    private void Untrack(EntityUid target)
+    {
+        if (!_automatic.Remove(target, out var old)) return;
+        if (_byGrid.TryGetValue(old, out var targets))
+        {
+            targets.Remove(target);
+            if (targets.Count == 0) _byGrid.Remove(old);
+        }
+        _pendingRooms.Add(old);
+    }
+    private void Track(Entity<KiasIntegratedComponent> ent)
+    {
+        Untrack(ent);
+        if (!ent.Comp.Direct && Transform(ent).GridUid is { } grid)
+        {
+            _automatic[ent] = grid;
+            if (!_byGrid.TryGetValue(grid, out var targets)) _byGrid.Add(grid, targets = new());
+            targets.Add(ent);
+            _pendingRooms.Add(grid);
+        }
     }
 
     private void OnIntegratedInit(Entity<KiasIntegratedComponent> ent, ref MapInitEvent args)
@@ -40,6 +80,8 @@ public sealed class KiasIntegrationSystem : EntitySystem
     {
         EntityManager.EntityInitialized -= OnNativeInitialized;
         _pendingRooms.Clear();
+        _automatic.Clear();
+        _byGrid.Clear();
     }
 
     private void OnNativeInitialized(Entity<MetaDataComponent> ent)
@@ -76,7 +118,8 @@ public sealed class KiasIntegrationSystem : EntitySystem
         if (TryComp<KiasIntegratedComponent>(target, out var integrated) && !integrated.Direct)
         {
             if (integrated.Scanner is not { } scanner || TerminatingOrDeleted(scanner) || Transform(scanner).GridUid != grid
-                || !TryComp<KiasRoomScannerComponent>(scanner, out var module) || (module.Modules & KiasScannerModules.Connector) == 0
+                || !TryComp<KiasRoomScannerComponent>(scanner, out var module) || module.LifeStage > ComponentLifeStage.Running
+                || (module.Modules & KiasScannerModules.Connector) == 0
                 || !_power.IsPowered(scanner) || !Transform(scanner).Anchored) return false;
             var a = _maps.TileIndicesFor(grid, map, Transform(scanner).Coordinates);
             var b = _maps.TileIndicesFor(grid, map, Transform(target).Coordinates);
@@ -106,6 +149,7 @@ public sealed class KiasIntegrationSystem : EntitySystem
         var integrated = EnsureComp<KiasIntegratedComponent>(target);
         integrated.Scanner = scanner;
         integrated.Direct = scanner == null;
+        Track((target, integrated));
         EnsureComp<KiasDeviceComponent>(target).Role = KiasDeviceRole.Adapter;
         if (HasComp<Content.Shared.Light.Components.PoweredLightComponent>(target))
             EnsureComp<KiasLightFixtureComponent>(target);
@@ -114,18 +158,39 @@ public sealed class KiasIntegrationSystem : EntitySystem
         if (Transform(target).GridUid is { } grid) _kias.Invalidate(grid);
     }
 
-    public void ConnectRoom(EntityUid scanner, int range)
+    public void Reconcile(EntityUid grid)
     {
-        if (!_kias.IsOnline(scanner) || Transform(scanner).GridUid is not { } grid) return;
-        _nearby.Clear();
-        _lookup.GetEntitiesInRange(scanner, Math.Clamp(range, 0, 10), _nearby, LookupFlags.All);
-        foreach (var target in _nearby)
+        if (!TryComp<KiasGridComponent>(grid, out var runtime) || !TryComp<MapGridComponent>(grid, out var map)) return;
+        if (runtime.Active && (runtime.Core is not { } core || !_kias.IsOnline(core))) return;
+        var candidates = new Dictionary<EntityUid, EntityUid>();
+        foreach (var scanner in runtime.Online.OrderBy(uid => uid.Id).ToArray())
         {
-            if (!Transform(target).Anchored || Transform(target).GridUid != grid || HasComp<KiasDeviceComponent>(target)
-                && (!TryComp<KiasIntegratedComponent>(target, out var integrated) || integrated.Direct || CanControl(target))) continue;
-            if (HasComp<AirAlarmComponent>(target) || HasComp<FireAlarmComponent>(target) || HasComp<AtmosMonitorComponent>(target)
-                || HasComp<GasVentPumpComponent>(target) || HasComp<GasVentScrubberComponent>(target) || HasComp<DoorComponent>(target))
-                Integrate(target, scanner);
+            if (!_kias.IsOnline(scanner) || !Transform(scanner).Anchored
+                || !TryComp<KiasRoomScannerComponent>(scanner, out var component) || component.LifeStage > ComponentLifeStage.Running
+                || (component.Modules & KiasScannerModules.Connector) == 0) continue;
+            var range = Math.Clamp(component.Range, 0, 10);
+            var origin = _maps.TileIndicesFor(grid, map, Transform(scanner).Coordinates);
+            _nearby.Clear();
+            _lookup.GetEntitiesInRange(scanner, range + 1.5f, _nearby, LookupFlags.All);
+            foreach (var target in _nearby)
+            {
+                if (TerminatingOrDeleted(target) || !Transform(target).Anchored || Transform(target).GridUid != grid
+                    || (_maps.TileIndicesFor(grid, map, Transform(target).Coordinates) - origin).LengthSquared > range * range
+                    || TryComp<KiasIntegratedComponent>(target, out var integrated) && integrated.Direct
+                    || HasComp<KiasDeviceComponent>(target) && !HasComp<KiasIntegratedComponent>(target)) continue;
+                if (HasComp<AirAlarmComponent>(target) || HasComp<FireAlarmComponent>(target) || HasComp<AtmosMonitorComponent>(target)
+                    || HasComp<GasVentPumpComponent>(target) || HasComp<GasVentScrubberComponent>(target) || HasComp<DoorComponent>(target))
+                    candidates.TryAdd(target, scanner);
+            }
+        }
+        foreach (var (target, scanner) in candidates) Integrate(target, scanner);
+        if (!_byGrid.TryGetValue(grid, out var assigned)) return;
+        foreach (var target in assigned.ToArray())
+        {
+            if (candidates.ContainsKey(target) || TerminatingOrDeleted(target)
+                || !TryComp<KiasIntegratedComponent>(target, out var integrated) || integrated.Direct || integrated.Scanner == null) continue;
+            integrated.Scanner = null;
+            _kias.Invalidate(grid);
         }
     }
 

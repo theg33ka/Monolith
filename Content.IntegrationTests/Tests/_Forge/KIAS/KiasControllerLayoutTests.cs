@@ -33,7 +33,8 @@ public sealed class KiasControllerLayoutTests
             populated.Nodes.Add(new() { Id = 2, Kind = KiasNodeKind.Timer, X = 350, Y = 30, Ports = KiasGraphCatalog.InternalPorts(KiasNodeKind.Timer) });
             populated.Wires.Add(new() { FromNode = 1, FromPort = "Started", ToNode = 2, ToPort = "Trigger" });
             populated.Profiles.Add(new() { Id = "Power" });
-            populated.Devices.Add(new() { Name = new string('W', 200), Profile = "Power" });
+            populated.Devices.Add(new() { Name = new string('W', 200), Profile = "Power", Identifier = "ABCDEF012345" });
+            populated.Devices.Add(new() { Name = "Collision peer", Profile = "Power", Identifier = "ABCDEF112345" });
             programmer.UpdateState(populated);
             using var rack = new KiasControllerRackWindow();
             var rackState = new KiasControllerRackState();
@@ -63,12 +64,16 @@ public sealed class KiasControllerLayoutTests
                     var ancestor = palette.Parent!;
                     while (ancestor is not ScrollContainer) ancestor = ancestor.Parent!;
                     var scroll = (ScrollContainer) ancestor;
-                    Assert.That(deviceButton.Size.X, Is.InRange(100f, 250f));
+                    Assert.That(deviceButton.Size.X, Is.InRange(100f, 320f));
                     Assert.That(palette.Size.X, Is.LessThanOrEqualTo(scroll.Size.X));
                     Assert.That(deviceButton.Label.GlobalPosition.X, Is.InRange(scroll.GlobalPosition.X, scroll.GlobalPosition.X + scroll.Size.X));
                     Assert.That(deviceButton.Label.Size.X, Is.GreaterThan(100));
                     Assert.That(deviceButton.Label.Align, Is.EqualTo(Label.AlignMode.Left));
-                    Assert.That(deviceButton.ToolTip, Is.EqualTo(deviceButton.Text));
+                    Assert.That(deviceButton.Text, Does.StartWith(populated.Devices[0].Name));
+                    Assert.That(deviceButton.ToolTip, Does.Contain("ABCDEF012345"));
+                    Assert.That(Descendants(deviceButton).OfType<RichTextLabel>().Any(label => label.Text?.Contains("#ABCDEF0") == true), Is.True);
+                    Assert.That(Descendants(programmer).OfType<Label>().Any(label => label.Text == Loc.GetString("kias-controller-template")), Is.True);
+                    Assert.That(Descendants(programmer).OfType<KiasGraphCanvas>().Single().Size.X, Is.GreaterThan(160));
                 }
             }
         });

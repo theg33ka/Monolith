@@ -1,290 +1,82 @@
-# MASTER PROMPT — KIAS correctness, integration and UI/UX pass
+# MASTER PROMPT — KIAS: targeted fixes, hostile-regression checks, and UI polish
 
-Работай в **актуальной ветке `KIAS`** Monolith. Базовая точка, по которой составлена эта спецификация: `3e067d069ebb45b192db06db8a38354f9f053cca` (2026-10-08). Перед началом всё равно проверь текущий HEAD; если ветка ушла вперёд, используй фактический код как источник истины и не откатывай более новые исправления.
+Работай **в локальном Monolith, ветка `KIAS`**. Эта задача — полноценная реализация + проверка изменений, не предварительное ревью или план. Репозиторий-ориентир: `https://github.com/theg33ka/Monolith/tree/KIAS`; при инспекции документации зафиксирован HEAD `e32aecc197fed90b5947354bbad7b2c24add7911`. **Сначала проверь свой реальный HEAD, незакоммиченные изменения, реальную кодовую базу.** Не перетирай чужие правки и не перетаскивай старый патч поверх нового.
 
-## 0. Что уже существует
+## 0. Прочитай комплект
 
-KIAS уже реализована: ядро, DATA topology, access model, устройства, integration kit, programmable controller cards, programmer, controller rack, graph runtime, ANY/ALL/SPECIFIC, presets, тесты и документация. **Не переписывай систему с нуля.**
+Прочти `README.md` и ВСЕ `01_...`–`12_...md` в корне, а также `Docs/KIAS/{README,VALIDATION,DEVICE_IDENTIFICATION,CORE_SPRITE,UI_STABILITY}.md` и локальные contributor инструкции (`.github/PULL_REQUEST_TEMPLATE.md`, README, devwiki при доступности). Три изображения лежат в `references/`. В прошлых версиях многое **уже реализовано**; считай старые списки матрицей регрессий, не тасками на переписывание. Живая реализация важнее исторического документа.
 
-Этот проход исправляет обнаруженные в реальной игровой проверке проблемы:
+## 1. Результат и приоритет
 
-- имя записанной controller-card не отражается на физическом предмете;
-- speaker graph path неудобен/частично ломается, особенно broadcast через ALL;
-- inspector показывает нерелевантные поля для каждого узла;
-- graph terminology и типы непонятны игроку;
-- порты почти не документированы;
-- значения constants/config не читаются прямо на нодах;
-- `ALL Освещение` сейчас фактически означает light-group controllers, а не все светильники;
-- интегрированное устройство можно выключить через KIAS, но после этого KIAS считает его offline и не может включить обратно;
-- group-light workflow через service multitool непрозрачен;
-- штатный DeviceList/NetworkConfigurator workflow для air alarm / sensors / vents / scrubbers должен продолжать работать как раньше и не заменяться ручной прокладкой source/sink ports;
-- preset `atmosphere`/«Разгерметизация» записывается и запускается, но в реальном сценарии не получает ожидаемый `AtmosDanger` из-за сломанной/неочевидной upstream-конфигурации;
-- KIAS UI функционален, но выглядит как debug/tool UI, плохо читается и не соответствует качеству игровых консолей Monolith;
-- русская локализация неполная, в названиях встречается кириллическое «КИАС» вместо требуемого латинского `KIAS`, у сущностей нет нормальных `.desc`.
+За ~55–75 минут АКТИВНОЙ полезной работы на GPT‑6.1 Medium внеси завершённый, компактный, проверяемый патч по 10 актуальным пунктам. Начни с реальных функциональных багов, параллельно проверяй интерфейс. Если исправления закончены раньше, потрать оставшийся разумный бюджет на тесты, UI screenshots, критичные edge cases, документацию доказательств; **не делай искусственных циклов ради сжигания лимита**. Не обещай точное время/расход токенов, не делай busy-wait.
 
-## 1. Обязательный preflight
+**P0 (баги поведения):** relay popups/current channel; scanner coverage old bindings; button→speaker misleading/broken default link; suppression end-to-end. **P1 (UI):** compact identity + hierarchy + palette readability/width + “Шаблон:”. **P2 (assets):** integration-kit -20% от текущего отображаемого размера; core occlusion/sprite placement. Приоритет переоценивай по сложности, но не откладывай P0 до красивостей.
 
-До изменения кода:
+## 2. Пункты по приёмке
 
-- `git status`, branch, HEAD, diff;
-- прочитать этот пакет документации;
-- открыть фактические файлы из `06_REPO_SOURCE_MAP.md`;
-- прогнать baseline KIAS integration tests;
-- вручную воспроизвести по возможности проблемы: speaker, integrated light OFF→ON, group lighting, air alarm DeviceList, depressurization preset, card metadata;
-- проверить `.github/PULL_REQUEST_TEMPLATE.md` и релевантные Monolith devwiki/contribution правила;
-- не разносить KIAS-специфичные решения по глобальным системам, если можно исправить внутри KIAS/существующего generic API;
-- если приходится менять общий `DeviceLink`/`NetworkConfigurator`, изменение должно быть минимальным, обоснованным и покрытым регрессиями обычного gameplay вне KIAS.
+### T01 — короткий ID только для UI
 
-## 2. Физическое имя controller-card
+Сейчас `KiasDeviceIdentitySystem.Identifier()` хранит 12-символьный `Guid`-hex, а `Label()` показывает полный. **НЕ сокращай идентичность на сервере/в хранилище.** Визуально показывай `Динамик · #7A0BFC` либо `Динамик` + тусклый вторичный код на следующей строке; не ставь ID первым главным словом. Используй короткий **уникальный в рамках видимых устройств данного грида** префикс исходного стабильного ID (например от 6 hex, при коллизии наращивать до различимости). Без новых систем персистенции/ID и без UID-based alias. Полный ID остаётся в диагностике, поиске, hover/tooltip и при необходимости подробном examine; копирование/идентификация возможно. Два дубликата, два грида, перемещение, save/load, офлайн устройства не должны давать ложной конкретной привязки. Alias обновляется при изменении состава устройств, а не в каждом UI кадре. Серверная SPECIFIC-привязка по прежней сущности/NetEntity; никогда не по префиксу.
 
-После успешного `WRITE` физический controller item должен отображать пользовательское имя программы.
+### T02 — каталог “Конкретные устройства → помещения → устройства”
 
-Требования:
+В палитре программатора покажи явную иерархию: жирный раздел `Конкретные устройства`; под ним строки-раскрывашки с **стрелкой и рядом названием помещения** (название визуально приглушённое, но контрастное); устройства вложены ЕЩЁ на отступ внутрь; устройство читается: локализованное название + короткий ID/профиль второстепенно. Названные помещения первыми по алфавиту, затем `Помещение N`, группы и поиск, раскрытие/сворачивание и состояние поиска — стабильны. Не вводи новую тяжёлую геометрию помещений. Проверяй реальные width/ClipText/tooltip; визуальная вложенность не должна исчезать после очередного `RebuildPalette()`.
 
-- draft rename **не** переименовывает предмет до `WRITE`;
-- успешный `WRITE` атомарно обновляет program + metadata item name;
-- описание предмета должно по-человечески объяснять, что это интегральная/программируемая схема KIAS;
-- после eject/reinsert/map persistence имя не расходится с `Program.Name`;
-- использовать штатный `MetaDataSystem.SetEntityName/SetEntityDescription`, не хранить отдельный UI-only label;
-- дефолтная пустая карточка имеет понятное локализованное имя.
+### T03 — ширина и читаемость палитры
 
-## 3. Speaker
+`KiasControllerWindow.cs` сейчас задаёт sidebar `MinWidth=215, MaxWidth=250`; этого мало. Вариант A: безопасный штатный resize/splitter, если уже есть референс native Robust UI и тесты min window. Вариант B (нормальный fallback): увеличить и адаптировать ширину (ориентир 280–320 px при обычном размере); **обязательно** сохранить полезную область холста и инспектор при 850×500. Длинные имена профилей/устройств не должны полагаться только на hover: разумное сокращение, дополнительные строки/профиль как вторичный текст, tooltip как резерв. Не делай дорогостоящую пересборку окна при каждом перетягивании.
 
-Профиль `Speaker` имеет data-input `Message` и impulse-input `Announce`/`Alarm`. Поле `node.Config.Text` внешнего Speaker не должно притворяться сообщением.
+### T04 — заголовок шаблонов
 
-Должны работать:
+Слева рядом с `_presets` в верхней панели программатора добавить явную подпись `Шаблон:` через локализации ru-RU/en-US (`Template:`), корректные вертикальное выравнивание, отступы, сжатие и tooltip. Существующий загрузчик и импорт legacy не сломать.
 
-`String constant -> Speaker.Message` + `OnStart/Signal -> Speaker.Announce`.
+### T05 — интеграционный комплект ещё -20%
 
-Для `ALL Speaker` одно событие обязано прозвучать из **всех выбранных динамиков**, а не только из первого из-за общего emission/cooldown key. Не отключай anti-spam целиком: keying должен различать адресованный speaker/target при broadcast либо broadcast должен выполняться корректно единым механизмом.
+`Resources/Prototypes/_Forge/KIAS/devices.yml`, прототип `KiasIntegrationKit`: текущий Sprite `scale: 0.75, 0.75`. Новый ориентир **0.60, 0.60** (0.75×0.8), визуально оценить в мире и руках; не менять геймплейный pickup/collision/инвентарный `Item.size`, если не требуется. Проверить nearest-neighbor/целочисленные пиксели и отсутствие неожиданной размытости. Не уменьшать все прочие предметы повторно.
 
-Добавить end-to-end test controller runtime -> real KIAS speaker -> local IC chat path.
+### T06 — ядро 32×64 и конфликт наложения на карту
 
-## 4. Graph inspector и ноды
+Изучить `references/03_core_in_world.png`: высокая модель ядра пересекается/перекрывается стеновыми/горизонтальными декорациями; похоже на конфликт placement/offset/layer/occlusion. Сейчас `KiasCore` в `kias.yml` наследует `BaseKiasServer`, использует `KiasCore.rsi` 32×64 и `Sprite.offset: 0, 0.5`. **Не угадывай исправление по картинке**: воспроизведи на настоящем тайле при разных соседях (стена, пол, решётка, кабели, трубы), измерь точку крепления, Sprite.drawdepth/overlay, bounding selection и collision; выясни, что должно быть спереди/сзади. Исправить ровно визуальную причину, сохранив 32×64, читаемость и возможность размещения/взаимодействия. Не менять глобальные правила render layers ради одного ядра. Добавь screenshot «до/после» и объясни какую проблему увидел.
 
-Текущий inspector не должен безусловно показывать `Room + Group + Text + Number + Seconds + Enum + Bool + Comparison` для каждого узла.
+### T07 — реле: понятный канал + попап
 
-Сделать capability-driven inspector:
+В `KiasRelaySystem.SetChannel()` канал меняется и topology recalc вызывается, но нет пользовательского popup; в `OnTool` идёт цикл `CableType` % 4. Добавь локализованное подтверждение `Канал реле: DATA / ...` ПОСЛЕ успешного переключения при инструменте/verbs и для разрешённого пользователя. При Shift+ЛКМ/внимательном осмотре показывать текущий канал, open/closed и при необходимости питание/неактивность; использовать штатный examine API игры. Проверь все корректные `CableType` значения/именования из исходника, НЕ предполагай что enum неизменно 0..3. Сервер авторитетен, проверки доступа и питание должны сохраняться. Не выдавай popups на все графовые/фоново-сетевые изменения, не спамь при неудачных кликах. Test: tool/verb and examine + канал действительно меняет нужную сеть, остальные не разрывает.
 
-- StringConstant: только строка;
-- NumberConstant: только число;
-- BoolConstant: только Да/Нет;
-- EnumConstant: typed dropdown, не сырой integer;
-- Timer/Cooldown/Clock: только релевантное время и state;
-- Counter: initial number;
-- Latch/Toggle: initial state;
-- comparison nodes: оператор сравнения;
-- purely functional nodes (`AND`, `OR`, `NOT`, `IF`, `Edge`, `OnStart`...) не показывают бессмысленные config fields;
-- external ANY/ALL: только применимые selector filters и readable device/profile info;
-- SPECIFIC не должен получать бессмысленный selector filter, способный случайно исключить уже выбранное устройство.
+### T08 — область сканера = актуальный набор подключений
 
-### Наглядность прямо на нодах
+`KiasCrewSystem.RebuildCoverage()` создаёт coverage и зовёт `KiasIntegrationSystem.ConnectRoom()`; последний на текущем snapshot **умеет искать и присоединять, но не делает явного reconcile/отсоединения** после сужения зоны. Разделить «покрытие для обнаружения» и «управляемые интегрированные устройства»; при уменьшении Range/потере модуля Connector/снятии с анкера/переносе на другой грид/отключении сканера/удалении пересогласовать target→scanner. Старый сканер не должен незаконно сохраняться. Если цель покрыта двумя сканерами, выбрать детерминированного действующего кандидата; *direct integrated kit* (`Direct=true`) никогда не перезаписывать автопривязкой. Если никто не покрывает — отвязать **только автоматически назначенную** связь, не снимать чужие компоненты/списки DeviceList и не трогать ручную настройку атмосферы. Граница Range: единицы tiles vs world, оба направления, офлайн/онлайн, нулевая зона, перенос целей, идемпотентная топология, без зацикливания `Invalidate/RebuildCoverage/ConnectRoom`. Tests на выход из зоны, возвращение, overlapping scanners, range 10→2→10, утерю Connector, перепривязку, сохранение карты и стабильность ревизии после нескольких тиков. UI должен честно показывать offline/unlinked после изменения.
 
-Нода должна показывать важное configured value без выбора inspector:
+### T09 — кнопка-переключатель → динамик «очевидная связь», но ноль эффекта
 
-- `Строка` -> текст, с безопасным truncation;
-- `Число` -> число;
-- `Да/Нет` -> состояние;
-- `Таймер` -> `5 с`;
-- `Cooldown` -> `10 с`;
-- compare -> `>=`, `=`, `!=` и т.д.;
-- Enum -> локализованное значение;
-- ANY/ALL filters -> компактно `помещение: ...`, `группа: ...` только если они реально заданы.
+Найти физический prototype и **реальный DeviceLink `defaultLinks`**, из-за которого интерфейс предлагает динамик для button/switch; проверить это на конкретных парных устройствах в игре, а не отталкиваться от имени «кнопка». Пройти цепочку `SignalSwitch → DeviceLinkSource → matching port/defaultLinks → DeviceLinkSink → KIAS speaker/graph`. Если прототип показывает ссылку, которая семантически не имеет обработчика, **убрать ложную defaultLinks/предложение**. Если ожидаемая механика подразумевает рабочее управление оповещением, реализовать минимальный корректный мост через существующую систему/граф (с осмысленным сообщением/каналом), без безымянных глобальных `SignalReceivedEvent` на каждую речь и без новых обходных hardcoded протоколов. Главное: игрок не видит «рекомендуемую» неработающую связку; реально настроенная связь исполняется и проходит access/network/cooldown проверки. Сравнить ordinary vanilla button→sink и старые KIAS emergency sources, сохранить их.
 
-Не допускать overlap с портами и заголовком на zoom 1.0.
+### T10 — пожаротушение end-to-end
 
-## 5. Типы и терминология
+Сейчас `KiasActuatorSystem.Suppress(uid)` проверяет `_kias.IsOnline`, `Atmosphere` role, `Testing`, наличие `kias-cartridge`, затем создаёт `Foam` и вызывает `_smoke.StartSmoke(... Water 100, 10, 12)`, удаляет картридж и публикует сообщение. Графовый `Suppression.Trigger` и DeviceLink `KiasSuppress` уже вызывают этот метод. Требуется найти **на каком звене реально не работает**: питание/роль/DATA, схема и Event `Fire`→Trigger, FireAlarm→AtmosAlarm, подписка, переключение безопасности, установленный картридж, положение, действие пены, визуал/поведение пожаротушения. Добавь тесты для `verb`, `DeviceLink`, `graph/preset` и физического эффекта (создание сущности, реагент/прохождение симуляции, расход cartridge и нет второго выстрела без новой кассеты). Пустой картридж/недоступная сеть = понятный feedback только авторизованному пользователю, никакой ложной «пожар потушен». Не выдумывать дополнительную физическую систему, если штатная пена уже достаточна; если штатная механика воды не тушит, проверить существующие firefighting реагенты и применить правильный малый фикс.
 
-В пользовательском UI:
+## 3. Зоны риска — обязательно ДО финиша
 
-- `Signal` отображать как **«Импульс»** и объяснять: одноразовое событие без true/false;
-- `Bool` -> **«Да/Нет»** или «Логическое состояние»;
-- `String` -> «Строка»;
-- `Number` -> «Число»;
-- `Entity` -> «Объект»;
-- enum должен иметь domain и человекочитаемые варианты.
+Пройди `10_RISK_REGISTER.md`, `05_PERFORMANCE_AND_TESTS.md` и `11_LIVE_SMOKE_CHECKLIST.md`: stale NetEntity/serialized IDs; GUID collisions; selector cache и on/off power; `ANY/ALL` vs `SPECIFIC`/old presets; Steam/Robust UI layouts, Drag tooltip, memory leaks; two scanners/partial unanchor; DeviceLink/DeviceList mode; foam role, cartridge, failed command; drawdepth; RU localization; rack buttons losing focus; unauthorized access; `KiasRoomScanner` scan event budget on 200 grids. Тесты должны проверять фактическое изменение мира, не только факт вызова функции.
 
-Не вводить неявное соединение Bool<->Signal. Вместо молчаливого отказа показать понятную причину и подсказать `Детектор фронта` или state-node.
+## 4. Работа в коде
 
-Названия логики:
+- Редактируй компактно внутри KIAS, без глобальных обходов/антипаттернов. Для общих систем сначала тест воспроизведения и minimal patch.
+- Переиспользуй компоненты ECS, scene/UI helpers, DeviceLink и стандартные события. Не плодить per-node ECS entities, per-frame UI rebuild, world-scans/allocations в каждом Update.
+- Сохраняй сериализацию, поддержку старых карточек/профилей/установленных устройств, локальные кэши только event-driven и/или ограниченные.
+- До каждого чувствительного изменения напиши failing regression и добейся red → green; для визуального вопроса сначала воспроизведение.
+- Поддерживай чёткий чекпоинт во время работы в локальном `.kias/patch-20261008/` (не версионировать логи/скриншоты без причины). После фиксов — production tests и UI smoke.
 
-- И (AND), ИЛИ (OR), XOR — исключающее ИЛИ;
-- НЕ (NOT), NAND — И-НЕ, NOR — ИЛИ-НЕ;
-- XNOR — совпадение/эквивалентность с `XNOR` в названии;
-- `Edge` -> «Детектор фронта»;
-- `Latch` -> «RS-защёлка» если semantics действительно соответствуют Set/Reset.
+## 5. Обязательный итоговый цикл (НЕ ПРОПУСКАТЬ)
 
-## 6. Порты и help
+1. `git diff --check`; validate YAML, locale keys, sprite RSI metadata/states.
+2. `dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj ... --filter 'FullyQualifiedName~Kias'` (сначала таргетные, затем все релевантные). Фактический command + counts.
+3. Запустить **настоящий** Windows script `Monolith\Scripts\bat\buildAllRelease.bat` (регистр имени несущественен Windows; фактически в репо `buildAllRelease.bat`). ВАЖНО: файл содержит `cd ../../` и `pause`, запускать с рабочим каталогом `Monolith\Scripts\bat`, иначе он уйдёт не туда; обеспечить завершение `pause` и проверить реальный exit code + build log. Не подменять одним `dotnet build` и не писать «успешно», если bat не завершился. Если батник сломан, разрешается минимально исправить безопасное определение собственного каталога `%~dp0` без удаления пользовательского сценария.
+4. Только после успешной сборки запускать `Monolith\Scripts\bat\runQuickAll.bat` из `Monolith\Scripts\bat` (файл использует `start runQuickServer.bat` и `start runQuickClient.bat`). Проверить оба процесса/логи и достижение игрового main screen/локального сервера; сами `start` не доказывают успеха. Не останавливай несвязанные пользовательские процессы; при занятом порте выясни причину.
+5. Реально зайди в игру и следуй `11_LIVE_SMOKE_CHECKLIST.md`, проверь UI/screenshots, доступность, сенсоры, реле, кнопку/динамик, suppression; если инструменты не позволяют вручную управлять игрой, честно укажи чем smoke заменён и что требует пользователя.
+6. Обнови реальные `Docs/KIAS/VALIDATION.md` и приложи отчёт по `12_DELIVERY_REPORT_TEMPLATE.md`: коммиты/изменённые файлы, RED→GREEN, что проверено в игре, известные ограничения, лог пути, регрессии.
 
-У каждого graph-visible port должны быть:
+## 6. Разумный бюджет времени
 
-- локализованное имя RU/EN;
-- тип;
-- direction;
-- **уникальное краткое описание смысла**;
-- при необходимости допустимые значения/domain.
+0–8 мин: preflight, baseline, определить 4 цепочки багов. 8–32 мин: P0 + failing regression + fix. 32–45 мин: UX/ID/T05/T06. 45–60 мин: tests/UI/Release .bat/runQuickAll. При необходимости 60–75 мин: расширенные проверки слабых мест, устранение новых сбоев и отчёт. Это **ориентиры**, а не повод обрывать незаконченный тест или жечь токены в холостую. Если время на исходе — приоритизируй функциональную исправность и правдивый статус тестов, а не пустую «100%» отметку.
 
-Запрещено оставлять почти всем портам generic `Типизированный порт контроллера KIAS.`.
-
-Inspector показывает порты как карточки/строки вида:
-
-`Вход · Да/Нет — Установить`<br>
-`Да включает выбранный свет, Нет выключает.`
-
-На canvas hover по порту должен показывать tooltip с тем же help. Не выводить пользователю сырые `Input Set: Bool`.
-
-Служебные `$MatchedCount/$OnlineCount/$HasAny/$Source` тоже документировать.
-
-## 7. Lighting: два разных профиля
-
-Обязательно разделить:
-
-### `ALL Освещение`
-
-Это **все доступные KIAS светильники на текущем grid**, включая обычные светильники, получившие integration kit / иной поддерживаемый KIAS control endpoint. Это не список light-group controllers.
-
-Минимальные команды: `Set : Bool`, `On : Signal`, `Off : Signal`.
-
-### `ALL Контроллеры групп освещения`
-
-Это физические `KiasLightController` и только они. Контроллер воздействует на светильники своей группы.
-
-Не делай profile resolver гигантским prototype switch. Если текущий `kiasControllerProfile.component` недостаточен для capability profile «светильник», добавь минимальную чистую capability/marker abstraction.
-
-## 8. KIAS control-plane и выключенные integrated devices
-
-Сейчас статус/`IsOnline()` завязан на `_power.IsPowered(device)`. Для integrated target, который KIAS сам выключил через `SetPowerDisabled`, это делает обратный `ON` невозможным.
-
-Разделить:
-
-- **functional/device power** — работает ли сам потребитель;
-- **KIAS control-plane availability** — доступен ли его integration endpoint по живой KIAS DATA topology.
-
-Пока KIAS core активен, DATA path существует, target корректно integrated/anchored и integration endpoint жив — команды управления должны оставаться доступны даже если рабочее питание target было отключено KIAS.
-
-Не распространять это правило на обычные нативные KIAS servers/devices, которым реальное питание необходимо для работы.
-
-Тест: integrated lamp ON -> KIAS OFF command -> lamp depowered/off -> endpoint остаётся адресуем -> KIAS ON -> lamp снова powered/on.
-
-## 9. Group-light service multitool
-
-Не использовать скрытое общее поле `Message` как имя группы в UI.
-
-Для режима групп:
-
-- отдельное понятное поле `Группа`;
-- показать текущую группу выбранной лампы/контроллера;
-- назначение лампе и controller одним и тем же именем группы;
-- popup/feedback после успешного назначения;
-- группа не обязана быть `EMERGENCY`; пользователь может задать произвольное допустимое имя;
-- ясно различать настройку группы speaker и группы lighting там, где это нужно.
-
-## 10. Не ломать обычный NetworkConfigurator / DeviceList
-
-Graph ports — дополнительный путь автоматизации, **не замена** штатному NetworkConfigurator.
-
-Air alarm использует `DeviceListComponent` для списка sensors/vents/scrubbers и DeviceNetwork traffic. Игрок должен иметь возможность обычным multitool workflow собрать устройства и записать список в air alarm как раньше.
-
-Обязательно воспроизвести и починить сценарий, где сейчас пользователь попадает только в port-link workflow.
-
-Проверить особенно `NetworkConfiguratorSystem.DetermineMode/OnUsed`, наличие одновременно `DeviceListComponent` и `DeviceLinkSource/Sink`, default LinkMode, KIAS-added ports/components. Не делай глобальный фикс наугад: сначала тест, который демонстрирует проблему.
-
-Регрессии:
-
-- list mode: сохранить air sensor + vent + scrubber в multitool, применить к AirAlarm, список реально обновился;
-- link mode: обычные source/sink links продолжают работать;
-- KIAS graph generic DeviceLink bridge продолжает работать;
-- non-KIAS network configurator gameplay не ломается.
-
-## 11. Depressurization preset
-
-Preset `atmosphere`/«Разгерметизация» уже существует, загружается, WRITE проходит. Его не надо заменять отдельным hardcoded detector.
-
-Проверять end-to-end цепь:
-
-`AirSensor -> штатная atmos network/list -> AirAlarm danger -> AtmosAlarmEvent -> KIAS AtmosDanger -> controller preset -> actions`.
-
-Нужен regression test с настоящей опасной атмосферой или максимально близким штатным event path. Отдельно `AtmosClear` после восстановления.
-
-Если сам preset логически неправильный — исправить. Но не маскировать upstream regression генерацией KIAS события напрямую в тесте.
-
-## 12. UI visual pass — обязательный
-
-Цель — не копия shuttle console, а **тот же уровень визуальной иерархии и читаемости**.
-
-Референс в репо: `Content.Client/Shuttles/UI/ShuttleConsoleWindow.xaml` и связанные controls. Пользовательский screenshot лежит в `references/ui_shuttle_reference.png`.
-
-Для KIAS:
-
-- тёмные вложенные панели с чёткими рамками;
-- секционные заголовки;
-- нормальные отступы 4–8 px, а не сплошной столбец LineEdit;
-- функциональные toolbar/button groups;
-- readable status cards;
-- зелёный/жёлтый/красный только для состояния/акцента, не как декоративный шум;
-- никаких горизонтальных scrollbars в inspector;
-- inspector ориентир ~300–340 px при стандартном окне, но адаптивный;
-- длинные названия wrap/ellipsis + tooltip;
-- palette/search/categories читаемы;
-- canvas остаётся главным пространством;
-- rack, programmer, management/local service windows получают единый KIAS visual language;
-- UI не должен быть завязан на магические пиксели, которые ломаются на min size/UI scale.
-
-## 13. Локализация
-
-Для всех реально игровых/spawnable/printable KIAS prototypes:
-
-- русское `name` и `.desc` через locale;
-- `KIAS` **оставить латиницей**;
-- описания 1–2 коротких игровых предложения;
-- board/item names тоже локализовать;
-- не переводить technical IDs/profile IDs;
-- не оставлять сырой английский UI или enum integer там, где игрок это видит.
-
-## 14. Проверка интерфейса — не факультативна
-
-Расширить текущий `KiasControllerLayoutTests`. Минимум:
-
-- размеры 850x500, 1200x720, 1600x900;
-- empty + populated graph + very long labels;
-- no negative/non-finite sizes;
-- inspector не создаёт H-scroll;
-- поля inspector соответствуют node capability;
-- port rows имеют localized name/type/description;
-- constant values отображаются на canvas;
-- несовместимый wire даёт понятную обратную связь;
-- palette различает `Освещение` и `Контроллеры групп освещения`;
-- длинные device/profile names не ломают layout;
-- RU locale не показывает raw enum/`Input ...: Bool`/непереведённые KIAS сущности.
-
-И **обязательный live UI smoke**: запустить локальный клиент/сервер обычным способом проекта и открыть programmer/rack/service/management UI. Сохранить screenshots/log notes локально (например `.kias/ui-smoke/`, не обязательно коммитить). Проверить минимум standard и min window sizes. Не писать в финальном отчёте «UI проверен», если была только `Measure/Arrange` проверка без живого окна.
-
-## 15. Acceptance scenarios
-
-Перед завершением вручную/автотестами пройти:
-
-1. Rename -> WRITE -> eject: item называется пользовательским именем.
-2. `String("Тест") + OnStart -> SPECIFIC Speaker`: динамик произносит текст.
-3. То же через `ALL Speaker`: говорят все выбранные speakers без подавления первого/остальных.
-4. ALL Освещение выключает и включает integrated lamps напрямую.
-5. ALL Контроллеры групп освещения управляет группами через KiasLightController.
-6. Integrated lamp после OFF остаётся KIAS-controllable и включается обратно.
-7. Service multitool назначает группу лампе и controller понятным UI.
-8. Обычный multitool list-mode связывает air sensor/vent/scrubber с AirAlarm.
-9. Реальная разгерметизация переводит AirAlarm в Danger и запускает `atmosphere` controller preset.
-10. Восстановление атмосферы даёт clear path.
-11. Все graph ports имеют meaningful descriptions.
-12. UI smoke/screenshots показывают отсутствие клиппинга/горизонтального скролла и понятную визуальную иерархию.
-
-## 16. Final report
-
-В конце дай:
-
-- root cause по каждому пользовательскому багу;
-- список изменённых файлов;
-- какие общие системы были затронуты и почему это было неизбежно;
-- команды тестов и точный pass count;
-- что проверено live UI, со списком открытых окон/разрешений;
-- оставшиеся ограничения;
-- `git diff --check`;
-- не объявляй успех по непроверенному пункту.
+**Начинай в коде прямо сейчас. Не задавай вопросы, если ответ можно получить из репозитория. Не выдавай обещания за результаты.**

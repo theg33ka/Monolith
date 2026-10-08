@@ -2,10 +2,12 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using Content.Client.UserInterface.Controls;
+using Content.Client.Stylesheets;
 using Content.Shared._Forge.KIAS.Controllers;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Input;
+using Robust.Shared.Utility;
 
 namespace Content.Client._Forge.KIAS.Controllers;
 
@@ -25,6 +27,9 @@ public sealed class KiasControllerWindow : FancyWindow
     private KiasControllerEditorState _state = new();
     private bool _pending;
     private readonly HashSet<string> _collapsedRooms = new();
+    private readonly Dictionary<string, string> _aliases = new(StringComparer.Ordinal);
+    private string[] _identifiers = Array.Empty<string>();
+    private readonly BoxContainer _sidebar;
     public KiasControllerWindow()
     {
         Title = Loc.GetString("kias-controller-editor-title");
@@ -37,10 +42,11 @@ public sealed class KiasControllerWindow : FancyWindow
         var operations = new BoxContainer { Margin = new Thickness(4), SeparationOverride = 4 };
         root.AddChild(KiasUi.Panel(operations));
         var templates = new BoxContainer { Margin = new Thickness(4), SeparationOverride = 4 }; root.AddChild(KiasUi.Panel(templates));
-        _presets.MinWidth = _legacy.MinWidth = 140;
+        _presets.MinWidth = _legacy.MinWidth = 110;
         _presets.MaxWidth = _legacy.MaxWidth = 180;
         _presets.HorizontalExpand = _legacy.HorizontalExpand = true;
         ClipOptions(_presets); ClipOptions(_legacy);
+        templates.AddChild(new Label { Text = Loc.GetString("kias-controller-template"), ToolTip = Loc.GetString("kias-controller-template"), VerticalAlignment = VAlignment.Center });
         templates.AddChild(_presets);
         _presets.OnItemSelected += args => _presets.SelectId(args.Id);
         templates.AddChild(Button("kias-controller-load-preset", () =>
@@ -63,7 +69,7 @@ public sealed class KiasControllerWindow : FancyWindow
         root.AddChild(KiasUi.Panel(_status));
         root.AddChild(new Label { Text = Loc.GetString("kias-controller-editor-help"), ClipText = true, ToolTip = Loc.GetString("kias-controller-editor-help") });
         var body = new BoxContainer { VerticalExpand = true }; root.AddChild(body);
-        var sidebar = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, MinWidth = 215, MaxWidth = 250 };
+        var sidebar = _sidebar = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, MinWidth = 215, MaxWidth = 215, Name = "KiasPalette" };
         body.AddChild(sidebar);
         _search.PlaceHolder = Loc.GetString("kias-controller-search"); sidebar.AddChild(_search);
         _search.OnTextChanged += _ => RebuildPalette();
@@ -73,6 +79,12 @@ public sealed class KiasControllerWindow : FancyWindow
         settingsScroll.AddChild(_settings); body.AddChild(KiasUi.Panel(settingsScroll));
         _canvas.Edited += Send; _canvas.Selected += SelectNode;
         _canvas.Feedback += message => { _status.Text = message; _status.ToolTip = message; };
+    }
+    protected override Vector2 MeasureOverride(Vector2 availableSize)
+    {
+        var width = Math.Clamp(availableSize.X - 635, 215, 310);
+        if (_sidebar.MinWidth != width) _sidebar.MinWidth = _sidebar.MaxWidth = width;
+        return base.MeasureOverride(availableSize);
     }
     private static void ClipOptions(Robust.Client.UserInterface.Control control)
     {
@@ -91,6 +103,27 @@ public sealed class KiasControllerWindow : FancyWindow
     public void UpdateState(KiasControllerEditorState state)
     {
         _state = state; _pending = false;
+        var identifiers = state.Identifiers.Concat(state.Devices.Select(device => device.Identifier)).Where(id => id.Length > 0)
+            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        if (!_identifiers.SequenceEqual(identifiers))
+        {
+            _identifiers = identifiers;
+            _aliases.Clear();
+            for (var index = 0; index < identifiers.Length; index++)
+            {
+                var id = identifiers[index];
+                var length = Math.Min(6, id.Length);
+                foreach (var neighbor in new[] { index - 1, index + 1 })
+                {
+                    if (neighbor < 0 || neighbor >= identifiers.Length) continue;
+                    var other = identifiers[neighbor];
+                    var common = 0;
+                    while (common < id.Length && common < other.Length && id[common] == other[common]) common++;
+                    length = Math.Max(length, Math.Min(id.Length, common + 1));
+                }
+                _aliases[id] = id[..length];
+            }
+        }
         _updating = true; _enabled.Pressed = state.Enabled; _enabled.Disabled = !state.HasCard || !state.Online; _updating = false;
         _canvas.CanEdit = state.HasCard && state.Online && state.Editing;
         _write.Disabled = !state.HasCard || !state.Online || state.Errors.Count > 0;
@@ -109,18 +142,28 @@ public sealed class KiasControllerWindow : FancyWindow
         if (state.Legacy.Count > 0) _legacy.SelectId(Math.Clamp(selectedLegacy, 0, state.Legacy.Count - 1));
         RebuildPalette(); _canvas.SetState(state);
     }
-    private void PaletteItem(string title, KiasNodeKind kind, string profile = "", NetEntity? binding = null, string room = "", BoxContainer? category = null)
+    private void PaletteItem(string title, KiasNodeKind kind, string profile = "", NetEntity? binding = null, string room = "", BoxContainer? category = null, string secondary = "", string? tooltip = null, bool filtered = false)
     {
-        if (_search.Text.Length > 0 && !(room + " " + title).Contains(_search.Text, StringComparison.OrdinalIgnoreCase)) return;
+        if (!filtered && _search.Text.Length > 0 && !(room + " " + title + " " + secondary).Contains(_search.Text, StringComparison.OrdinalIgnoreCase)) return;
         var button = new Button
         {
             Text = title,
             TextAlign = Label.AlignMode.Left,
             ClipText = true,
-            ToolTip = title,
+            ToolTip = tooltip ?? title,
             Disabled = !_state.HasCard || !_state.Online
         };
         button.Label.RemoveStyleClass(ContainerButton.StyleClassButton);
+        if (secondary.Length > 0)
+        {
+            button.RemoveChild(button.Label);
+            var lines = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, SeparationOverride = 1 };
+            lines.AddChild(button.Label);
+            var details = new RichTextLabel { Modulate = Color.FromHex("#bacbd8") };
+            details.SetMessage(FormattedMessage.FromUnformatted(secondary));
+            lines.AddChild(details);
+            button.AddChild(lines);
+        }
         button.OnKeyBindUp += args =>
         {
             if (args.Function != EngineKeyFunctions.UIClick) return;
@@ -152,21 +195,26 @@ public sealed class KiasControllerWindow : FancyWindow
             foreach (var profile in _state.Profiles)
                 PaletteItem($"{kind.ToString().ToUpperInvariant()} {KiasControllerLabels.Profile(profile.Id, profile.Ports)}", kind, profile.Id);
         }
-        _palette.AddChild(new Label { Text = Loc.GetString("kias-controller-devices") });
+        _palette.AddChild(new Label { Text = Loc.GetString("kias-controller-devices"), StyleClasses = { StyleNano.StyleClassLabelHeading }, ClipText = true });
         foreach (var room in _state.Devices.OrderByDescending(device => device.NamedRoom).ThenBy(device => device.NamedRoom ? device.Room : string.Empty, StringComparer.CurrentCulture).ThenBy(device => device.RoomOrder)
                      .GroupBy(device => device.Room))
         {
             var matching = room.Where(device => $"{device.Room} {device.Name} #{device.Identifier} {device.Profile}".Contains(_search.Text, StringComparison.OrdinalIgnoreCase)).ToArray();
             if (matching.Length == 0) continue;
-            var rows = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical };
+            var rows = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical, Margin = new Thickness(14, 0, 0, 0) };
             var body = new CollapsibleBody(); body.AddChild(rows);
             var heading = new CollapsibleHeading(room.Key); heading.Label.ClipText = true; heading.ToolTip = room.Key;
-            var section = new Collapsible(heading, body) { BodyVisible = _search.Text.Length > 0 || !_collapsedRooms.Contains(room.Key) };
-            heading.OnToggled += args => { if (args.Pressed) _collapsedRooms.Remove(room.Key); else _collapsedRooms.Add(room.Key); };
+            heading.Label.Modulate = Color.FromHex("#bacbd8");
+            var section = new Collapsible(heading, body) { Margin = new Thickness(10, 0, 0, 0), BodyVisible = _search.Text.Length > 0 || !_collapsedRooms.Contains(room.Key) };
+            heading.OnToggled += args => { if (_search.Text.Length > 0) return; if (args.Pressed) _collapsedRooms.Remove(room.Key); else _collapsedRooms.Add(room.Key); };
             _palette.AddChild(section);
             foreach (var device in matching.OrderBy(device => device.Name, StringComparer.CurrentCulture).ThenBy(device => device.Identifier))
-                PaletteItem($"#{device.Identifier} · {device.Name} ({KiasControllerLabels.Profile(device.Profile, _state.Profiles.First(p => p.Id == device.Profile).Ports)})",
-                    KiasNodeKind.Specific, device.Profile, device.Entity, room.Key, rows);
+            {
+                var profile = KiasControllerLabels.Profile(device.Profile, _state.Profiles.First(p => p.Id == device.Profile).Ports);
+                var alias = _aliases.GetValueOrDefault(device.Identifier, device.Identifier);
+                PaletteItem(device.Name, KiasNodeKind.Specific, device.Profile, device.Entity, room.Key, rows,
+                    $"#{alias} · {profile}", $"{device.Name} · #{device.Identifier}\n{profile}", filtered: true);
+            }
         }
     }
     private static LineEdit Field(BoxContainer section, string key, string text)

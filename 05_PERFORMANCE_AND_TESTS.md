@@ -1,126 +1,57 @@
-# Validation, performance and UI acceptance
+# Regression matrix, UI acceptance, and performance budget
 
-## Rule: correctness first, no fake green status
+Every test must distinguish: **observed before**, **actual after**, and **not tested**. A unit test returning `true` from a helper is insufficient proof of a visible gameplay effect.
 
-This document defines tests that must pass. Do not pre-fill pass counts before the implementation run.
+## Functional tests: minimum matrix
 
-## Automated correctness matrix
+| ID | Tests that must exist/run |
+| --- | --- |
+| T01 | 12-digit underlying ID preserved; prefix length 6 by default, uniqueness under forced collision (two full IDs same initial 6), offline peers and repeated gridded entities; stable after save/load, user sees/can search full ID; SPECIFIC target unchanged. |
+| T02 | Named room first sorted; unnamed numbers; clear parent/child layout and indentation; collapsed state persists during simple refresh; search matches room/device/full ID/short ID; no cross-room leak. |
+| T03 | 850×500, 1024×600, 1200×720, 1600×900; RU and EN; 100%/125% UI scaling when possible; palette/inspector/canvas nonzero widths; no overlap or clipped primary controls; long profile names readable without hover-only dependency. |
+| T04 | `Шаблон:` and `Template:` localized near preset dropdown at min/full widths; clicking load still writes/updates expected graph, no misplaced legacy import. |
+| T05 | `KiasIntegrationKit` Sprite exactly intended new scale, RSI frame/state valid, collision/pickup and Item size unchanged; compare floor/in hand in native client. |
+| T06 | Native 32×64 core in wall/cable/grille/floor context: sprite not wrongly hidden/in front; selection/interaction align with chassis; appears expected after map load; online/offline tint still works. |
+| T07 | SetChannel through verb and screwdriver; actual actor popup generated once on change; examine string includes selected channel+closed/open; no popup for unauthorized/unchanged; selected cable channel disconnected only when relay open; old network reconnected on channel switch. |
+| T08 | Range 10→2→10, source target exits/enters range, 2 overlapping scanners, scanner unanchored/removed/powered off, Connector module removed/reinserted, target relocated to different grid, direct kit untouched, unrelated DeviceList unchanged, stable topology after 30 ticks no repeated invalidations. |
+| T09 | Specific button→speaker pair reproduces original suggestion and now either disappears if semantically invalid or actually works; correct source/sink types; normal button→vanilla sink still works; emergency button→receiver still works; speaker full String message + Announce and ALL targeted speaker still works. |
+| T10 | Manual verb, DeviceLink signal, and graph `Suppression.Trigger`; power/role/cartridge gating; consumed one on success/none on failure; water/foam object exists at target position, fire is actually suppressed under game simulation, no duplicate recharge; fire alarm event→preset→physical actuation if preset is supposed to trigger suppression. |
 
-### Controller card
+## Regression shield from previous KIAS passes
 
-- draft rename does not rename item;
-- WRITE renames item;
-- description correct;
-- eject/reinsert retains identity;
-- map save/load retains name/program consistency.
+- KiasControllerCorrectionTests, KiasControllerLayoutTests, KiasControllerEditorTests, KiasControllerSelectorTests, KiasControllerBridgeTests, KiasControllerFeedbackTests, KiasControllerMigrationTests, KiasSpeakerTests, KiasControllerRuntimeTests.
+- KiasDeviceConfigurationTests (named rooms, range), KiasRelayTests (three cable channels), KiasSpriteTests (32×64 core, rotations), KiasAccessTests, KiasPersistenceTests, KiasFleetTests, KiasControllerStressTests, KiasFaunaTests, KiasVentilationTests, KiasOutputMonitorTests, KiasUiStabilityTests.
+- AirAlarm ordinary DeviceList configurator and `DeviceLink` mode both reachable; atmosphere real state transitions deliver graph events and recovery; card metadata after WRITE/eject/reinsert; ALL Lighting (direct) separate from LightController (groups); integrated light can OFF→ON; speaker Unicode Russian message actual speech; no global shortcut for KIAS roles.
 
-### Speaker
+## Testing commands (resolve environment-specific details)
 
-- StringConstant -> Message + OnStart -> Announce produces actual local speech;
-- Alarm path works;
-- ALL with 2+ speakers reaches every target exactly once;
-- cooldown still suppresses true repeats appropriately;
-- unrelated speaker groups are not accidentally addressed.
+```powershell
+# Start at Monolith repo root. Capture output and exit codes.
+git status --short
+git diff --check
+# Try focused tests first; no-restore only if restore completed and assets are available.
+dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --filter 'FullyQualifiedName~Kias' --logger 'console;verbosity=normal'
+```
 
-### Lighting
+Run new specific fixtures before whole KIAS. For existing problems with test paths/config/release/runtime, use repo normal supported build commands. Do not infer passing counts from old `Docs/KIAS/VALIDATION.md`.
 
-- profile discovery distinguishes direct fixtures and group controllers;
-- ALL Lighting controls two or more integrated lights;
-- ANY Lighting controls one deterministic fixture;
-- group controller affects only lights in its group;
-- integrated fixture OFF remains graph-addressable and can be ON again;
-- physically disconnected DATA path still makes endpoint unavailable.
+## True UI tests
 
-### NetworkConfigurator / AirAlarm
+Use real Robust UI windows when possible, not only static string asserts. Check `KiasControllerWindow`, `KiasGraphCanvas`, `KiasLocalWindow`, rack and management. Validate `Measure/Arrange`, `DesiredSize`, containment, actual row indent and text color, scrolling and tooltips; keyboard nav, click release, focus after BUI state refresh, hover tooltip correct lifetime.
 
-- list mode can save AirSensor + GasVent + GasScrubber;
-- applying list updates AirAlarm DeviceList;
-- AirAlarm actually receives/syncs devices through DeviceNetwork;
-- link mode still links source/sink ports;
-- KIAS generic DeviceLink bridge still works;
-- non-KIAS list configuration regression test included.
+- Cases: 0 nodes, 30 long named devices (across 5 rooms), many visible ANY/ALL profiles, one huge Cyrillic display name, 12+ nodes + wires, one selected SPECIFIC node.
+- UI flow: expand/collapse, search room/ID, change preset, drag node, zoom/pan, open inspector, WRITE/Eject, close/reopen. Minimum resolution with all sections open.
+- Visual acceptance: no unreadable palette main names, hierarchy should be distinguishable in actual screenshot, label «Шаблон:» truly visible, full tooltip readable and non-stale.
+- Trigger `KiasUiStabilityTests` to guarantee rack button and port tooltip regressions stay fixed.
 
-### Atmosphere preset
+## Performance limits
 
-Use the real chain as far as practical:
+- 200 KIAS-equipped grids model, many scanners and 20–200 attached targets on test grid; no N×M full-world scans each tick/UI refresh.
+- Range changes/reconnections can do an **event-triggered** neighborhood enumeration or incremental index update. Deduplicate and only `_kias.Invalidate(grid)` when membership/connection truly changes. Bounded work; avoid infinite reentrant `RebuildCoverage` ↔ `ConnectRoom` loops. Measure changes in revision counts after 30 idle updates.
+- Default aliases computed on change or at controlled UI state construction, not GUID regenerate per display. Avoid `OrderBy()/ToArray()/Regex` allocations in every entity `Update()`.
+- Pressing relay tool should reflood only impacted cable node channels/tiles. Watch unanchored relay and inactive grid edge cases.
+- UI tree should not rebuild 100s of Buttons each frame; save collapsed/search state and keep focus while state refreshes.
 
-- configured AirAlarm knows sensor;
-- sensor enters danger threshold / emits normal atmos network alert;
-- AirAlarm becomes Danger and raises normal event;
-- KIAS receives AtmosDanger;
-- installed `atmosphere` preset executes;
-- clear event occurs on recovery.
+## Required exact evidence
 
-A test that calls `KiasProtocolSystem.Trigger(AtmosDanger)` directly is not sufficient for this regression.
-
-## Graph editor automated UI tests
-
-Extend existing `KiasControllerLayoutTests` or split focused tests.
-
-Run at least:
-
-- 850x500;
-- 1200x720;
-- 1600x900.
-
-Cases:
-
-- empty graph;
-- graph with constants, logic, ANY/ALL/SPECIFIC, long names;
-- selected node of every internal configurable category;
-- selected external Lighting/Speaker profile;
-- very long Russian strings.
-
-Assertions:
-
-- finite/positive DesiredSize;
-- canvas remains usable;
-- palette and inspector stay within their viewport;
-- inspector horizontal scrolling disabled;
-- no generic fields visible for unrelated node kinds;
-- node summary text fits/truncates intentionally;
-- every visible port has non-empty localized name and meaningful description;
-- no raw `Input Set: Bool` style output;
-- long names ellipsize/wrap and provide tooltip;
-- `Lighting` and `LightGroupController` are distinct palette items;
-- wire mismatch produces UI feedback instead of silent no-op.
-
-## Localization audit test
-
-Add a data-driven validation over graph profiles/prototypes:
-
-- every player-facing KIAS entity has ru-RU name and description;
-- `KIAS` is Latin in Russian strings;
-- graph node/port/profile labels resolve;
-- each native controller port description is not the generic placeholder;
-- typed enum values resolve to localized labels.
-
-## Live UI smoke — required
-
-Automated `Measure/Arrange` is necessary but not enough.
-
-Launch a local game using the repo's normal workflow and inspect:
-
-1. Programmer with 8–12 nodes and wires.
-2. Programmer at minimum practical window size.
-3. Right inspector for String, Timer, ALL Lighting, Speaker.
-4. Rack with empty/mixed/running/fault slots.
-5. Service multitool in Group mode.
-6. Light group controller local UI.
-7. Management console.
-
-Capture screenshots locally into `.kias/ui-smoke/` or another ignored folder and note resolution/UI scale. Compare readability to the shuttle console reference: section hierarchy, spacing, labels, button grouping, contrast.
-
-Fail the task if:
-
-- fields overlap;
-- horizontal inspector scrollbar appears;
-- important text is clipped with no tooltip;
-- raw technical identifiers dominate normal player UI;
-- controls are present but their purpose is not understandable without source code.
-
-## Performance regression
-
-Do not turn UI/correctness pass into per-frame scans.
-
-Re-run existing KIAS fleet/stress tests after selector/profile changes. Direct-light discovery must remain indexed/cached on topology changes, not scan all lights per graph event.
+Record all: test command, test names, pass/fail counts, `buildAllRelease.bat` terminal/exit (not generic dotnet build), `runQuickAll.bat` successful client/server and logs, 3 screenshots before/after when possible, 1–2 line observed actual output for popup, scanner detach, button/speaker and suppression. Mark any absent as NOT VERIFIED.

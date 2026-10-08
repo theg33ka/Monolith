@@ -1,87 +1,28 @@
-# Target architecture — post-implementation correction
+# Target architecture / invariants
 
-## 1. Three independent concepts: KIAS network, target power, automation graph
+## Stable device identity vs compact human label
 
-KIAS DATA connectivity answers: **can KIAS talk to/control this endpoint?**
+Persistent identity belongs to `KiasDeviceComponent.Identifier`. Physical binding belongs to `NetEntity`/actual entity. Presentation derives a short unique prefix per grid/visible candidate set. Never serialize or use the prefix as an authoritative target key. An offline but mounted physical device should not cause an ambiguous alias for another device in the same selection UI. A short-name collision merely expands those affected labels. Full ID remains inspectable and searchable. The alias calculation/cache should be bounded, deterministic, invalidated on device inventory change, and not trigger routine KIAS topology rebuild.
 
-Device functional power answers: **is the target itself currently powered/working?**
+## Two complementary scopes
 
-Graph runtime answers: **what logic should execute when events/data arrive?**
+1. **KIAS data path/management**: grid, role, core, DATA connectivity, server authority, power status.
+2. **Scanner coverage**: physical reach/module state determining who can be auto-integrated.
 
-Do not conflate these.
+`Direct=true` from the **physical integration kit** is a distinct human action. Auto-integration cannot override it. A stale auto-assigned scanner should not remain a valid control endpoint after coverage is lost; a newly eligible scanner may take over deterministically. Avoid turning global DeviceList/DeviceNetwork memberships into KIAS scanner subscriptions: these are different relationships.
 
-For a normal native KIAS server/device, losing its required power makes it offline. For a device controlled by an integration endpoint, KIAS may intentionally disable the target's functional power while the integration endpoint remains reachable over KIAS DATA. This distinction is required for OFF -> ON recovery.
+## One side effect, one source of truth
 
-## 2. Controller profiles describe capabilities, not misleading object names
+- Relay channel adjustment updates component + topology then optionally confirms to the initiating actor, with no emission for routine programmatic polling.
+- Suppression executes through existing `KiasActuatorSystem.Suppress` and existing native smoke/water system, subject to role/online/testing/cartridge checks.
+- DeviceLink connections only advertised when they map to real matching source→sink gameplay; preserve normal vanilla DeviceLink.
+- Graph ALL/ANY/SPECIFIC, typed port schema, and hardcoded high-performance physical subsystems remain as implemented.
+- Core 32×64 stays a one-world-object sprite; no invisible duplicated entity for draw order.
 
-Profiles should map gameplay semantics:
+## UI hierarchy and performance
 
-- `Lighting` = directly controllable light fixtures;
-- `LightGroupController` = KiasLightController devices;
-- `Speaker`, `Recorder`, sensors, relays, etc. = existing capability families;
-- generic DeviceLink profile remains fallback for legacy ports.
+Native Robust UI, local labels from `.ftl`, clear section hierarchy and secondary metadata, no per-frame rebuilding. Keep graph canvas usable from min 850×500 through 1600×900. Palette hierarchy expansion/search should work without losing focus; if dynamic sizing is unsafe, prefer simple responsive widths + intentional multi-line labels. Never allow text/tooltip to be the sole discoverability mechanism for core operations.
 
-A profile resolver may use explicit marker/capability components when a single `component:` prototype field is insufficient.
+## System boundaries
 
-## 3. Addressing
-
-`SPECIFIC`: exactly one device.
-
-`ANY`: one deterministic available match for commands; events merge from any match.
-
-`ALL`: command broadcast to every current match exactly once; events merge from any match.
-
-Filters are selector metadata, not device configuration. Room/group fields must be named and shown as filters, not «set room/group» actions.
-
-## 4. Event vs state
-
-`Signal` is an impulse/event. It has no persistent true/false value.
-
-`Bool` is a persistent logical state.
-
-The graph keeps strict typing. Conversions are explicit nodes:
-
-- Bool -> Edge -> Signal;
-- Signal -> Toggle/Latch -> Bool.
-
-The UI must teach this model at the point of interaction.
-
-## 5. Enum domains
-
-Do not treat every user-facing enum as a naked integer.
-
-Port/schema metadata should know its semantic domain where relevant:
-
-- audio channel;
-- contact disposition;
-- KIAS alert;
-- power channel;
-- other actual enums.
-
-The editor renders localized dropdown values and rejects incompatible enum domains if a safe implementation is practical. Persistence must remain versionable.
-
-## 6. Native gameplay systems remain authoritative
-
-KIAS graph does not reimplement:
-
-- AirAlarm device network/list management;
-- light bulb/power systems;
-- DeviceLink storage/loop protection;
-- speech/chat routing;
-- PDC/fire control;
-- atmos alarm calculations.
-
-KIAS should call/bridge existing systems and preserve their normal manual configuration path.
-
-## 7. UI architecture
-
-Separate presentation layers:
-
-- graph canvas: dense visual logic;
-- palette: discovery/search;
-- inspector: only selected-node relevant configuration/help;
-- status/validation: errors and current card/network state;
-- device local UIs: focused device configuration;
-- rack/management: operational status.
-
-Use common reusable KIAS UI helpers/styles for section panels, status badges, field rows and help text instead of recreating ad-hoc controls in each window.
+Local KIAS classes, `.yml` prototypes and locale first. Changes to generic `DeviceLinkSystem`, `NetworkConfiguratorSystem`, `SignalSwitchSystem`, global Sprite drawdepth or Robust UI need an **actual failing non-KIAS regression** and a narrowly scoped fix. Preserve map/save compatibility, entity status/roles, performance ~200 active KIAS grids.

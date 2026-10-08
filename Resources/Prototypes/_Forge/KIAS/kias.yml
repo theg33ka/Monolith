@@ -144,6 +144,7 @@
   components:
   - type: Sprite
     sprite: _Forge/KIAS/KiasCore.rsi
+    drawdepth: Mobs
     offset: 0, 0.5
     layers:
     - state: core

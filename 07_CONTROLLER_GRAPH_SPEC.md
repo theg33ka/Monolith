@@ -1,116 +1,42 @@
-# Controller graph UX and semantics specification
+# Programmer graph/editor UX — acceptance specification
 
-## Visual grammar
+## Hierarchy must read without hover
 
-Port colors may remain type-based, but color is never the only explanation. Tooltip and inspector show type text.
-
-Recommended player-facing type labels:
-
-- gold: Импульс;
-- green: Да/Нет;
-- cyan: Число;
-- pink: Строка;
-- orange: Объект;
-- purple: Перечисление/domain.
-
-## Node layout
-
-Header: localized node/profile name.
-
-Secondary line:
-
-- internal node: configured value/state when meaningful;
-- selector: matched count and compact filter summary;
-- SPECIFIC: device name + online state.
-
-Then ports.
-
-Examples:
+Use clear visual emphasis at least on standard 1200×720:
 
 ```text
-Строка
-"Внимание: разгерметизация"
-                 Значение ●
+КОНКРЕТНЫЕ УСТРОЙСТВА                      [поиск]
+
+  ▾ Мостик                                  ← серая, readable label beside arrow
+      Динамик             #7A0BFC           ← primary readable name + subdued alias
+      Сканер              #6AD50D
+  ▸ Медицинский отсек
+  ▾ Помещение 3
+      Реле                #C7A001
 ```
 
-```text
-ALL Освещение
-12 найдено
-● Установить      Есть устройства ●
-● Включить             В сети ●
-● Выключить          Источник ●
-```
+Room rows are nested under section, devices visibly nested under room. Enforce real indentation with margin/padding/containers rather than spaces in localized text. Heading name right next to disclosure arrow, not in distant/misaligned column. Long names: wrap naturally or reserve a second line for profile/alias; ellipsis+tooltip only secondary fallback. Keep full ID accessible. Named rooms first; unnamed sorted room number; preserve search filtering. Collapsed group state remains across repeated update.
 
-Do not literally hardcode ASCII; this is information hierarchy only.
+## Width and responsive behaviour
 
-## Inspector sections
+Current main FancyWindow 1200×720 (min 850×500), palette 215–250, inspector 300–340. A modest palette 280–320px can help **at standard width**, but at 850 width inspector and canvas must not be squeezed off-screen. Prefer native responsive layout or a proven native splitter; inspect how Robust handles MinSize, HorizontalExpand and scroll container. If implementing splitter: store user preference locally, clamp to window/canvas min, no cursor event leak, no state corruption on refresh. Otherwise choose clear safe responsive widths; left area wider when available, smaller when narrow, multi-line list rows in narrow mode. Validate actual screenshot, including RU fonts and 125% scaling.
 
-Use visually distinct sections, for example:
+## Header controls
 
-- `Узел` — title/status;
-- `Выборка` — room/group only when selector supports them;
-- `Параметры` — node-specific config;
-- `Входы и выходы` — help cards;
-- `Действия` — remove.
+- `_presets` dropdown gets nearby visible `Шаблон:` / `Template:` label, same height and group/panel.
+- Native per-state `KiasUi.Panel`/`KiasUi.Field` reusable styling preferred; do not create parallel fake controls.
+- `WRITE`, `Discard`, `Eject` semantics unchanged; see previous regression after card name sync.
 
-No unlabeled `OptionButton`. No raw direction/type strings.
+## Graph node names
 
-## Value editors
+- SPECIFIC node: human device name primary, concise ID and status secondary; do not hardcode stale Name; update on valid state and keep persisted fallback when original device disappears.
+- ANY/ALL selector semantics must remain as implemented, including separate `Lighting` and `LightController` physical group controllers.
+- Do not change native port IDs/schema just to rename visible labels. Localize user-facing names/port descriptions. Do not reintroduce `Label × #12hex ...` walls of text.
 
-- bool = checkbox/toggle with label;
-- enum = dropdown;
-- seconds = numeric line edit/spin-like field with unit in label;
-- string = line edit; safe max-length indication if useful;
-- number = validated numeric field;
-- compare = labeled dropdown.
+## Interaction quality
 
-Save only changed/valid relevant config. Hidden stale config must not accidentally affect unrelated node semantics.
-
-## Selector filters
-
-`Room`/`Group` are filters. Labels must be `Фильтр помещения` / `Фильтр группы`.
-
-Show only if the selected profile actually supports the concept. Empty = no filter.
-
-## Wiring feedback
-
-When starting a wire:
-
-- incompatible ports visibly dim as now;
-- on release over incompatible port, show short tooltip/status reason;
-- same direction -> «Нельзя соединить два входа/два выхода»;
-- type mismatch -> show both friendly types;
-- Signal/Bool mismatch -> suggest Edge or Latch/Toggle.
-
-## Port help
-
-Hover tooltip:
-
-`Объявить — Импульс`<br>
-`Произносит текст, поданный на вход «Сообщение».`
-
-Inspector should list help without requiring hover for discoverability.
-
-## Search/palette
-
-Search should match:
-
-- profile display name;
-- node name;
-- device name;
-- localized port names where practical.
-
-Avoid several visually identical `ALL Порты устройства` entries. Generic DeviceLink fallback title should include meaningful source/sink port names or device family context.
-
-## Window behavior
-
-- no horizontal inspector scrollbar;
-- palette has controlled width and ellipsis/tooltips;
-- inspector wider than current 205–240 px baseline where space allows;
-- canvas gets remaining width;
-- at min width side panels may become narrower, but text remains intentional and usable;
-- do not let long localized text expand the entire window off-screen.
-
-## Save state
-
-Dirty/saved status must be obvious but compact. `WRITE` is primary action, `Discard` secondary/destructive-ish, `Eject` disabled while dirty as today unless product behavior intentionally changes.
+- Selecting device row adds correct SPECIFIC device (by bound entity, NOT short label).
+- Search full ID and prefix works, including Cyrillic case-insensitive match. Search should not rebuild the node canvas or reset scroll unnecessarily.
+- Keyboard focus/search caret stable on state refresh; palette item hover tooltip does not remain stuck after moving cursor off it.
+- Port connector drag, pan/zoom, node selection and wire error feedback remain usable even with adjusted widths.
+- Use reproducible UI screenshot checks for 850×500, 1024×600, 1200×720, 1600×900; justify any case that remains intentionally clipped.

@@ -22,6 +22,39 @@ namespace Content.IntegrationTests.Tests._Forge.KIAS;
 public sealed class KiasSpriteTests
 {
     [Test]
+    public async Task TallCoreSharesDepthWithDirectionalWindowAndHuman()
+    {
+        await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Dirty = true });
+        var map = await pair.CreateTestMap();
+        var server = pair.Server.ResolveDependency<IEntityManager>();
+        var targets = new Dictionary<string, NetEntity>();
+        await pair.Server.WaitAssertion(() =>
+        {
+            var session = pair.Server.ResolveDependency<IPlayerManager>().Sessions.Single();
+            var actor = server.SpawnEntity("MobHuman", new EntityCoordinates(map.Grid, 1.5f, 0.5f));
+            var mind = server.System<SharedMindSystem>().CreateMind(session.UserId);
+            server.System<SharedMindSystem>().TransferTo(mind, actor);
+            targets["MobHuman"] = server.GetNetEntity(actor);
+            foreach (var id in new[] { "KiasCore", "WindowDirectional", "WallSolid", "Window" })
+                targets[id] = server.GetNetEntity(server.SpawnEntity(id, new EntityCoordinates(map.Grid, 0.5f, 0.5f)));
+        });
+        await pair.RunTicksSync(20);
+        await pair.Client.WaitAssertion(() =>
+        {
+            var em = pair.Client.ResolveDependency<IEntityManager>();
+            SpriteComponent Sprite(string id) => em.GetComponent<SpriteComponent>(em.GetEntity(targets[id]));
+            var core = Sprite("KiasCore");
+            Assert.That(core.DrawDepth, Is.EqualTo(Sprite("MobHuman").DrawDepth), "A tall core must use spatial sorting with people, not always render underneath them.");
+            Assert.That(core.DrawDepth, Is.EqualTo(Sprite("WindowDirectional").DrawDepth));
+            Assert.That(core.DrawDepth, Is.GreaterThan(Sprite("WallSolid").DrawDepth));
+            Assert.That(core.DrawDepth, Is.GreaterThan(Sprite("Window").DrawDepth));
+            Assert.That(core.BaseRSI!.Size, Is.EqualTo(new Vector2i(32, 64)));
+            Assert.That(core.Offset, Is.EqualTo(new Vector2(0, 0.5f)));
+        });
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
     public async Task EveryKiasEntityLoadsNativeSpritesWithoutMissingStates()
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings { Connected = true, Dirty = true });

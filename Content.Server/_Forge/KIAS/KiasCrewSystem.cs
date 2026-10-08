@@ -141,6 +141,7 @@ public sealed class KiasCrewSystem : EntitySystem
     {
         if (!args.Active)
         {
+            EntityManager.System<KiasIntegrationSystem>().Reconcile(args.Grid);
             _coverage.Remove(args.Grid);
             _scans.Remove(args.Grid);
             if (TryComp<KiasGridComponent>(args.Grid, out var runtime))
@@ -224,12 +225,7 @@ public sealed class KiasCrewSystem : EntitySystem
             _coverage[uid] = coverage;
             _scans.Add(uid, _timing.CurTime);
         }
-        foreach (var scanner in runtime.Online.ToArray())
-        {
-            if (TryComp<KiasRoomScannerComponent>(scanner, out var component)
-                && (component.Modules & KiasScannerModules.Connector) != 0)
-                EntityManager.System<KiasIntegrationSystem>().ConnectRoom(scanner, component.Range);
-        }
+        EntityManager.System<KiasIntegrationSystem>().Reconcile(uid);
     }
 
     public bool HasCoverage(EntityUid grid, EntityUid source, KiasScannerModules module)

@@ -706,7 +706,7 @@
   name: KIAS integration kit
   components:
   - type: Sprite
-    scale: 0.75, 0.75
+    scale: 0.60, 0.60
     sprite: _Forge/KIAS/Pack/integration-kit.rsi
     color: White
     layers:

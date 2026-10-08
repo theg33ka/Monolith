@@ -51,6 +51,7 @@ public sealed class KiasControllerEditorState : BoundUserInterfaceState
     public List<KiasGraphNodeView> Nodes = new();
     public List<KiasControllerWire> Wires = new();
     public List<KiasGraphDeviceView> Devices = new();
+    public List<string> Identifiers = new();
     public List<KiasGraphProfileView> Profiles = new();
     public List<string> Presets = new(), Errors = new();
     public List<string> Legacy = new();
