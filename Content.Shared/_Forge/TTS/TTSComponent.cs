@@ -16,4 +16,5 @@ public sealed partial class TTSComponent : Component
     [ViewVariables(VVAccess.ReadWrite)]
     [DataField("voice", customTypeSerializer: typeof(ProtoId<TTSVoicePrototype>))]
     public string? VoicePrototypeId { get; set; } = "Papich";
+
 }
