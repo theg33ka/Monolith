@@ -101,6 +101,8 @@ public sealed class KiasIntegrationSystem : EntitySystem
 
     private void Integrate(EntityUid target, EntityUid? scanner)
     {
+        if (TryComp<KiasIntegratedComponent>(target, out var existing)
+            && existing.Scanner == scanner && existing.Direct == (scanner == null)) return;
         var integrated = EnsureComp<KiasIntegratedComponent>(target);
         integrated.Scanner = scanner;
         integrated.Direct = scanner == null;
@@ -119,7 +121,7 @@ public sealed class KiasIntegrationSystem : EntitySystem
         _lookup.GetEntitiesInRange(scanner, Math.Clamp(range, 0, 10), _nearby, LookupFlags.All);
         foreach (var target in _nearby)
         {
-            if (Transform(target).GridUid != grid || HasComp<KiasDeviceComponent>(target)
+            if (!Transform(target).Anchored || Transform(target).GridUid != grid || HasComp<KiasDeviceComponent>(target)
                 && (!TryComp<KiasIntegratedComponent>(target, out var integrated) || integrated.Direct || CanControl(target))) continue;
             if (HasComp<AirAlarmComponent>(target) || HasComp<FireAlarmComponent>(target) || HasComp<AtmosMonitorComponent>(target)
                 || HasComp<GasVentPumpComponent>(target) || HasComp<GasVentScrubberComponent>(target) || HasComp<DoorComponent>(target))

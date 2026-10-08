@@ -2,6 +2,7 @@
 
 Current documentation is split by audience:
 
+- `UI_STABILITY.md` — дополнительное исправление пересчёта сети, кнопок шкафа и подсказок;
 - `CORRECTION_REPORT.md` — причины ошибок, решения и совместимость;
 - `ARCHITECTURE.md` — current technical model;
 - `CONTROLLERS.md` — programmable graph semantics and profiles;

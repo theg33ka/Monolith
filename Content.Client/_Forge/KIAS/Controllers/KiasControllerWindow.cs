@@ -252,29 +252,51 @@ public sealed class KiasControllerRackWindow : FancyWindow
 {
     public event Action<KiasControllerRackMessage>? Changed;
     private readonly BoxContainer _rows = new() { Orientation = BoxContainer.LayoutOrientation.Vertical };
+    private readonly BoxContainer _slotRows = new() { Orientation = BoxContainer.LayoutOrientation.Vertical };
+    private readonly Label _overview = new() { ClipText = true };
+    private readonly List<(Label Caption, Button Toggle, Button Eject)> _slots = new();
+    private KiasControllerRackState _state = new();
     public KiasControllerRackWindow()
     {
         Title = Loc.GetString("kias-controller-rack-title"); SetSize = new Vector2(650, 420); MinSize = new Vector2(430, 320); Resizable = true;
         var scroll = new ScrollContainer { HScrollEnabled = false }; scroll.AddChild(_rows);
         XamlChildren.Add(KiasUi.Panel(scroll));
+        _rows.AddChild(_overview);
+        _rows.AddChild(_slotRows);
+        var refresh = new Button { Text = Loc.GetString("kias-refresh") };
+        refresh.OnPressed += _ => Changed?.Invoke(new() { Refresh = true }); _rows.AddChild(refresh);
     }
     public void UpdateState(KiasControllerRackState state)
     {
-        _rows.RemoveAllChildren();
+        _state = state;
         var overview = Loc.GetString("kias-controller-rack-status", ("online", Loc.GetString(state.Online ? "kias-status-online" : "kias-status-offline")), ("running", state.Running), ("load", state.Load));
-        _rows.AddChild(new Label { ClipText = true, Text = overview, ToolTip = overview });
+        _overview.Text = _overview.ToolTip = overview;
+        while (_slots.Count > state.Slots.Count)
+        {
+            _slotRows.Children.Last().Dispose();
+            _slots.RemoveAt(_slots.Count - 1);
+        }
+        while (_slots.Count < state.Slots.Count)
+        {
+            var slot = _slots.Count;
+            var row = new BoxContainer { Margin = new Thickness(6) }; _slotRows.AddChild(KiasUi.Panel(row));
+            var caption = new Label { HorizontalExpand = true, ClipText = true };
+            var toggle = new Button();
+            var eject = new Button { Text = Loc.GetString("kias-controller-eject") };
+            toggle.OnPressed += _ => Changed?.Invoke(new() { Slot = slot, Enabled = !_state.Slots[slot].Enabled });
+            eject.OnPressed += _ => Changed?.Invoke(new() { Slot = slot, Eject = true });
+            row.AddChild(caption); row.AddChild(toggle); row.AddChild(eject);
+            _slots.Add((caption, toggle, eject));
+        }
         for (var i = 0; i < state.Slots.Count; i++)
         {
-            var slot = i; var item = state.Slots[i]; var row = new BoxContainer { Margin = new Thickness(6) }; _rows.AddChild(KiasUi.Panel(row));
+            var item = state.Slots[i];
             var caption = item.Inserted
                 ? $"{i + 1}. {item.Name} {(Loc.TryGetString($"kias-controller-status-{item.Status.ToLowerInvariant()}", out var status) ? status : item.Status)} {KiasControllerLabels.Error(item.Fault)}"
                 : $"{i + 1}. {Loc.GetString("kias-controller-status-empty")}";
-            row.AddChild(new Label { HorizontalExpand = true, Text = caption, ClipText = true, ToolTip = caption });
-            var toggle = new Button { Text = Loc.GetString(item.Enabled ? "kias-controller-disable" : "kias-controller-enable"), Disabled = !item.Inserted };
-            toggle.OnPressed += _ => Changed?.Invoke(new() { Slot = slot, Enabled = !item.Enabled }); row.AddChild(toggle);
-            var eject = new Button { Text = Loc.GetString("kias-controller-eject"), Disabled = !item.Inserted };
-            eject.OnPressed += _ => Changed?.Invoke(new() { Slot = slot, Eject = true }); row.AddChild(eject);
+            _slots[i].Caption.Text = _slots[i].Caption.ToolTip = caption;
+            _slots[i].Toggle.Text = Loc.GetString(item.Enabled ? "kias-controller-disable" : "kias-controller-enable");
+            _slots[i].Toggle.Disabled = _slots[i].Eject.Disabled = !item.Inserted;
         }
-        var refresh = new Button { Text = Loc.GetString("kias-refresh") }; refresh.OnPressed += _ => Changed?.Invoke(new() { Refresh = true }); _rows.AddChild(refresh);
     }
 }

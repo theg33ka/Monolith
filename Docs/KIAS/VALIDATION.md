@@ -49,3 +49,18 @@ Native client UI messages additionally exercised Rename → WRITE → Eject. The
 - The default server map logged an unrelated pre-existing `invalid FTL state Available` warning. No KIAS assertion or native UI crash occurred during the completed capture.
 
 Compatibility: version 1 and existing profile IDs remain; a legacy enum constant spanning different known domains now needs separate constants. See [CORRECTION_REPORT.md](CORRECTION_REPORT.md).
+
+## Дополнение: стабильность сети и интерфейса
+
+База дополнения: `052bed52ad5b3a0d534e3e6508e2c17ab5c5b067`. Причины и игровой сценарий описаны в [UI_STABILITY.md](UI_STABILITY.md).
+
+```powershell
+dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --no-restore -m:2 -nr:false -p:OutDir=D:/Workspace/ss14_lua/corvax/Monolith/.kias/ui-stability-bin/ --filter 'FullyQualifiedName~Kias' --logger 'console;verbosity=normal'
+```
+
+- До исправления воспроизведены зацикливание топологии с незакреплённой AirAlarm и пересоздание нажатой кнопки шкафа.
+- Три новые регрессии после исправления: **3/3**. Подсказка проверена через настоящее всплывающее окно Robust; нажатие кнопки — через штатные обработчики клиентского интерфейса.
+- Расширенный полный прогон: **71 passed, 0 failed, 0 skipped** — 61 тест из `Tests._Forge.KIAS` и 10 параметризованных проверок штатных DeviceLink sink ports для прототипов KIAS.
+- Сборка завершилась без ошибок. Существующие предупреждения сборки не устранены этим дополнением.
+- Сборка в отдельный каталог позволила сохранить работающий пользовательский сервер. Ручная игровая проверка дополнения не выполнялась; интерфейсные проверки выполняются в headless-клиенте.
+- Локальные журналы: `.kias/flicker-repro.log`, `.kias/flicker-fixed.log`, `.kias/flicker-full.log`.

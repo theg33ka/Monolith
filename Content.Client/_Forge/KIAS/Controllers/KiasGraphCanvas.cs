@@ -172,14 +172,27 @@ public sealed class KiasGraphCanvas : Control
     {
         base.MouseMove(args); _mouse = args.RelativePixelPosition;
         var point = GraphPosition(_mouse);
-        ToolTip = PortAt(point) is { } hovered ? KiasControllerLabels.PortHelp(hovered.Port)
+        var tooltip = _panning || _drag != null || _wire != null ? null
+            : PortAt(point) is { } hovered ? KiasControllerLabels.PortHelp(hovered.Port)
             : NodeAt(point) is { } hoveredNode ? KiasControllerLabels.Summary(hoveredNode) : null;
+        if (tooltip != ToolTip)
+        {
+            HideTooltip();
+            ToolTip = tooltip;
+        }
         if (_panning) { _pan += (_mouse - _previous) / UIScale; _previous = _mouse; }
         if (_drag is { } id && _state.Nodes.FirstOrDefault(node => node.Id == id) is { } node)
         {
             var position = GraphPosition(_mouse) - _dragOffset;
             node.X = Math.Clamp(position.X, -100000, 100000); node.Y = Math.Clamp(position.Y, -100000, 100000);
         }
+    }
+
+    protected override void MouseExited()
+    {
+        HideTooltip();
+        ToolTip = null;
+        base.MouseExited();
     }
     protected override void KeyBindUp(GUIBoundKeyEventArgs args)
     {

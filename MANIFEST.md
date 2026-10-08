@@ -17,13 +17,15 @@ Baseline: `3e067d069ebb45b192db06db8a38354f9f053cca`
 - `Docs/KIAS/CONTROLLERS.md` — 2450 bytes — `4db586b085a6c95f0269ecf03dad782539077ffba94c07c397f2edd946a4cb48`
 - `Docs/KIAS/PARITY_AUDIT.md` — 2805 bytes — `2aaee4cbcb0cad8b938133af8d4559dadffbaceb93ffbbefe5df402df7da2d9b`
 - `Docs/KIAS/PLAYER_GUIDE.md` — 5800 bytes — `74b6d0cdec1e82537cdba6ecc9273cfcc60aa66ad68bf6f7b15e9ebaf78a4f73`
-- `Docs/KIAS/PULL_REQUEST.md` — 5420 bytes — `8bee746a4edfa7cd82299ea049469301c90221ad8e3d5279d9e9b75c7016b8bf`
-- `Docs/KIAS/README.md` — 842 bytes — `0630557d8694e7c50ebec81cfb52209b5a66faedbc2127e4cf51b652b074238a`
+- `Docs/KIAS/PULL_REQUEST.md` — 6253 bytes — `9f677f10108694237ae81e4b6600e80225a1d1bf34ca740822259249ed30cea8`
+- `Docs/KIAS/README.md` — 995 bytes — `39edc176ea63a496786677b02202a37a5991dc2700910ac7bda80506a1ac0f27`
 - `Docs/KIAS/THIRD_PARTY.md` — 712 bytes — `6e2dd9e55c0b7e7ed018a5f6eb1bbbb0228834b41baaae967c09d6516e7f472c`
-- `Docs/KIAS/VALIDATION.md` — 5697 bytes — `83be90d83b321396f9dceb0f6c54974d1b936d7b125b17e22736fca57658f71f`
+- `Docs/KIAS/VALIDATION.md` — 7668 bytes — `608dc10c2cde2d35019fd6d59cdc4ecc2af53e505f254f3fc22ad879ad5bdb36`
 - `PATCH_PROMPT.md` — 9838 bytes — `d89dd3dd77c033e683c80728b2b2fe700bfaae09de327c45a621857c7aa79e89`
 - `references/ui_graph_current_overview.png` — 175793 bytes — `08f9853535923216a2fb08e1b12aff6d11b8e8ddd6487421a8675cc0fb2c9c01`
 - `references/ui_graph_inline_value_reference.png` — 40162 bytes — `560d7cf82804ebb392ec9bf5bea6efb13ce05f40cf4f603019dc8fbe864e85a1`
 - `references/ui_shuttle_reference.png` — 45272 bytes — `d8f69324ef9025e36b57fba62dbe489563fa52ffa27c445a1b4fec3915e27b77`
 
 - `Docs/KIAS/CORRECTION_REPORT.md` — 9635 bytes — `9490da122e6de3a15d26e6ffda89e5550b4e008efb04f48252a1712607d8b8af`
+
+- `Docs/KIAS/UI_STABILITY.md` — 5311 bytes — `cef3a5b00979a7a94cdfa1a8033ce555f647d263a005fcca930f4434a3982d35`
