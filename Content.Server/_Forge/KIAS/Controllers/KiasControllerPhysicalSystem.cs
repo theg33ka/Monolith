@@ -7,6 +7,8 @@ using Content.Shared.Popups;
 using Content.Shared.Power;
 using Content.Shared.Power.EntitySystems;
 using Robust.Shared.Containers;
+using Content.Server.Administration.Managers;
+using Content.Shared.Administration;
 
 namespace Content.Server._Forge.KIAS.Controllers;
 
@@ -18,6 +20,8 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
+    [Dependency] private SharedMapSystem _maps = default!;
+    [Dependency] private IAdminManager _admins = default!;
 
     public override void Initialize()
     {
@@ -51,7 +55,15 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
     }
 
     public bool CanConfigure(EntityUid machine, EntityUid actor) => !TerminatingOrDeleted(machine)
-        && Transform(machine).GridUid is { } grid && _kias.CanConfigure(grid, actor);
+        && (CanMapEdit(machine, actor) || Transform(machine).GridUid is { } grid && _kias.CanConfigure(grid, actor));
+
+    public bool CanMapEdit(EntityUid machine, EntityUid actor) => !TerminatingOrDeleted(machine)
+        && !TerminatingOrDeleted(actor) && HasComp<KiasControllerProgrammerComponent>(machine)
+        && Transform(machine).MapUid is { } map && Transform(actor).MapUid == map
+        && !_maps.IsInitialized(map) && _maps.IsPaused(map)
+        && _admins.GetAdminData(actor)?.HasFlag(AdminFlags.Mapping) == true;
+
+    public bool CanProgram(EntityUid machine, EntityUid actor) => _kias.IsOnline(machine) || CanMapEdit(machine, actor);
 
     public EntityUid? Card(EntityUid machine, string slot) => _slots.TryGetSlot(machine, slot, out var itemSlot) ? itemSlot.Item : null;
 

@@ -76,6 +76,15 @@ public sealed class KiasControllerLayoutTests
                     Assert.That(Descendants(programmer).OfType<KiasGraphCanvas>().Single().Size.X, Is.GreaterThan(160));
                 }
             }
+            populated.Online = false;
+            populated.Mapping = true;
+            programmer.UpdateState(populated);
+            Assert.That(Descendants(programmer).OfType<KiasGraphCanvas>().Single().CanEdit, Is.True);
+            Assert.That(Descendants(programmer).OfType<Button>().Single(button => button.Text == Loc.GetString("kias-controller-write")).Disabled, Is.False);
+            populated.Mapping = false;
+            programmer.UpdateState(populated);
+            Assert.That(Descendants(programmer).OfType<KiasGraphCanvas>().Single().CanEdit, Is.False);
+            Assert.That(Descendants(programmer).OfType<Button>().Single(button => button.Text == Loc.GetString("kias-controller-write")).Disabled, Is.True);
         });
         await pair.CleanReturnAsync();
     }

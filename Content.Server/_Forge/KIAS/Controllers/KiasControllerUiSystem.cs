@@ -5,6 +5,7 @@ using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Interaction;
 using Robust.Server.GameObjects;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Map.Components;
 
 namespace Content.Server._Forge.KIAS.Controllers;
 
@@ -18,6 +19,7 @@ public sealed class KiasControllerUiSystem : EntitySystem
     [Dependency] private SharedInteractionSystem _interaction = default!;
     [Dependency] private ItemSlotsSystem _slots = default!;
     [Dependency] private IPrototypeManager _prototypes = default!;
+    [Dependency] private SharedMapSystem _maps = default!;
 
     private readonly HashSet<EntityUid> _openProgrammers = new();
 
@@ -72,6 +74,7 @@ public sealed class KiasControllerUiSystem : EntitySystem
         {
             Revision = ent.Comp.DraftRevision, HasCard = ent.Comp.Card != null,
             Online = _kias.IsOnline(ent), Dirty = ent.Comp.DraftDirty,
+            Mapping = ent.Comp.Editor is { } actor && _physical.CanMapEdit(ent, actor),
             Editing = ent.Comp.Editor != null, Errors = ent.Comp.Errors.ToList()
         };
         state.Enabled = ent.Comp.DraftEnabled;
@@ -108,7 +111,28 @@ public sealed class KiasControllerUiSystem : EntitySystem
                 state.Legacy = legacy.Protocols.Take(32).Select(record => record.PresetId.Length > 0 ? record.PresetId : record.Trigger.ToString()).ToList();
         }
         state.Presets = _prototypes.EnumeratePrototypes<KiasControllerProgramPrototype>().Select(preset => preset.ID).Order().ToList();
-        if (state.Online && Transform(ent).GridUid is { } current)
+        if (state.Mapping && Transform(ent).GridUid is { } mappingGrid && TryComp<MapGridComponent>(mappingGrid, out var mapGrid))
+        {
+            var devices = new HashSet<EntityUid>();
+            foreach (var uid in _maps.GetLocalAnchoredEntities(mappingGrid, mapGrid, mapGrid.LocalAABB))
+            {
+                if (devices.Count >= 4096) break;
+                if (!TerminatingOrDeleted(uid) && HasComp<KiasDeviceComponent>(uid) && Transform(uid).GridUid == mappingGrid) devices.Add(uid);
+            }
+            var identities = EntityManager.System<KiasDeviceIdentitySystem>();
+            state.Identifiers = devices.Select(identities.Identifier).ToList();
+            var rooms = identities.Rooms(mappingGrid, devices);
+            foreach (var uid in devices.OrderBy(uid => uid.Id))
+                foreach (var profile in _io.MappingProfiles(uid))
+                {
+                    if (state.Profiles.All(existing => existing.Id != profile) && _io.Schema(profile) is { } schema)
+                        state.Profiles.Add(new() { Id = profile, Ports = schema.Select(port => port.Copy()).ToList() });
+                    if (state.Devices.Count < 256) state.Devices.Add(new() { Entity = GetNetEntity(uid), Name = Name(uid), Profile = profile,
+                        Identifier = identities.Identifier(uid), Room = rooms.GetValueOrDefault(uid).Label ?? string.Empty,
+                        NamedRoom = rooms.GetValueOrDefault(uid).Named, RoomOrder = rooms.GetValueOrDefault(uid).Order });
+                }
+        }
+        if (state.Online && !state.Mapping && Transform(ent).GridUid is { } current)
         {
             var identities = EntityManager.System<KiasDeviceIdentitySystem>();
             if (TryComp<KiasGridComponent>(current, out var inventory))
@@ -147,7 +171,7 @@ public sealed class KiasControllerUiSystem : EntitySystem
             var ejected = _slots.TryEject(ent, KiasControllerProgrammerComponent.SlotId, actor, out _);
             Refresh(ent); return ejected;
         }
-        if (!_kias.IsOnline(ent) || !Enum.IsDefined(message.Edit)
+        if (!_physical.CanProgram(ent, actor) || !Enum.IsDefined(message.Edit)
             || message.Text == null || message.Profile == null || message.Room == null || message.Group == null
             || message.Text.Length > 256 || message.Profile.Length > 64 || message.Room.Length > 64 || message.Group.Length > 32
             || !float.IsFinite(message.X) || !float.IsFinite(message.Y) || Math.Abs(message.X) > 100000 || Math.Abs(message.Y) > 100000)
@@ -178,8 +202,11 @@ public sealed class KiasControllerUiSystem : EntitySystem
                     if (node.Kind == KiasNodeKind.Specific)
                     {
                         if (message.Binding is not { } net || !TryGetEntity(net, out var bound) || bound is not { } uid
-                            || !_kias.IsOnline(uid) || Transform(uid).GridUid != Transform(ent).GridUid
-                            || !_io.Profiles(uid).Contains(node.Profile)) return false;
+                            || TerminatingOrDeleted(uid)
+                            || Transform(uid).GridUid != Transform(ent).GridUid
+                            || (_physical.CanMapEdit(ent, actor)
+                                ? !Transform(uid).Anchored || !_io.Supports(uid, node.Profile)
+                                : !_kias.IsOnline(uid) || !_io.Profiles(uid).Contains(node.Profile))) return false;
                         node.Binding = uid; node.DeviceName = EntityManager.System<KiasDeviceIdentitySystem>().Label(uid);
                     }
                 }

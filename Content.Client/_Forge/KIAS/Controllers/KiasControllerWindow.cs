@@ -124,13 +124,13 @@ public sealed class KiasControllerWindow : FancyWindow
                 _aliases[id] = id[..length];
             }
         }
-        _updating = true; _enabled.Pressed = state.Enabled; _enabled.Disabled = !state.HasCard || !state.Online; _updating = false;
-        _canvas.CanEdit = state.HasCard && state.Online && state.Editing;
-        _write.Disabled = !state.HasCard || !state.Online || state.Errors.Count > 0;
+        _updating = true; _enabled.Pressed = state.Enabled; _enabled.Disabled = !state.HasCard || !(state.Online || state.Mapping); _updating = false;
+        _canvas.CanEdit = state.HasCard && (state.Online || state.Mapping) && state.Editing;
+        _write.Disabled = !state.HasCard || !(state.Online || state.Mapping) || state.Errors.Count > 0;
         _discard.Disabled = !state.HasCard || !state.Dirty; _eject.Disabled = !state.HasCard || state.Dirty;
         _name.Text = state.Name; _name.CursorPosition = 0;
         _status.Text = Loc.GetString("kias-controller-editor-status", ("card", Loc.GetString(state.HasCard ? "kias-controller-present" : "kias-controller-absent")),
-            ("online", Loc.GetString(state.Online ? "kias-status-online" : "kias-status-offline")),
+            ("online", Loc.GetString(state.Mapping ? "kias-controller-mapping" : state.Online ? "kias-status-online" : "kias-status-offline")),
             ("dirty", Loc.GetString(state.Dirty ? "kias-controller-unsaved" : "kias-controller-saved")),
             ("nodes", state.Nodes.Count), ("wires", state.Wires.Count)) + (state.Errors.Count == 0 ? string.Empty : "\n" + string.Join(", ", state.Errors.Select(KiasControllerLabels.Error)));
         _status.ToolTip = _status.Text;
@@ -151,7 +151,7 @@ public sealed class KiasControllerWindow : FancyWindow
             TextAlign = Label.AlignMode.Left,
             ClipText = true,
             ToolTip = tooltip ?? title,
-            Disabled = !_state.HasCard || !_state.Online
+            Disabled = !_state.HasCard || !(_state.Online || _state.Mapping)
         };
         button.Label.RemoveStyleClass(ContainerButton.StyleClassButton);
         if (secondary.Length > 0)

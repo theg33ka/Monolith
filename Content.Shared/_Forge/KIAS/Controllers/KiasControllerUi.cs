@@ -47,6 +47,7 @@ public sealed class KiasControllerEditorState : BoundUserInterfaceState
     public string Name = string.Empty;
     public uint Revision;
     public bool HasCard, Online, Dirty, Editing;
+    public bool Mapping;
     public bool Enabled;
     public List<KiasGraphNodeView> Nodes = new();
     public List<KiasControllerWire> Wires = new();

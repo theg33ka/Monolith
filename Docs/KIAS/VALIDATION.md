@@ -1,5 +1,15 @@
 # KIAS: validation, 2026-10-08
 
+## 2026-10-09 — редактор на замороженной карте маппинга
+
+База `KIAS`, HEAD `78ec19324beb9da3d975593ccce99fa66ddfd8f1`. Условия и регрессии описаны в [MAPPING_EDITOR.md](MAPPING_EDITOR.md). Исключение допускает только редактирование программатора активным администратором Mapping на неинициализированной замороженной карте; обычная пауза игрового раунда не даёт обхода питания.
+
+- **92/92** в Debug (`mapping-final.log`) и **92/92** в Release (`mapping-production-tests.log`), 0 failed/0 skipped.
+- Настоящий buildAllRelease.bat: exit 0, 0 ошибок, 4240 предупреждений, 00:01:37.60 (`mapping-release.log`). Итоговые сборки выполнены в штатных каталогах.
+- Настоящий runQuickAll.bat создал оба приложения; повторный запуск его дочерних скриптов с захватом stdout подтвердил MainScreen/Ready (`mapping-client-startup.log`, `mapping-server-startup.log`), UDP 1212. Ручной игровой smoke не выполнен.
+- RED→GREEN: реальная вставка/WRITE на замороженной карте; SPECIFIC offline, удалённая сущность, отзыв Mapping/deadmin, запрет на инициализированной карте с паузой и без неё, нативный UI с Mapping=true/Online=false. Питание и runtime не подменяются.
+- YAML/локализации/RSI корректны: RU/EN по 666 ключей, 65 RSI/128 состояний (`mapping-resources.log`); git diff --check без ошибок. Коммит/push не выполнялись.
+
 ## Патч T01–T10 от 2026-10-08
 
 Дополнение после уточнения T06: **91/91 в Debug и 91/91 в Release**, журналы `core-full.log`, `core-production-tests.log`. Ядро переведено в слой `Mobs` после RED→GREEN проверки с направленным окном и персонажем (`core-red.log`). Повторный настоящий buildAllRelease.bat: exit 0, 0 ошибок, 1852 предупреждения, 00:01:03.16 (`core-release.log`). Последующие пункты с 90/90 сохраняют историю первого прохода.

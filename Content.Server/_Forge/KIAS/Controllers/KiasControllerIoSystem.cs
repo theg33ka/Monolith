@@ -104,6 +104,18 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
     }
 
     public IReadOnlyList<string> Profiles(EntityUid device) => _profiles.TryGetValue(device, out var profiles) ? profiles : Array.Empty<string>();
+    public IReadOnlyList<string> MappingProfiles(EntityUid device)
+    {
+        var profiles = _prototypes.EnumeratePrototypes<KiasControllerProfilePrototype>().Where(profile => Supports(device, profile.ID))
+            .Select(profile => profile.ID).ToList();
+        if (NativeSchema(device) is { } ports)
+        {
+            var id = LinkId(ports);
+            if (_linkSchemas.Count < 4096 || _linkSchemas.ContainsKey(id))
+            { _linkSchemas[id] = ports; profiles.Add(id); }
+        }
+        return profiles;
+    }
     public IReadOnlyList<EntityUid> Devices(EntityUid grid, string profile) =>
         _devices.TryGetValue((grid, profile), out var devices) ? devices : Array.Empty<EntityUid>();
 

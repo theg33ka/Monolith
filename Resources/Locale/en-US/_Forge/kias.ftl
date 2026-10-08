@@ -883,3 +883,4 @@ kias-suppression-offline = Suppression unavailable: check power and DATA.
 kias-suppression-no-atmosphere = A connected KIAS atmosphere server is required.
 kias-suppression-testing = Suppression is disabled during testing.
 kias-suppression-empty = Install a new suppression cartridge.
+kias-controller-mapping = Mapping (frozen map)

@@ -850,3 +850,4 @@ kias-suppression-offline = Пожаротушение недоступно: пр
 kias-suppression-no-atmosphere = Нужен подключённый атмосферный сервер KIAS.
 kias-suppression-testing = Пожаротушение отключено в режиме проверки.
 kias-suppression-empty = Установите новый картридж пожаротушения.
+kias-controller-mapping = Маппинг (замороженная карта)
