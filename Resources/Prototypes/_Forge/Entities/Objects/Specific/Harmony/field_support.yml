@@ -109,16 +109,34 @@
     sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
     layers:
     - state: compact
-      map: [ "enum.HmeStasisBlossomVisuals.State" ]
+      map: [ "base" ]
+    - state: attached-screen
+      shader: unshaded
+      visible: false
+      map: [ "screen" ]
+  - type: Icon
+    sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
+    state: compact
   - type: GenericVisualizer
     visuals:
       enum.HmeStasisBlossomVisuals.State:
-        Compact: { state: compact }
-        Attached: { state: attached }
-        Deployed: { state: deployed }
+        base:
+          Compact: { state: compact }
+          Attached: { state: attached }
+          Deployed: { state: deployed, loop: false }
+        screen:
+          Compact: { visible: false }
+          Attached: { state: attached-screen, visible: true }
+          Deployed: { state: deployed-screen, visible: true, loop: false }
   - type: Appearance
   - type: Item
     size: Small
+    sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
+  - type: Clothing
+    sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
+    quickEquip: false
+    slots:
+    - back
   - type: HmeStasisBlossom
   - type: StaticPrice
     price: 900
@@ -141,14 +159,15 @@
   - type: Sprite
     sprite: _Forge/Objects/Specific/Medical/HME/rescue_beacon.rsi
     layers:
-    - state: armed
-      map: [ "enum.HmeRescueBeaconVisuals.State" ]
+    - state: icon
+      map: [ "beacon" ]
   - type: GenericVisualizer
     visuals:
       enum.HmeRescueBeaconVisuals.State:
-        Idle: { state: icon }
-        Armed: { state: armed }
-        Spent: { state: spent }
+        beacon:
+          Idle: { state: icon, color: "#FFFFFF" }
+          Armed: { state: icon, color: "#FFFFFF" }
+          Spent: { state: icon, color: "#808080" }
   - type: Appearance
   - type: Clothing
     sprite: _Forge/Objects/Specific/Medical/HME/rescue_beacon.rsi

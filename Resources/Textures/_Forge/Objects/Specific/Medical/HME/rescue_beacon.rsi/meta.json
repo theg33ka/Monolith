@@ -1,7 +1,7 @@
 {
   "version": 1,
   "license": "CC-BY-SA-3.0",
-  "copyright": "Original programmatic pixel art for Frontier Monolith; generated with Tools/generate_hme_sprites.py.",
+  "copyright": "Made by Hurtsay.",
   "size": {
     "x": 32,
     "y": 32
@@ -11,16 +11,12 @@
       "name": "icon"
     },
     {
-      "name": "armed"
+      "name": "equipped-ARMBANDLEFT",
+      "directions": 4
     },
     {
-      "name": "spent"
-    },
-    {
-      "name": "equipped-ARMBANDLEFT"
-    },
-    {
-      "name": "equipped-ARMBANDRIGHT"
+      "name": "equipped-ARMBANDRIGHT",
+      "directions": 4
     }
   ]
 }
