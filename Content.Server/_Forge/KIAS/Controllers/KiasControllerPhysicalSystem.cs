@@ -17,6 +17,7 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
     [Dependency] private SharedPowerReceiverSystem _power = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private MetaDataSystem _metadata = default!;
+    [Dependency] private SharedAppearanceSystem _appearance = default!;
 
     public override void Initialize()
     {
@@ -30,6 +31,7 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
         SubscribeLocalEvent<KiasControllerRackComponent, ItemSlotEjectAttemptEvent>(OnRackEjectAttempt);
         SubscribeLocalEvent<KiasControllerRackComponent, ExaminedEvent>(OnRackExamine);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, EntInsertedIntoContainerMessage>(OnProgrammerInsert);
+        SubscribeLocalEvent<KiasControllerProgrammerComponent, MapInitEvent>(OnProgrammerInit);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, EntRemovedFromContainerMessage>(OnProgrammerRemove);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, ItemSlotInsertAttemptEvent>(OnProgrammerInsertAttempt);
         SubscribeLocalEvent<KiasControllerProgrammerComponent, ItemSlotEjectAttemptEvent>(OnProgrammerEjectAttempt);
@@ -139,12 +141,19 @@ public sealed class KiasControllerPhysicalSystem : EntitySystem
         ent.Comp.DraftDirty = false;
         ent.Comp.DraftRevision++;
         ent.Comp.Errors.Clear();
+        UpdateProgrammerAppearance(ent);
         EntityManager.System<KiasControllerUiSystem>().Refresh(ent);
     }
     private void OnProgrammerRemove(Entity<KiasControllerProgrammerComponent> ent, ref EntRemovedFromContainerMessage args)
     {
         if (args.Container.ID != KiasControllerProgrammerComponent.SlotId) return;
         ent.Comp.Card = null; ent.Comp.Draft = null; ent.Comp.DraftDirty = false; ent.Comp.DraftRevision++;
+        UpdateProgrammerAppearance(ent);
         EntityManager.System<KiasControllerUiSystem>().Refresh(ent);
     }
+
+    private void OnProgrammerInit(Entity<KiasControllerProgrammerComponent> ent, ref MapInitEvent args) => UpdateProgrammerAppearance(ent);
+
+    private void UpdateProgrammerAppearance(EntityUid uid) => _appearance.SetData(uid,
+        KiasVisuals.CardInserted, Card(uid, KiasControllerProgrammerComponent.SlotId) is { } card && HasComp<KiasControllerCardComponent>(card));
 }

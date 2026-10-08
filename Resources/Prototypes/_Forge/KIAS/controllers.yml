@@ -5,8 +5,11 @@
   description: A portable automation program. Runs only in a connected controller rack.
   components:
   - type: Sprite
-    sprite: _Forge/KIAS/KiasProgrammableController.rsi
-    state: controller
+    sprite: _Forge/KIAS/Pack/controller-card.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
   - type: Item
     size: Tiny
   - type: KiasControllerCard
@@ -26,9 +29,11 @@
   - type: Machine
     board: KiasControllerRackBoard
   - type: Sprite
-    sprite: _Forge/KIAS/KiasControllerRack.rsi
+    sprite: _Forge/KIAS/Pack/rack.rsi
+    color: White
     layers:
-    - state: rack
+    - state: base
+      map: ["0"]
   - type: KiasDevice
     role: Controller
   - type: KiasControllerRack
@@ -72,11 +77,11 @@
   - type: Machine
     board: KiasControllerProgrammerBoard
   - type: Sprite
-    sprite: Structures/Machines/computers.rsi
+    sprite: _Forge/KIAS/Pack/programmer.rsi
+    offset: 0.5, 0
     layers:
-    - state: computer
-    - state: generic
-      shader: unshaded
+    - state: empty
+      map: ["0"]
   - type: KiasDevice
     role: Display
   - type: KiasControllerProgrammer
@@ -96,7 +101,20 @@
       machine_board: !type:Container
       machine_parts: !type:Container
       kias-controller: !type:ContainerSlot
-
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape: !type:PhysShapeAabb
+          bounds: "-0.45,-0.45,1.45,0.45"
+        density: 190
+        mask: [MachineMask]
+        layer: [MachineLayer]
+  - type: GenericVisualizer
+    visuals:
+      enum.KiasVisuals.CardInserted:
+        0:
+          False: { state: empty }
+          True: { state: card }
 - type: entity
   id: KiasControllerRackBoard
   parent: BaseMachineCircuitboard
@@ -106,7 +124,12 @@
     prototype: KiasControllerRack
     requirements: { Capacitor: 2, MatterBin: 1 }
     stackRequirements: { Steel: 5 }
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: entity
   id: KiasControllerProgrammerBoard
   parent: BaseMachineCircuitboard
@@ -116,7 +139,12 @@
     prototype: KiasControllerProgrammer
     requirements: { Capacitor: 1, MatterBin: 1 }
     stackRequirements: { Steel: 5, Glass: 2 }
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasControllerRackBoard
   parent: BaseGoldCircuitboardRecipe

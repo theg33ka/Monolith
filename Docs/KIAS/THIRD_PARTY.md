@@ -19,3 +19,7 @@ Any newly copied third-party code/assets must follow the repository's attributio
 ## Core sprite
 
 The new `KiasCore.rsi` sprite was generated with the built-in OpenAI imagegen tool for Forge on 2026-10-08 and exported to 32×64. Its RSI metadata records CC-BY-SA-3.0 and generated provenance. The existing controller/rack credits to Hurtsay remain separate. See [CORE_SPRITE.md](CORE_SPRITE.md) for the complete generation prompt.
+
+## Complete KIAS sprite pack
+
+The new `Textures/_Forge/KIAS/Pack` resources were generated with the built-in OpenAI imagegen tool and exported to native 32×32 frames, with 64×32 frames for the management console and programmer. Their metadata records CC-BY-SA-3.0 and generated provenance. Original Hurtsay controller/rack resources remain in the repository with their original credits; the new pack does not reuse that attribution. See [SPRITE_PACK.md](SPRITE_PACK.md), `SPRITE_PROMPTS.json`, and `SPRITE_ENTITY_MAP.json` for prompts and prototype coverage.

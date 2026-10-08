@@ -61,7 +61,7 @@ public enum KiasDeviceRole : byte
 }
 
 [Serializable, NetSerializable]
-public enum KiasVisuals : byte { Status }
+public enum KiasVisuals : byte { Status, CardInserted }
 
 [Serializable, NetSerializable]
 public enum KiasDeviceStatus : byte

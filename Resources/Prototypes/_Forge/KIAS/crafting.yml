@@ -10,7 +10,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasCoreBoard
   parent: BaseGoldCircuitboardRecipe
@@ -28,7 +33,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasDefenceServerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -46,7 +56,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasAtmosServerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -64,7 +79,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasPowerServerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -82,7 +102,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasCrewServerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -100,7 +125,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasNavigationServerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -118,7 +148,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasRecorderBoard
   parent: BaseGoldCircuitboardRecipe
@@ -136,7 +171,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasSpeakerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -154,7 +194,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasRoomScannerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -172,7 +217,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasHorizonBoard
   parent: BaseGoldCircuitboardRecipe
@@ -190,7 +240,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasHullSensorBoard
   parent: BaseGoldCircuitboardRecipe
@@ -208,7 +263,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasIntegrityMonitorBoard
   parent: BaseGoldCircuitboardRecipe
@@ -226,7 +286,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasCollisionMonitorBoard
   parent: BaseGoldCircuitboardRecipe
@@ -244,7 +309,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasLightControllerBoard
   parent: BaseGoldCircuitboardRecipe
@@ -262,7 +332,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasSuppressionBoard
   parent: BaseGoldCircuitboardRecipe
@@ -280,7 +355,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasRelayBoard
   parent: BaseGoldCircuitboardRecipe
@@ -298,7 +378,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasPdcRadarBoard
   parent: BaseGoldCircuitboardRecipe
@@ -316,7 +401,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasWeaponFlashDetectorBoard
   parent: BaseGoldCircuitboardRecipe
@@ -334,7 +424,12 @@
       MatterBin: 1
     stackRequirements:
       Steel: 5
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasProximitySensorBoard
   parent: BaseGoldCircuitboardRecipe
@@ -347,7 +442,12 @@
   components:
   - type: ComputerBoard
     prototype: KiasDisplay
-
+  - type: Sprite
+    sprite: _Forge/KIAS/Pack/board.rsi
+    color: White
+    layers:
+    - state: base
+      map: ["0"]
 - type: latheRecipe
   id: KiasDisplayBoard
   parent: BaseGoldCircuitboardRecipe
