@@ -5,6 +5,7 @@
   description: A portable automation program. Runs only in a connected controller rack.
   components:
   - type: Sprite
+    scale: 0.75, 0.75
     sprite: _Forge/KIAS/Pack/controller-card.rsi
     color: White
     layers:

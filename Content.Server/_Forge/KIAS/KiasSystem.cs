@@ -70,8 +70,16 @@ public sealed partial class KiasSystem : EntitySystem
         }
     }
 
-    private void OnDeviceStartup(Entity<KiasDeviceComponent> ent, ref ComponentStartup args) => RegisterDevice(ent);
-    private void OnDeviceShutdown(Entity<KiasDeviceComponent> ent, ref ComponentShutdown args) => RemoveDevice(ent);
+    private void OnDeviceStartup(Entity<KiasDeviceComponent> ent, ref ComponentStartup args)
+    {
+        EntityManager.System<KiasDeviceIdentitySystem>().Identifier(ent);
+        RegisterDevice(ent);
+    }
+    private void OnDeviceShutdown(Entity<KiasDeviceComponent> ent, ref ComponentShutdown args)
+    {
+        EntityManager.System<KiasDeviceIdentitySystem>().Release(ent);
+        RemoveDevice(ent);
+    }
     private void OnDeviceParent(Entity<KiasDeviceComponent> ent, ref EntParentChangedMessage args) => RegisterDevice(ent);
     private void OnDeviceGrid(Entity<KiasDeviceComponent> ent, ref GridUidChangedEvent args) => RegisterDevice(ent);
     private void OnDeviceAnchor(Entity<KiasDeviceComponent> ent, ref AnchorStateChangedEvent args) => RegisterDevice(ent);
@@ -173,6 +181,7 @@ public sealed partial class KiasSystem : EntitySystem
         if (TerminatingOrDeleted(grid) || !TryComp<KiasGridComponent>(grid, out var runtime) || !TryComp<MapGridComponent>(grid, out var map))
             return;
         var wasActive = runtime.Active;
+        UpdateCableVisuals(grid, map, runtime);
         var cores = runtime.Devices.Where(uid => !TerminatingOrDeleted(uid) && HasComp<KiasCoreComponent>(uid)).ToArray();
         runtime.Core = cores.Length == 1 ? cores[0] : null;
         runtime.Active = runtime.Core is { } core && Comp<KiasCoreComponent>(core).Enabled && _power.IsPowered(core);

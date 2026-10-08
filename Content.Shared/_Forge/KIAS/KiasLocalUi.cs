@@ -39,6 +39,9 @@ public sealed class KiasServiceState : BoundUserInterfaceState
     public NetEntity? Source;
     public NetEntity? Target;
     public KiasCoverageGeometry? Geometry;
+    public int RotaryPositions;
+    public List<int> RotarySignals = new();
+    public float? SensorRange;
 }
 
 [Serializable, NetSerializable]
@@ -105,6 +108,8 @@ public sealed class KiasLightState : KiasLocalState
 [Serializable, NetSerializable]
 public sealed class KiasDeviceSettingsMessage : BoundUserInterfaceMessage
 {
+    public int RotaryPositions;
+    public List<int> RotarySignals = new();
     public string Room = string.Empty;
     public string Group = string.Empty;
     public string Message = string.Empty;

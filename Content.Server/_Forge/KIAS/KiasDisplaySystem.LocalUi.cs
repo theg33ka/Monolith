@@ -53,9 +53,13 @@ public sealed partial class KiasDisplaySystem
                     : TryComp<KiasLightGroupComponent>(selected, out var selectedLight) ? selectedLight.Group : string.Empty : string.Empty;
             return new KiasServiceState { Mode = tool.Mode, Message = tool.Message, Group = tool.Group, CurrentGroup = selectedGroup,
                 GroupKind = tool.Target is { } groupTarget && HasComp<KiasSpeakerComponent>(groupTarget) ? "speaker" : "lighting",
-                Details = tool.Target is { } diagnosticTarget && !TerminatingOrDeleted(diagnosticTarget) ? Diagnostics(diagnosticTarget) + (tool.Mode == KiasServiceMode.Monitor ? "\n" + OutputDetails(diagnosticTarget) : string.Empty) : string.Empty,
+                Details = tool.Target is { } diagnosticTarget && !TerminatingOrDeleted(diagnosticTarget) ? Diagnostics(diagnosticTarget) + (tool.Mode is KiasServiceMode.Diagnose or KiasServiceMode.Monitor ? "\n" + OutputDetails(diagnosticTarget) : string.Empty) : string.Empty,
                 SourceName = tool.Source is { } namedSource && !TerminatingOrDeleted(namedSource) ? Name(namedSource) : string.Empty,
-                TargetName = tool.Target is { } namedTarget && !TerminatingOrDeleted(namedTarget) ? Name(namedTarget) : string.Empty,
+                TargetName = tool.Target is { } namedTarget && !TerminatingOrDeleted(namedTarget) ? EntityManager.System<KiasDeviceIdentitySystem>().Label(namedTarget) : string.Empty,
+                RotaryPositions = tool.Target is { } rotaryTarget && TryComp<KiasRotaryComponent>(rotaryTarget, out var rotary) ? rotary.Positions : 0,
+                RotarySignals = tool.Target is { } signalTarget && TryComp<KiasRotaryComponent>(signalTarget, out var signalRotary) ? signalRotary.Signals.Take(signalRotary.Positions).ToList() : new(),
+                SensorRange = tool.Target is { } rangeTarget && !TerminatingOrDeleted(rangeTarget) && IsSensor(rangeTarget)
+                    ? TryComp<KiasRoomScannerComponent>(rangeTarget, out var rangeScanner) ? rangeScanner.Range : SensorRange(rangeTarget) : null,
                 Source = tool.Source is { } source && !TerminatingOrDeleted(source) ? GetNetEntity(source) : null,
                 Target = tool.Target is { } target && !TerminatingOrDeleted(target) ? GetNetEntity(target) : null,
                 Geometry = tool.Mode == KiasServiceMode.Coverage ? tool.Geometry : null };
@@ -119,6 +123,24 @@ public sealed partial class KiasDisplaySystem
         return 0;
     }
 
+    public bool IsSensor(EntityUid uid) => HasComp<KiasRoomScannerComponent>(uid) || HasComp<KiasHorizonComponent>(uid)
+        || HasComp<KiasProximityComponent>(uid) || HasComp<KiasWeaponFlashComponent>(uid) || HasComp<KiasPdcRadarComponent>(uid) || HasComp<KiasHullSensorComponent>(uid);
+
+    public void SetSensorRange(EntityUid uid, float range)
+    {
+        if (!float.IsFinite(range)) return;
+        if (TryComp<KiasRoomScannerComponent>(uid, out var scanner))
+        {
+            scanner.Range = (int) Math.Clamp(range, 1, 10);
+            EntityManager.System<KiasCrewSystem>().RebuildCoverage(Transform(uid).GridUid);
+        }
+        if (TryComp<KiasHorizonComponent>(uid, out var horizon)) horizon.Range = Math.Clamp(range, 0, 2000);
+        if (TryComp<KiasProximityComponent>(uid, out var proximity)) proximity.Range = Math.Clamp(range, 0, 500);
+        if (TryComp<KiasWeaponFlashComponent>(uid, out var flash)) flash.Range = Math.Clamp(range, 0, 1000);
+        if (TryComp<KiasPdcRadarComponent>(uid, out var radar)) radar.Range = Math.Clamp(range, 0, 500);
+        if (TryComp<KiasHullSensorComponent>(uid, out var hull)) hull.Range = Math.Clamp(range, 50, 100);
+    }
+
     public KiasCoverageGeometry BuildCoverage(EntityUid grid, EntityUid target)
     {
         var geometry = new KiasCoverageGeometry { Target = GetNetEntity(target), Grid = GetNetEntity(grid) };
@@ -172,16 +194,7 @@ public sealed partial class KiasDisplaySystem
             || args.Room.Length > 64 || args.Group.Length > 32 || args.Message.Length > 256 || !float.IsFinite(args.Range))
             return;
         Comp<KiasDeviceComponent>(ent).Room = args.Room.Trim();
-        if (TryComp<KiasRoomScannerComponent>(ent, out var scanner))
-        {
-            scanner.Range = (int) Math.Clamp(args.Range, 1, 10);
-            EntityManager.System<KiasCrewSystem>().RebuildCoverage(grid);
-        }
-        if (TryComp<KiasHorizonComponent>(ent, out var horizon)) horizon.Range = Math.Clamp(args.Range, 0, 2000);
-        if (TryComp<KiasProximityComponent>(ent, out var proximity)) proximity.Range = Math.Clamp(args.Range, 0, 500);
-        if (TryComp<KiasWeaponFlashComponent>(ent, out var flash)) flash.Range = Math.Clamp(args.Range, 0, 1000);
-        if (TryComp<KiasPdcRadarComponent>(ent, out var radar)) radar.Range = Math.Clamp(args.Range, 0, 500);
-        if (TryComp<KiasHullSensorComponent>(ent, out var hull)) hull.Range = Math.Clamp(args.Range, 50, 100);
+        SetSensorRange(ent, args.Range);
         if (TryComp<KiasWirelessComponent>(ent, out var wireless))
         {
             wireless.Channel = args.Group.Trim();

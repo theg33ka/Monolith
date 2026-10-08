@@ -19,3 +19,6 @@ Current documentation is split by audience:
 The correction pass is specified in root `00_AGENT_MASTER_PROMPT.md` through `09_THIRD_PARTY_REFERENCES.md`.
 
 Important terminology: product name is **KIAS** in both English and Russian text. Do not render it as «КИАС».
+# Последующие правки устройств
+
+[Выбор устройств, диагностика, размеры и вращение](DEVICE_IDENTIFICATION.md), [примерка на стене](WALL_DEVICE_PREVIEW.png).

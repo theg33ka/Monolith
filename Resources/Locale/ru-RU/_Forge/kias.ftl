@@ -828,3 +828,11 @@ kias-monitor-offline = Устройство отключено: текущие �
 kias-monitor-unset = ещё нет данных
 kias-monitor-pulse = последний импульс: { $seconds } с назад
 kias-monitor-no-outputs = У устройства нет выходных портов.
+
+kias-room-number = Помещение { $number }
+kias-rotary-positions = Количество положений
+kias-rotary-signal = Выход { $number }
+kias-rotary-position-1 = Сигнал положения 1
+kias-rotary-position-2 = Сигнал положения 2
+kias-rotary-position-3 = Сигнал положения 3
+kias-rotary-position-4 = Сигнал положения 4

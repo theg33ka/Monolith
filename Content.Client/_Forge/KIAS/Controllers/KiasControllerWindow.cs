@@ -24,6 +24,7 @@ public sealed class KiasControllerWindow : FancyWindow
     private readonly Button _write, _eject, _discard;
     private KiasControllerEditorState _state = new();
     private bool _pending;
+    private readonly HashSet<string> _collapsedRooms = new();
     public KiasControllerWindow()
     {
         Title = Loc.GetString("kias-controller-editor-title");
@@ -108,9 +109,9 @@ public sealed class KiasControllerWindow : FancyWindow
         if (state.Legacy.Count > 0) _legacy.SelectId(Math.Clamp(selectedLegacy, 0, state.Legacy.Count - 1));
         RebuildPalette(); _canvas.SetState(state);
     }
-    private void PaletteItem(string title, KiasNodeKind kind, string profile = "", NetEntity? binding = null)
+    private void PaletteItem(string title, KiasNodeKind kind, string profile = "", NetEntity? binding = null, string room = "", BoxContainer? category = null)
     {
-        if (_search.Text.Length > 0 && !title.Contains(_search.Text, StringComparison.OrdinalIgnoreCase)) return;
+        if (_search.Text.Length > 0 && !(room + " " + title).Contains(_search.Text, StringComparison.OrdinalIgnoreCase)) return;
         var button = new Button
         {
             Text = title,
@@ -128,7 +129,7 @@ public sealed class KiasControllerWindow : FancyWindow
                 ? _canvas.GraphPosition(pixel) : _canvas.Center;
             Send(new() { Edit = KiasGraphEdit.Add, Kind = kind, Profile = profile, Binding = binding, X = position.X, Y = position.Y });
         };
-        _palette.AddChild(button);
+        (category ?? _palette).AddChild(button);
     }
     private void RebuildPalette()
     {
@@ -152,9 +153,21 @@ public sealed class KiasControllerWindow : FancyWindow
                 PaletteItem($"{kind.ToString().ToUpperInvariant()} {KiasControllerLabels.Profile(profile.Id, profile.Ports)}", kind, profile.Id);
         }
         _palette.AddChild(new Label { Text = Loc.GetString("kias-controller-devices") });
-        foreach (var device in _state.Devices)
-            PaletteItem($"{device.Name} ({KiasControllerLabels.Profile(device.Profile, _state.Profiles.First(p => p.Id == device.Profile).Ports)})",
-                KiasNodeKind.Specific, device.Profile, device.Entity);
+        foreach (var room in _state.Devices.OrderByDescending(device => device.NamedRoom).ThenBy(device => device.NamedRoom ? device.Room : string.Empty, StringComparer.CurrentCulture).ThenBy(device => device.RoomOrder)
+                     .GroupBy(device => device.Room))
+        {
+            var matching = room.Where(device => $"{device.Room} {device.Name} #{device.Identifier} {device.Profile}".Contains(_search.Text, StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (matching.Length == 0) continue;
+            var rows = new BoxContainer { Orientation = BoxContainer.LayoutOrientation.Vertical };
+            var body = new CollapsibleBody(); body.AddChild(rows);
+            var heading = new CollapsibleHeading(room.Key); heading.Label.ClipText = true; heading.ToolTip = room.Key;
+            var section = new Collapsible(heading, body) { BodyVisible = _search.Text.Length > 0 || !_collapsedRooms.Contains(room.Key) };
+            heading.OnToggled += args => { if (args.Pressed) _collapsedRooms.Remove(room.Key); else _collapsedRooms.Add(room.Key); };
+            _palette.AddChild(section);
+            foreach (var device in matching.OrderBy(device => device.Name, StringComparer.CurrentCulture).ThenBy(device => device.Identifier))
+                PaletteItem($"#{device.Identifier} · {device.Name} ({KiasControllerLabels.Profile(device.Profile, _state.Profiles.First(p => p.Id == device.Profile).Ports)})",
+                    KiasNodeKind.Specific, device.Profile, device.Entity, room.Key, rows);
+        }
     }
     private static LineEdit Field(BoxContainer section, string key, string text)
     {

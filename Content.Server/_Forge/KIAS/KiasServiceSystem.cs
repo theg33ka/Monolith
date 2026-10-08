@@ -29,6 +29,7 @@ public sealed class KiasServiceSystem : EntitySystem
         SubscribeLocalEvent<KiasServiceToolComponent, GetVerbsEvent<AlternativeVerb>>(OnModes);
         SubscribeLocalEvent<KiasServiceToolComponent, KiasSetMessage>(OnMessage);
         SubscribeLocalEvent<KiasServiceToolComponent, KiasModeMessage>(OnModeMessage);
+        SubscribeLocalEvent<KiasServiceToolComponent, KiasDeviceSettingsMessage>(OnSettings);
         SubscribeLocalEvent<KiasAvailabilityChangedEvent>(OnAvailability);
     }
 
@@ -57,7 +58,7 @@ public sealed class KiasServiceSystem : EntitySystem
     private void OnModeMessage(Entity<KiasServiceToolComponent> ent, ref KiasModeMessage args)
     {
         if (!Enum.IsDefined(args.Mode)) return;
-        ent.Comp.Mode = args.Mode;
+        ent.Comp.Mode = args.Mode == KiasServiceMode.Monitor ? KiasServiceMode.Diagnose : args.Mode;
         ent.Comp.Source = null;
         ent.Comp.Target = null;
         ent.Comp.Geometry = null;
@@ -70,12 +71,13 @@ public sealed class KiasServiceSystem : EntitySystem
             return;
         foreach (var mode in Enum.GetValues<KiasServiceMode>())
         {
+            if (mode == KiasServiceMode.Monitor) continue;
             var selected = mode;
             var tool = ent.Comp;
             args.Verbs.Add(new AlternativeVerb
             {
                 Text = Loc.GetString($"kias-mode-{mode.ToString().ToLowerInvariant()}"),
-                Act = () => { tool.Mode = selected; tool.Source = null; tool.Geometry = null; _display.Refresh(ent); },
+                Act = () => { tool.Mode = selected; tool.Source = null; tool.Target = null; tool.Geometry = null; _display.Refresh(ent); },
             });
         }
     }
@@ -134,12 +136,8 @@ public sealed class KiasServiceSystem : EntitySystem
             return;
         }
         ent.Comp.Target = target;
-        if (ent.Comp.Mode == KiasServiceMode.Diagnose)
-        {
-            _popup.PopupEntity(Loc.GetString("kias-device-status", ("status", Loc.GetString($"kias-status-{Comp<KiasDeviceComponent>(target).Status.ToString().ToLowerInvariant()}"))), target, args.User);
-            return;
-        }
-        if (ent.Comp.Mode is KiasServiceMode.Coverage or KiasServiceMode.Monitor)
+        _popup.PopupEntity(EntityManager.System<KiasDeviceIdentitySystem>().Label(target), target, args.User);
+        if (ent.Comp.Mode is KiasServiceMode.Coverage or KiasServiceMode.Diagnose or KiasServiceMode.Monitor)
         {
             ent.Comp.Geometry = ent.Comp.Mode == KiasServiceMode.Coverage ? _display.BuildCoverage(accessGrid, target) : null;
             _ui.TryOpenUi(ent.Owner, KiasUiKey.Service, args.User);
@@ -237,6 +235,26 @@ public sealed class KiasServiceSystem : EntitySystem
                     _links.InvokePort(target, "KiasMotion");
                 break;
         }
+    }
+
+    private void OnSettings(Entity<KiasServiceToolComponent> ent, ref KiasDeviceSettingsMessage args)
+    {
+        if (ent.Comp.Mode is not (KiasServiceMode.Diagnose or KiasServiceMode.Monitor)
+            || ent.Comp.Target is not { } target || TerminatingOrDeleted(target)
+            || Transform(target).GridUid is not { } grid || !_kias.CanConfigure(grid, args.Actor)
+            || !EntityManager.System<Content.Shared.Interaction.SharedInteractionSystem>().InRangeAndAccessible(args.Actor, target)) return;
+        if (TryComp<KiasRotaryComponent>(target, out var rotary))
+        {
+            if (args.RotaryPositions is < 2 or > 4 || args.RotarySignals.Count != args.RotaryPositions
+                || args.RotarySignals.Any(signal => signal is < 0 or > 3)) return;
+            rotary.Positions = args.RotaryPositions;
+            rotary.Position = Math.Clamp(rotary.Position, 0, rotary.Positions - 1);
+            rotary.Signals = args.RotarySignals.ToList();
+        }
+        else if (_display.IsSensor(target) && float.IsFinite(args.Range)) _display.SetSensorRange(target, args.Range);
+        else return;
+        _display.Refresh(target);
+        _display.Refresh(ent);
     }
 
     public override void Update(float frameTime)

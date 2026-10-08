@@ -15,7 +15,7 @@
       32
     ],
     "method": "OpenAI imagegen",
-    "prompt": "GAME-READY PIXEL ART: ONE sprite for Space Station 14. Genuinely TRANSPARENT background. A SQUARE 32 columns by 32 rows logical pixel grid enlarged to 1024x1024, each flat-color logical pixel a 32px square. Very low resolution crisp chunky pixel art, maximum 16 flat colors, large readable features only, NO fine details, texture, antialiasing, gradients, smooth shading, glow haze, text, scene, ground or exterior shadows. Reference image sets ONLY the dark charcoal/violet metal and bright cyan palette; DO NOT COPY its tall core shape or aspect ratio. South-facing top-down 3/4 with small top face. MUST be readable as a native 32x32 sprite. All floor machines except the distress antenna have a compact WIDE one-tile silhouette roughly 28px wide and 28px tall, not a narrow tall core. Small portable items have appropriate handheld silhouette. Subject: Squat WIDE wall scanner 28 pixels wide and 25 high, three large cyan optical eyes in triangle, six module bay covers below. NO core tube."
+    "prompt": "Edit the supplied KIAS advanced-scanner sprite into a SMALL WALL MOUNTED game-ready Space Station 14 sprite. Keep dark charcoal metal with muted violet edge highlights and cyan indicator pixel, chunky exact logical 32x32 pixel art, 16 flat colors, no antialiasing, no smooth shading, no tiny subpixel details. Single south-facing top-down 3/4 sprite on transparent background, no wall in image. Wall bracket/back plate at TOP behind device, front face points DOWN away from wall. Compact body occupies approximately 18 pixels wide by 16 pixels high at native resolution, centered. Small advanced modular wall scanner with downward-facing cyan lens and two small violet sensor pods. NOT tall freestanding rack, NOT floor standing cabinet. Preserve consistent KIAS style."
   },
   {
     "asset": "atmos-server",
@@ -41,8 +41,8 @@
       32,
       32
     ],
-    "method": "OpenAI imagegen",
-    "prompt": "ONE game-ready SS14 KIAS underfloor DATA CABLE CROSS sprite, native logical 32x32 pixel art enlarged on a square canvas, TRUE transparent background. Make the entire horizontal and vertical cable cores conspicuously BRIGHT SATURATED CYAN (#0BC4D5), 2 logical pixels thick, with 1 pixel dark charcoal outline (#17151F). The arms reach the exact center of all FOUR image borders to connect adjacent tile sprites. A small 4x4 muted violet square metal coupling (#55506D) at the center, with bright cyan center dot. Flat top-down cable, no tall machinery, no case, no perspective. Only FOUR flat colors. Crisp square pixels on strict 32-column by 32-row grid, each logical pixel a uniform flat-color block. No dim purple arms, no gradients, glow haze, shading, fine details, text or external shadow. Transparent quadrants between the cross arms. Pixel cable must be clearly visible on a dark floor at native 32x32."
+    "method": "Native MV cable assets reused with prototype tint",
+    "prompt": "No generation: sixteen original MIXnikita MV cable masks are copied to data_0 through data_15; the KIAS prototype applies #65DEFF tint."
   },
   {
     "asset": "cartridge",
@@ -501,7 +501,7 @@
       32
     ],
     "method": "OpenAI imagegen",
-    "prompt": "Create ONE production Space Station 14 KIAS game sprite on genuinely TRANSPARENT background. Reference image is PALETTE and MATERIAL style only; do NOT duplicate its tall core tube silhouette. Dark charcoal and muted violet bevelled industrial metal, restrained bright cyan indicators, dark pixel outline. Classic south-facing top-down 3/4 pixel art. Logical 32x32 pixels enlarged as crisp flat color square pixels, limited 16-color palette. No antialiasing, gradients, text, logo, scene, ground or shadow outside object. Native 32x32 readability is essential; keep distinctive form and large readable symbol. Object fills square frame with 1px margins. Subject: Wall mounted basic room scanner: squat rectangular purple housing, ONE prominent cyan optical lens eye angled down, three module bay covers."
+    "prompt": "Edit the supplied KIAS scanner sprite into a SMALL WALL MOUNTED game-ready Space Station 14 sprite. Keep dark charcoal metal with muted violet edge highlights and cyan indicator pixel, chunky exact logical 32x32 pixel art, 16 flat colors, no antialiasing, no smooth shading, no tiny subpixel details. Single south-facing top-down 3/4 sprite on transparent background, no wall in image. Wall bracket/back plate at TOP behind device, front face points DOWN away from wall. Compact body occupies approximately 18 pixels wide by 16 pixels high at native resolution, centered. Small modular wall motion scanner with downward-facing cyan rectangular optical window. NOT tall freestanding rack, NOT floor standing cabinet. Preserve consistent KIAS style."
   },
   {
     "asset": "service-tool",
@@ -519,7 +519,7 @@
       32
     ],
     "method": "OpenAI imagegen",
-    "prompt": "GAME-READY PIXEL ART: ONE sprite for Space Station 14. Genuinely TRANSPARENT background. A SQUARE 32 columns by 32 rows logical pixel grid enlarged to 1024x1024, each flat-color logical pixel a 32px square. Very low resolution crisp chunky pixel art, maximum 16 flat colors, large readable features only, NO fine details, texture, antialiasing, gradients, smooth shading, glow haze, text, scene, ground or exterior shadows. Reference image sets ONLY the dark charcoal/violet metal and bright cyan palette; DO NOT COPY its tall core shape or aspect ratio. South-facing top-down 3/4 with small top face. MUST be readable as a native 32x32 sprite. All floor machines except the distress antenna have a compact WIDE one-tile silhouette roughly 28px wide and 28px tall, not a narrow tall core. Small portable items have appropriate handheld silhouette. Subject: WIDE rectangular wall speaker 28 pixels wide, 22 high, large dark perforated grille across front and small cyan LED strip on side."
+    "prompt": "Edit the supplied KIAS speaker sprite into a SMALL WALL MOUNTED game-ready Space Station 14 sprite. Keep dark charcoal metal with muted violet edge highlights and cyan indicator pixel, chunky exact logical 32x32 pixel art, 16 flat colors, no antialiasing, no smooth shading, no tiny subpixel details. Single south-facing top-down 3/4 sprite on transparent background, no wall in image. Wall bracket/back plate at TOP behind device, front face points DOWN away from wall. Compact body occupies approximately 18 pixels wide by 16 pixels high at native resolution, centered. Compact wall PA speaker with dark grille and tiny cyan LED. NOT tall freestanding rack, NOT floor standing cabinet. Preserve consistent KIAS style."
   },
   {
     "asset": "suppression",
@@ -528,7 +528,7 @@
       32
     ],
     "method": "OpenAI imagegen",
-    "prompt": "GAME-READY PIXEL ART: ONE sprite for Space Station 14. Genuinely TRANSPARENT background. A SQUARE 32 columns by 32 rows logical pixel grid enlarged to 1024x1024, each flat-color logical pixel a 32px square. Very low resolution crisp chunky pixel art, maximum 16 flat colors, large readable features only, NO fine details, texture, antialiasing, gradients, smooth shading, glow haze, text, scene, ground or exterior shadows. Reference image sets ONLY the dark charcoal/violet metal and bright cyan palette; DO NOT COPY its tall core shape or aspect ratio. South-facing top-down 3/4 with small top face. MUST be readable as a native 32x32 sprite. All floor machines except the distress antenna have a compact WIDE one-tile silhouette roughly 28px wide and 28px tall, not a narrow tall core. Small portable items have appropriate handheld silhouette. Subject: Wall fire suppression machine: metal enclosure with downward silver spray nozzle, small cyan pressure gauge and refill socket."
+    "prompt": "Edit the supplied KIAS suppression sprite into a SMALL WALL MOUNTED game-ready Space Station 14 sprite. Keep dark charcoal metal with muted violet edge highlights and cyan indicator pixel, chunky exact logical 32x32 pixel art, 16 flat colors, no antialiasing, no smooth shading, no tiny subpixel details. Single south-facing top-down 3/4 sprite on transparent background, no wall in image. Wall bracket/back plate at TOP behind device, front face points DOWN away from wall. Compact body occupies approximately 18 pixels wide by 16 pixels high at native resolution, centered. Compact wall fire suppression nozzle, small cyan cylinder and clear downward-facing discharge tip. NOT tall freestanding rack, NOT floor standing cabinet. Preserve consistent KIAS style."
   },
   {
     "asset": "transponder",

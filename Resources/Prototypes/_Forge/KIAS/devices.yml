@@ -152,9 +152,13 @@
       map: ["0"]
 - type: entity
   id: KiasKeySwitch
-  parent: BaseKiasServer
+  parent: BaseKiasWallDevice
   name: KiasKeySwitch
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasKeySwitchBoard
   - type: KiasDevice
@@ -170,6 +174,9 @@
     containers:
       kias-key: !type:ContainerSlot
   - type: Sprite
+    scale: 0.5, 0.5
+    offset: 0, -0.2
+    noRot: false
     sprite: _Forge/KIAS/Pack/key-switch.rsi
     color: White
     layers:
@@ -177,9 +184,13 @@
       map: ["0"]
 - type: entity
   id: KiasRotarySwitch
-  parent: BaseKiasServer
+  parent: BaseKiasWallDevice
   name: KiasRotarySwitch
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasRotarySwitchBoard
   - type: KiasDevice
@@ -189,6 +200,9 @@
   - type: DeviceLinkSource
     ports: [KiasPosition0, KiasPosition1, KiasPosition2, KiasPosition3]
   - type: Sprite
+    scale: 0.5, 0.5
+    offset: 0, -0.2
+    noRot: false
     sprite: _Forge/KIAS/Pack/rotary-switch.rsi
     color: White
     layers:
@@ -393,7 +407,10 @@
   name: KIAS emergency button
   components:
   - type: Transform
+    noRot: false
     anchored: true
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: KiasDevice
     role: Adapter
   - type: SignalSwitch
@@ -406,6 +423,9 @@
     graph: KiasEmergencyButtonGraph
     node: button
   - type: Sprite
+    scale: 0.55, 0.55
+    offset: 0, -0.2
+    noRot: false
     sprite: _Forge/KIAS/Pack/emergency-button.rsi
     color: White
     layers:
@@ -417,11 +437,16 @@
   parent: PoweredSmallLight
   name: KIAS navigation light
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: KiasLightGroup
     group: NAVIGATION
   - type: PoweredLightVisuals
     spriteStateMap: { empty: empty, off: off, on: base, broken: broken, burned: burned }
   - type: Sprite
+    noRot: false
     sprite: _Forge/KIAS/Pack/navigation-light.rsi
     layers:
     - state: base
@@ -612,11 +637,18 @@
   parent: KiasRoomScanner
   name: KIAS advanced room scanner
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasAdvancedRoomScannerBoard
   - type: KiasRoomScanner
     advanced: true
   - type: Sprite
+    scale: 0.65, 0.65
+    offset: 0, -0.2
+    noRot: false
     sprite: _Forge/KIAS/Pack/advanced-scanner.rsi
     color: White
     layers:
@@ -674,6 +706,7 @@
   name: KIAS integration kit
   components:
   - type: Sprite
+    scale: 0.75, 0.75
     sprite: _Forge/KIAS/Pack/integration-kit.rsi
     color: White
     layers:
@@ -729,6 +762,7 @@
   - type: Tag
     tags: [KiasBasicModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-identity.rsi
     color: White
     layers:
@@ -750,6 +784,7 @@
   - type: Tag
     tags: [KiasBasicModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-connector.rsi
     color: White
     layers:
@@ -771,6 +806,7 @@
   - type: Tag
     tags: [KiasBasicModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-optical.rsi
     color: White
     layers:
@@ -792,6 +828,7 @@
   - type: Tag
     tags: [KiasAdvancedModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-threat.rsi
     color: White
     layers:

@@ -37,7 +37,7 @@ public sealed class KiasOutputMonitorTests
             }
             Spawn("KiasCore"); cable = Spawn("KiasDataCable"); crew = Spawn("KiasCrewServer");
             scanner = Spawn("KiasAdvancedRoomScanner"); actor = em.SpawnEntity("MobHuman", new EntityCoordinates(map.Grid, 1.5f, 1.5f)); tool = Spawn("KiasServiceTool");
-            em.GetComponent<KiasServiceToolComponent>(tool).Mode = KiasServiceMode.Monitor;
+            em.GetComponent<KiasServiceToolComponent>(tool).Mode = KiasServiceMode.Diagnose;
             em.System<KiasSystem>().Rebuild(map.Grid);
         });
         await pair.RunTicksSync(10);
@@ -50,7 +50,7 @@ public sealed class KiasOutputMonitorTests
             em.System<KiasCrewSystem>().RefreshCounts(map.Grid);
             em.System<KiasDisplaySystem>().Refresh(tool);
             var initial = (KiasServiceState) em.System<KiasDisplaySystem>().BuildLocalState(tool);
-            Assert.That(initial.Mode, Is.EqualTo(KiasServiceMode.Monitor));
+            Assert.That(initial.Mode, Is.EqualTo(KiasServiceMode.Diagnose));
             Assert.That(initial.Target, Is.EqualTo(em.GetNetEntity(scanner)));
             Assert.That(initial.Details, Does.Contain(Loc.GetString("kias-monitor-title")));
             Assert.That(initial.Details, Does.Contain(Loc.GetString("kias-monitor-unset")));

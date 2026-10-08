@@ -12,14 +12,17 @@
     layer: 1
   - type: Sprite
     sprite: _Forge/KIAS/Pack/cable.rsi
-    color: White
+    color: "#65DEFF"
     layers:
-    - state: base
+    - state: data_0
       map: ["0"]
     drawdepth: ThinWire
   - type: Icon
     sprite: _Forge/KIAS/Pack/cable.rsi
-    state: base
+    state: data_0
+  - type: Appearance
+  - type: CableVisualizer
+    statePrefix: data_
   - type: SubFloorHide
   - type: Clickable
   - type: InteractionOutline
@@ -119,9 +122,14 @@
     mode: SnapgridCenter
     snap: [Wallmount]
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: WallMount
     arc: 175
   - type: Sprite
+    noRot: false
     drawdepth: WallMountedItems
     sprite: Structures/Wallmounts/air_monitors.rsi
     layers:
@@ -417,6 +425,10 @@
   parent: BaseKiasWallDevice
   name: KIAS speaker
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasSpeakerBoard
   - type: KiasDevice
@@ -425,6 +437,9 @@
   - type: Speech
     speechVerb: Robotic
   - type: Sprite
+    scale: 0.65, 0.65
+    offset: 0, -0.2
+    noRot: false
     sprite: _Forge/KIAS/Pack/speaker.rsi
     color: White
     layers:
@@ -449,9 +464,14 @@
     mode: SnapgridCenter
     snap: [Wallmount]
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: WallMount
     arc: 175
   - type: Sprite
+    noRot: false
     sprite: _Forge/KIAS/Pack/display.rsi
     layers:
     - state: base
@@ -516,6 +536,10 @@
   parent: BaseKiasWallDevice
   name: KIAS basic room scanner
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasRoomScannerBoard
   - type: KiasDevice
@@ -534,6 +558,9 @@
   - type: WirelessNetworkConnection
     range: 200
   - type: Sprite
+    scale: 0.65, 0.65
+    offset: 0, -0.2
+    noRot: false
     sprite: _Forge/KIAS/Pack/scanner.rsi
     color: White
     layers:
@@ -605,6 +632,7 @@
   - type: Tag
     tags: [KiasBasicModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-motion.rsi
     color: White
     layers:
@@ -621,6 +649,7 @@
   - type: Tag
     tags: [KiasBasicModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-identity.rsi
     color: White
     layers:
@@ -637,6 +666,7 @@
   - type: Tag
     tags: [KiasBasicModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-identity.rsi
     color: White
     layers:
@@ -653,6 +683,7 @@
   - type: Tag
     tags: [KiasAdvancedModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-biometric.rsi
     color: White
     layers:
@@ -669,6 +700,7 @@
   - type: Tag
     tags: [KiasAdvancedModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-radiation.rsi
     color: White
     layers:
@@ -685,6 +717,7 @@
   - type: Tag
     tags: [KiasAdvancedModule]
   - type: Sprite
+    scale: 0.7, 0.7
     sprite: _Forge/KIAS/Pack/module-spectral.rsi
     color: White
     layers:
@@ -712,6 +745,10 @@
   parent: BaseKiasServer
   name: KIAS Horizon bluespace interferometer
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasHorizonBoard
   - type: KiasDevice
@@ -725,6 +762,8 @@
       enum.KiasUiKey.Sensor:
         type: KiasLocalBoundUserInterface
   - type: Sprite
+    noRot: false
+    snapCardinals: false
     sprite: _Forge/KIAS/Pack/horizon.rsi
     color: White
     layers:
@@ -736,6 +775,7 @@
   name: KIAS master key
   components:
   - type: Sprite
+    scale: 0.5, 0.5
     sprite: _Forge/KIAS/Pack/master-key.rsi
     color: White
     layers:
@@ -750,12 +790,18 @@
   parent: BaseKiasWallDevice
   name: KIAS hull impact sensor
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasHullSensorBoard
   - type: KiasDevice
     role: Hull
   - type: KiasHullSensor
   - type: Sprite
+    noRot: false
+    snapCardinals: false
     sprite: _Forge/KIAS/Pack/hull-sensor.rsi
     color: White
     layers:
@@ -782,12 +828,18 @@
   parent: BaseKiasServer
   name: KIAS collision monitor
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasCollisionMonitorBoard
   - type: KiasDevice
     role: Hull
   - type: KiasCollisionMonitor
   - type: Sprite
+    noRot: false
+    snapCardinals: false
     sprite: _Forge/KIAS/Pack/collision-monitor.rsi
     color: White
     layers:
@@ -828,6 +880,10 @@
   parent: BaseKiasWallDevice
   name: KIAS fire suppression module
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasSuppressionBoard
   - type: KiasDevice
@@ -845,6 +901,9 @@
     containers:
       kias-cartridge: !type:ContainerSlot
   - type: Sprite
+    scale: 0.75, 0.75
+    offset: 0, -0.2
+    noRot: false
     sprite: _Forge/KIAS/Pack/suppression.rsi
     color: White
     layers:
@@ -856,6 +915,7 @@
   name: KIAS suppression cartridge
   components:
   - type: Sprite
+    scale: 0.75, 0.75
     sprite: _Forge/KIAS/Pack/cartridge.rsi
     color: White
     layers:
@@ -889,6 +949,10 @@
   parent: BaseKiasServer
   name: KIAS point defence radar
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasPdcRadarBoard
   - type: KiasDevice
@@ -902,6 +966,8 @@
       enum.KiasUiKey.Sensor:
         type: KiasLocalBoundUserInterface
   - type: Sprite
+    noRot: false
+    snapCardinals: false
     sprite: _Forge/KIAS/Pack/pdc-radar.rsi
     color: White
     layers:
@@ -912,6 +978,10 @@
   parent: BaseKiasServer
   name: KIAS weapon flash detector
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasWeaponFlashDetectorBoard
   - type: KiasDevice
@@ -925,6 +995,8 @@
       enum.KiasUiKey.Sensor:
         type: KiasLocalBoundUserInterface
   - type: Sprite
+    noRot: false
+    snapCardinals: false
     sprite: _Forge/KIAS/Pack/flash-detector.rsi
     color: White
     layers:
@@ -935,6 +1007,10 @@
   parent: BaseKiasServer
   name: KIAS proximity sensor
   components:
+  - type: Transform
+    noRot: false
+  - type: Rotatable
+    rotateWhileAnchored: false
   - type: Machine
     board: KiasProximitySensorBoard
   - type: KiasDevice
@@ -948,6 +1024,8 @@
       enum.KiasUiKey.Sensor:
         type: KiasLocalBoundUserInterface
   - type: Sprite
+    noRot: false
+    snapCardinals: false
     sprite: _Forge/KIAS/Pack/proximity-sensor.rsi
     color: White
     layers:

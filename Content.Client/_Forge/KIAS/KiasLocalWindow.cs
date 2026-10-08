@@ -21,6 +21,8 @@ public class KiasLocalWindow : FancyWindow
     private readonly LineEdit _range = new();
     private readonly LineEdit _group = new();
     private readonly LineEdit _message = new();
+    private readonly OptionButton _positions = new();
+    private readonly OptionButton[] _signals = { new(), new(), new(), new() };
     private readonly CheckBox _locked = new();
     private readonly OptionButton _mode = new();
     private readonly OptionButton _page = new();
@@ -53,7 +55,10 @@ public class KiasLocalWindow : FancyWindow
         _brightness.PlaceHolder = Loc.GetString("kias-light-brightness");
         _filter.PlaceHolder = Loc.GetString("kias-log-filter");
         foreach (var mode in Enum.GetValues<KiasServiceMode>())
+        {
+            if (mode == KiasServiceMode.Monitor) continue;
             _mode.AddItem(Loc.GetString($"kias-mode-{mode.ToString().ToLowerInvariant()}"), (int) mode);
+        }
         _mode.OnItemSelected += args => { _mode.SelectId(args.Id); ModeChanged?.Invoke((KiasServiceMode) args.Id); };
         foreach (var page in Enum.GetValues<KiasDisplayPage>())
             _page.AddItem(Loc.GetString($"kias-page-{page.ToString().ToLowerInvariant()}"), (int) page);
@@ -65,6 +70,16 @@ public class KiasLocalWindow : FancyWindow
                      (_message, "kias-custom-message"), (_color, "kias-light-color"), (_brightness, "kias-light-brightness") })
             content.AddChild(KiasUi.Field(control, key));
         content.AddChild(_locked);
+        for (var count = 2; count <= 4; count++) _positions.AddItem(count.ToString(), count);
+        _positions.OnItemSelected += args => { _positions.SelectId(args.Id); ShowSignals(args.Id); };
+        content.AddChild(KiasUi.Field(_positions, "kias-rotary-positions"));
+        for (var index = 0; index < _signals.Length; index++)
+        {
+            var choice = _signals[index];
+            for (var signal = 0; signal < 4; signal++) choice.AddItem(Loc.GetString("kias-rotary-signal", ("number", signal + 1)), signal);
+            choice.OnItemSelected += args => choice.SelectId(args.Id);
+            content.AddChild(KiasUi.Field(choice, $"kias-rotary-position-{index + 1}"));
+        }
         _save.Text = Loc.GetString("kias-save");
         _save.OnPressed += _ => Save();
         box.AddChild(_save);
@@ -92,13 +107,30 @@ public class KiasLocalWindow : FancyWindow
         _page.Visible = state is KiasWallState;
         _filter.Visible = state is KiasRecorderState;
         _room.Visible = state is KiasLocalState;
-        _range.Visible = state is KiasScannerState or KiasSensorState or KiasWirelessState;
+        var sensorSettings = state is KiasServiceState { Mode: KiasServiceMode.Diagnose or KiasServiceMode.Monitor, SensorRange: not null };
+        _range.Visible = state is KiasScannerState or KiasSensorState or KiasWirelessState || sensorSettings;
+        if (sensorSettings && state is KiasServiceState { SensorRange: { } selectedRange } && !_range.HasKeyboardFocus()) _range.Text = selectedRange.ToString();
         _group.Visible = state is KiasSpeakerState or KiasWirelessState or KiasLightState or KiasServiceState { Mode: KiasServiceMode.Group };
         _color.Visible = _brightness.Visible = state is KiasLightState;
         _logRows.Visible = state is KiasRecorderState;
         _message.Visible = state is KiasSpeakerState or KiasServiceState { Mode: KiasServiceMode.Link or KiasServiceMode.Room };
         _locked.Visible = state is KiasCrewState;
-        _save.Visible = state is not KiasRecorderState and not KiasServiceState { Mode: KiasServiceMode.Monitor };
+        var rotarySettings = state is KiasServiceState { Mode: KiasServiceMode.Diagnose or KiasServiceMode.Monitor, RotaryPositions: >= 2 };
+        _positions.Visible = _positions.Parent!.Visible = rotarySettings;
+        if (rotarySettings && state is KiasServiceState rotaryState)
+        {
+            if (_positions.SelectedId < 2 || _lastRotaryTarget != rotaryState.Target)
+            {
+                _positions.SelectId(Math.Clamp(rotaryState.RotaryPositions, 2, 4));
+                for (var index = 0; index < _signals.Length; index++)
+                    _signals[index].SelectId(index < rotaryState.RotarySignals.Count ? rotaryState.RotarySignals[index] : index);
+                _lastRotaryTarget = rotaryState.Target;
+            }
+            ShowSignals(_positions.SelectedId);
+        }
+        else ShowSignals(0);
+        _save.Visible = state is not KiasRecorderState && (state is not KiasServiceState serviceState
+            || serviceState.Mode is KiasServiceMode.Link or KiasServiceMode.Room or KiasServiceMode.Group || rotarySettings || sensorSettings);
         if (state is KiasLocalState device)
         {
             Title = device.Name;
@@ -121,7 +153,7 @@ public class KiasLocalWindow : FancyWindow
                 break;
             case KiasServiceState service:
                 Title = Loc.GetString("ent-KiasServiceTool");
-                _mode.SelectId((int) service.Mode);
+                _mode.SelectId((int) (service.Mode == KiasServiceMode.Monitor ? KiasServiceMode.Diagnose : service.Mode));
                 _details = Loc.GetString("kias-service-target", ("source", service.SourceName), ("target", service.TargetName)) + "\n" + service.Details;
                 if (service.Mode == KiasServiceMode.Group)
                 {
@@ -171,6 +203,19 @@ public class KiasLocalWindow : FancyWindow
     {
         if (_state is KiasServiceState service)
         {
+            if (service.Mode is KiasServiceMode.Diagnose or KiasServiceMode.Monitor && service.RotaryPositions >= 2)
+            {
+                SettingsChanged?.Invoke(new KiasDeviceSettingsMessage { RotaryPositions = _positions.SelectedId,
+                    RotarySignals = _signals.Take(_positions.SelectedId).Select(choice => choice.SelectedId).ToList() });
+                _lastRotaryTarget = null;
+                return;
+            }
+            if (service.Mode is KiasServiceMode.Diagnose or KiasServiceMode.Monitor && service.SensorRange != null)
+            {
+                if (float.TryParse(_range.Text, out var selectedRange) && float.IsFinite(selectedRange))
+                    SettingsChanged?.Invoke(new KiasDeviceSettingsMessage { Range = selectedRange });
+                return;
+            }
             MessageChanged?.Invoke(service.Mode == KiasServiceMode.Group ? _group.Text : _message.Text);
             return;
         }
@@ -180,6 +225,13 @@ public class KiasLocalWindow : FancyWindow
         if (_range.Visible && !float.TryParse(_range.Text, out range)) return;
         SettingsChanged?.Invoke(new KiasDeviceSettingsMessage { Room = _room.Text, Group = _group.Text, Color = _color.Text, Brightness = brightness,
             Message = _message.Text, Range = range, LockRegistration = _locked.Pressed, Page = (KiasDisplayPage) _page.SelectedId });
+    }
+
+    private NetEntity? _lastRotaryTarget;
+    private void ShowSignals(int positions)
+    {
+        for (var index = 0; index < _signals.Length; index++)
+            _signals[index].Visible = _signals[index].Parent!.Visible = index < positions;
     }
 }
 

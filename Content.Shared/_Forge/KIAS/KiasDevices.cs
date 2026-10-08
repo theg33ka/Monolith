@@ -45,6 +45,7 @@ public sealed partial class KiasRotaryComponent : Component
 {
     [DataField] public int Position;
     [DataField] public int Positions = 4;
+    [DataField] public List<int> Signals = new() { 0, 1, 2, 3 };
 }
 
 [RegisterComponent]

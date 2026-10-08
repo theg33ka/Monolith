@@ -29,6 +29,9 @@ public sealed class KiasGraphDeviceView
 {
     public NetEntity Entity;
     public string Name = string.Empty, Profile = string.Empty;
+    public string Identifier = string.Empty, Room = string.Empty;
+    public bool NamedRoom;
+    public int RoomOrder;
 }
 
 [Serializable, NetSerializable]

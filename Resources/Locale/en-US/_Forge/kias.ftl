@@ -861,3 +861,11 @@ kias-monitor-offline = Device offline: current outputs are unavailable.
 kias-monitor-unset = no data yet
 kias-monitor-pulse = last impulse: { $seconds } s ago
 kias-monitor-no-outputs = This device has no output ports.
+
+kias-room-number = Room { $number }
+kias-rotary-positions = Number of positions
+kias-rotary-signal = Output { $number }
+kias-rotary-position-1 = Position 1 signal
+kias-rotary-position-2 = Position 2 signal
+kias-rotary-position-3 = Position 3 signal
+kias-rotary-position-4 = Position 4 signal

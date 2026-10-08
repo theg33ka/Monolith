@@ -149,7 +149,7 @@ public sealed partial class KiasDisplaySystem : EntitySystem
             foreach (var tool in _coverageTools.ToArray())
             {
                 if (TerminatingOrDeleted(tool) || !_ui.IsUiOpen(tool, KiasUiKey.Service)) { _coverageTools.Remove(tool); continue; }
-                if (TryComp<KiasServiceToolComponent>(tool, out var component) && component.Mode == KiasServiceMode.Monitor) Refresh(tool);
+                if (TryComp<KiasServiceToolComponent>(tool, out var component) && component.Mode is KiasServiceMode.Diagnose or KiasServiceMode.Monitor) Refresh(tool);
             }
         }
         const int gridBudget = 4;

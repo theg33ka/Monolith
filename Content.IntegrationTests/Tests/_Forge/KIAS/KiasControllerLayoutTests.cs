@@ -58,9 +58,11 @@ public sealed class KiasControllerLayoutTests
                 }
                 if (window == programmer)
                 {
-                    var deviceButton = Descendants(programmer).OfType<Button>().Single(button => button.Text?.StartsWith(populated.Devices[0].Name) == true);
+                    var deviceButton = Descendants(programmer).OfType<Button>().Single(button => button.Text?.Contains(populated.Devices[0].Name) == true);
                     var palette = deviceButton.Parent!;
-                    var scroll = (ScrollContainer) palette.Parent!;
+                    var ancestor = palette.Parent!;
+                    while (ancestor is not ScrollContainer) ancestor = ancestor.Parent!;
+                    var scroll = (ScrollContainer) ancestor;
                     Assert.That(deviceButton.Size.X, Is.InRange(100f, 250f));
                     Assert.That(palette.Size.X, Is.LessThanOrEqualTo(scroll.Size.X));
                     Assert.That(deviceButton.Label.GlobalPosition.X, Is.InRange(scroll.GlobalPosition.X, scroll.GlobalPosition.X + scroll.Size.X));

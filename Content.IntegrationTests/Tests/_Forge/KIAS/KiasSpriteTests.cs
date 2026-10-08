@@ -38,6 +38,13 @@ public sealed class KiasSpriteTests
                          .Where(p => !p.Abstract && p.ID.StartsWith("Kias")))
             {
                 var uid = server.SpawnEntity(prototype.ID, new EntityCoordinates(map.Grid, 0.5f, 0.5f));
+                if (server.HasComponent<Content.Shared.Wall.WallMountComponent>(uid)
+                    || prototype.ID is "KiasWeaponFlashDetector" or "KiasCollisionMonitor" or "KiasPdcRadar" or "KiasProximitySensor" or "KiasHorizon" or "KiasHullSensor")
+                {
+                    Assert.That(server.GetComponent<TransformComponent>(uid).NoLocalRotation, Is.False, prototype.ID);
+                    Assert.That(server.HasComponent<Content.Shared.Rotatable.RotatableComponent>(uid), Is.True, prototype.ID);
+                    server.System<SharedTransformSystem>().SetLocalRotation(uid, Angle.FromDegrees(90));
+                }
                 targets[prototype.ID] = server.GetNetEntity(uid);
             }
         });
@@ -55,6 +62,9 @@ public sealed class KiasSpriteTests
                 Assert.That(sprite.BaseRSI, Is.Not.Null, id);
                 Assert.That(sprite.BaseRSI!.Path.ToString(), Does.Contain("/Textures/_Forge/KIAS/"), id);
                 Assert.That(sprite.BaseRSI.Size, Is.EqualTo(size), id);
+                if (em.HasComponent<Content.Shared.Wall.WallMountComponent>(uid)
+                    || id is "KiasWeaponFlashDetector" or "KiasCollisionMonitor" or "KiasPdcRadar" or "KiasProximitySensor" or "KiasHorizon" or "KiasHullSensor")
+                    Assert.That(sprite.NoRotation, Is.False, id);
                 foreach (var layer in sprite.AllLayers)
                 {
                     Assert.That(layer.ActualRsi, Is.Not.Null, id);

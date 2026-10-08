@@ -21,6 +21,9 @@ public sealed partial class KiasDeviceComponent : Component
     [DataField]
     public string Room = string.Empty;
 
+    [DataField]
+    public string Identifier = string.Empty;
+
     public EntityUid? RegisteredGrid;
     public KiasDeviceStatus Status = KiasDeviceStatus.Disconnected;
 }

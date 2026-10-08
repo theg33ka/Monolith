@@ -47,7 +47,7 @@ public sealed partial class KiasDisplaySystem
             (KiasWallState x, KiasWallState y) => x.Online == y.Online && x.Entities == y.Entities && x.Crew == y.Crew && x.Page == y.Page && x.Details == y.Details,
             (KiasRecorderState x, KiasRecorderState y) => x.Online == y.Online && x.Entries.SequenceEqual(y.Entries),
             (KiasServiceState x, KiasServiceState y) => x.Mode == y.Mode && x.Message == y.Message && x.Group == y.Group && x.CurrentGroup == y.CurrentGroup && x.GroupKind == y.GroupKind
-                && x.Source == y.Source && x.Target == y.Target
+                && x.Source == y.Source && x.Target == y.Target && x.RotaryPositions == y.RotaryPositions && x.RotarySignals.SequenceEqual(y.RotarySignals) && x.SensorRange == y.SensorRange
                 && x.Details == y.Details && x.SourceName == y.SourceName && x.TargetName == y.TargetName && GeometryEquals(x.Geometry, y.Geometry),
             (KiasScannerState x, KiasScannerState y) => x.Range == y.Range && x.Modules == y.Modules && GeometryEquals(x.Geometry, y.Geometry),
             (KiasSensorState x, KiasSensorState y) => x.Range == y.Range && x.Arc == y.Arc && GeometryEquals(x.Geometry, y.Geometry),

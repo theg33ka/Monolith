@@ -109,9 +109,14 @@ public sealed class KiasControllerUiSystem : EntitySystem
         }
         state.Presets = _prototypes.EnumeratePrototypes<KiasControllerProgramPrototype>().Select(preset => preset.ID).Order().ToList();
         if (state.Online && Transform(ent).GridUid is { } current)
+        {
+            var identities = EntityManager.System<KiasDeviceIdentitySystem>();
+            var rooms = identities.Rooms(current, state.Profiles.SelectMany(profile => _io.Devices(current, profile.Id)));
             foreach (var profile in state.Profiles)
                 foreach (var uid in _io.Devices(current, profile.Id).Take(256))
-                    if (state.Devices.Count < 256 && _kias.IsOnline(uid)) state.Devices.Add(new() { Entity = GetNetEntity(uid), Name = Name(uid), Profile = profile.Id });
+                    if (state.Devices.Count < 256 && _kias.IsOnline(uid)) state.Devices.Add(new() { Entity = GetNetEntity(uid), Name = Name(uid), Profile = profile.Id,
+                        Identifier = identities.Identifier(uid), Room = rooms.GetValueOrDefault(uid).Label ?? string.Empty, NamedRoom = rooms.GetValueOrDefault(uid).Named, RoomOrder = rooms.GetValueOrDefault(uid).Order });
+        }
         _ui.SetUiState(ent.Owner, KiasControllerUiKey.Programmer, state);
     }
 
@@ -173,7 +178,7 @@ public sealed class KiasControllerUiSystem : EntitySystem
                         if (message.Binding is not { } net || !TryGetEntity(net, out var bound) || bound is not { } uid
                             || !_kias.IsOnline(uid) || Transform(uid).GridUid != Transform(ent).GridUid
                             || !_io.Profiles(uid).Contains(node.Profile)) return false;
-                        node.Binding = uid; node.DeviceName = Name(uid);
+                        node.Binding = uid; node.DeviceName = EntityManager.System<KiasDeviceIdentitySystem>().Label(uid);
                     }
                 }
                 draft.Nodes.Add(node);

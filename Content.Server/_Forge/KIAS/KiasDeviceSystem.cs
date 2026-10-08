@@ -115,6 +115,7 @@ public sealed class KiasDeviceSystem : EntitySystem
         if (args.Handled || !_kias.IsOnline(ent) || Transform(ent).GridUid is not { } grid || !_kias.CanConfigure(grid, args.User)) return;
         args.Handled = true;
         ent.Comp.Position = (ent.Comp.Position + 1) % Math.Clamp(ent.Comp.Positions, 2, 4);
-        _links.InvokePort(ent, $"KiasPosition{ent.Comp.Position}");
+        var signal = ent.Comp.Position < ent.Comp.Signals.Count ? ent.Comp.Signals[ent.Comp.Position] : ent.Comp.Position;
+        _links.InvokePort(ent, $"KiasPosition{Math.Clamp(signal, 0, 3)}");
     }
 }

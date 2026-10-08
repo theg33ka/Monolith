@@ -28,6 +28,7 @@ public sealed class KiasPersistenceTests
         var loader = em.System<MapLoaderSystem>();
         var path = new ResPath("/Maps/Test/KiasRoundTrip.yml");
         var serial = Guid.NewGuid().ToString("N");
+        string savedIdentifier = string.Empty;
         var owner = new Robust.Shared.Network.NetUserId(Guid.NewGuid());
         await server.WaitAssertion(() =>
         {
@@ -65,6 +66,10 @@ public sealed class KiasPersistenceTests
             Assert.That(em.System<ItemSlotsSystem>().TryInsert(rack, KiasControllerRackComponent.SlotId(7), card, null), Is.True);
             var speaker = Spawn("KiasSpeaker", 6);
             var scanner = Spawn("KiasRoomScanner", 7);
+            savedIdentifier = em.System<KiasDeviceIdentitySystem>().Identifier(scanner);
+            var rotary = Spawn("KiasRotarySwitch", 7);
+            em.GetComponent<KiasRotaryComponent>(rotary).Positions = 2;
+            em.GetComponent<KiasRotaryComponent>(rotary).Signals = new() { 3, 0 };
             var wireless = Spawn("KiasWirelessTransceiver", 7);
             var transmitter = Spawn("KiasWirelessTransceiver", 7);
             em.GetComponent<KiasWirelessComponent>(transmitter).Channel = "peer";
@@ -137,6 +142,10 @@ public sealed class KiasPersistenceTests
             var crew = candidates.Single(em.HasComponent<KiasCrewServerComponent>);
             var speaker = candidates.Single(em.HasComponent<KiasSpeakerComponent>);
             var scanner = candidates.Single(em.HasComponent<KiasRoomScannerComponent>);
+            Assert.That(em.System<KiasDeviceIdentitySystem>().Identifier(scanner), Is.EqualTo(savedIdentifier));
+            var rotary = candidates.Single(em.HasComponent<KiasRotaryComponent>);
+            Assert.That(em.GetComponent<KiasRotaryComponent>(rotary).Signals, Is.EqualTo(new[] { 3, 0 }));
+            Assert.That(em.GetComponent<KiasRotaryComponent>(rotary).Positions, Is.EqualTo(2));
             var wireless = candidates.Single(uid => em.HasComponent<KiasWirelessComponent>(uid)
                 && em.GetComponent<KiasWirelessComponent>(uid).Channel == "saved-channel");
             var transmitter = candidates.Single(uid => em.HasComponent<KiasWirelessComponent>(uid)
