@@ -104,6 +104,9 @@ public sealed class KiasPowerSystem : EntitySystem
             return Loc.GetString("kias-power-unavailable");
         var supply = new float[3];
         var consumption = new float[3];
+        var networkDeficits = new bool[3];
+        var deficitSupply = new float[3];
+        var deficitConsumption = new float[3];
         var seen = new HashSet<IBasePowerNet>();
         if (_cables.TryGetValue(grid, out var cables))
         foreach (var uid in cables)
@@ -119,6 +122,12 @@ public sealed class KiasPowerSystem : EntitySystem
                 var channel = (int) cable.CableType;
                 supply[channel] += stats.SupplyCurrent;
                 consumption[channel] += stats.Consumption;
+                if (stats.Consumption > stats.SupplyCurrent + 1)
+                {
+                    networkDeficits[channel] = true;
+                    deficitSupply[channel] += stats.SupplyCurrent;
+                    deficitConsumption[channel] += stats.Consumption;
+                }
             }
         }
         if (!_deficits.TryGetValue(grid, out var deficits))
@@ -126,12 +135,12 @@ public sealed class KiasPowerSystem : EntitySystem
         var text = new StringBuilder();
         for (var channel = 0; channel < 3; channel++)
         {
-            var deficit = consumption[channel] > supply[channel] + 1;
+            var deficit = networkDeficits[channel];
             var previous = deficits[channel];
             deficits[channel] = deficit;
             if (deficit && !previous)
             {
-                var ev = new KiasPowerDeficitEvent(grid, (CableType) channel, supply[channel], consumption[channel]);
+                var ev = new KiasPowerDeficitEvent(grid, (CableType) channel, deficitSupply[channel], deficitConsumption[channel]);
                 RaiseLocalEvent(grid, ref ev, true);
                 _safety.Publish(grid, Loc.GetString("kias-power-deficit", ("channel", Loc.GetString($"kias-relay-{((CableType) channel).ToString().ToLowerInvariant()}"))), true, announce: false, key: $"power:{channel}");
             }

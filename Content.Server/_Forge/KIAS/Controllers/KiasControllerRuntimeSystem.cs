@@ -171,6 +171,8 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
         finally { _cause = null; }
     }
 
+    public bool IsFinishingShutdown(EntityUid grid) => _closingGrid == grid;
+
     public void FinishBeforeShutdown(EntityUid grid, Action publish)
     {
         if (_closingGrid != null) return;

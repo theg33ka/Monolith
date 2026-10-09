@@ -23,6 +23,7 @@ namespace Content.Server.Ame.EntitySystems;
 
 public sealed partial class AmeControllerSystem : EntitySystem
 {
+    public event Action<EntityUid, bool>? InjectionChanged;
     [Dependency] private IAdminLogManager _adminLogger = default!;
     [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private AppearanceSystem _appearanceSystem = default!;
@@ -232,6 +233,7 @@ public sealed partial class AmeControllerSystem : EntitySystem
             return;
 
         controller.Injecting = value;
+        InjectionChanged?.Invoke(uid, value);
         UpdateDisplay(uid, controller.Stability, controller);
         if (!value && TryComp<PowerSupplierComponent>(uid, out var powerOut))
             powerOut.MaxSupply = 0;

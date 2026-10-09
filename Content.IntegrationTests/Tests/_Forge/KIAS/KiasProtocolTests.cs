@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Content.Server._Forge.KIAS;
 using Content.Server._Forge.KIAS.Controllers;
 using Content.Server.Power.Components;
@@ -57,8 +57,10 @@ public sealed class KiasProtocolTests
             var scanner = Spawn(em, map.Grid, "KiasRoomScanner", 2);
             Spawn(em, map.Grid, "KiasRecorder", 3);
             var containers = em.System<SharedContainerSystem>();
+            var moduleSlot = containers.GetContainer(scanner, "kias-module-3");
+            foreach (var module in moduleSlot.ContainedEntities.ToArray()) em.DeleteEntity(module);
             var bio = Spawn(em, map.Grid, "KiasBiometricModule", 2);
-            containers.Insert(bio, containers.GetContainer(scanner, "kias-module-3"));
+            Assert.That(containers.Insert(bio, moduleSlot), Is.True);
             body = Spawn(em, map.Grid, "MobHuman", 2);
             em.AddComponent<KiasTrackedEntityComponent>(body);
             var token = Spawn(em, map.Grid, "KiasCrewTransponder", 2);

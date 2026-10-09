@@ -1,4 +1,4 @@
-- type: entity
+﻿- type: entity
   id: KiasManagementConsole
   parent: BaseComputer
   name: KIAS management console
@@ -728,6 +728,7 @@
   - type: Machine
     board: KiasMaydayAntennaBoard
   - type: KiasMaydayAntenna
+  - type: TelecomExempt
   - type: Sprite
     sprite: _Forge/KIAS/Pack/mayday.rsi
     color: White

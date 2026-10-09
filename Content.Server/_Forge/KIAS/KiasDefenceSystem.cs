@@ -26,6 +26,7 @@ public sealed class KiasDefenceSystem : EntitySystem
             component.FireLock = enabled;
     }
     [Dependency] private KiasSystem _kias = default!;
+    [Dependency] private KiasNavigationSystem _navigation = default!;
     [Dependency] private FireControlSystem _fire = default!;
     [Dependency] private SharedGunSystem _guns = default!;
     [Dependency] private SharedTransformSystem _transform = default!;
@@ -325,6 +326,7 @@ public sealed class KiasDefenceSystem : EntitySystem
         var radius = map.LocalAABB.Size.Length() * 0.5f + 4;
         var shipVelocity = _physics.GetMapLinearVelocity(grid);
         var threats = new Dictionary<EntityUid, float>();
+        Dictionary<EntityUid, bool>? friendlySources = null;
         foreach (var radar in runtime.Online)
         {
             if (!TryComp<KiasPdcRadarComponent>(radar, out var sensor) || !_kias.IsOnline(radar))
@@ -340,8 +342,17 @@ public sealed class KiasDefenceSystem : EntitySystem
                 foreach (var projectile in bucket)
                 {
                     if (TerminatingOrDeleted(projectile) || !TryComp<ProjectileComponent>(projectile, out var shot) || shot.ProjectileSpent) continue;
-                    if (shot.Shooter is { } shooter && !Deleted(shooter) && Transform(shooter).GridUid == grid)
-                        continue;
+                    var sourceGrid = shot.Shooter is { } shooter && !Deleted(shooter) ? Transform(shooter).GridUid : null;
+                    if (sourceGrid == null && shot.Weapon is { } sourceWeapon && !Deleted(sourceWeapon))
+                        sourceGrid = Transform(sourceWeapon).GridUid;
+                    if (sourceGrid is { } source)
+                    {
+                        if (source == grid) continue;
+                        friendlySources ??= new();
+                        if (!friendlySources.TryGetValue(source, out var friendly))
+                            friendlySources[source] = friendly = _navigation.Classify(grid, source) == KiasContactDisposition.Friendly;
+                        if (friendly) continue;
+                    }
                     var target = _transform.GetMapCoordinates(projectile).Position;
                     if (Vector2.DistanceSquared(position.Position, target) > range * range)
                         continue;

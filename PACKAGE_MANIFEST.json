@@ -1,0 +1,79 @@
+{
+  "package": "KIAS Benchmark Lab — prompt and design instructions",
+  "created": "2026-10-09",
+  "kind": "instruction-package; not execution results",
+  "files": [
+    {
+      "name": "README.md",
+      "bytes": 6490,
+      "sha256": "dd6a6309ee1b50cfa2072b90887f4cca05fa1f65a8ae06b847745050c9ac0a61",
+      "headings": 5
+    },
+    {
+      "name": "00_MASTER_PROMPT.md",
+      "bytes": 15063,
+      "sha256": "fa59a5cb684cf7c5d77220e3dac3ce3b84e68f2c3d68e82173c686a5165a0b31",
+      "headings": 12
+    },
+    {
+      "name": "01_BASELINE_AND_REPO_MAP.md",
+      "bytes": 7666,
+      "sha256": "dc12fd4af9c64d488c8ae13f65d3655e1fd0fb5954cba095f1edfb8ea963bf4e",
+      "headings": 6
+    },
+    {
+      "name": "02_BRIAR_AUDIT_AND_SCANNER_PREP.md",
+      "bytes": 10126,
+      "sha256": "176c5b33b1a63aa6c2cefa1c99b04479603a5176c3b6277a7ab5d82b173e7dd3",
+      "headings": 10
+    },
+    {
+      "name": "03_FUNCTIONAL_GATE.md",
+      "bytes": 10819,
+      "sha256": "e05acb0580bd349f1f2a584f17c757583b47a12fe839e5305e19a828b2891e53",
+      "headings": 14
+    },
+    {
+      "name": "04_PRESET_ACCEPTANCE_MATRIX.md",
+      "bytes": 10154,
+      "sha256": "5bad5242cae14270eacea775fdc6a390303ab0654129bf436735a7da13474108",
+      "headings": 4
+    },
+    {
+      "name": "05_REPLAY_ENGINE.md",
+      "bytes": 8885,
+      "sha256": "53abc1b1211159e620649b224946228ea8ba13e1113df63dc40df0936988946e",
+      "headings": 9
+    },
+    {
+      "name": "06_RELEASE_AB_AND_PARITY.md",
+      "bytes": 7506,
+      "sha256": "8716903faf2c71d057456d66347c83f417b7489b9d75dab3053832272181340b",
+      "headings": 8
+    },
+    {
+      "name": "07_METRICS_PROFILING.md",
+      "bytes": 7808,
+      "sha256": "8b92727946b13abe136fe01733c027f7507392fe91fd82b69145432283f664fa",
+      "headings": 8
+    },
+    {
+      "name": "08_LOAD_SCENARIO.md",
+      "bytes": 7699,
+      "sha256": "542e704f730dbec1979f39f904486292f78158e72eeec4f5e4fd672eac3c081a",
+      "headings": 7
+    },
+    {
+      "name": "09_REPORT_TRIAGE_AND_CRITERIA.md",
+      "bytes": 7540,
+      "sha256": "b5c3c671e2af987d139075a58d35f5fb192187b7df380aad1d0dc58ed1bbff6b",
+      "headings": 9
+    },
+    {
+      "name": "10_RUNBOOK.md",
+      "bytes": 5618,
+      "sha256": "832ccd1149445f23c0bbc205214360a0b13d8b6828f4551598dc17960653984f",
+      "headings": 7
+    }
+  ]
+}

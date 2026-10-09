@@ -21,6 +21,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(KiasLabVisual)' == 'true'">
+    <Compile Include="../Tools/KiasBenchmark/Client/KiasLabVisualCommand.cs" Link="KiasLabVisualCommand.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KiasLabLiveUi)' == 'true'">
+    <Compile Include="../Tools/KiasBenchmark/Client/LiveUiLab.cs" Link="LiveUiLab.cs" />
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="_Mono\Research\UI\" />
   </ItemGroup>

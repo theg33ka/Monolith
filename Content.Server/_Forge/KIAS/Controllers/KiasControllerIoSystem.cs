@@ -23,6 +23,7 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     private readonly Dictionary<EntityUid, Dictionary<(string Profile, string Port), (KiasGraphValue Value, TimeSpan At)>> _outputs = new();
     public event Action<EntityUid, string, string, KiasGraphValue>? Emitted;
+    public event Action<EntityUid, EntityUid, EntityUid, string, string>? CommandDispatched;
 
     public bool TryOutput(EntityUid device, string profile, string port, out KiasGraphValue value, out TimeSpan at)
     {

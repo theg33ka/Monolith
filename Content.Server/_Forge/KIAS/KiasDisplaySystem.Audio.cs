@@ -49,6 +49,8 @@ public sealed partial class KiasDisplaySystem
     {
         var component = Comp<KiasSpeakerComponent>(speaker);
         component.Tone = _audio.Stop(component.Tone);
+        component.FinishesShutdownTone = Transform(speaker).GridUid is { } grid
+            && EntityManager.System<Controllers.KiasControllerRuntimeSystem>().IsFinishingShutdown(grid);
         if (TonePath(preset) is { } path)
             component.Tone = _audio.PlayPvs(new SoundPathSpecifier(path), speaker, AudioParams.Default.WithVolume(-4))?.Entity;
     }

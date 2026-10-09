@@ -1,4 +1,4 @@
-using Content.Server._Forge.KIAS;
+﻿using Content.Server._Forge.KIAS;
 using Content.Server.Power.Components;
 using Content.Shared._Forge.KIAS;
 using Content.Shared.Containers.ItemSlots;
@@ -33,6 +33,8 @@ public sealed class KiasScannerReconciliationTests
             foreach (var scanner in new[] { first, second })
             {
                 em.GetComponent<KiasRoomScannerComponent>(scanner).Range = 10;
+                Assert.That(em.System<ItemSlotsSystem>().TryEject(scanner, "kias-module-3", null, out var previousModule), Is.True);
+                em.DeleteEntity(previousModule!.Value);
                 Assert.That(em.System<ItemSlotsSystem>().TryInsert(scanner, "kias-module-3", Spawn("KiasConnectorModule"), null), Is.True);
             }
             alarm = Spawn("AirAlarm", 7.5f);

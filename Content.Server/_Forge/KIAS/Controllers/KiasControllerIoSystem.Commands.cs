@@ -14,6 +14,7 @@ public sealed partial class KiasControllerIoSystem
         if (!_kias.IsOnline(target) || Transform(target).GridUid != grid || !Profiles(target).Contains(node.Profile)
             || Schema(node.Profile)?.Any(item => item.Id == port && item.Direction == KiasPortDirection.Input && item.Type == value.Type) != true) return;
         if (Comp<KiasGridComponent>(grid).Testing && node.Profile is not ("Speaker" or "Recorder")) return;
+        CommandDispatched?.Invoke(grid, card, target, node.Profile, port);
         var message = read("Message").Text ?? string.Empty;
         message = message[..Math.Min(message.Length, 256)];
         var sourceKey = $"controller:{card}:{node.Id}:{target}:{read("Key").Text}:{message}";

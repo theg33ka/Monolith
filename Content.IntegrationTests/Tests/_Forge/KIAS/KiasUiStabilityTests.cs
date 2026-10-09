@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using Content.Client._Forge.KIAS.Controllers;
@@ -43,6 +43,8 @@ public sealed class KiasUiStabilityTests
             foreach (var id in new[] { "KiasAtmosServer", "KiasPowerServer", "KiasCrewServer", "KiasDefenceServer", "KiasNavigationServer", "KiasLightController", "KiasFlipFlop" }) Spawn(id);
             rack = Spawn("KiasControllerRack");
             var scanner = Spawn("KiasRoomScanner");
+            Assert.That(em.System<ItemSlotsSystem>().TryEject(scanner, "kias-module-3", null, out var previousModule), Is.True);
+            em.DeleteEntity(previousModule!.Value);
             var connector = Spawn("KiasConnectorModule");
             Assert.That(em.System<ItemSlotsSystem>().TryInsert(scanner, "kias-module-3", connector, null), Is.True);
             alarm = Spawn("AirAlarm", 1.5f);

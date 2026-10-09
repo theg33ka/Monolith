@@ -9,6 +9,7 @@ using Robust.Shared.Map.Components;
 using Robust.Server.GameObjects;
 using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
+using Content.Shared.Power.EntitySystems;
 
 namespace Content.Server._Forge.KIAS;
 
@@ -19,6 +20,7 @@ public sealed partial class KiasDisplaySystem : EntitySystem
     [Dependency] private ChatSystem _chat = default!;
     [Dependency] private EntityLookupSystem _lookup = default!;
     [Dependency] private SharedAudioSystem _audio = default!;
+    [Dependency] private SharedPowerReceiverSystem _power = default!;
     [Dependency] private Robust.Shared.Timing.IGameTiming _timing = default!;
     private readonly Queue<EntityUid> _pendingRefresh = new();
     private readonly HashSet<EntityUid> _queuedRefresh = new();
@@ -47,7 +49,7 @@ public sealed partial class KiasDisplaySystem : EntitySystem
         RefreshCoverageTools(args.Grid);
         foreach (var uid in runtime.Devices)
         {
-            if (!_kias.IsOnline(uid) && TryComp<KiasSpeakerComponent>(uid, out var speaker))
+            if (!_kias.IsOnline(uid) && TryComp<KiasSpeakerComponent>(uid, out var speaker) && !CanFinishShutdownTone(uid, speaker))
                 speaker.Tone = _audio.Stop(speaker.Tone);
         }
         if (!runtime.Devices.Any(uid => _ui.IsUiOpen(uid, UiKey(uid))))
@@ -181,12 +183,16 @@ public sealed partial class KiasDisplaySystem : EntitySystem
             {
                 foreach (var uid in runtime.Devices)
                 {
-                    if (TryComp<KiasSpeakerComponent>(uid, out var speaker))
+                    if (TryComp<KiasSpeakerComponent>(uid, out var speaker) && !CanFinishShutdownTone(uid, speaker))
                         speaker.Tone = _audio.Stop(speaker.Tone);
                 }
             }
         }
     }
+    private bool CanFinishShutdownTone(EntityUid uid, KiasSpeakerComponent speaker) => speaker.FinishesShutdownTone
+        && _power.IsPowered(uid) && Transform(uid).GridUid is { } grid && TryComp<KiasGridComponent>(grid, out var runtime)
+        && runtime.Core is { } core && TryComp<KiasCoreComponent>(core, out var component) && !component.Enabled;
+
     private void OnSpeakerShutdown(Entity<KiasSpeakerComponent> ent, ref ComponentShutdown args) => ent.Comp.Tone = _audio.Stop(ent.Comp.Tone);
     private void OnGridRemoval(GridRemovalEvent args)
     {

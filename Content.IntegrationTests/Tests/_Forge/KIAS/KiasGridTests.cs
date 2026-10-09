@@ -1,4 +1,4 @@
-#pragma warning disable RA0002
+﻿#pragma warning disable RA0002
 using Content.Server._Forge.KIAS;
 using Content.Server.Power.Components;
 using Content.Shared._Forge.KIAS;
@@ -90,8 +90,10 @@ public sealed class KiasGridTests
             crew.RefreshCounts(map.Grid);
             Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Crew, Is.EqualTo(1));
             var containers = em.System<SharedContainerSystem>();
+            var moduleSlot = containers.GetContainer(scanner, "kias-module-3");
+            foreach (var module in moduleSlot.ContainedEntities.ToArray()) em.DeleteEntity(module);
             var spectral = em.SpawnEntity("KiasSpectralModule", new EntityCoordinates(map.Grid, 5.5f, 1.5f));
-            Assert.That(containers.Insert(spectral, containers.GetContainer(scanner, "kias-module-3")), Is.True);
+            Assert.That(containers.Insert(spectral, moduleSlot), Is.True);
             var anomaly = em.SpawnEntity(null, new EntityCoordinates(map.Grid, 5.5f, 1.5f));
             em.AddComponent(anomaly, new AnomalyComponent { InitialStabilityRange = (0, 0) });
             var anomalies = em.System<SharedAnomalySystem>();

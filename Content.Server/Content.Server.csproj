@@ -28,4 +28,7 @@
   <Import Project="..\RobustToolbox\Imports\Server.props" />
   <Import Project="..\RobustToolbox\Imports\Shared.props" />
   <Import Project="..\RobustToolbox\Imports\Packaging.props" />
+  <ItemGroup Condition="'$(KiasLabLiveUi)' == 'true'">
+    <Compile Include="../Tools/KiasBenchmark/Server/LiveUiLab.cs" Link="LiveUiLab.cs" />
+  </ItemGroup>
 </Project>

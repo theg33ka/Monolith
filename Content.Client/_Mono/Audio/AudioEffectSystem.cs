@@ -35,7 +35,7 @@ public sealed partial class AudioEffectSystem : EntitySystem
     // actually this problem applies for effects too
     private bool? _auxiliariesSafe = null;
 
-    private static readonly Dictionary<ProtoId<AudioPresetPrototype>, (EntityUid AuxiliaryUid, EntityUid EffectUid)> CachedEffects = new();
+    private readonly Dictionary<ProtoId<AudioPresetPrototype>, (EntityUid AuxiliaryUid, EntityUid EffectUid)> CachedEffects = new();
 
     /// <summary>
     ///     An auxiliary with no effect; for removing effects.

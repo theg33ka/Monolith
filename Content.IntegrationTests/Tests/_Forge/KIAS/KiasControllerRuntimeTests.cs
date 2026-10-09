@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Collections;
+using System.Reflection;
 using Content.Server._Forge.KIAS;
 using Content.Server._Forge.KIAS.Controllers;
 using Content.Server.Power.Components;
@@ -18,6 +20,50 @@ namespace Content.IntegrationTests.Tests._Forge.KIAS;
 [TestFixture]
 public sealed class KiasControllerRuntimeTests
 {
+    [Test]
+    public async Task DirtyTopologyTemporarilyChangesAvailabilityWithoutStoppingMachine()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var em = pair.Server.ResolveDependency<IEntityManager>();
+        var runtime = em.System<KiasControllerRuntimeSystem>();
+        EntityUid card = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            EntityUid Spawn(string prototype)
+            {
+                var uid = em.SpawnEntity(prototype, new EntityCoordinates(map.Grid, .5f, .5f));
+                em.System<SharedPowerReceiverSystem>().SetNeedsPower(uid, false);
+                return uid;
+            }
+            Spawn("KiasCore"); Spawn("KiasDataCable");
+            var rack = Spawn("KiasControllerRack");
+            card = Spawn("KiasProgrammableController");
+            var program = new KiasControllerProgram { Name = "Topology lifetime" };
+            program.Nodes.Add(new KiasControllerNode { Id = 1, Kind = KiasNodeKind.BoolConstant, Config = new() { Bool = true } });
+            em.GetComponent<KiasControllerCardComponent>(card).Program = program;
+            em.System<KiasSystem>().Rebuild(map.Grid);
+            Assert.That(em.System<ItemSlotsSystem>().TryInsert(rack, KiasControllerRackComponent.SlotId(0), card, null), Is.True);
+        });
+        await pair.RunTicksSync(8);
+        await pair.Server.WaitAssertion(() =>
+        {
+            Assert.That(runtime.Running(card), Is.True);
+            var states = (IDictionary) typeof(KiasControllerRuntimeSystem).GetField("_cards", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime)!;
+            var state = states[card]!;
+            var machine = (KiasGraphMachine) state.GetType().GetField("Machine")!.GetValue(state)!;
+            em.System<KiasSystem>().Invalidate(map.Grid);
+            Assert.That(runtime.Running(card), Is.False);
+            Assert.That(machine.Active, Is.True);
+            Assert.That(runtime.Fault(card), Is.Empty);
+            em.System<KiasSystem>().Rebuild(map.Grid);
+            Assert.That(runtime.Running(card), Is.True);
+            Assert.That(states[card], Is.SameAs(state));
+            Assert.That(state.GetType().GetField("Machine")!.GetValue(state), Is.SameAs(machine));
+        });
+        await pair.CleanReturnAsync();
+    }
+
     private static KiasControllerProgram Warning(EntityUid specific)
     {
         var program = new KiasControllerProgram { Name = "Portable warning" };

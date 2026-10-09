@@ -1,37 +1,44 @@
-# KIAS — correctness, programmer UX and regression patch (2026-10-08)
+# KIAS Benchmark Lab — пакет заданий и критериев
 
-**Source:** [`theg33ka/Monolith`, branch `KIAS`](https://github.com/theg33ka/Monolith/tree/KIAS). Inspected HEAD `e32aecc197fed90b5947354bbad7b2c24add7911`; re-check current HEAD before implementation. This archive contains **specifications, not an implemented game patch**.
+**Назначение:** перед A/B-перфомансом провести end-to-end проверку физического `briarKIAS.yml`, затем создать полностью воспроизводимый 20-минутный тест нагрузочного профиля 30–40 гридов с Release-сборками Vanilla/KIAS, синхронизацией событий по серверным тикам, анализом лагспайков и сравнительным HTML-отчётом.
 
-## Installation / replacement
+**Рабочий репозиторий:** https://github.com/theg33ka/Monolith , ветка `KIAS`.
+**База движка:** `RobustToolbox` как git submodule; не заменять upstream RobustToolbox.
+**Корабль:** `Resources/Maps/_Forge/Shuttles/Archive/Mercenary/briarKIAS.yml`.
+**Reference:** https://github.com/Forge-Station/Monolith и https://github.com/Forge-Station/RobustToolbox .
 
-1. Back up the root-level `00_AGENT_MASTER_PROMPT.md` through `09_THIRD_PARTY_REFERENCES.md` and `README.md` if you want to retain their former text. The originals document a previous correction pass; they are **not** present to be executed again.
-2. Unpack the `.md` files **into the repository root**, preserving names; allow replacement of same-named files. New numbered files `10_...`, `11_...`, `12_...` augment the former set. Optional supporting screenshots live in `references/`.
-3. Open `00_AGENT_MASTER_PROMPT.md` with the coding agent, or paste `COPYPASTE_PROMPT.md` as the opening agent message. Both are self-contained; the short paste prompt points to the comprehensive master and checklists.
-4. Agent must inspect **live code** and repository contribution rules, not trust this snapshot over current HEAD.
+## Очерёдность документов
 
-## Documents
+1. `00_MASTER_PROMPT.md` — вставить кодинг-агенту первым целиком.
+2. `01_BASELINE_AND_REPO_MAP.md` — фиксация исходников, диагностика штатных средств.
+3. `02_BRIAR_AUDIT_AND_SCANNER_PREP.md` — настоящее состояние Briar, разрешённые правки.
+4. `03_FUNCTIONAL_GATE.md` — обязательный реальный тест перед нагрузкой.
+5. `04_PRESET_ACCEPTANCE_MATRIX.md` — индивидуальные проверки всех графов.
+6. `05_REPLAY_ENGINE.md` — seed, журнал, исполнение и контроль отклонений.
+7. `06_RELEASE_AB_AND_PARITY.md` — честная пара сборок и равные исходные условия.
+8. `07_METRICS_PROFILING.md` — CSV, Prometheus, Tracy, backlog и аллокации.
+9. `08_LOAD_SCENARIO.md` — 20 минут, 40 гридов, классы событий и распределение.
+10. `09_REPORT_TRIAGE_AND_CRITERIA.md` — отчёт, баги, критерии готовности.
+11. `10_RUNBOOK.md` — команды запуска и порядок операций для Windows.
 
-| File | Purpose |
-| --- | --- |
-| `00_AGENT_MASTER_PROMPT.md` | Master instructions for ~55–75 min of focused development and verification |
-| `01_REPO_FINDINGS.md` | Grounded code observations, hypotheses vs established facts |
-| `02_TARGET_ARCHITECTURE.md` | Scope and required invariants |
-| `03_DEVICE_PROTOCOL_SPEC.md` | Precise expected behavior per affected device |
-| `04_IMPLEMENTATION_PLAN.md` | Time-boxed ordering and stopping rules |
-| `05_PERFORMANCE_AND_TESTS.md` | Automated tests, performance limits, UI checks |
-| `06_REPO_SOURCE_MAP.md` | Real source files and where to start |
-| `07_CONTROLLER_GRAPH_SPEC.md` | Programmer hierarchy and readable labels |
-| `08_PROTOCOL_MIGRATION.md` | Legacy passes as REGRESSIONS, no double-implementation |
-| `09_THIRD_PARTY_REFERENCES.md` | Contribution, asset, and clean-code rules |
-| `10_RISK_REGISTER.md` | Risk analysis and proactive failure scenarios |
-| `11_LIVE_SMOKE_CHECKLIST.md` | Manual in-game acceptance, including negative cases |
-| `12_DELIVERY_REPORT_TEMPLATE.md` | Evidence report that cannot be satisfied by claims alone |
-| `COPYPASTE_PROMPT.md` | Short self-contained kickoff text, also provided in ChatGPT reply |
+## Критический порядок
 
-## Prior-pass status
+`SOURCE AUDIT → MAP/SCANNER AUDIT → FUNCTIONAL GATE → разрешённые исправления → RECHECK → сборка сопоставимых A/B → dry-run 60 c → full A/B → анализ.`
 
-**Already claimed implemented** by previous agent (preserve and re-test): 12-character persistent device identifiers; room grouping; diagnostics and output monitoring; rotary switch position settings; past sprite shrink/rotation/data-cable changes; fauna detection; Russian speaker text; 32×64 core sprite; corrected ALL Lighting vs group controllers; speaker graph behavior; DeviceList/AirAlarm; atmos preset; visual graph inspector; responsive UI; rack UI stability. These are **not a request to rewrite everything**.
+**Запрещено:** делать заключение о производительности по недоработанной функциональности; считать тестом вручную вызванный KIAS trigger; подавлять исключения; самовольно менять другие устройства или архитектуру корабля; выдавать планы и моки за проведённые измерения.
 
-**Current TODO (10):** compact UI IDs; clearer room/device hierarchy; readable programmatic palette and widths; “Шаблон:” label; integration-kit sprite another 20% smaller; core screenshot occlusion/placement; relay popups and Shift+click/examine current channel; scanner zone detach/rebind; button-to-speaker misleading default link; real suppression actuation.
+## Зафиксированные наблюдения (исходники доступны на GitHub на 2026-10-09)
 
-**Non-goals:** giant rearchitecture, global systems refactor, new framework, fabricated screenshots/test results, spending tokens to fill a quota. Coding time is a target, not a guarantee.
+- Корабль `entityCount: 2391`: 13 `KiasRoomScanner`, 8 `KiasAdvancedRoomScanner`, 13 `KiasSuppression`, 10 `KiasSpeaker`, 6 `KiasWeaponFlashDetector`, 4 `KiasControllerRack`, 26 `KiasProgrammableController`, 200 `KiasDataCable`.
+- Файловый каталог `controller_presets.yml` содержит **27** программ. Среди 26 физических карточек в сохранённом гриде отсутствует `fire-clear`; `quiet` присутствует, но пресет в каталоге отключён по умолчанию. Не считать это автоматически дефектом: подтвердить назначение и runtime-результат.
+- На гриде не обнаружено `KiasLightController`; боевые пресеты `battle-impact`, `battle-flash`, `battle-manual` содержат профиль `LightController`. Нужна реальная проверка выходов.
+- `KiasControllerProgrammer` не находится среди proto-групп грида; тест нового патча программатора провести на отдельном тестовом стенде, без перепланировки Briar.
+- В YAML восемь `AirAlarm` без сериализованного `KiasIntegrated`; `FireAlarm` как proto-группа не обнаружен. Код `KiasSafetySystem` / `KiasProtocolSystem` фильтрует соответствующие тревоги по компонентам и интеграции. Проверять после загрузки; не утверждать заранее, что всё не работает.
+- Слоты сканеров в сохранении отображаются как `ent: null`, но прототипы имеют `startingItem`; только live-состояние после MapInit определяет реальные установленные модули.
+- У обычного сканера шесть слотов, четыре стартовых (Motion, Identity, Optical, Connector). У advanced шесть слотов и шесть стартовых (Motion, Identity, Threat, Spectral, Biometric, Radiation). Advanced не может вместить одновременно вообще все существующие модули без изменения вместимости.
+
+Это **находки по тексту**, не результаты выполнения сервера. При изменении KIAS пересчитывать inventory динамически.
+
+## Итоговые артефакты кодинг-агента
+
+Исходники реализованного лабораторного инструмента; набор smoke/integration тестов; проверенные подготовленные YAML с diff; воспроизводимый сценарий `scenario.jsonl` + `manifest.json`; команды/GUI для запуска; заполненные протоколы реальных тестов; сырые логи; A/B HTML-отчёт с графиками и ссылками на конкретные тики. Все результаты в ignored `.kias-benchmark/` (или аналогичной безопасной папке).

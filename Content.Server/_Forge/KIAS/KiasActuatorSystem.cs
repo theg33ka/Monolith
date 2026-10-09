@@ -1,5 +1,7 @@
-using System.Linq;
+﻿using System.Linq;
 using Content.Server.Fluids.EntitySystems;
+using Content.Server.Atmos.EntitySystems;
+using Robust.Shared.Map.Components;
 using Content.Server.Light.EntitySystems;
 using Content.Shared._Forge.KIAS;
 using Content.Shared.Chemistry.Components;
@@ -8,6 +10,7 @@ using Content.Shared.Verbs;
 using Content.Shared.Popups;
 using Content.Shared.Interaction;
 using Robust.Shared.Containers;
+using Robust.Shared.Map;
 using Content.Shared.Light.Components;
 using Content.Shared.Light.EntitySystems;
 
@@ -168,7 +171,15 @@ public sealed class KiasActuatorSystem : EntitySystem
         }
         var solution = new Solution();
         solution.AddReagent("Water", 100);
-        var foam = Spawn("Foam", Transform(uid).Coordinates);
+        var transform = Transform(uid);
+        var outlet = transform.Coordinates;
+        if (TryComp<MapGridComponent>(grid, out var map))
+        {
+            var tile = EntityManager.System<SharedMapSystem>().TileIndicesFor(grid, map, transform.Coordinates);
+            if (EntityManager.System<AtmosphereSystem>().IsTileAirBlocked(grid, tile, mapGridComp: map))
+                outlet = new EntityCoordinates(grid, transform.LocalPosition + transform.LocalRotation.ToWorldVec());
+        }
+        var foam = Spawn("Foam", outlet);
         _smoke.StartSmoke(foam, solution, 10, 12);
         QueueDel(cartridge);
         _safety.Publish(grid, Loc.GetString("kias-suppression-activated", ("location", _safety.Location(grid, uid))));

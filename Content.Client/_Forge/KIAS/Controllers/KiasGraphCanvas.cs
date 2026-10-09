@@ -57,10 +57,19 @@ public sealed class KiasGraphCanvas : Control
     }
     private (KiasGraphNodeView Node, KiasGraphPort Port)? PortAt(Vector2 point)
     {
+        (KiasGraphNodeView Node, KiasGraphPort Port)? nearest = null;
+        var closest = float.PositiveInfinity;
         foreach (var node in _state.Nodes.AsEnumerable().Reverse())
             foreach (var port in node.Ports)
-                if (Vector2.DistanceSquared(point, PortPosition(node, port)) <= 100 / (_zoom * _zoom)) return (node, port);
-        return null;
+            {
+                var distance = Vector2.DistanceSquared(point, PortPosition(node, port));
+                if (distance <= 100 / (_zoom * _zoom) && distance < closest)
+                {
+                    closest = distance;
+                    nearest = (node, port);
+                }
+            }
+        return nearest;
     }
     private KiasGraphNodeView? NodeAt(Vector2 point) => _state.Nodes.LastOrDefault(node =>
         UIBox2.FromDimensions(Position(node), new Vector2(Width, Height(node))).Contains(point));

@@ -581,9 +581,11 @@
         whitelist:
           tags: [KiasBasicModule]
       kias-module-3:
+        startingItem: KiasIdModule
         whitelist:
           tags: [KiasBasicModule]
       kias-module-4:
+        startingItem: KiasTransponderModule
         whitelist:
           tags: [KiasBasicModule]
       kias-module-5:

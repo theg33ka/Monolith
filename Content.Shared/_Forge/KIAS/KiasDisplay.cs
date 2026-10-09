@@ -15,6 +15,7 @@ public sealed partial class KiasSpeakerComponent : Component
     [DataField]
     public string Group = "SHIP";
     public EntityUid? Tone;
+    public bool FinishesShutdownTone;
     [DataField]
     public string Message = string.Empty;
 
