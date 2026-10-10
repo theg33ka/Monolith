@@ -108,7 +108,7 @@ public class KiasLocalWindow : FancyWindow
         _filter.Visible = state is KiasRecorderState;
         _room.Visible = state is KiasLocalState;
         var sensorSettings = state is KiasServiceState { Mode: KiasServiceMode.Diagnose or KiasServiceMode.Monitor, SensorRange: not null };
-        _range.Visible = state is KiasScannerState or KiasSensorState or KiasWirelessState || sensorSettings;
+        _range.Visible = state is KiasSensorState or KiasWirelessState || sensorSettings;
         if (sensorSettings && state is KiasServiceState { SensorRange: { } selectedRange } && !_range.HasKeyboardFocus()) _range.Text = selectedRange.ToString();
         _group.Visible = state is KiasSpeakerState or KiasWirelessState or KiasLightState or KiasServiceState { Mode: KiasServiceMode.Group };
         _color.Visible = _brightness.Visible = state is KiasLightState;
@@ -165,7 +165,13 @@ public class KiasLocalWindow : FancyWindow
             case KiasScannerState scanner:
                 var modules = new[] { KiasScannerModules.Motion, KiasScannerModules.Identity, KiasScannerModules.Biometric, KiasScannerModules.Radiation, KiasScannerModules.Spectral, KiasScannerModules.Connector, KiasScannerModules.Optical, KiasScannerModules.Threat };
                 _details += $"\n{Loc.GetString("kias-scanner-modules")}: {string.Join(", ", modules.Where(module => (scanner.Modules & module) != 0).Select(module => Loc.GetString($"kias-module-{module.ToString().ToLowerInvariant()}")))}";
-                if (!_range.HasKeyboardFocus()) _range.Text = scanner.Range.ToString();
+                if (scanner.Geometry is { } room)
+                {
+                    var status = Loc.TryGetString("kias-room-status-" + room.RoomStatus.ToLowerInvariant(), out var localized) ? localized : room.RoomStatus;
+                    _details += "\n" + Loc.GetString(room.RoomStatus == "ExteriorSector" ? "kias-exterior-coverage" : "kias-room-coverage", ("status", status), ("tiles", room.TileCount), ("doors", room.DoorCount), ("revision", room.Revision));
+                    if (room.RoomStatus == "ExteriorSector")
+                        _details += "\n" + Loc.GetString("kias-exterior-range", ("range", room.Radius));
+                }
                 break;
             case KiasSensorState sensor:
                 _details += $"\n{Loc.GetString("kias-sensor-range")}: {sensor.Range} m / {sensor.Arc}°";

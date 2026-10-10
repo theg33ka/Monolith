@@ -9,6 +9,9 @@ using System.Numerics;
 using System.Text.Json;
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Power.EntitySystems;
+using Content.Server.Administration.Logs;
+using Content.Server.GameTicking;
+using Content.Shared.Database;
 using Content.Shared.Atmos;
 using Content.Shared.Damage;
 using Content.Shared.Damage.Systems;
@@ -33,6 +36,39 @@ using Robust.Shared.Utility;
 
 namespace Content.Server.Benchmark;
 
+public sealed class NativeLabRoundSystem : EntitySystem
+{
+    private bool _loading;
+
+    public override void Initialize()
+    {
+        base.Initialize();
+        SubscribeLocalEvent<LoadingMapsEvent>(OnLoadingMaps);
+    }
+
+    private void OnLoadingMaps(LoadingMapsEvent args)
+    {
+        if (_loading) args.Maps.Clear();
+    }
+
+    public MapId StartRound()
+    {
+        var ticker = EntityManager.System<GameTicker>();
+        if (ticker.RunLevel != GameRunLevel.PreRoundLobby || ticker.DummyTicker)
+            throw new InvalidOperationException("Native laboratory requires a fresh, non-dummy lobby.");
+        _loading = true;
+        try
+        {
+            ticker.SetGamePreset("Sandbox");
+            ticker.StartRound(true);
+            if (ticker.RunLevel != GameRunLevel.InRound || ticker.RoundId <= 0)
+                throw new InvalidOperationException("Native laboratory could not start a real sandbox round.");
+            return ticker.DefaultMap;
+        }
+        finally { _loading = false; }
+    }
+}
+
 public sealed class NativeLabCommand : IConsoleCommand
 {
     public string Command => "native_lab_start";
@@ -45,9 +81,12 @@ public sealed class NativeLabCommand : IConsoleCommand
     }
 }
 
-public static class NativeLab
+public static partial class NativeLab
 {
     public static Func<object>? Telemetry;
+    public static Action<EntityUid, EntityUid>? RegisterCrew;
+    public static Func<EntityUid, string, bool, object?>? KiasDriver;
+    public static readonly Dictionary<EntityUid, uint> ExpectedOfflineGrids = new();
     public static bool TelemetryRetryRequired;
     private static uint _nextTelemetryCheck;
     private static uint? _unavailableSince;
@@ -72,10 +111,14 @@ public static class NativeLab
     private static readonly Process Process = Process.GetCurrentProcess();
     private static long _workingSet;
     private static double _cpu;
+    private static Func<double>? _physicsMilliseconds;
+    private static Func<long>? _physicsBytes;
     private struct TickSample
     {
         public uint EngineTick;
-        public double WholeMs, ContentMs, Cpu, PauseMs;
+        public double WholeMs, ContentMs, Cpu, PauseMs, PhysicsMs, DriverMs, ObserverMs;
+        public long DriverBytes, ObserverBytes;
+        public long PhysicsBytes;
         public long WholeBytes, ContentBytes, ThreadBytes, WorkingSet;
         public int Gc0, Gc1, Gc2;
         public bool Captured;
@@ -129,7 +172,10 @@ public static class NativeLab
         var count = int.Parse(Environment.GetEnvironmentVariable("NATIVE_LAB_SHIPS") ?? "40", CultureInfo.InvariantCulture);
         _em = IoCManager.Resolve<IEntityManager>();
         _timing = IoCManager.Resolve<IGameTiming>();
+        IoCManager.Resolve<IRobustRandom>().SetSeed(int.Parse(Environment.GetEnvironmentVariable("NATIVE_LAB_SEED") ?? "20261010", CultureInfo.InvariantCulture));
         _shell = shell;
+        _physicsMilliseconds = typeof(Robust.Server.GameObjects.PhysicsSystem).GetProperty("DiagnosticMilliseconds")?.GetMethod?.CreateDelegate<Func<double>>();
+        _physicsBytes = typeof(Robust.Server.GameObjects.PhysicsSystem).GetProperty("DiagnosticAllocatedBytes")?.GetMethod?.CreateDelegate<Func<long>>();
         if (_timing.TickRate != 60) throw new InvalidOperationException("Native laboratory requires the matched 60 TPS configuration.");
         _inputs = File.ReadLines(scenario).Select(line =>
         {
@@ -140,9 +186,10 @@ public static class NativeLab
         if (_inputs.Any(input => input.Tick >= _duration)) throw new InvalidOperationException("Replay input lies outside the measured interval.");
         Directory.CreateDirectory(_output);
         Ships.Clear();
+        ResetGameDrivers();
         Bindings.Clear();
         var maps = _em.System<SharedMapSystem>();
-        maps.CreateMap(out var mapId, runMapInit: false);
+        var mapId = _em.System<NativeLabRoundSystem>().StartRound();
         for (var i = 1; i <= count; i++)
         {
             if (!_em.System<MapLoaderSystem>().TryLoadGrid(mapId, new ResPath("/Maps/_Forge/Shuttles/Archive/Mercenary/labBriar.yml"), out var loaded)) throw new InvalidOperationException("Briar load failed.");
@@ -156,17 +203,19 @@ public static class NativeLab
                 return found.OrderBy(uid => _em.GetComponent<TransformComponent>(uid).LocalPosition.X).ThenBy(uid => _em.GetComponent<TransformComponent>(uid).LocalPosition.Y).ToArray();
             }
             var actor = _em.SpawnEntity("MobHuman", new EntityCoordinates(grid, new Vector2(-4.5f, .5f)));
-            _em.System<SharedMindSystem>().TransferTo(_em.System<SharedMindSystem>().CreateMind(null), actor);
+            AttachTrackedMind(actor, $"ship-{i:0000}/crew");
             var power = Native<Content.Server.Atmos.Monitor.Components.AtmosMonitorComponent>().First(uid => _em.HasComponent<Content.Server.Power.Components.ApcPowerReceiverComponent>(uid));
             var light = Native<PoweredLightComponent>().First();
             Ships.Add($"ship-{i:0000}", new Ship(grid, actor, power, light, new Vector2i(-5, 0)));
+            if (_inputs.Any(input => input.Ship == $"ship-{i:0000}" && input.Type.StartsWith("pdc.", StringComparison.Ordinal)))
+                PreparePdcFixture(Ships[$"ship-{i:0000}"]);
             Bindings.Add(new { ship = $"ship-{i:0000}", gridPosition = _em.System<SharedTransformSystem>().GetWorldPosition(grid).ToString(),
                 powerPrototype = _em.GetComponent<MetaDataComponent>(power).EntityPrototype?.ID,
                 powerPosition = _em.GetComponent<TransformComponent>(power).LocalPosition.ToString(),
                 lightPrototype = _em.GetComponent<MetaDataComponent>(light).EntityPrototype?.ID,
                 lightPosition = _em.GetComponent<TransformComponent>(light).LocalPosition.ToString(), actorPosition = "-4.5,0.5", fireTile = "-5,0" });
         }
-        maps.InitializeMap(mapId);
+        if (!maps.IsInitialized(mapId)) maps.InitializeMap(mapId);
         foreach (var ship in Ships.Values)
         {
             var query = _em.AllEntityQueryEnumerator<BatteryComponent, TransformComponent>();
@@ -174,10 +223,21 @@ public static class NativeLab
                 if (transform.GridUid == ship.Grid) _em.System<BatterySystem>().SetCharge(uid, battery.MaxCharge);
         }
         File.WriteAllText(Path.Combine(_output, "bindings.json"), JsonSerializer.Serialize(Bindings));
-        IoCManager.Resolve<IRobustRandom>().SetSeed(20261009);
+        var logProbe = int.Parse(Environment.GetEnvironmentVariable("NATIVE_LAB_ADMINLOG_PROBE") ?? "0", CultureInfo.InvariantCulture);
+        if (logProbe is < 0 or > 10000) throw new InvalidOperationException("Admin log probe must be between 0 and 10000.");
+        var adminLogs = IoCManager.Resolve<IAdminLogManager>();
+        for (var i = 0; i < logProbe; i++)
+            adminLogs.Add(LogType.Action, LogImpact.Low, $"NativeLab admin-log regression probe {i}");
+        var ticker = _em.System<GameTicker>();
+        File.WriteAllText(Path.Combine(_output, "round.json"), JsonSerializer.Serialize(new
+        {
+            roundId = ticker.RoundId, runLevel = ticker.RunLevel.ToString(), preset = ticker.CurrentPreset?.ID,
+            mapId = mapId.ToString(), adminLogProbe = logProbe,
+        }));
         _samples = new StreamWriter(Path.Combine(_output, "ticks.csv"));
-        _samples.WriteLine("relative_tick,engine_tick,content_engine_ms,allocated_bytes,gc0,gc1,gc2,working_set_bytes,cpu_seconds,whole_tick_ms,whole_allocated_bytes,thread_allocated_bytes,gc_pause_ms");
+        _samples.WriteLine("relative_tick,engine_tick,content_engine_ms,allocated_bytes,gc0,gc1,gc2,working_set_bytes,cpu_seconds,whole_tick_ms,whole_allocated_bytes,thread_allocated_bytes,gc_pause_ms,physics_ms,physics_allocated_bytes,driver_ms,driver_allocated_bytes,observer_ms,observer_allocated_bytes");
         _events = new StreamWriter(Path.Combine(_output, "events.jsonl"));
+        _outcomes = new StreamWriter(Path.Combine(_output, "native-outcomes.jsonl"));
         _start = _timing.CurTick.Value + 1;
         _next = 0; _writtenSamples = 0; _unavailableSince = null; TelemetryRetryRequired = false;
         _tickSamples = new TickSample[_duration];
@@ -201,6 +261,7 @@ public static class NativeLab
             while (limit < _tickSamples.Length && _tickSamples[limit].Captured) limit++;
             FlushSamples(limit);
         }
+        _outcomes?.Dispose(); _outcomes = null;
         _samples?.Dispose(); _events?.Dispose(); _samples = null; _events = null; _clock = 0;
         if (string.IsNullOrWhiteSpace(_output)) return;
         Directory.CreateDirectory(_output);
@@ -211,15 +272,39 @@ public static class NativeLab
     {
         if (_samples == null || _timing.CurTick.Value < _start) return;
         var elapsed = _timing.CurTick.Value - _start;
-        if (elapsed < _warmup) return;
-        var tick = elapsed - _warmup;
-        if (tick >= _duration) { Finish(); return; }
-        if (tick % 3600 == 0 || (TelemetryRetryRequired && tick >= _nextTelemetryCheck))
+        if (elapsed % 60 == 0) PrepareNetworkPlayers(elapsed >= _warmup);
+        if (elapsed < _warmup)
         {
-            FlushSamples((int) tick);
-            _events!.Flush();
-            var progress = JsonSerializer.Serialize(new { relativeTick = tick, measuredTicks = _duration, entityCount = _em.EntityCount, deliveredEvents = _next, telemetry = Telemetry?.Invoke() });
-            File.WriteAllText(Path.Combine(_output, "progress.json"), progress);
+            FlushPendingProgress();
+            if (!_crewRegistered && elapsed >= _warmup / 2) PrepareCrewRegistration();
+            if (elapsed % 300 == 0) AtomicJson("progress.json", new { phase = "WARMUP", currentTick = elapsed,
+                phaseTicks = _warmup, engineTick = _timing.CurTick.Value, ships = Ships.Count, utc = DateTime.UtcNow });
+            return;
+        }
+        var tick = elapsed - _warmup;
+        if (tick >= _duration)
+        {
+            FlushPendingProgress();
+            if (_pendingProgressJson == null) Finish();
+            return;
+        }
+        var driverStamp = Stopwatch.GetTimestamp();
+        var driverBytes = GC.GetAllocatedBytesForCurrentThread();
+        if (!_crewRegistered) PrepareCrewRegistration();
+        if (!_physicsDiagnosticStarted) { BeginPhysicsDiagnostic(); _physicsDiagnosticStarted = true; }
+        FlushPendingProgress();
+        if (tick % 300 == 0 || (TelemetryRetryRequired && tick >= _nextTelemetryCheck))
+        {
+            if (tick % 3600 == 0 || TelemetryRetryRequired) FlushSamples((int) tick);
+            _events!.Flush(); _outcomes!.Flush();
+            var snapshot = new { phase = "MEASURE", currentTick = tick, phaseTicks = _duration, ships = Ships.Count, relativeTick = tick, measuredTicks = _duration, engineTick = _timing.CurTick.Value,
+                progressWriteFailures = _progressWriteFailures, progressWritePending = _pendingProgressJson != null,
+                utc = DateTime.UtcNow, entityCount = _em.EntityCount, deliveredEvents = _next,
+                completedNative = _nativeCompleted, pendingNative = PendingGameDrivers.Count,
+                nativeDeadlines = PendingGameDrivers.Select(driver => new { driver.Input.Id, driver.Input.Type, driver.Started, driver.Deadline }).ToArray(),
+                physics = PhysicsSnapshot(), telemetry = Telemetry?.Invoke() };
+            var progress = JsonSerializer.Serialize(snapshot);
+            AtomicJson("progress.json", snapshot);
             File.AppendAllText(Path.Combine(_output, "progress.jsonl"), progress + Environment.NewLine);
             _nextTelemetryCheck = tick + 60;
             if (TelemetryRetryRequired)
@@ -238,6 +323,8 @@ public static class NativeLab
             var nativeEffect = Apply(ship, input);
             _events!.WriteLine(JsonSerializer.Serialize(new { id = input.Id, ship = input.Ship, type = input.Type, scheduledTick = input.Tick, actualTick = tick, engineTick = _timing.CurTick.Value, nativeEffect }));
         }
+        _tickSamples[tick].DriverMs = Stopwatch.GetElapsedTime(driverStamp).TotalMilliseconds;
+        _tickSamples[tick].DriverBytes = GC.GetAllocatedBytesForCurrentThread() - driverBytes;
         _alloc = GC.GetTotalAllocatedBytes(false);
         _clock = Stopwatch.GetTimestamp();
     }
@@ -266,6 +353,11 @@ public static class NativeLab
                 Anomalies.Add(ship.Grid, anomaly);
                 return new { active = component.Stability > component.GrowthThreshold, prototype = input.Prototype, excludedHazardsAbsent = true };
             case "anomaly.clear":
+                if (AnomalyPulseEntities.Remove(ship.Grid, out var pulseEntities))
+                    foreach (var pulseEntity in pulseEntities) if (_em.EntityExists(pulseEntity)) _em.DeleteEntity(pulseEntity);
+                if (AnomalyFloors.Remove(ship.Grid, out var floors))
+                    foreach (var (cell, floor) in floors)
+                        _em.System<SharedMapSystem>().SetTile((ship.Grid, _em.GetComponent<MapGridComponent>(ship.Grid)), cell, floor);
                 _em.DeleteEntity(Anomalies[ship.Grid]); Anomalies.Remove(ship.Grid);
                 return new { active = false };
             case "hull.damage":
@@ -278,6 +370,8 @@ public static class NativeLab
                 var structural = new DamageSpecifier(); structural.DamageDict.Add("Structural", type == "hull.damage" ? 50 : -_em.GetComponent<DamageableComponent>(target).Damage.DamageDict["Structural"]);
                 _em.System<DamageableSystem>().TryChangeDamage(target, structural);
                 return new { damaged = _em.GetComponent<DamageableComponent>(target).Damage.DamageDict["Structural"] > 0 };
+            case "fire.clear" when FireFixtures.ContainsKey(ship.Grid):
+                return ExerciseFire(ship, input);
             case "fire.start":
             case "fire.clear":
                 var atmos = _em.System<AtmosphereSystem>();
@@ -291,31 +385,21 @@ public static class NativeLab
             case "power.restore":
                 _em.System<SharedPowerReceiverSystem>().SetPowerDisabled(ship.PowerDevice, type == "power.loss");
                 return new { disabled = _em.GetComponent<Content.Server.Power.Components.ApcPowerReceiverComponent>(ship.PowerDevice).PowerDisabled };
-            case "crew.critical":
-            case "crew.recover":
-                var actor = Actors.GetValueOrDefault(ship.Grid, ship.Actor);
-                if (type == "crew.critical")
-                {
-                    _em.DeleteEntity(actor);
-                    actor = _em.SpawnEntity("MobHuman", new EntityCoordinates(ship.Grid, new Vector2(-4.5f, .5f)));
-                    _em.System<SharedMindSystem>().TransferTo(_em.System<SharedMindSystem>().CreateMind(null), actor);
-                    Actors[ship.Grid] = actor;
-                }
-                var damage = new DamageSpecifier();
-                foreach (var (kind, value) in _em.GetComponent<DamageableComponent>(actor).Damage.DamageDict)
-                    damage.DamageDict.Add(kind, type == "crew.critical" ? (kind == "Bloodloss" ? 150 : 0) : -value);
-                _em.System<DamageableSystem>().TryChangeDamage(actor, damage);
-                var mobState = _em.GetComponent<MobStateComponent>(actor).CurrentState;
-                return new { damage = _em.GetComponent<DamageableComponent>(actor).TotalDamage.ToString(), mobState = mobState.ToString(), replacementActor = true };
             case "light.power_off":
             case "light.power_on":
                 _em.System<SharedPoweredLightSystem>().SetState(ship.Light, type == "light.power_on");
                 return new { on = _em.GetComponent<PoweredLightComponent>(ship.Light).On };
-            default: throw new InvalidOperationException($"Unimplemented native replay driver: {type}");
+            default: return ApplyGameDriver(ship, input);
         }
     }
 
     public static void PostTick()
+    {
+        try { PostTickCore(); }
+        catch (Exception error) { RecordFailure(error); throw; }
+    }
+
+    private static void PostTickCore()
     {
         if (_samples == null || _clock == 0) return;
         var milliseconds = Stopwatch.GetElapsedTime(_clock).TotalMilliseconds;
@@ -323,16 +407,41 @@ public static class NativeLab
         var tick = _timing.CurTick.Value - _start - _warmup;
         _tickSamples[tick].ContentMs = milliseconds;
         _tickSamples[tick].ContentBytes = bytes;
+        _tickSamples[tick].PhysicsMs = _physicsMilliseconds?.Invoke() ?? double.NaN;
+        _tickSamples[tick].PhysicsBytes = _physicsBytes?.Invoke() ?? -1;
+        var observerStamp = Stopwatch.GetTimestamp();
+        var observerBytes = GC.GetAllocatedBytesForCurrentThread();
+        PollGameDrivers(tick);
+        _tickSamples[tick].ObserverMs = Stopwatch.GetElapsedTime(observerStamp).TotalMilliseconds;
+        _tickSamples[tick].ObserverBytes = GC.GetAllocatedBytesForCurrentThread() - observerBytes;
         _clock = 0;
     }
 
     private static void Finish()
     {
+        if (PendingGameDrivers.Count > 0) throw new InvalidOperationException("Native asynchronous postconditions remain pending at measurement end.");
+        object? finalTelemetry = Telemetry?.Invoke();
+        if (finalTelemetry != null)
+        {
+            using var final = JsonDocument.Parse(JsonSerializer.Serialize(finalTelemetry));
+            var state = final.RootElement;
+            if (state.GetProperty("activeGrids").GetInt32() != Ships.Count
+                || state.GetProperty("runningCards").GetInt32() != Ships.Count * 26
+                || state.GetProperty("faultedCards").GetInt32() != 0
+                || state.GetProperty("expectedOfflineGrids").GetInt32() != 0
+                || state.GetProperty("queues").EnumerateObject().Any(queue => queue.Value.GetInt32() != 0))
+                throw new InvalidOperationException("Final KIAS state is not fully available with drained queues.");
+        }
+        AtomicJson("final-telemetry.json", finalTelemetry ?? new { baselineWithoutKias = true });
+        AtomicJson("progress-writer.json", new { recoveredTransientFailures = _progressWriteFailures,
+            pending = _pendingProgressJson != null, lastTransientError = _progressWriteError });
         _listener?.Dispose(); _listener = null;
         FlushSamples(_tickSamples.Length);
+        _outcomes!.Dispose(); _outcomes = null;
         _samples!.Dispose(); _events!.Dispose(); _samples = null; _events = null;
         if (_next != _inputs.Length) throw new InvalidOperationException("Not all scheduled inputs were delivered.");
-        File.WriteAllText(Path.Combine(_output, "completed.json"), JsonSerializer.Serialize(new { status = "PARTIAL_NATIVE_DRY_RUN_COMPLETE", measuredTicks = _duration, deliveredEvents = _next, ships = Ships.Count }));
+        File.WriteAllText(Path.Combine(_output, "physics-final.json"), JsonSerializer.Serialize(PhysicsSnapshot()));
+        File.WriteAllText(Path.Combine(_output, "completed.json"), JsonSerializer.Serialize(new { status = "PARTIAL_NATIVE_DRY_RUN_COMPLETE", measuredTicks = _duration, deliveredEvents = _next, ships = Ships.Count, nativeCompleted = _nativeCompleted }));
         _shell!.WriteLine("Native laboratory completed. This is a partial driver dry run, not the full benchmark.");
     }
 
@@ -343,7 +452,7 @@ public static class NativeLab
             var tick = _writtenSamples;
             var sample = _tickSamples[tick];
             if (!sample.Captured) throw new InvalidOperationException($"Whole-tick sample missing at {tick}.");
-            _samples!.WriteLine(FormattableString.Invariant($"{tick},{sample.EngineTick},{sample.ContentMs:R},{sample.ContentBytes},{sample.Gc0},{sample.Gc1},{sample.Gc2},{sample.WorkingSet},{sample.Cpu:R},{sample.WholeMs:R},{sample.WholeBytes},{sample.ThreadBytes},{sample.PauseMs:R}"));
+            _samples!.WriteLine(FormattableString.Invariant($"{tick},{sample.EngineTick},{sample.ContentMs:R},{sample.ContentBytes},{sample.Gc0},{sample.Gc1},{sample.Gc2},{sample.WorkingSet},{sample.Cpu:R},{sample.WholeMs:R},{sample.WholeBytes},{sample.ThreadBytes},{sample.PauseMs:R},{sample.PhysicsMs:R},{sample.PhysicsBytes},{sample.DriverMs:R},{sample.DriverBytes},{sample.ObserverMs:R},{sample.ObserverBytes}"));
         }
         _samples!.Flush();
     }

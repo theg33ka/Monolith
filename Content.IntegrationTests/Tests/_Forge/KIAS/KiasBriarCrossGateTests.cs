@@ -108,7 +108,7 @@ public sealed class KiasBriarCrossGateTests
             var output = Environment.GetEnvironmentVariable("KIAS_LAB_OUTPUT");
             if (string.IsNullOrWhiteSpace(output)) return;
             Directory.CreateDirectory(output);
-            var mapPath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(output))!, "Resources/Maps/_Forge/Shuttles/Archive/Mercenary/briarKIAS.yml");
+            var mapPath = Path.Combine(KiasTestArtifacts.RepositoryRoot, "Resources/Maps/_Forge/Shuttles/Archive/Mercenary/briarKIAS.yml");
             File.WriteAllText(Path.Combine(output, $"cross-{check}.json"), JsonSerializer.Serialize(new
             {
                 status, error, check, evidence, mapSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(mapPath))).ToLowerInvariant()
@@ -543,12 +543,22 @@ public sealed class KiasBriarCrossGateTests
                 Assert.That(scanners, Has.Length.EqualTo(21));
                 foreach (var scanner in scanners)
                 {
+                    var topology = em.System<KiasRoomTopologySystem>();
+                    if (!topology.TryGetScannerRoom(scanner, out var room, out var roomStatus))
+                    {
+                        Assert.That(roomStatus, Is.EqualTo(KiasRoomStatus.NoInteriorSeed));
+                        Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Entities, Is.Zero);
+                        evidence.Add(new { scanner = scanner.ToString(), status = roomStatus.ToString(), mappingActionRequired = true });
+                        continue;
+                    }
+                    var interior = room.Tiles.First();
+                    var interiorCoordinates = new EntityCoordinates(grid, interior.X + .5f, interior.Y + .5f);
                     var people = new List<EntityUid>();
                     foreach (var count in new[] { 0, 1, 3, 4 })
                     {
                         await server.WaitAssertion(() =>
                         {
-                            while (people.Count < count) people.Add(em.SpawnEntity("BorgChassisGeneric", em.GetComponent<TransformComponent>(scanner).Coordinates));
+                            while (people.Count < count) people.Add(em.SpawnEntity("BorgChassisGeneric", interiorCoordinates));
                             foreach (var person in people)
                                 Assert.That(em.System<KiasCrewSystem>().ScannersCovering(grid, person, KiasScannerModules.Motion), Does.Contain(scanner));
                         });
@@ -563,13 +573,14 @@ public sealed class KiasBriarCrossGateTests
                     await server.WaitAssertion(() =>
                     {
                         var traveller = people[0];
-                        var center = em.GetComponent<TransformComponent>(scanner).LocalPosition;
-                        var range = Math.Clamp(em.GetComponent<KiasRoomScannerComponent>(scanner).Range, 0, 10);
-                        em.System<SharedTransformSystem>().SetCoordinates(traveller, new EntityCoordinates(grid, center + new Vector2(range, 0)));
-                        Assert.That(em.System<KiasCrewSystem>().ScannersCovering(grid, traveller, KiasScannerModules.Motion), Does.Contain(scanner));
-                        em.System<SharedTransformSystem>().SetCoordinates(traveller, new EntityCoordinates(grid, center + new Vector2(range + 1, 0)));
+                        foreach (var tile in room.Tiles)
+                        {
+                            em.System<SharedTransformSystem>().SetCoordinates(traveller, new EntityCoordinates(grid, tile.X + .5f, tile.Y + .5f));
+                            Assert.That(em.System<KiasCrewSystem>().ScannersCovering(grid, traveller, KiasScannerModules.Motion), Does.Contain(scanner));
+                        }
+                        em.System<SharedTransformSystem>().SetCoordinates(traveller, new EntityCoordinates(grid, 1000, 1000));
                         Assert.That(em.System<KiasCrewSystem>().ScannersCovering(grid, traveller, KiasScannerModules.Motion), Does.Not.Contain(scanner));
-                        evidence.Add(new { scanner = scanner.ToString(), nativeEnterAndExitRange = true, range });
+                        evidence.Add(new { scanner = scanner.ToString(), nativeEnterAndExitRoom = true, roomId = room.Id, tiles = room.Tiles.Count });
                     });
                     await server.WaitAssertion(() => { foreach (var person in people) em.DeleteEntity(person); });
                     await pair.RunTicksSync(90);

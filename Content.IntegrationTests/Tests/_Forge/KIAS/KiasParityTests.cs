@@ -30,9 +30,12 @@ public sealed class KiasParityTests
         EntityUid core = default;
         EntityUid scanner = default;
         EntityUid alarm = default;
+        EntityUid jammer = default;
+        var kias = em.System<KiasSystem>();
         await pair.Server.WaitAssertion(() =>
         {
-            for (var x = 0; x < 12; x++) em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(x, 0), map.Tile.Tile);
+            for (var x = 0; x < 12; x++)
+            for (var y = 0; y < 2; y++) em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(x, y), map.Tile.Tile);
             for (var x = 0; x < 4; x++) em.SpawnEntity("KiasDataCable", new EntityCoordinates(map.Grid, x + 0.5f, 0.5f));
             EntityUid Spawn(string prototype, int x)
             {
@@ -42,17 +45,21 @@ public sealed class KiasParityTests
             }
             core = Spawn("KiasCore", 0);
             scanner = Spawn("KiasRoomScanner", 1);
+            em.System<SharedTransformSystem>().SetLocalRotation(scanner, Angle.FromDegrees(180));
             alarm = Spawn("AirAlarm", 7);
             var advanced = Spawn("KiasAdvancedRoomScanner", 2);
             Spawn("KiasDefenceServer", 3);
-            var jammer = Spawn("KiasJammer", 3);
-            var kias = em.System<KiasSystem>();
+            jammer = Spawn("KiasJammer", 3);
             kias.Rebuild(map.Grid);
             kias.Rebuild(map.Grid);
             var starter = KiasScannerModules.Identity | KiasScannerModules.Connector | KiasScannerModules.Optical;
             Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Modules & starter, Is.EqualTo(starter));
             Assert.That(em.GetComponent<KiasRoomScannerComponent>(advanced).Modules & KiasScannerModules.Biometric, Is.EqualTo(KiasScannerModules.Biometric));
             Assert.That(em.GetComponent<KiasRoomScannerComponent>(advanced).Modules & KiasScannerModules.Threat, Is.EqualTo(KiasScannerModules.Threat));
+        });
+        await pair.RunTicksSync(60);
+        await pair.Server.WaitAssertion(() =>
+        {
             Assert.That(kias.IsOnline(alarm), Is.True, "The room module bridges a native alarm outside the DATA service radius.");
             Assert.That(em.GetComponent<KiasIntegratedComponent>(alarm).Scanner, Is.EqualTo(scanner));
             Assert.That(em.System<JammerSystem>().SetEnabled(jammer, true), Is.True);

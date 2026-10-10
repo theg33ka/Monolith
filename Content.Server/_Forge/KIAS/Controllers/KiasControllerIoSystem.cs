@@ -189,8 +189,21 @@ public sealed partial class KiasControllerIoSystem : EntitySystem
         _gridProfiles[args.Grid] = keys;
     }
 
+    public void EmitChanged(EntityUid device, string profile, string port, KiasGraphValue value)
+    {
+        if (!_kias.IsOnline(device)) return;
+        if (_outputs.TryGetValue(device, out var outputs) && outputs.TryGetValue((profile, port), out var previous)
+            && previous.Value.Equals(value))
+        {
+            outputs[(profile, port)] = (value, _timing.CurTime);
+            return;
+        }
+        Emit(device, profile, port, value);
+    }
+
     public void Emit(EntityUid device, string profile, string port, KiasGraphValue value)
     {
+        using var phase = new KiasPhaseMeasurement(_kias, KiasPhase.IoEmit);
         if (value.Type == KiasPortType.Number && !double.IsFinite(value.Number)) return;
         if (value.Type == KiasPortType.String)
         {

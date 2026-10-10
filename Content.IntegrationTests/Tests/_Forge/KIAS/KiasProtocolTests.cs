@@ -55,6 +55,8 @@ public sealed class KiasProtocolTests
             var core = Spawn(em, map.Grid, "KiasCore");
             crewServer = Spawn(em, map.Grid, "KiasCrewServer", 1);
             var scanner = Spawn(em, map.Grid, "KiasRoomScanner", 2);
+            em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(2, 1), map.Tile.Tile);
+            em.System<SharedTransformSystem>().SetLocalRotation(scanner, Angle.FromDegrees(180));
             Spawn(em, map.Grid, "KiasRecorder", 3);
             var containers = em.System<SharedContainerSystem>();
             var moduleSlot = containers.GetContainer(scanner, "kias-module-3");

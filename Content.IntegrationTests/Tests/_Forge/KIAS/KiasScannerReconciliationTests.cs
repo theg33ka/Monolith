@@ -12,7 +12,7 @@ namespace Content.IntegrationTests.Tests._Forge.KIAS;
 public sealed class KiasScannerReconciliationTests
 {
     [Test]
-    public async Task ShrinkingCoverageHandsOffAndClearsOnlyAutomaticBindings()
+    public async Task I01_I05_I06_I09_PhysicalRoomsHandOffAndPreserveDirectBindings()
     {
         await using var pair = await PoolManager.GetServerClient();
         var map = await pair.CreateTestMap();
@@ -20,25 +20,37 @@ public sealed class KiasScannerReconciliationTests
         EntityUid first = default, second = default, alarm = default, direct = default;
         await pair.Server.WaitAssertion(() =>
         {
-            for (var x = 0; x < 9; x++)
-                em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(x, 0), map.Tile.Tile);
-            EntityUid Spawn(string id, float x = .5f)
+            for (var x = 0; x < 42; x++)
+            for (var y = 0; y < 7; y++)
+                em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(x, y), map.Tile.Tile);
+            EntityUid Spawn(string id, float x = 1.5f, float y = 3.5f)
             {
-                var uid = em.SpawnEntity(id, new EntityCoordinates(map.Grid, x, .5f));
+                var uid = em.SpawnEntity(id, new EntityCoordinates(map.Grid, x, y));
                 em.RemoveComponent<ApcPowerReceiverComponent>(uid);
                 return uid;
+            }
+            for (var x = 0; x < 42; x++)
+            {
+                Spawn("WallSolid", x + .5f, .5f);
+                Spawn("WallSolid", x + .5f, 6.5f);
+                Spawn("WallSolid", x + .5f);
+            }
+            for (var y = 1; y < 6; y++)
+            {
+                if (y == 3) continue;
+                Spawn("WallSolid", .5f, y + .5f);
+                Spawn("WallSolid", 41.5f, y + .5f);
             }
             Spawn("KiasDataCable"); Spawn("KiasCore"); Spawn("KiasAtmosServer"); Spawn("KiasCrewServer");
             first = Spawn("KiasRoomScanner"); second = Spawn("KiasRoomScanner");
             foreach (var scanner in new[] { first, second })
             {
-                em.GetComponent<KiasRoomScannerComponent>(scanner).Range = 10;
                 Assert.That(em.System<ItemSlotsSystem>().TryEject(scanner, "kias-module-3", null, out var previousModule), Is.True);
                 em.DeleteEntity(previousModule!.Value);
                 Assert.That(em.System<ItemSlotsSystem>().TryInsert(scanner, "kias-module-3", Spawn("KiasConnectorModule"), null), Is.True);
             }
-            alarm = Spawn("AirAlarm", 7.5f);
-            direct = Spawn("AirAlarm", 8.5f);
+            alarm = Spawn("AirAlarm", 38.5f, 1.5f);
+            direct = Spawn("AirAlarm", 39.5f, 1.5f);
             em.EnsureComponent<KiasIntegratedComponent>(direct).Direct = true;
             em.EnsureComponent<KiasDeviceComponent>(direct).Role = KiasDeviceRole.Adapter;
         });
@@ -46,15 +58,22 @@ public sealed class KiasScannerReconciliationTests
         await pair.Server.WaitAssertion(() =>
         {
             Assert.That(em.GetComponent<KiasIntegratedComponent>(alarm).Scanner, Is.EqualTo(first));
-            em.GetComponent<KiasRoomScannerComponent>(first).Range = 2;
-            em.System<KiasCrewSystem>().RebuildCoverage(map.Grid);
+            Assert.That(em.System<KiasIntegrationSystem>().CanControl(alarm), Is.True);
+            em.System<SharedTransformSystem>().SetLocalRotation(first, Angle.FromDegrees(180));
+        });
+        await pair.RunTicksSync(60);
+        await pair.Server.WaitAssertion(() =>
+        {
             Assert.That(em.GetComponent<KiasIntegratedComponent>(alarm).Scanner, Is.EqualTo(second));
         });
         await pair.RunTicksSync(30);
         await pair.Server.WaitAssertion(() =>
         {
-            em.GetComponent<KiasRoomScannerComponent>(second).Range = 2;
-            em.System<KiasCrewSystem>().RebuildCoverage(map.Grid);
+            em.System<SharedTransformSystem>().SetLocalRotation(second, Angle.FromDegrees(180));
+        });
+        await pair.RunTicksSync(60);
+        await pair.Server.WaitAssertion(() =>
+        {
             Assert.That(em.GetComponent<KiasIntegratedComponent>(alarm).Scanner, Is.Null);
             Assert.That(em.System<KiasIntegrationSystem>().CanControl(alarm), Is.False);
             Assert.That(em.GetComponent<KiasIntegratedComponent>(direct).Direct, Is.True);
@@ -62,8 +81,11 @@ public sealed class KiasScannerReconciliationTests
         await pair.RunTicksSync(30);
         await pair.Server.WaitAssertion(() =>
         {
-            em.GetComponent<KiasRoomScannerComponent>(first).Range = 10;
-            em.System<KiasCrewSystem>().RebuildCoverage(map.Grid);
+            em.System<SharedTransformSystem>().SetLocalRotation(first, Angle.Zero);
+        });
+        await pair.RunTicksSync(60);
+        await pair.Server.WaitAssertion(() =>
+        {
             Assert.That(em.GetComponent<KiasIntegratedComponent>(alarm).Scanner, Is.EqualTo(first));
         });
         await pair.RunTicksSync(30);

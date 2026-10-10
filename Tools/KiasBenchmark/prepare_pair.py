@@ -1,5 +1,6 @@
 """Prepare isolated common-base sources and prove non-KIAS map inventory parity."""
 from pathlib import Path
+import argparse
 import hashlib,json,shutil,subprocess,yaml
 from lab import ROOT,OUT,MAP,MapLoader,canonical,digest
 
@@ -23,7 +24,7 @@ Dumper.add_representer(Tagged,lambda dumper,value:dumper.represent_mapping(value
 def vanilla(source):
     value=yaml.load(source,Loader=Loader)
     removed={e['uid'] for g in value['entities'] if 'Kias' in g.get('proto','') for e in g['entities']}
-    # Берём удалённые устройства, исключаем также их вложенные предметы.
+    # Р‘РµСЂС‘Рј СѓРґР°Р»С‘РЅРЅС‹Рµ СѓСЃС‚СЂРѕР№СЃС‚РІР°, РёСЃРєР»СЋС‡Р°РµРј С‚Р°РєР¶Рµ РёС… РІР»РѕР¶РµРЅРЅС‹Рµ РїСЂРµРґРјРµС‚С‹.
     while True:
         children={e['uid'] for g in value['entities'] for e in g['entities']
                   if any(c['type']=='Transform' and c.get('parent') in removed for c in e.get('components',[]))}
@@ -48,9 +49,17 @@ def vanilla(source):
     return value,removed
 
 def main():
+    global OUT
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--directory', type=Path)
+    parser.add_argument('--base')
+    options = parser.parse_args()
+    legacy_fingerprint = OUT / 'fingerprint.json'
+    if options.directory:
+        OUT = options.directory.resolve()
     OUT.mkdir(exist_ok=True)
     head=git('rev-parse','HEAD').decode().strip()
-    base=json.loads((OUT/'fingerprint.json').read_text(encoding='utf-8'))['commonBase']
+    base=options.base or json.loads(legacy_fingerprint.read_text(encoding='utf-8'))['commonBase']
     git('merge-base','--is-ancestor',base,'HEAD')
     engine=git('rev-parse','HEAD',cwd=ROOT/'RobustToolbox').decode().strip()
     manifest={'status':'SOURCES_PREPARED_NOT_BUILT','base':base,'branchHead':head,'engine':engine,'builds':[],'runtimeParity':'NOT_TESTED'}
@@ -70,12 +79,34 @@ def main():
             subprocess.run(['git','apply','--binary','-'],input=dirty,cwd=target,check=True,capture_output=True)
             for name in ('Content.Server/_Forge/KIAS/KiasAmeAdapterSystem.cs',):
                 shutil.copy2(ROOT/name,target/name)
+            untracked = git('ls-files', '--others', '--exclude-standard', '-z').decode().split('\0')
+            for name in untracked:
+                if not name or not name.startswith(('Content.Server/_Forge/KIAS/', 'Content.Shared/_Forge/KIAS/',
+                    'Content.Client/_Forge/KIAS/', 'Content.IntegrationTests/Tests/_Forge/KIAS/',
+                    'Resources/Locale/ru-RU/_Forge/KIAS/', 'Resources/Locale/en-US/_Forge/KIAS/')):
+                    continue
+                destination = target / name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(ROOT / name, destination)
+        if label == 'B':
+            runtime = target/'Content.Server/_Forge/KIAS/Controllers/KiasControllerRuntimeSystem.cs'
+            code = runtime.read_text(encoding='utf-8-sig')
+            code = code.replace('public override void Update(float frameTime)\n    {',
+                'public override void Update(float frameTime)\n    {\n        if (Content.Server.Benchmark.NativeLab.PauseRuntime) return;')
+            code = code.replace('private void OnEmission(EntityUid device, string profile, string port, KiasGraphValue value)\n    {',
+                'private void OnEmission(EntityUid device, string profile, string port, KiasGraphValue value)\n    {\n        if (Content.Server.Benchmark.NativeLab.PauseRuntime) return;')
+            runtime.write_text(code, encoding='utf-8')
         lab_source=ROOT/'Tools/KiasBenchmark/Server/NativeLab.cs'
         lab_target=target/'Tools/KiasBenchmark/Server/NativeLab.cs'
         lab_target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(lab_source,lab_target)
+        shutil.copy2(ROOT/'Tools/KiasBenchmark/Server/NativeGameDrivers.cs', target/'Tools/KiasBenchmark/Server/NativeGameDrivers.cs')
+        telemetry_include = ''
+        if label == 'B':
+            shutil.copy2(ROOT/'Tools/KiasBenchmark/Server/KiasTelemetry.cs', target/'Tools/KiasBenchmark/Server/KiasTelemetry.cs')
+            telemetry_include = '    <Compile Include="../Tools/KiasBenchmark/Server/KiasTelemetry.cs" Link="KiasTelemetry.cs" />\n'
         project=target/'Content.Server/Content.Server.csproj'
-        source=project.read_text(encoding='utf-8-sig').replace('</Project>', '  <ItemGroup>\n    <Compile Include="../Tools/KiasBenchmark/Server/NativeLab.cs" Link="NativeLab.cs" />\n  </ItemGroup>\n</Project>')
+        source=project.read_text(encoding='utf-8-sig').replace('</Project>', '  <ItemGroup>\n    <Compile Include="../Tools/KiasBenchmark/Server/NativeLab.cs" Link="NativeLab.cs" />\n    <Compile Include="../Tools/KiasBenchmark/Server/NativeGameDrivers.cs" Link="NativeGameDrivers.cs" />\n'+telemetry_include+'  </ItemGroup>\n</Project>')
         project.write_text(source,encoding='utf-8')
         entry=target/'Content.Server/Entry/EntryPoint.cs'
         source=entry.read_text(encoding='utf-8-sig')
@@ -89,9 +120,19 @@ def main():
         engine_path=target/'RobustToolbox'
         engine_path.rmdir()
         git('worktree','add','--detach',str(engine_path),engine,cwd=ROOT/'RobustToolbox')
-        modules=git('submodule','status',cwd=ROOT/'RobustToolbox').decode().splitlines()
+        physics = engine_path/'Robust.Server/GameObjects/EntitySystems/PhysicsSystem.cs'
+        physics_code = physics.read_text(encoding='utf-8-sig')
+        physics_code = physics_code.replace('        public override void Update(float frameTime)',
+            '        public static double DiagnosticMilliseconds { get; private set; }\n        public static long DiagnosticAllocatedBytes { get; private set; }\n\n        public override void Update(float frameTime)')
+        physics_code = physics_code.replace('            SimulateWorld(frameTime, false);',
+            '            var stamp = System.Diagnostics.Stopwatch.GetTimestamp();\n            var bytes = System.GC.GetAllocatedBytesForCurrentThread();\n            SimulateWorld(frameTime, false);\n            DiagnosticMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stamp).TotalMilliseconds;\n            DiagnosticAllocatedBytes = System.GC.GetAllocatedBytesForCurrentThread() - bytes;')
+        physics.write_text(physics_code, encoding='utf-8')
+        from instrument_physics_queries import instrument
+        query_instrumentation = instrument(engine_path)
+        (target/'physics-query-instrumentation.json').write_text(json.dumps(query_instrumentation, indent=2), encoding='utf-8')
+        modules=git('config', '-f', '.gitmodules', '--get-regexp', r'^submodule\..*\.path$', cwd=ROOT/'RobustToolbox').decode().splitlines()
         for line in modules:
-            relative=line.strip().split()[1]
+            relative=line.strip().split(maxsplit=1)[1]
             empty=engine_path/relative
             if empty.exists(): empty.rmdir()
             command = "New-Item -ItemType Junction -Path '" + str(empty).replace("'", "''") + "' -Target '" + str(ROOT/'RobustToolbox'/relative).replace("'", "''") + "' | Out-Null"

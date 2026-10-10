@@ -119,6 +119,8 @@ public sealed class KiasBriarPhysicalGateTests
         var autopilotFinished = false;
         float? arrivalDistance = null;
         var signals = new List<object>();
+        object[] startupSignals = Array.Empty<object>();
+        object? runtimeBeforeStimulus = null;
         var commands = new List<object>();
         var receivedRadio = new List<ChatMessage>();
         await pair.Client.WaitAssertion(() => pair.Client.ResolveDependency<IUserInterfaceManager>().GetUIController<ChatUIController>().MessageAdded += receivedRadio.Add);
@@ -161,6 +163,19 @@ public sealed class KiasBriarPhysicalGateTests
 
         string StateHash(string state) => Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(state))).ToLowerInvariant();
 
+        EntityCoordinates ScannerInterior(KiasScannerModules module)
+        {
+            foreach (var scanner in OnGrid<KiasRoomScannerComponent>())
+            {
+                if (!em.System<KiasSystem>().IsOnline(scanner)
+                    || (em.GetComponent<KiasRoomScannerComponent>(scanner).Modules & module) == 0
+                    || !em.System<KiasRoomTopologySystem>().TryGetScannerRoom(scanner, out var room, out _)) continue;
+                var tile = em.System<KiasRoomTopologySystem>().ScannerCells(scanner).First(cell => !room.Doors.Contains(cell));
+                return new EntityCoordinates(grid, tile.X + .5f, tile.Y + .5f);
+            }
+            throw new InvalidOperationException($"Briar has no valid online room with {module} coverage.");
+        }
+
         EntityUid[] OnGrid<T>() where T : Component
         {
             var list = new List<EntityUid>();
@@ -185,6 +200,18 @@ public sealed class KiasBriarPhysicalGateTests
             return foreign;
         }
 
+        object RuntimeSnapshot()
+        {
+            var runtime = em.System<KiasControllerRuntimeSystem>();
+            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var states = (System.Collections.IDictionary) typeof(KiasControllerRuntimeSystem).GetField("_cards", flags)!.GetValue(runtime)!;
+            var state = states[card];
+            return new { eventEpoch = typeof(KiasControllerRuntimeSystem).GetField("_eventEpoch", flags)!.GetValue(runtime),
+                machineEpoch = state?.GetType().GetField("Epoch")!.GetValue(state),
+                machineIdentity = state?.GetType().GetField("Machine")!.GetValue(state)?.GetHashCode(),
+                status = runtime.Status(card), pending = em.System<KiasSystem>().TopologyPending(grid) };
+        }
+
         void Emission(EntityUid device, string profile, string port, KiasGraphValue value)
         {
             if (profile == "WeaponFlashDetector" && port == "Triggered" && em.GetComponent<TransformComponent>(device).GridUid == grid)
@@ -198,7 +225,7 @@ public sealed class KiasBriarPhysicalGateTests
             detectedTick ??= timing.CurTick.Value;
             causalId = $"{presetId}:{(clearClock ? "clear" : "primary")}:native-{signals.Count + 1}";
             signals.Add(new { causalId, tick = timing.CurTick.Value, device = device.ToString(), profile, port,
-                context = new Dictionary<string, KiasGraphValue>(automationValues) });
+                context = new Dictionary<string, KiasGraphValue>(automationValues), runtime = RuntimeSnapshot() });
         }
 
         void Dispatch(EntityUid sourceGrid, EntityUid sourceCard, EntityUid target, string profile, string port)
@@ -238,8 +265,8 @@ public sealed class KiasBriarPhysicalGateTests
             }).ToArray();
             var result = new
             {
-                mapSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(output))!, "Resources/Maps/_Forge/Shuttles/Archive/Mercenary/briarKIAS.yml")))).ToLowerInvariant(),
-                presetSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(output))!, "Resources/Prototypes/_Forge/KIAS/controller_presets.yml")))).ToLowerInvariant(),
+                mapSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(KiasTestArtifacts.RepositoryRoot, "Resources/Maps/_Forge/Shuttles/Archive/Mercenary/briarKIAS.yml")))).ToLowerInvariant(),
+                presetSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(KiasTestArtifacts.RepositoryRoot, "Resources/Prototypes/_Forge/KIAS/controller_presets.yml")))).ToLowerInvariant(),
                 actualCardProgramSha256 = em.TryGetComponent<KiasControllerCardComponent>(card, out var storedCard)
                     ? StateHash(JsonSerializer.Serialize(storedCard.Program, new JsonSerializerOptions { IncludeFields = true })) : null,
                 preset = presetId, status, error, scope = "Isolated physical card on a clean Briar clone; not all cross-tests",
@@ -250,7 +277,7 @@ public sealed class KiasBriarPhysicalGateTests
                 worldStateScope = "Relevant grid entities: position, damage, mob state, lights, speaker tones, recorder entries, core availability and alert; not a full map serialization.",
                 causalIdScope = "Test correlation assigned at each observed native detector signal, propagated to card commands; boot uses its lifecycle id. Not an engine-generated event GUID.",
                 detectorSeen, detectedTick, graphTick, completedTick = timing.CurTick.Value,
-                signals, commands, records, crossChecks, speakerToneObserved = speakerToneObserved.Select(uid => uid.ToString()).ToArray(),
+                runtimeBeforeStimulus, runtimeAfter = RuntimeSnapshot(), startupSignals, signals, commands, records, crossChecks, speakerToneObserved = speakerToneObserved.Select(uid => uid.ToString()).ToArray(),
                 lightTargets = lightTargets.Select(uid => uid.ToString()).ToArray(),
                 lightStates = lightTargets.Where(uid => em.HasComponent<PoweredLightComponent>(uid))
                     .Select(uid => new { uid = uid.ToString(), on = em.GetComponent<PoweredLightComponent>(uid).On }).ToArray(),
@@ -263,7 +290,15 @@ public sealed class KiasBriarPhysicalGateTests
                     ? new { distressUntil = diagnostics.CrewDistressUntil.TotalSeconds, unavailableSince = diagnostics.CrewUnavailableSince.TotalSeconds,
                         medicalAfter = diagnostics.MedicalAfter.TotalSeconds, recentDamage = diagnostics.RecentDamage,
                         damageUntil = diagnostics.DamageEvidenceUntil.TotalSeconds, maydayReason = diagnostics.MaydayReason } : null,
-                coreActive = em.System<KiasSystem>().ActiveGrids.Contains(grid)
+                coreActive = em.System<KiasSystem>().ActiveGrids.Contains(grid),
+                runtimeStatus = em.System<KiasControllerRuntimeSystem>().Status(card),
+                runtimeFault = em.System<KiasControllerRuntimeSystem>().Fault(card),
+                graphValues = new[] { (1, "Message"), (1, "Value"), (1, "PowerLost"), (1, "EventKey"),
+                    (2, "Value"), (4, "True"), (4, "False"), (5, "Ready"), (7, "$OnlineCount"), (8, "$OnlineCount") }
+                    .Select(endpoint => { var value = em.System<KiasControllerRuntimeSystem>().LastValue(card, endpoint.Item1, endpoint.Item2);
+                        return new { node = endpoint.Item1, port = endpoint.Item2, type = value.Type.ToString(),
+                            value.Number, value.Bool, value.Text }; }).ToArray(),
+                topologyPending = em.System<KiasSystem>().TopologyPending(grid)
             };
             File.WriteAllText(Path.Combine(output, $"physical-{presetId}{(clearClock ? "-clear" : string.Empty)}.json"),
                 JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
@@ -367,6 +402,16 @@ public sealed class KiasBriarPhysicalGateTests
                 });
                 await pair.RunTicksSync(60);
             }
+            if (presetId == "anomaly")
+            {
+                await server.WaitAssertion(() =>
+                {
+                    lifecycleTarget = em.SpawnEntity("AnomalyFlesh", ScannerInterior(KiasScannerModules.Spectral));
+                    var anomaly = em.GetComponent<AnomalyComponent>(lifecycleTarget);
+                    em.System<SharedAnomalySystem>().ChangeAnomalyStability(lifecycleTarget, -anomaly.Stability);
+                });
+                await pair.RunTicksSync((int) timing.TickRate * 12);
+            }
             await server.WaitAssertion(() =>
             {
                 ObserveSound();
@@ -380,6 +425,8 @@ public sealed class KiasBriarPhysicalGateTests
                     return;
                 }
                 stimulusTick = timing.CurTick.Value;
+                startupSignals = signals.ToArray();
+                runtimeBeforeStimulus = RuntimeSnapshot();
                 signals.Clear(); commands.Clear(); programmedRecorders.Clear(); nativeEventSnapshot = null; commandedSpeakers.Clear();
                 lightTargets.Clear(); speakerToneObserved.Clear(); graphTick = null; detectedTick = null; detectorSeen = false;
                 foreach (var recorder in OnGrid<KiasRecorderComponent>()) em.GetComponent<KiasRecorderComponent>(recorder).Entries.Clear();
@@ -489,6 +536,7 @@ public sealed class KiasBriarPhysicalGateTests
                 }
                 else if (presetId == "local-threat")
                 {
+                    em.System<SharedTransformSystem>().SetCoordinates(actor, ScannerInterior(KiasScannerModules.Threat));
                     Assert.That(em.System<KiasCrewSystem>().HasCoverage(grid, actor, KiasScannerModules.Threat), Is.True);
                     var gun = lifecycleTarget = em.SpawnEntity("WeaponPistolMk58", em.GetComponent<TransformComponent>(actor).Coordinates);
                     inputConfirmed = em.System<SharedHandsSystem>().TryPickup(actor, gun);
@@ -513,7 +561,7 @@ public sealed class KiasBriarPhysicalGateTests
                 }
                 else if (presetId == "anomaly")
                 {
-                    var anomaly = lifecycleTarget = em.SpawnEntity("AnomalyFlesh", em.GetComponent<TransformComponent>(actor).Coordinates);
+                    var anomaly = lifecycleTarget;
                     var excluded = new[] { "ElectricityAnomalyComponent", "ElectrifiedComponent", "EmpOnTriggerComponent", "GravityAnomalyComponent", "GravityWellComponent", "RadiationSourceComponent", "RandomWalkComponent" };
                     Assert.That(em.GetComponents(anomaly).Select(value => value.GetType().Name).Intersect(excluded), Is.Empty);
                     var component = em.GetComponent<AnomalyComponent>(anomaly);
@@ -1688,7 +1736,9 @@ public sealed class KiasBriarPhysicalGateTests
                         var edge = new Vector2(forward.X * MathF.Cos(angle) - forward.Y * MathF.Sin(angle), forward.X * MathF.Sin(angle) + forward.Y * MathF.Cos(angle));
                         var direction = placement switch { "left" => new Vector2(-forward.Y, forward.X), "right" => new Vector2(forward.Y, -forward.X), "back" => -forward, "inside-edge" or "outside-edge" => edge, _ => forward };
                         var position = transforms.GetMapCoordinates(detector).Position + direction * distance;
-                        transforms.SetWorldPosition(externalGrid, position - em.GetComponent<TransformComponent>(externalGun).LocalPosition);
+                        var gunOffset = transforms.GetMapCoordinates(externalGun).Position - transforms.GetWorldPosition(externalGrid);
+                        transforms.SetWorldPosition(externalGrid, position - gunOffset);
+                        Assert.That(Vector2.Distance(transforms.GetMapCoordinates(externalGun).Position, position), Is.LessThan(.01f));
                         foreach (var uid in OnGrid<BatteryComponent>()) em.System<BatterySystem>().SetCharge(uid, em.GetComponent<BatteryComponent>(uid).MaxCharge);
                         var batteryQuery = em.AllEntityQueryEnumerator<BatteryComponent, TransformComponent>();
                         while (batteryQuery.MoveNext(out var uid, out var battery, out var transform))

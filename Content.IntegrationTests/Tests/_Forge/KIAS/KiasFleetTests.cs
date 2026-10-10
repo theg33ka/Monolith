@@ -137,6 +137,8 @@ public sealed class KiasFleetTests
             foreach (var ship in fleet)
             {
                 var scanner = Spawn("KiasRoomScanner", ship.Grid, 1);
+                em.System<SharedMapSystem>().SetTile(ship.Grid, em.GetComponent<Robust.Shared.Map.Components.MapGridComponent>(ship.Grid), new Vector2i(1, 1), map.Tile.Tile);
+                em.System<SharedTransformSystem>().SetLocalRotation(scanner, Angle.FromDegrees(180));
                 Spawn("KiasCrewServer", ship.Grid, 2);
                 Spawn("KiasRecorder", ship.Grid, 3);
                 Spawn("KiasAtmosServer", ship.Grid, 4);

@@ -16,7 +16,7 @@ def validate(path):
     end = read(path, 'completed.json')
     assert end['status'] == 'PARTIAL_NATIVE_DRY_RUN_COMPLETE'
     assert start['tickRate'] == 60
-    assert start['ships'] == end['ships'] == 40
+    assert start['ships'] == end['ships'] > 0
     assert start['measuredTicks'] == end['measuredTicks'] > 0
     with (path / 'ticks.csv').open(encoding='utf-8-sig', newline='') as stream:
         ticks = list(csv.DictReader(stream))
@@ -40,7 +40,7 @@ def validate(path):
     assert len({event['id'] for event in events}) == len(events), 'Duplicate causal input ID.'
     bindings = read(path, 'bindings.json')
     ships = {binding['ship'] for binding in bindings}
-    assert len(bindings) == len(ships) == 40
+    assert len(bindings) == len(ships) == start['ships']
     for event in events:
         assert event['scheduledTick'] == event['actualTick']
         assert 0 <= event['actualTick'] < end['measuredTicks']
@@ -65,7 +65,7 @@ def compare(a, b):
     assert ba == bb, 'Native fixture bindings differ.'
     fields = ('id', 'ship', 'type', 'scheduledTick', 'actualTick')
     assert [tuple(e[k] for k in fields) for e in ia] == [tuple(e[k] for k in fields) for e in ib]
-    return {'status': 'PARTIAL_NATIVE_INPUT_AND_BINDING_PARITY_PASS', 'ships': 40,
+    return {'status': 'PARTIAL_NATIVE_INPUT_AND_BINDING_PARITY_PASS', 'ships': sa['ships'],
             'measuredTicksPerVariant': ea['measuredTicks'], 'eventsPerVariant': len(ia),
             'driverTypes': sorted({event['type'] for event in ia}),
             'scenarioSha256': sa['scenarioSha256'], 'a': str(a), 'b': str(b),

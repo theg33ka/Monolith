@@ -18,6 +18,9 @@ def package(series, destination):
 
     for path in series.iterdir():
         add(path, 'series/' + path.name)
+    for path in (series.parent / 'preflight').rglob('*'):
+        if 'data' not in path.relative_to(series.parent / 'preflight').parts:
+            add(path, 'preflight/' + path.relative_to(series.parent / 'preflight').as_posix())
     runs = list(state.get('completedRuns', []))
     for path in sorted((series.parent / 'runs').glob('*')):
         if path.is_dir() and not any(Path(run['path']).resolve() == path.resolve() for run in runs):
@@ -37,6 +40,11 @@ def package(series, destination):
                  'Resources/Maps/_Forge/Shuttles/Archive/Mercenary/briarKIAS.yml',
                  'Resources/Prototypes/Entities/Structures/Specific/Anomaly/anomalies.yml'):
         add(repo / name, 'sources/' + name)
+    for path in (series.parent / 'tests').glob('*'):
+        add(path, 'functional-tests/' + path.name)
+    add(series.parent / 'functional-gate.log', 'functional-tests/gate.log')
+    for path in (series.parent / 'functional').rglob('*'):
+        add(path, 'functional-tests/physical/' + path.relative_to(series.parent / 'functional').as_posix())
     for name in ('flesh-kias.trx', 'flesh-anomaly.trx'):
         add(repo / '.kias-benchmark/tests' / name, 'prior-functional-tests/' + name)
     for path in (repo / '.kias-benchmark/flesh-physical').glob('*'):
@@ -44,8 +52,8 @@ def package(series, destination):
     guide = f'''# KIAS: данные для анализа
 
 Статус данной серии: {state['status']}.
-Ожидаемый порядок A–B–B–A, 40 кораблей, 60 TPS, каждый прогон:
-7200 тиков прогрева + 72000 тиков измерения. A — база, B — KIAS.
+Ожидаемый порядок A–B–B–A, {state['ships']} кораблей, 60 TPS, каждый прогон:
+{state['warmupTicks']} тиков прогрева + {state['measuredTicksPerRun']} тиков измерения. A — база, B — KIAS.
 Если статус FAILED_INCOMPLETE, архив содержит только доступные данные;
 это не законченная серия и не основание для объявления PASS.
 

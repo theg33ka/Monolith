@@ -28,6 +28,7 @@ public sealed partial class KiasSystem : EntitySystem
 
     public IReadOnlySet<EntityUid> ActiveGrids => _active;
     public bool MeasureUpdates;
+    public readonly KiasPhaseMetrics[] Phases = Enum.GetValues<KiasPhase>().Select(_ => new KiasPhaseMetrics()).ToArray();
     public double MeasuredUpdateMilliseconds;
     public long MeasuredUpdateBytes;
 
@@ -229,6 +230,8 @@ public sealed partial class KiasSystem : EntitySystem
         var topology = new KiasTopologyChangedEvent(grid, runtime.Revision);
         RaiseLocalEvent(grid, ref topology, true);
     }
+
+    public bool TopologyPending(EntityUid grid) => _dirty.Contains(grid);
 
     public bool IsOnline(EntityUid device)
     {

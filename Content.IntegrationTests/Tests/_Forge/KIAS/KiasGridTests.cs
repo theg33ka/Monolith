@@ -34,21 +34,23 @@ public sealed class KiasGridTests
         var em = server.ResolveDependency<IEntityManager>();
         var maps = em.System<SharedMapSystem>();
         var kias = em.System<KiasSystem>();
+        var crew = em.System<KiasCrewSystem>();
+        EntityUid core = default, device = default, scanner = default;
+        EntityUid SpawnPowered(string prototype, int x, int y)
+        {
+            var uid = em.SpawnEntity(prototype, new EntityCoordinates(map.Grid, x + 0.5f, y + 0.5f));
+            em.RemoveComponent<ApcPowerReceiverComponent>(uid);
+            return uid;
+        }
         await server.WaitAssertion(() =>
         {
             for (var x = 0; x < 13; x++)
             for (var y = 0; y < 4; y++)
                 maps.SetTile(map.Grid, map.Grid.Comp, new Vector2i(x, y), map.Tile.Tile);
-            EntityUid SpawnPowered(string prototype, int x, int y)
-            {
-                var uid = em.SpawnEntity(prototype, new EntityCoordinates(map.Grid, x + 0.5f, y + 0.5f));
-                em.RemoveComponent<ApcPowerReceiverComponent>(uid);
-                return uid;
-            }
-            var core = SpawnPowered("KiasCore", 0, 0);
-            var device = SpawnPowered("KiasCrewServer", 10, 2);
+            core = SpawnPowered("KiasCore", 0, 0);
+            device = SpawnPowered("KiasCrewServer", 10, 2);
             var outside = SpawnPowered("KiasNavigationServer", 10, 3);
-            var scanner = SpawnPowered("KiasRoomScanner", 5, 1);
+            scanner = SpawnPowered("KiasRoomScanner", 5, 1);
             var secondScanner = SpawnPowered("KiasRoomScanner", 6, 1);
             SpawnPowered("KiasAtmosServer", 2, 0);
             SpawnPowered("KiasRecorder", 3, 0);
@@ -71,8 +73,11 @@ public sealed class KiasGridTests
             em.SpawnEntity("KiasDataCable", new EntityCoordinates(map.Grid, 5.5f, 0.5f));
             kias.Rebuild(map.Grid);
             Assert.That(kias.IsOnline(device), Is.True);
-            var crew = em.System<KiasCrewSystem>();
             crew.RebuildCoverage(map.Grid);
+        });
+        await pair.RunTicksSync(30);
+        await server.WaitAssertion(() =>
+        {
             var token = em.SpawnEntity("KiasCrewTransponder", new EntityCoordinates(map.Grid, 4.5f, 1.5f));
             var serverComponent = em.GetComponent<KiasCrewServerComponent>(device);
             Assert.That(serverComponent.RegistrationLocked, Is.False);

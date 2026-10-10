@@ -1,79 +1,23 @@
 {
-  "package": "KIAS Benchmark Lab — prompt and design instructions",
-  "created": "2026-10-09",
-  "kind": "instruction-package; not execution results",
-  "files": [
-    {
-      "name": "README.md",
-      "bytes": 6490,
-      "sha256": "dd6a6309ee1b50cfa2072b90887f4cca05fa1f65a8ae06b847745050c9ac0a61",
-      "headings": 5
-    },
-    {
-      "name": "00_MASTER_PROMPT.md",
-      "bytes": 15063,
-      "sha256": "fa59a5cb684cf7c5d77220e3dac3ce3b84e68f2c3d68e82173c686a5165a0b31",
-      "headings": 12
-    },
-    {
-      "name": "01_BASELINE_AND_REPO_MAP.md",
-      "bytes": 7666,
-      "sha256": "dc12fd4af9c64d488c8ae13f65d3655e1fd0fb5954cba095f1edfb8ea963bf4e",
-      "headings": 6
-    },
-    {
-      "name": "02_BRIAR_AUDIT_AND_SCANNER_PREP.md",
-      "bytes": 10126,
-      "sha256": "176c5b33b1a63aa6c2cefa1c99b04479603a5176c3b6277a7ab5d82b173e7dd3",
-      "headings": 10
-    },
-    {
-      "name": "03_FUNCTIONAL_GATE.md",
-      "bytes": 10819,
-      "sha256": "e05acb0580bd349f1f2a584f17c757583b47a12fe839e5305e19a828b2891e53",
-      "headings": 14
-    },
-    {
-      "name": "04_PRESET_ACCEPTANCE_MATRIX.md",
-      "bytes": 10154,
-      "sha256": "5bad5242cae14270eacea775fdc6a390303ab0654129bf436735a7da13474108",
-      "headings": 4
-    },
-    {
-      "name": "05_REPLAY_ENGINE.md",
-      "bytes": 8885,
-      "sha256": "53abc1b1211159e620649b224946228ea8ba13e1113df63dc40df0936988946e",
-      "headings": 9
-    },
-    {
-      "name": "06_RELEASE_AB_AND_PARITY.md",
-      "bytes": 7506,
-      "sha256": "8716903faf2c71d057456d66347c83f417b7489b9d75dab3053832272181340b",
-      "headings": 8
-    },
-    {
-      "name": "07_METRICS_PROFILING.md",
-      "bytes": 7808,
-      "sha256": "8b92727946b13abe136fe01733c027f7507392fe91fd82b69145432283f664fa",
-      "headings": 8
-    },
-    {
-      "name": "08_LOAD_SCENARIO.md",
-      "bytes": 7699,
-      "sha256": "542e704f730dbec1979f39f904486292f78158e72eeec4f5e4fd672eac3c081a",
-      "headings": 7
-    },
-    {
-      "name": "09_REPORT_TRIAGE_AND_CRITERIA.md",
-      "bytes": 7540,
-      "sha256": "b5c3c671e2af987d139075a58d35f5fb192187b7df380aad1d0dc58ed1bbff6b",
-      "headings": 9
-    },
-    {
-      "name": "10_RUNBOOK.md",
-      "bytes": 5618,
-      "sha256": "832ccd1149445f23c0bbc205214360a0b13d8b6828f4551598dc17960653984f",
-      "headings": 7
-    }
-  ]
+  "version": 3,
+  "files": {
+    "00_MASTER_PROMPT.md": "bd82fe2a5da5a385e92c924059152cbc11eeac3719a1120920597bdd422ac677",
+    "01_REPO_STATE_AND_HOTSPOTS.md": "30b9ab6e88903dd5da89be72db1b44b6b088053829cbd399ea673aa1068cc209",
+    "02_OPTIMIZATION_PLAN.md": "e790f399a7ea5c486f264b38044dcd33e0dfc0450b623b4403969d09cb76f367",
+    "03_ROOM_TOPOLOGY.md": "89b01d4bb970c23cc2fa511e8edb113e59516855f61ef26dc31d84770970dff3",
+    "04_FULL_GAME_STRESS.md": "0550c59f9642707f9a04bd6300cf7c1c005cb46e3b5ef9c58a36caf4fad8ee67",
+    "05_MEASUREMENT_AND_PARITY.md": "74bc3e25c9a243ba5f7b0c9d0c114b37997685f871fe9fc0f353ae8d4678b9e3",
+    "06_BAT_ORCHESTRATION.md": "81ed4ea88b4852105445b4ca58ba27c6117e11cd34e7e64270cac065a975b493",
+    "07_ACCEPTANCE_AND_DELIVERY.md": "716173da15fb8eeb28a259e44110d55fce536452483669e37755811e76da8e44",
+    "08_SCANNER_ACCEPTANCE_MATRIX.md": "971ac291126369ed65db0b3aa0daa72c81091f7865160d2135ffa7de7e495787",
+    "09_SCANNER_MIGRATION_AND_UI.md": "0dc7856cfbe5de70730cffdc8b6f4ff54789ae645b5faae11287216076895d56",
+    "10_SCANNER_PERF_AND_REBUILD.md": "82ca3eff763c1d2ad13d2e506f5bd52accd1176632074ef0e86ed96ae5641202",
+    "11_SCANNER_REAL_MAP_FIX.md": "abbe506595bd15f290823b6af63cb0ec057b74f60e759e08339066330a9b1523",
+    "12_RUNTIME_PHYSICS_EXPERIMENT.md": "6165c0b77382240920b72be644ee8afd023be9c8841b63da6023e4924b30f5ef",
+    "13_FULL_GAME_FINAL_CONTRACT.md": "17fb99322e723f50995611f3e86223a1c6aaa7d133feb86a0e11a1eacc1ce6ce",
+    "14_BAT_UX_AND_HANDOFF.md": "0825a08494c5048499bbb0768a3cb9cf4749203211422bf5d2ed230761b947c2",
+    "CHANGELOG_V2.md": "45dcf5af553c1ab5b232b2be516cb2e35f7c86dcbe210779dce2682fdd5f4d3e",
+    "CHANGELOG_V3.md": "4850bd7a6f464b175fe8f15af883ab9bfde5a6d0f7a7e18bcf5b966b5762fed2",
+    "README.md": "6b431fc8662a0369c298f503673e5912674b944c4e1a2adcf4fd28c726ebb1b1"
+  }
 }

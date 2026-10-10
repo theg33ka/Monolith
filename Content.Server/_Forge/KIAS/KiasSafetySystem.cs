@@ -18,6 +18,7 @@ public sealed class KiasSafetySystem : EntitySystem
     [Dependency] private KiasDisplaySystem _display = default!;
     [Dependency] private IGameTiming _timing = default!;
     private readonly KiasEmissionGate _logGate = new();
+    private readonly Dictionary<EntityUid, HashSet<EntityUid>> _pendingGrowth = new();
 
     public override void Initialize()
     {
@@ -26,16 +27,39 @@ public sealed class KiasSafetySystem : EntitySystem
         SubscribeLocalEvent<KiasAnomalyGrowthEvent>(OnGrowth);
         SubscribeLocalEvent<KiasAtmosStateChangedEvent>(OnAtmosState);
         SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoval);
+        SubscribeLocalEvent<KiasRoomsChangedEvent>(OnRoomsChanged);
     }
 
     private void OnAnomaly(ref AnomalyStabilityChangedEvent args)
     {
-        if (Transform(args.Anomaly).GridUid is not { } grid || !_kias.ActiveGrids.Contains(grid)
-            || !TryComp<AnomalyComponent>(args.Anomaly, out var anomaly)
-            || args.PreviousStability is not { } previous || previous > anomaly.GrowthThreshold || args.Stability <= anomaly.GrowthThreshold
-            || !_crew.HasCoverage(grid, args.Anomaly, KiasScannerModules.Spectral))
+        if (!TryComp<AnomalyComponent>(args.Anomaly, out var anomaly)
+            || args.PreviousStability is not { } previous || previous > anomaly.GrowthThreshold || args.Stability <= anomaly.GrowthThreshold)
             return;
-        var ev = new KiasAnomalyGrowthEvent(grid, args.Anomaly, Location(grid, args.Anomaly));
+        var rooms = EntityManager.System<KiasRoomTopologySystem>();
+        foreach (var grid in _kias.ActiveGrids.ToArray())
+        {
+            if (Transform(grid).MapUid != Transform(args.Anomaly).MapUid) continue;
+            if (rooms.Grids.TryGetValue(grid, out var geometry) && geometry.Pending)
+            {
+                if (!_pendingGrowth.TryGetValue(grid, out var pending)) _pendingGrowth.Add(grid, pending = new());
+                if (pending.Count < 4096) pending.Add(args.Anomaly);
+                continue;
+            }
+            PublishGrowth(grid, args.Anomaly);
+        }
+    }
+
+    private void OnRoomsChanged(ref KiasRoomsChangedEvent args)
+    {
+        if (!_pendingGrowth.Remove(args.Grid, out var pending)) return;
+        foreach (var source in pending) PublishGrowth(args.Grid, source);
+    }
+
+    private void PublishGrowth(EntityUid grid, EntityUid source)
+    {
+        if (TerminatingOrDeleted(source) || Transform(source).MapUid != Transform(grid).MapUid
+            || !_crew.HasCoverage(grid, source, KiasScannerModules.Spectral)) return;
+        var ev = new KiasAnomalyGrowthEvent(grid, source, Location(grid, source));
         RaiseLocalEvent(grid, ref ev, true);
     }
 
@@ -83,7 +107,11 @@ public sealed class KiasSafetySystem : EntitySystem
         return Loc.GetString($"kias-sector-{sector}");
     }
 
-    private void OnGridRemoval(GridRemovalEvent args) => _logGate.Remove(args.EntityUid);
+    private void OnGridRemoval(GridRemovalEvent args)
+    {
+        _logGate.Remove(args.EntityUid);
+        _pendingGrowth.Remove(args.EntityUid);
+    }
 
     public void Publish(EntityUid grid, string message, bool warning = false, bool announce = true, EntityUid? speaker = null, string group = "", string key = "", KiasAudioChannel? channel = null, bool record = true)
     {

@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Buffers;
 using Content.Shared._Forge.KIAS;
 using Content.Shared._Forge.KIAS.Controllers;
 using Content.Shared.Power;
@@ -23,17 +24,20 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
         public string Fault = string.Empty;
         public readonly Dictionary<int, List<EntityUid>> Matches = new();
         public readonly Dictionary<int, Timer> Timers = new();
+        public readonly Dictionary<int, string[]> InputNames = new();
         public readonly List<(EntityUid Device, string Profile, string Port)> Specific = new();
         public readonly List<(EntityUid Grid, string Profile, string Port)> Selectors = new();
     }
     private sealed class Cause
     {
+        public readonly uint OriginTick;
+        public Cause(uint originTick) => OriginTick = originTick;
         public readonly Dictionary<(EntityUid Card, int Node, EntityUid Device, string Port), int> Commands = new();
     }
     private Cause? _cause;
     private sealed record Timer(Runtime Runtime, int Node, uint Token, double Due, long Sequence);
-    private sealed record Actuation(Runtime Runtime, KiasControllerNode Node, EntityUid? Target, string Port,
-        KiasGraphValue Value, Dictionary<string, KiasGraphValue> Inputs, Cause Cause);
+    private readonly record struct Actuation(Runtime Runtime, KiasControllerNode Node, EntityUid? Target, string Port,
+        KiasGraphValue Value, KiasGraphValue[] Inputs, Cause Cause, uint QueuedTick);
     private readonly SortedSet<Timer> _timers = new(Comparer<Timer>.Create((a, b) =>
         a.Due == b.Due ? a.Sequence.CompareTo(b.Sequence) : a.Due.CompareTo(b.Due)));
     private readonly Dictionary<EntityUid, Runtime> _cards = new();
@@ -43,13 +47,19 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
     private readonly Dictionary<(EntityUid Grid, string Profile, string Port), List<(Runtime Runtime, int Node)>> _selectors = new();
     private readonly Queue<(EntityUid Rack, EntityUid Card)> _boots = new();
     private readonly HashSet<EntityUid> _booting = new();
-    private readonly Queue<(EntityUid Device, string Profile, string Port, KiasGraphValue Value, Cause Cause, long Epoch)> _events = new();
-    private readonly Queue<(Runtime Runtime, int Node, EntityUid Device, string Port, KiasGraphValue Value, Cause Cause)> _work = new();
+    private readonly Queue<(EntityUid Device, string Profile, string Port, KiasGraphValue Value, Cause Cause, long Epoch, uint QueuedTick)> _events = new();
+    private readonly Queue<(Runtime Runtime, int Node, EntityUid Device, string Port, KiasGraphValue Value, Cause Cause, uint QueuedTick)> _work = new();
     private readonly Queue<Actuation> _commands = new();
     private EntityUid? _closingGrid;
-    private readonly Queue<(EntityUid Device, string Profile, string Port, KiasGraphValue Value, Cause Cause, long Epoch)> _finalEvents = new();
+    private readonly Queue<(EntityUid Device, string Profile, string Port, KiasGraphValue Value, Cause Cause, long Epoch, uint QueuedTick)> _finalEvents = new();
     private readonly Queue<Actuation> _finalCommands = new();
     private long _sequence, _eventEpoch;
+    public readonly KiasRuntimeQueueMetrics EventQueueMetrics = new(), WorkQueueMetrics = new(), CommandQueueMetrics = new();
+    public readonly KiasRuntimeQueueMetrics AcceptedCommandLatency = new();
+    public readonly Dictionary<(string Profile, string Port), KiasRuntimeQueueMetrics> ActuatorDispatchLatency = new();
+    public long CancelledCommands, FeedbackRejectedCommands, ActuatorExceptions;
+    private Actuation? _executingCommand;
+    private bool _commandDispatched;
     public int RunningCount(EntityUid rack) => _racks.TryGetValue(rack, out var cards)
         ? cards.Count(uid => _cards.TryGetValue(uid, out var runtime) && Valid(runtime)) : 0;
     public string Status(EntityUid card) => _cards.TryGetValue(card, out var runtime)
@@ -63,6 +73,7 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
     public override void Initialize()
     {
         _io.Emitted += OnEmission;
+        _io.CommandDispatched += OnCommandDispatched;
         SubscribeLocalEvent<KiasTopologyChangedEvent>(OnTopology, after: new[] { typeof(KiasControllerIoSystem) });
         SubscribeLocalEvent<KiasAvailabilityChangedEvent>(OnAvailability);
         SubscribeLocalEvent<GridRemovalEvent>(OnGridRemoved);
@@ -72,16 +83,35 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
         SubscribeLocalEvent<KiasControllerRackComponent, EntParentChangedMessage>(OnParent);
         SubscribeLocalEvent<KiasControllerCardComponent, ComponentShutdown>(OnCardShutdown);
     }
-    public override void Shutdown() { _io.Emitted -= OnEmission; base.Shutdown(); }
+    public override void Shutdown() { _io.Emitted -= OnEmission; _io.CommandDispatched -= OnCommandDispatched; base.Shutdown(); }
+
+    private void OnCommandDispatched(EntityUid grid, EntityUid card, EntityUid device, string profile, string port)
+    {
+        if (!_kias.MeasureUpdates || _executingCommand is not { } command
+            || command.Runtime.Card != card || command.Runtime.Grid != grid) return;
+        _commandDispatched = true;
+        AcceptedCommandLatency.Enqueue(0);
+        AcceptedCommandLatency.Consume(command.Cause.OriginTick, _timing.CurTick.Value);
+        var key = (profile, port);
+        if (!ActuatorDispatchLatency.TryGetValue(key, out var metrics))
+            ActuatorDispatchLatency.Add(key, metrics = new());
+        metrics.Enqueue(0);
+        metrics.Consume(command.Cause.OriginTick, _timing.CurTick.Value);
+    }
 
     private void OnEmission(EntityUid device, string profile, string port, KiasGraphValue value)
     {
         if (!_specific.ContainsKey((device, profile, port))
             && (Transform(device).GridUid is not { } sourceGrid || !_selectors.ContainsKey((sourceGrid, profile, port)))) return;
         var queue = Transform(device).GridUid == _closingGrid && _closingGrid != null ? _finalEvents : _events;
-        if (queue.Count < 4096) queue.Enqueue((device, profile, port, value, _cause ?? new(), ++_eventEpoch));
+        if (queue.Count < 4096)
+        {
+            queue.Enqueue((device, profile, port, value, _cause ?? new(_timing.CurTick.Value), ++_eventEpoch, _timing.CurTick.Value));
+            if (_kias.MeasureUpdates) EventQueueMetrics.Enqueue(queue.Count);
+        }
         else
         {
+            if (_kias.MeasureUpdates) EventQueueMetrics.Rejected++;
             if (Transform(device).GridUid is { } grid)
                 FaultSubscribers(grid, device, profile, port);
         }
@@ -99,11 +129,20 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
     public override void Update(float frameTime)
     {
         using var measurement = new KiasUpdateMeasurement(_kias);
+        using var phase = new KiasPhaseMeasurement(_kias, KiasPhase.RuntimeUpdate);
+        if (_kias.MeasureUpdates)
+        {
+            if (_events.Count > 0) EventQueueMetrics.BackloggedTicks++;
+            if (_work.Count > 0) WorkQueueMetrics.BackloggedTicks++;
+            if (_commands.Count > 0) CommandQueueMetrics.BackloggedTicks++;
+        }
+        if (_kias.MeasureUpdates) _kias.Phases[(int) KiasPhase.RuntimeUpdate].MaxQueue = Math.Max(_kias.Phases[(int) KiasPhase.RuntimeUpdate].MaxQueue, _events.Count + _work.Count + _commands.Count + _boots.Count);
         var bootStart = System.Diagnostics.Stopwatch.GetTimestamp();
         for (var i = 0; i < 16; i++)
         {
             if (i > 0 && System.Diagnostics.Stopwatch.GetElapsedTime(bootStart).TotalMilliseconds >= 4
                 || !_boots.TryDequeue(out var boot)) break;
+            using var stage = new KiasPhaseMeasurement(_kias, KiasPhase.RuntimeBoot);
             _booting.Remove(boot.Card);
             if (!_cards.ContainsKey(boot.Card) && Available(boot.Rack, boot.Card)) Boot(boot.Rack, boot.Card);
             else if (!TerminatingOrDeleted(boot.Card) && Transform(boot.Card).ParentUid is var parent && HasComp<KiasControllerRackComponent>(parent)) Reconcile(parent);
@@ -112,6 +151,8 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
         var evaluations = 0;
         for (var i = 0; i < 128 && evaluations < 2048 && _timers.Min is { } timer && timer.Due <= now; i++)
         {
+            using var stage = new KiasPhaseMeasurement(_kias, KiasPhase.RuntimeTimers);
+            if (_kias.TopologyPending(timer.Runtime.Grid)) break;
             _timers.Remove(timer);
             timer.Runtime.Timers.Remove(timer.Node);
             if (Valid(timer.Runtime))
@@ -122,14 +163,23 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
             }
             else Stop(timer.Runtime.Card);
         }
-        for (var i = 0; i < 64 && evaluations < 2048 && _events.TryDequeue(out var ev); i++)
+        for (var i = 0; i < 64 && evaluations < 2048 && _events.TryPeek(out var ev); i++)
         {
+            using var stage = new KiasPhaseMeasurement(_kias, KiasPhase.RuntimeEvents);
+            if (!TerminatingOrDeleted(ev.Device) && Transform(ev.Device).GridUid is { } pendingGrid
+                && _kias.TopologyPending(pendingGrid)) break;
+            _events.Dequeue();
+            if (_kias.MeasureUpdates) EventQueueMetrics.Consume(ev.QueuedTick, _timing.CurTick.Value);
             if (!_kias.IsOnline(ev.Device) || Transform(ev.Device).GridUid is not { } grid) continue;
             if (_specific.TryGetValue((ev.Device, ev.Profile, ev.Port), out var specific)) QueueWork(specific, ev.Device, ev.Port, ev.Value, ev.Cause, ev.Epoch);
             if (_selectors.TryGetValue((grid, ev.Profile, ev.Port), out var selectors)) QueueWork(selectors, ev.Device, ev.Port, ev.Value, ev.Cause, ev.Epoch);
         }
-        for (var i = 0; i < 256 && evaluations < 2048 && _work.TryDequeue(out var work); i++)
+        for (var i = 0; i < 256 && evaluations < 2048 && _work.TryPeek(out var work); i++)
         {
+            using var stage = new KiasPhaseMeasurement(_kias, KiasPhase.RuntimeWork);
+            if (_kias.TopologyPending(work.Runtime.Grid)) break;
+            _work.Dequeue();
+            if (_kias.MeasureUpdates) WorkQueueMetrics.Consume(work.QueuedTick, _timing.CurTick.Value);
             var runtime = work.Runtime;
             if (!Valid(runtime) || !_kias.IsOnline(work.Device)
                 || !runtime.Matches.TryGetValue(work.Node, out var matches) || !matches.Contains(work.Device)) continue;
@@ -139,36 +189,45 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
             evaluations += runtime.Machine.LastEvaluations;
             if (!runtime.Machine.Active) Fail(runtime, runtime.Machine.Fault);
         }
-        for (var i = 0; i < 128 && _commands.TryDequeue(out var command); i++)
+        for (var i = 0; i < 128 && _commands.TryPeek(out var command); i++)
         {
+            using var stage = new KiasPhaseMeasurement(_kias, KiasPhase.RuntimeCommands);
+            if (_kias.TopologyPending(command.Runtime.Grid)) break;
+            _commands.Dequeue();
             Execute(command);
         }
     }
 
     private void Execute(Actuation command)
     {
-        if (!Valid(command.Runtime)) return;
+        if (_kias.MeasureUpdates) CommandQueueMetrics.Consume(command.QueuedTick, _timing.CurTick.Value);
+        if (!Valid(command.Runtime)) { if (_kias.MeasureUpdates) CancelledCommands++; return; }
         var target = command.Target ?? command.Runtime.Matches.GetValueOrDefault(command.Node.Id)?
             .FirstOrDefault(uid => _kias.IsOnline(uid) && Transform(uid).GridUid == command.Runtime.Grid);
         if (target is not { } device || device == default
-            || !command.Runtime.Matches.TryGetValue(command.Node.Id, out var current) || !current.Contains(device)) return;
+            || !command.Runtime.Matches.TryGetValue(command.Node.Id, out var current) || !current.Contains(device))
+        { if (_kias.MeasureUpdates) CancelledCommands++; return; }
         var key = (command.Runtime.Card, command.Node.Id, device, command.Port);
         var count = command.Cause.Commands.GetValueOrDefault(key);
         if (count >= 32 || count == 0 && command.Cause.Commands.Count >= 4096)
-        { Fail(command.Runtime, "external-feedback-budget"); return; }
+        { if (_kias.MeasureUpdates) FeedbackRejectedCommands++; Fail(command.Runtime, "external-feedback-budget"); return; }
         command.Cause.Commands[key] = count + 1;
         _cause = command.Cause;
+        _executingCommand = command;
+        _commandDispatched = false;
         try
         {
             _io.Command(command.Runtime.Grid, command.Runtime.Card, device, command.Node, command.Port, command.Value,
-                input => command.Inputs.GetValueOrDefault(input));
+                new KiasCommandInputs(command.Runtime.InputNames.GetValueOrDefault(command.Node.Id, Array.Empty<string>()), command.Inputs));
+            if (_kias.MeasureUpdates && !_commandDispatched) CancelledCommands++;
         }
         catch (Exception exception)
         {
+            if (_kias.MeasureUpdates) ActuatorExceptions++;
             Fail(command.Runtime, "actuator-exception");
             Log.Error($"KIAS controller {command.Runtime.Card}, node {command.Node.Id}: {exception}");
         }
-        finally { _cause = null; }
+        finally { _cause = null; _executingCommand = null; }
     }
 
     public bool IsFinishingShutdown(EntityUid grid) => _closingGrid == grid;
@@ -186,6 +245,7 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
             {
                 for (var i = 0; i < 64 && evaluations < 4096 && _finalEvents.TryDequeue(out var ev); i++)
                 {
+                    if (_kias.MeasureUpdates) EventQueueMetrics.Consume(ev.QueuedTick, _timing.CurTick.Value);
                     void Deliver(List<(Runtime Runtime, int Node)> endpoints)
                     {
                         foreach (var (runtime, node) in endpoints.ToArray())
@@ -212,17 +272,37 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
 
     private void QueueWork(List<(Runtime Runtime, int Node)> endpoints, EntityUid device, string port, KiasGraphValue value, Cause cause, long epoch)
     {
-        foreach (var (runtime, node) in endpoints.ToArray())
+        var count = endpoints.Count;
+        if (count == 0) return;
+        var snapshot = ArrayPool<(Runtime Runtime, int Node)>.Shared.Rent(count);
+        endpoints.CopyTo(snapshot);
+        try
         {
-            if (!Valid(runtime) || runtime.Epoch >= epoch || !runtime.Matches.TryGetValue(node, out var matches) || !matches.Contains(device)) continue;
-            if (_work.Count < 4096) _work.Enqueue((runtime, node, device, port, value, cause));
-            else Fail(runtime, "work-queue-limit");
+            for (var i = 0; i < count; i++)
+            {
+                var (runtime, node) = snapshot[i];
+                if (!Valid(runtime) || runtime.Epoch >= epoch || !runtime.Matches.TryGetValue(node, out var matches) || !matches.Contains(device)) continue;
+                if (_work.Count < 4096)
+                {
+                    _work.Enqueue((runtime, node, device, port, value, cause, _timing.CurTick.Value));
+                    if (_kias.MeasureUpdates) WorkQueueMetrics.Enqueue(_work.Count);
+                }
+                else { if (_kias.MeasureUpdates) WorkQueueMetrics.Rejected++; Fail(runtime, "work-queue-limit"); }
+            }
         }
+        finally { ArrayPool<(Runtime Runtime, int Node)>.Shared.Return(snapshot, clearArray: true); }
     }
 
-    private bool Available(EntityUid rack, EntityUid card) => _kias.IsOnline(rack)
-        && !TerminatingOrDeleted(card) && TryComp<KiasControllerCardComponent>(card, out var component) && component.Enabled
-        && Transform(card).ParentUid == rack && Enumerable.Range(0, 8).Any(index => _physical.Card(rack, KiasControllerRackComponent.SlotId(index)) == card);
+    private static readonly string[] RackSlots = Enumerable.Range(0, 8).Select(KiasControllerRackComponent.SlotId).ToArray();
+    private bool Available(EntityUid rack, EntityUid card)
+    {
+        if (!_kias.IsOnline(rack) || TerminatingOrDeleted(card)
+            || !TryComp<KiasControllerCardComponent>(card, out var component) || !component.Enabled
+            || Transform(card).ParentUid != rack) return false;
+        foreach (var slot in RackSlots) if (_physical.Card(rack, slot) == card) return true;
+        return false;
+    }
+
     private bool Valid(Runtime runtime) => runtime.Machine is { Active: true } && Available(runtime.Rack, runtime.Card)
         && Transform(runtime.Rack).GridUid == runtime.Grid && Comp<KiasControllerCardComponent>(runtime.Card).Revision == runtime.Revision;
 
@@ -250,6 +330,7 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
 
     public void Reconcile(EntityUid rack)
     {
+        if (!TerminatingOrDeleted(rack) && Transform(rack).GridUid is { } grid && _kias.TopologyPending(grid)) return;
         if (!_kias.IsOnline(rack)) { StopRack(rack); return; }
         if (!_racks.TryGetValue(rack, out var known)) _racks[rack] = known = new();
         var inserted = new HashSet<EntityUid>();
@@ -277,10 +358,30 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
         if (!compilation.Success) { runtime.Fault = string.Join(", ", compilation.Errors); return; }
         runtime.Machine = new(compilation.Graph!, (node, port, value) => Command(runtime, node, port, value),
             (node, seconds, token) => Schedule(runtime, node, seconds, token), () => _timing.CurTime.TotalSeconds);
+        foreach (var (node, names) in compilation.Graph!.DataInputs) runtime.InputNames[node] = names.ToArray();
         Index(runtime);
         runtime.Status = "RUNNING";
         runtime.Machine.Start(runtime.Matches.ToDictionary(pair => pair.Key, pair => pair.Value.Count));
         if (!runtime.Machine.Active) Fail(runtime, runtime.Machine.Fault);
+        if (runtime.Machine.Active)
+        {
+            foreach (var node in runtime.Machine.Graph.Nodes.Values)
+            {
+                if (!runtime.Matches.TryGetValue(node.Id, out var matches)) continue;
+                foreach (var device in matches.ToArray())
+                foreach (var port in _io.Schema(node.Profile) ?? Array.Empty<KiasGraphPort>())
+                {
+                    if (port.Direction != KiasPortDirection.Output || port.Type == KiasPortType.Signal
+                        || !_io.TryOutput(device, node.Profile, port.Id, out var value, out _)) continue;
+                    runtime.Machine.EmitExternal(node.Id, port.Id, value, device);
+                    if (!runtime.Machine.Active)
+                    {
+                        Fail(runtime, runtime.Machine.Fault);
+                        return;
+                    }
+                }
+            }
+        }
         NotifyRack(rack);
     }
 
@@ -296,21 +397,34 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
     {
         if (value.Type is not (KiasPortType.Signal or KiasPortType.Bool)
             || !Available(runtime.Rack, runtime.Card) || !runtime.Matches.TryGetValue(node.Id, out var matches) || matches.Count == 0) return;
-        var inputs = runtime.Machine!.Graph.DataInputs.GetValueOrDefault(node.Id, new())
-            .ToDictionary(input => input, input => runtime.Machine.InputValue(node.Id, input));
+        var names = runtime.InputNames.GetValueOrDefault(node.Id, Array.Empty<string>());
+        var inputs = names.Length == 0 ? Array.Empty<KiasGraphValue>() : new KiasGraphValue[names.Length];
+        for (var i = 0; i < names.Length; i++) inputs[i] = runtime.Machine!.InputValue(node.Id, names[i]);
         void Enqueue(EntityUid? target)
         {
             var queue = runtime.Grid == _closingGrid ? _finalCommands : _commands;
-            if (queue.Count < 4096) queue.Enqueue(new(runtime, node, target, port, value, inputs, _cause ?? new()));
-            else Fail(runtime, "command-queue-limit");
+            if (queue.Count < 4096)
+            {
+                queue.Enqueue(new(runtime, node, target, port, value, inputs, _cause ?? new(_timing.CurTick.Value), _timing.CurTick.Value));
+                if (_kias.MeasureUpdates) CommandQueueMetrics.Enqueue(queue.Count);
+            }
+            else { if (_kias.MeasureUpdates) CommandQueueMetrics.Rejected++; Fail(runtime, "command-queue-limit"); }
         }
         if (node.Kind == KiasNodeKind.Any) { Enqueue(null); return; }
-        foreach (var target in matches.ToArray())
+        var count = matches.Count;
+        var targets = ArrayPool<EntityUid>.Shared.Rent(count);
+        matches.CopyTo(targets);
+        try
         {
-            if (!_kias.IsOnline(target) || Transform(target).GridUid != runtime.Grid) continue;
-            Enqueue(target);
-            if (!runtime.Machine.Active) break;
+            for (var i = 0; i < count; i++)
+            {
+                var target = targets[i];
+                if (!_kias.IsOnline(target) || Transform(target).GridUid != runtime.Grid) continue;
+                Enqueue(target);
+                if (runtime.Machine?.Active != true) break;
+            }
         }
+        finally { ArrayPool<EntityUid>.Shared.Return(targets, clearArray: true); }
     }
 
     private void Index(Runtime runtime)
@@ -377,6 +491,13 @@ public sealed partial class KiasControllerRuntimeSystem : EntitySystem
     }
     private void StopRack(EntityUid rack)
     {
+        var queued = _boots.Count;
+        for (var i = 0; i < queued; i++)
+        {
+            var boot = _boots.Dequeue();
+            if (boot.Rack == rack) _booting.Remove(boot.Card);
+            else _boots.Enqueue(boot);
+        }
         if (!_racks.Remove(rack, out var cards)) return;
         foreach (var card in cards) Stop(card);
     }

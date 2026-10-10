@@ -58,8 +58,8 @@ public sealed partial class KiasDisplaySystem
                 TargetName = tool.Target is { } namedTarget && !TerminatingOrDeleted(namedTarget) ? EntityManager.System<KiasDeviceIdentitySystem>().Label(namedTarget) : string.Empty,
                 RotaryPositions = tool.Target is { } rotaryTarget && TryComp<KiasRotaryComponent>(rotaryTarget, out var rotary) ? rotary.Positions : 0,
                 RotarySignals = tool.Target is { } signalTarget && TryComp<KiasRotaryComponent>(signalTarget, out var signalRotary) ? signalRotary.Signals.Take(signalRotary.Positions).ToList() : new(),
-                SensorRange = tool.Target is { } rangeTarget && !TerminatingOrDeleted(rangeTarget) && IsSensor(rangeTarget)
-                    ? TryComp<KiasRoomScannerComponent>(rangeTarget, out var rangeScanner) ? rangeScanner.Range : SensorRange(rangeTarget) : null,
+                SensorRange = tool.Target is { } rangeTarget && !TerminatingOrDeleted(rangeTarget) && IsSensor(rangeTarget) && !HasComp<KiasRoomScannerComponent>(rangeTarget)
+                    ? SensorRange(rangeTarget) : null,
                 Source = tool.Source is { } source && !TerminatingOrDeleted(source) ? GetNetEntity(source) : null,
                 Target = tool.Target is { } target && !TerminatingOrDeleted(target) ? GetNetEntity(target) : null,
                 Geometry = tool.Mode == KiasServiceMode.Coverage ? tool.Geometry : null };
@@ -88,7 +88,7 @@ public sealed partial class KiasDisplaySystem
         }
         KiasLocalState state;
         if (TryComp<KiasRoomScannerComponent>(uid, out var scanner))
-            state = new KiasScannerState { Range = scanner.Range, Modules = scanner.Modules,
+            state = new KiasScannerState { Modules = scanner.Modules,
                 Geometry = Transform(uid).GridUid is { } scannerGrid ? BuildCoverage(scannerGrid, uid) : null };
         else if (TryComp<KiasCrewServerComponent>(uid, out var crew))
             state = new KiasCrewState { Locked = crew.RegistrationLocked, DetectedCrew = runtime?.Crew ?? 0, Registered = crew.Registered.Take(256).ToList() };
@@ -129,11 +129,7 @@ public sealed partial class KiasDisplaySystem
     public void SetSensorRange(EntityUid uid, float range)
     {
         if (!float.IsFinite(range)) return;
-        if (TryComp<KiasRoomScannerComponent>(uid, out var scanner))
-        {
-            scanner.Range = (int) Math.Clamp(range, 1, 10);
-            EntityManager.System<KiasCrewSystem>().RebuildCoverage(Transform(uid).GridUid);
-        }
+        if (HasComp<KiasRoomScannerComponent>(uid)) return;
         if (TryComp<KiasHorizonComponent>(uid, out var horizon)) horizon.Range = Math.Clamp(range, 0, 2000);
         if (TryComp<KiasProximityComponent>(uid, out var proximity)) proximity.Range = Math.Clamp(range, 0, 500);
         if (TryComp<KiasWeaponFlashComponent>(uid, out var flash)) flash.Range = Math.Clamp(range, 0, 1000);
@@ -144,9 +140,34 @@ public sealed partial class KiasDisplaySystem
     public KiasCoverageGeometry BuildCoverage(EntityUid grid, EntityUid target)
     {
         var geometry = new KiasCoverageGeometry { Target = GetNetEntity(target), Grid = GetNetEntity(grid) };
-        if (TryComp<KiasRoomScannerComponent>(target, out var scanner))
+        if (HasComp<KiasRoomScannerComponent>(target))
         {
-            geometry.Radius = Math.Clamp(scanner.Range, 0, 10);
+            geometry.Shape = KiasCoverageShape.Room;
+            var rooms = EntityManager.System<KiasRoomTopologySystem>();
+            if (rooms.Grids.TryGetValue(grid, out var cache)) geometry.Revision = cache.Revision;
+            if (rooms.TryGetScannerRoom(target, out var room, out var status))
+            {
+                geometry.RoomId = room.Id;
+                if (room.Status == KiasRoomStatus.OpenToSpace) geometry.Radius = 7;
+                if (room.Status == KiasRoomStatus.ExteriorSector && TryComp<KiasRoomScannerComponent>(target, out var scanner))
+                    geometry.Radius = Math.Clamp(scanner.Range, 1, 32);
+                const int previewLimit = 4096;
+                foreach (var cell in rooms.ScannerCells(target))
+                {
+                    if (room.Doors.Contains(cell))
+                    {
+                        geometry.DoorCount++;
+                        if (geometry.BoundaryCells.Count < previewLimit) geometry.BoundaryCells.Add(cell);
+                    }
+                    else
+                    {
+                        geometry.TileCount++;
+                        if (geometry.Cells.Count < previewLimit) geometry.Cells.Add(cell);
+                        else geometry.PreviewTruncated = true;
+                    }
+                }
+            }
+            geometry.RoomStatus = status.ToString();
             return geometry;
         }
         var range = SensorRange(target);

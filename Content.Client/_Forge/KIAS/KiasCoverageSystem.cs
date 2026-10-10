@@ -71,12 +71,14 @@ public sealed class KiasCoverageSystem : EntitySystem
                 || !system.TryComp<TransformComponent>(uid, out var transform) || transform.MapID != args.MapId)
                 return;
             var handle = args.WorldHandle;
-            if (geometry.Shape == KiasCoverageShape.Data)
+            if (geometry.Shape is KiasCoverageShape.Data or KiasCoverageShape.Room)
             {
                 if (!system.TryGetEntity(geometry.Grid, out var grid) || grid is not { } gridUid) return;
                 handle.SetTransform(system._transform.GetWorldMatrix(gridUid));
                 foreach (var cell in geometry.Cells)
                     handle.DrawRect(new Box2(cell.X, cell.Y, cell.X + 1, cell.Y + 1), Color.Cyan.WithAlpha(0.2f));
+                foreach (var cell in geometry.BoundaryCells)
+                    handle.DrawRect(new Box2(cell.X, cell.Y, cell.X + 1, cell.Y + 1), Color.Orange.WithAlpha(0.35f));
             }
             else
             {

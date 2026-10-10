@@ -1,0 +1,11 @@
+kias-room-coverage = РџРѕРєСЂС‹С‚РёРµ: РїРѕРјРµС‰РµРЅРёРµ. Р“РµРѕРјРµС‚СЂРёСЏ: { $status }. РџР»РѕС‰Р°РґСЊ: { $tiles } С‚Р°Р№Р»РѕРІ; РіСЂР°РЅРёС†Р°: { $doors } РґРІРµСЂРµР№; РІРµСЂСЃРёСЏ: { $revision }.
+kias-room-status-ok = Р·Р°РјРєРЅСѓС‚РѕРµ РїРѕРјРµС‰РµРЅРёРµ
+kias-room-status-nointeriorseed = РЅРµС‚ РІРЅСѓС‚СЂРµРЅРЅРµР№ РєР»РµС‚РєРё РїРµСЂРµРґ СЃРєР°РЅРµСЂРѕРј
+kias-room-status-opentospace = РѕС‚РєСЂС‹С‚Р°СЏ РѕР±Р»Р°СЃС‚СЊ, РґРѕСЃС‚РёР¶РёРјС‹Рµ РєР»РµС‚РєРё РіСЂРёРґР° РІ СЂР°РґРёСѓСЃРµ 7
+kias-room-status-unsupportedgeometry = РЅРµРїРѕРґРґРµСЂР¶РёРІР°РµРјР°СЏ РіРµРѕРјРµС‚СЂРёСЏ
+kias-room-status-roomtoolarge = РїСЂРµРІС‹С€РµРЅ РїСЂРµРґРµР» РїР»РѕС‰Р°РґРё
+kias-room-status-rebuildpending = РёРґС‘С‚ РїРµСЂРµСЃС‚СЂРѕР№РєР°
+kias-room-status-ambiguousboundary = РЅРµРѕРґРЅРѕР·РЅР°С‡РЅР°СЏ РіСЂР°РЅРёС†Р°
+kias-room-status-exteriorsector = РЅР°СЂСѓР¶РЅС‹Р№ СЃРµРєС‚РѕСЂ СЃ СѓС‡С‘С‚РѕРј РєРѕСЂРїСѓСЃР°
+kias-exterior-coverage = Покрытие: наружный сектор. Геометрия: { $status }. Площадь: { $tiles } тайлов; граница: { $doors } дверей; версия: { $revision }.
+kias-exterior-range = Дальность наружного сектора: { $range } м.

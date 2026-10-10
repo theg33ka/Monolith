@@ -42,6 +42,7 @@ public sealed class KiasDefenceSystem : EntitySystem
     private TimeSpan _nextScan;
     private readonly KiasPeriodicScheduler _scans = new(0.1);
     private readonly Dictionary<EntityUid, (EntityUid Target, EntityUid Grid, Vector2 Previous)> _interceptors = new();
+    public event Action<EntityUid, EntityUid, EntityUid>? ProjectileIntercepted;
 
     public override void Initialize()
     {
@@ -267,6 +268,7 @@ public sealed class KiasDefenceSystem : EntitySystem
             var relative = position.Position - target.Position;
             if (KiasThreatMath.SweptHit(track.Previous, relative, 0.4f))
             {
+                ProjectileIntercepted?.Invoke(track.Grid, track.Target, uid);
                 _destructible.DestroyEntity(track.Target);
                 QueueDel(uid);
                 _interceptors.Remove(uid);

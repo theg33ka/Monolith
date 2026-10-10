@@ -120,10 +120,10 @@ public sealed class KiasDeviceConfigurationTests
             component.Target = scanner;
             em.GetComponent<KiasDeviceComponent>(scanner).Room = "Keep room";
             em.EventBus.RaiseLocalEvent(tool, new KiasDeviceSettingsMessage { Actor = actor, Range = 999 });
-            Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Range, Is.EqualTo(10));
+            Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Range, Is.EqualTo(7));
             Assert.That(em.GetComponent<KiasDeviceComponent>(scanner).Room, Is.EqualTo("Keep room"));
             em.EventBus.RaiseLocalEvent(tool, new KiasDeviceSettingsMessage { Actor = actor, Range = float.NaN });
-            Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Range, Is.EqualTo(10));
+            Assert.That(em.GetComponent<KiasRoomScannerComponent>(scanner).Range, Is.EqualTo(7));
         });
         await pair.CleanReturnAsync();
     }

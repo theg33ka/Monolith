@@ -11,6 +11,7 @@ public enum KiasScannerModules : ushort
 public sealed partial class KiasRoomScannerComponent : Component
 {
     [DataField]
+    // Сохраняем старое поле карты, геометрию определяют стены.
     public int Range = 7;
     [DataField] public bool Advanced;
     public KiasScannerModules Modules;
