@@ -1,0 +1,33 @@
+{
+  "package": "KIAS Profiling & Lab Repair",
+  "version": "v4.1",
+  "sourceSnapshot": "00a6e937126b01f2e49cbbc36de2d17666791724",
+  "change": "Agent performs complete strict ABBA automatically after fixes and successful gates, feeding START itself. Manual BAT retains START prompt.",
+  "files": [
+    {
+      "name": "00_MASTER_PROMPT.md",
+      "size": 17781,
+      "sha256": "19762582d784fbb2d1a323f80dc9121e6e36a54650d0bc61ebdffe4799ecdf07"
+    },
+    {
+      "name": "01_PERFORMANCE_ATTRIBUTION.md",
+      "size": 6585,
+      "sha256": "09add0c2582ecf24979500ad0fcf446e220d70e58c48b69f326360d84e67c65a"
+    },
+    {
+      "name": "02_FIX_AND_PARITY.md",
+      "size": 5621,
+      "sha256": "75c52dc7ae65215350031139b52e4c3a0f15d08d9b2b5a68f53adcc8380fd9ef"
+    },
+    {
+      "name": "03_LAUNCH_AND_ACCEPTANCE.md",
+      "size": 7910,
+      "sha256": "b4081617cc98f63174cf01defa03214b1702613f6adedbfe71d52178a032283d"
+    },
+    {
+      "name": "README.md",
+      "size": 1559,
+      "sha256": "f0678eed4515c7aa78ab56d0a1b60fefaae4193c677a93717f25d508d81f67a8"
+    }
+  ]
+}

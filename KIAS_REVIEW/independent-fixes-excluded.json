@@ -1,0 +1,18 @@
+{
+  "files": [
+    "Content.Client/_Forge/Radio/Ui/ConfigurableEncryptionKeyMenu.xaml.cs",
+    "Content.Client/_Mono/Audio/AudioEffectSystem.cs",
+    "Content.Client/_NC/Radio/UI/HandheldRadioMenu.xaml.cs",
+    "Content.IntegrationTests/Tests/UserInterface/RadioFrequencyInputTest.cs",
+    "Content.IntegrationTests/Tests/_Forge/StationAi/StationAiPrototypeTests.cs",
+    "Content.Server/Chat/Managers/ChatSanitizationManager.cs",
+    "Content.Server/_Forge/TTS/TTSSystem.cs",
+    "Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs",
+    "Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs",
+    "Content.Shared/_Forge/TTS/TTSComponent.cs",
+    "Resources/Prototypes/Entities/Mobs/Player/silicon.yml"
+  ],
+  "patch": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\KIAS_REVIEW\\independent-content-fixes.patch",
+  "baseline": "3226889714d52cad147566c623dd7f18debd21ed",
+  "restoredExactly": true
+}

@@ -1,0 +1,210 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using Content.Shared.CCVar;
+using Robust.Shared.Configuration;
+namespace Content.Server.Chat.Managers;
+
+/// <summary>
+///     Sanitizes messages!
+///     It currently ony removes the shorthands for emotes (like "lol" or "^-^") from a chat message and returns the last
+///     emote in their message
+/// </summary>
+public sealed class ChatSanitizationManager : IChatSanitizationManager
+{
+    private static readonly Dictionary<string, string> ShorthandToEmote = new()
+    {
+        { ":)", "chatsan-smiles" },
+        { ":]", "chatsan-smiles" },
+        { "=)", "chatsan-smiles" },
+        { "=]", "chatsan-smiles" },
+        { "(:", "chatsan-smiles" },
+        { "[:", "chatsan-smiles" },
+        { "(=", "chatsan-smiles" },
+        { "[=", "chatsan-smiles" },
+        { "^^", "chatsan-smiles" },
+        { "^-^", "chatsan-smiles" },
+        { ":(", "chatsan-frowns" },
+        { ":[", "chatsan-frowns" },
+        { "=(", "chatsan-frowns" },
+        { "=[", "chatsan-frowns" },
+        { "):", "chatsan-frowns" },
+        { ")=", "chatsan-frowns" },
+        { "]:", "chatsan-frowns" },
+        { "]=", "chatsan-frowns" },
+        { ":D", "chatsan-smiles-widely" },
+        { "D:", "chatsan-frowns-deeply" },
+        { ":O", "chatsan-surprised" },
+        { ":3", "chatsan-smiles" },
+        { ":S", "chatsan-uncertain" },
+        { ":>", "chatsan-grins" },
+        { ":<", "chatsan-pouts" },
+        { "xD", "chatsan-laughs" },
+        { ":'(", "chatsan-cries" },
+        { ":'[", "chatsan-cries" },
+        { "='(", "chatsan-cries" },
+        { "='[", "chatsan-cries" },
+        { ")':", "chatsan-cries" },
+        { "]':", "chatsan-cries" },
+        { ")'=", "chatsan-cries" },
+        { "]'=", "chatsan-cries" },
+        { ";-;", "chatsan-cries" },
+        { ";_;", "chatsan-cries" },
+        { "qwq", "chatsan-cries" },
+        { ":u", "chatsan-smiles-smugly" },
+        { ":v", "chatsan-smiles-smugly" },
+        { ">:i", "chatsan-annoyed" },
+        { ":i", "chatsan-sighs" },
+        { ":|", "chatsan-sighs" },
+        { ":p", "chatsan-stick-out-tongue" },
+        { ";p", "chatsan-stick-out-tongue" },
+        { ":b", "chatsan-stick-out-tongue" },
+        { "0-0", "chatsan-wide-eyed" },
+        { "o-o", "chatsan-wide-eyed" },
+        { "o.o", "chatsan-wide-eyed" },
+        { "._.", "chatsan-surprised" },
+        { ".-.", "chatsan-confused" },
+        { "-_-", "chatsan-unimpressed" },
+        { "smh", "chatsan-unimpressed" },
+        { "o/", "chatsan-waves" },
+        { "^^/", "chatsan-waves" },
+        { ":/", "chatsan-uncertain" },
+        { ":\\", "chatsan-uncertain" },
+        { "lmao", "chatsan-laughs" },
+        { "lmfao", "chatsan-laughs" },
+        { "lol", "chatsan-laughs" },
+        { "lel", "chatsan-laughs" },
+        { "kek", "chatsan-laughs" },
+        { "rofl", "chatsan-laughs" },
+        { "o7", "chatsan-salutes" },
+        { ";_;7", "chatsan-tearfully-salutes" },
+        { "idk", "chatsan-shrugs" },
+        { ";)", "chatsan-winks" },
+        { ";]", "chatsan-winks" },
+        { "(;", "chatsan-winks" },
+        { "[;", "chatsan-winks" },
+        { ":')", "chatsan-tearfully-smiles" },
+        { ":']", "chatsan-tearfully-smiles" },
+        { "=')", "chatsan-tearfully-smiles" },
+        { "=']", "chatsan-tearfully-smiles" },
+        { "(':", "chatsan-tearfully-smiles" },
+        { "[':", "chatsan-tearfully-smiles" },
+        { "('=", "chatsan-tearfully-smiles" },
+        { "['=", "chatsan-tearfully-smiles" },
+        // Corvax-Localization-Start
+        { "хд", "chatsan-laughs" },
+        { "о-о", "chatsan-wide-eyed" }, // cyrillic о
+        { "о.о", "chatsan-wide-eyed" }, // cyrillic о
+        { "0_о", "chatsan-wide-eyed" }, // cyrillic о
+        { "о/", "chatsan-waves" }, // cyrillic о
+        { "о7", "chatsan-salutes" }, // cyrillic о
+        { "0_o", "chatsan-wide-eyed" },
+        { "лмао", "chatsan-laughs" },
+        { "рофл", "chatsan-laughs" },
+        { "яхз", "chatsan-shrugs" },
+        { ":0", "chatsan-surprised" },
+        { ":р", "chatsan-stick-out-tongue" }, // cyrillic р
+        { "кек", "chatsan-laughs" },
+        { "T_T", "chatsan-cries" },
+        { "Т_Т", "chatsan-cries" }, // cyrillic T
+        { "=_(", "chatsan-cries" },
+        { "!с", "chatsan-laughs" },
+        { "!в", "chatsan-sighs" },
+        { "!х", "chatsan-claps" },
+        { "!щ", "chatsan-snaps" },
+        { "))", "chatsan-smiles-widely" },
+        { ")", "chatsan-smiles" },
+        { "((", "chatsan-frowns-deeply" },
+        { "(", "chatsan-frowns" },
+        { "дрочит", "молится" },
+        { "ебет", "молится" },
+        { "ебёт", "молится" },
+        { "трахает", "молится" },
+        { "срёт", "молится" },
+        { "срет", "молится" },
+        { "ссыт", "молится" },
+        { "обоссал", "помолился" },
+        { "зигует", "бьёт себя по лицу" },
+        { "зиганул", "бьёт себя по лицу" },
+        { "кинул плотную", "бьёт себя по лицу" },
+        { "кинул потную", "бьёт себя по лицу" },
+        // Corvax-Localization-End
+    };
+
+    [Dependency] private IConfigurationManager _configurationManager = default!;
+    [Dependency] private ILocalizationManager _loc = default!;
+
+    private bool _doSanitize;
+    private string? _patternCulture;
+    private (Regex Pattern, string EmoteKey)[] _patterns = Array.Empty<(Regex, string)>();
+
+    private void EnsurePatterns()
+    {
+        var culture = CultureInfo.CurrentCulture.Name;
+        if (_patternCulture == culture)
+            return;
+
+        var patterns = new (Regex, string)[ShorthandToEmote.Count];
+        var index = 0;
+        foreach (var (shorthand, emoteKey) in ShorthandToEmote)
+        {
+            var escaped = Regex.Escape(shorthand);
+            var pattern = $@"\s{escaped}(?=\p{{P}}|\s|$)|^{escaped}(?:\p{{P}}|(?=\s|$))";
+            patterns[index++] = (new Regex(pattern, RegexOptions.RightToLeft | RegexOptions.IgnoreCase), emoteKey);
+        }
+
+        _patterns = patterns;
+        _patternCulture = culture;
+    }
+
+    public void Initialize()
+    {
+        _configurationManager.OnValueChanged(CCVars.ChatSanitizerEnabled, x => _doSanitize = x, true);
+    }
+
+    /// <summary>
+    ///     Remove the shorthands from the message, returning the last one found as the emote
+    /// </summary>
+    /// <param name="message">The pre-sanitized message</param>
+    /// <param name="speaker">The speaker</param>
+    /// <param name="sanitized">The sanitized message with shorthands removed</param>
+    /// <param name="emote">The localized emote</param>
+    /// <returns>True if emote has been sanitized out</returns>
+    public bool TrySanitizeEmoteShorthands(string message,
+        EntityUid speaker,
+        out string sanitized,
+        [NotNullWhen(true)] out string? emote)
+    {
+        emote = null;
+        sanitized = message;
+
+        if (!_doSanitize)
+            return false;
+
+        EnsurePatterns();
+
+        // -1 is just a canary for nothing found yet
+        var lastEmoteIndex = -1;
+
+        foreach (var (r, emoteKey) in _patterns)
+        {
+            // We're using sanitized as the original message until the end so that we can make sure the indices of
+            // the emotes are accurate.
+            var lastMatch = r.Match(sanitized);
+
+            if (!lastMatch.Success)
+                continue;
+
+            if (lastMatch.Index > lastEmoteIndex)
+            {
+                lastEmoteIndex = lastMatch.Index;
+                emote = _loc.GetString(emoteKey, ("ent", speaker));
+            }
+
+            message = r.Replace(message, string.Empty);
+        }
+
+        sanitized = message.Trim();
+        return emote is not null;
+    }
+}

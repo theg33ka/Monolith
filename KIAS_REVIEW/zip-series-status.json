@@ -1,0 +1,95 @@
+{
+  "warmupTicks": 10800,
+  "currentRun": 4,
+  "fullGameplayCoverage": false,
+  "fullGame": true,
+  "completedUtc": "2026-10-13T23:35:30.4386843Z",
+  "measuredTicksPerRun": 108000,
+  "diagnostic": false,
+  "currentVariant": "A",
+  "attemptedRuns": [
+    {
+      "index": 1,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\1-A",
+      "valid": true,
+      "wallSeconds": 2145.2710331,
+      "variant": "A"
+    },
+    {
+      "index": 2,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\2-B",
+      "valid": true,
+      "wallSeconds": 2291.5127752,
+      "variant": "B"
+    },
+    {
+      "index": 3,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\3-B",
+      "valid": true,
+      "wallSeconds": 2290.447813,
+      "variant": "B"
+    },
+    {
+      "index": 4,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\4-A",
+      "valid": true,
+      "wallSeconds": 2141.6941796,
+      "variant": "A"
+    }
+  ],
+  "ships": 40,
+  "status": "NATIVE_FULLGAME_ABBA_COMPLETE",
+  "tickRate": 60,
+  "collectorPid": 48688,
+  "quick": false,
+  "strictReady": false,
+  "completedRuns": [
+    {
+      "index": 1,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\1-A",
+      "valid": true,
+      "wallSeconds": 2145.2710331,
+      "variant": "A"
+    },
+    {
+      "index": 2,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\2-B",
+      "valid": true,
+      "wallSeconds": 2291.5127752,
+      "variant": "B"
+    },
+    {
+      "index": 3,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\3-B",
+      "valid": true,
+      "wallSeconds": 2290.447813,
+      "variant": "B"
+    },
+    {
+      "index": 4,
+      "error": null,
+      "path": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\runs\\4-A",
+      "valid": true,
+      "wallSeconds": 2141.6941796,
+      "variant": "A"
+    }
+  ],
+  "legacy": false,
+  "seed": 20261010,
+  "startedUtc": "2026-10-13T21:07:18.2389332Z",
+  "seriesEtaSeconds": 2242.410540433333,
+  "scenarioSha256": "2404daf7e2b3bcd92944e5b412874e928d2c8d27183647e6430d37172ab3c3ae",
+  "order": [
+    "A",
+    "B",
+    "B",
+    "A"
+  ]
+}

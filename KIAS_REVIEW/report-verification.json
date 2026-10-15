@@ -1,0 +1,76 @@
+{
+  "reports": [
+    "01_FULL_REVIEW.md",
+    "02_FINDINGS.md",
+    "03_EXTERNAL_CHANGES_AUDIT.md",
+    "04_PERFORMANCE_REVIEW.md",
+    "05_MINIMAL_PATCH_PLAN.md",
+    "06_COVERAGE_AND_TEST_GAPS.md"
+  ],
+  "localLinksChecked": 783,
+  "errors": [],
+  "inventoryFiles": 572,
+  "statuses": {
+    "READ": 187,
+    "ISSUES_FOUND": 49,
+    "CROSS_CHECKED": 107,
+    "NOT_READ": 34,
+    "VERIFIED": 195
+  },
+  "findings": {
+    "P1": 1,
+    "P2": 10,
+    "P3": 1
+  },
+  "trx": {
+    "test-results/kias-review.trx": {
+      "total": "167",
+      "executed": "167",
+      "passed": "167",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "evidence-results/evidence.trx": {
+      "total": "4",
+      "executed": "4",
+      "passed": "4",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "repo": {
+    "checkedAtUtc": "2026-10-14T22:02:13.313588+00:00",
+    "head": "5635bd2c4d1d5ba183700a535f07cfa340cd98ad",
+    "branch": "KIAS",
+    "upstreamMainLocal": "cc7a94472a1695e3340f94178d46970cf950da79",
+    "upstreamMainRemote": "cc7a94472a1695e3340f94178d46970cf950da79\trefs/heads/main",
+    "mergeBase": "3226889714d52cad147566c623dd7f18debd21ed",
+    "originMain": "3226889714d52cad147566c623dd7f18debd21ed",
+    "status": "?? KIAS_REVIEW/",
+    "engine": "c2fc1375fc8647f4a29d2e9c8a8ae86dfb35d66e",
+    "engineStatus": "",
+    "benchmarkZipSha256": "4f6723d74055899672b024bb0c100ef8a7c5e63552468c51a5def2c436c4cca9"
+  }
+}

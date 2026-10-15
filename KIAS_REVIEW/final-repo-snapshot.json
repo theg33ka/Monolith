@@ -1,0 +1,13 @@
+{
+  "checkedAtUtc": "2026-10-14T22:02:13.313588+00:00",
+  "head": "5635bd2c4d1d5ba183700a535f07cfa340cd98ad",
+  "branch": "KIAS",
+  "upstreamMainLocal": "cc7a94472a1695e3340f94178d46970cf950da79",
+  "upstreamMainRemote": "cc7a94472a1695e3340f94178d46970cf950da79\trefs/heads/main",
+  "mergeBase": "3226889714d52cad147566c623dd7f18debd21ed",
+  "originMain": "3226889714d52cad147566c623dd7f18debd21ed",
+  "status": "?? KIAS_REVIEW/",
+  "engine": "c2fc1375fc8647f4a29d2e9c8a8ae86dfb35d66e",
+  "engineStatus": "",
+  "benchmarkZipSha256": "4f6723d74055899672b024bb0c100ef8a7c5e63552468c51a5def2c436c4cca9"
+}

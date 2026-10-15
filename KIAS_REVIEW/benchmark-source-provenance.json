@@ -1,0 +1,211 @@
+{
+  "archiveSha": "a133afb81458149c2907ecc61cb62e2a0614e07264cb887d5a368dc9399e6c4d",
+  "patchFiles": 37,
+  "verified": [
+    {
+      "path": "00_MASTER_PROMPT.md",
+      "patchPostHash": "1e5a0c2313",
+      "headBlob": "1e5a0c231301cadd465ffda336d7e15a9837809d"
+    },
+    {
+      "path": "Content.Server/_Forge/KIAS/Controllers/KiasControllerIoSystem.Commands.cs",
+      "patchPostHash": "42398a3acf",
+      "headBlob": "42398a3acfc296e2c4c11b5384397dc82796ff23"
+    },
+    {
+      "path": "Content.Server/_Forge/KIAS/Controllers/KiasControllerRuntimeSystem.cs",
+      "patchPostHash": "5c51152884",
+      "headBlob": "5c5115288493909d1c23969387073deb22cb656f"
+    },
+    {
+      "path": "Content.Server/_Forge/KIAS/KiasCrewSystem.cs",
+      "patchPostHash": "a004d3d1f4",
+      "headBlob": "a004d3d1f416646f3861921cd7fbb4e9bf63833d"
+    },
+    {
+      "path": "Content.Server/_Forge/KIAS/KiasPhaseMeasurement.cs",
+      "patchPostHash": "3c12776218",
+      "headBlob": "3c12776218e973719c945863077dc80a045c91f0"
+    },
+    {
+      "path": "Content.Server/_Forge/KIAS/KiasProtocolSystem.cs",
+      "patchPostHash": "b5289cae56",
+      "headBlob": "b5289cae5654f2037f12e7835eb84ab32762f5a9"
+    },
+    {
+      "path": "Docs/KIAS/CHECKS_REGISTER.md",
+      "patchPostHash": "351b69b85c",
+      "headBlob": "351b69b85ceb4de424d80562f48b3f29f8ee59d0"
+    },
+    {
+      "path": "Docs/KIAS/REMAINING_BENCHMARK_WORK.md",
+      "patchPostHash": "b45a707fd0",
+      "headBlob": "b45a707fd0bb3d13b5edc7527c6fa5bc4843a3fc"
+    },
+    {
+      "path": "README.md",
+      "patchPostHash": "22a33e77df",
+      "headBlob": "22a33e77df5bbf18f8ee362442ab524de4a63b04"
+    },
+    {
+      "path": "Run_KIAS_Tests.bat",
+      "patchPostHash": "96db403df4",
+      "headBlob": "96db403df44ceb4df2bc5c789a35cb263579860e"
+    },
+    {
+      "path": "Tools/KiasBenchmark/DEFERRED_CHECKS.md",
+      "patchPostHash": "4739d7a694",
+      "headBlob": "4739d7a694fb011b7f91db4968f3fbb8a0b5b5c3"
+    },
+    {
+      "path": "Tools/KiasBenchmark/Server/KiasTelemetry.cs",
+      "patchPostHash": "4bc639aec8",
+      "headBlob": "4bc639aec89b04dc178a5221bf4765bb79e5a5a2"
+    },
+    {
+      "path": "Tools/KiasBenchmark/Server/NativeGameDrivers.cs",
+      "patchPostHash": "a8b8e60948",
+      "headBlob": "a8b8e60948099bf896f2985bfcc4be64ad8a630f"
+    },
+    {
+      "path": "Tools/KiasBenchmark/Server/NativeLab.cs",
+      "patchPostHash": "06aaf0f11f",
+      "headBlob": "06aaf0f11facf36ce05d8807b49935f80d75a5b6"
+    },
+    {
+      "path": "Tools/KiasBenchmark/build_pair.ps1",
+      "patchPostHash": "a6703114f7",
+      "headBlob": "a6703114f722d922aa1aa06fd829f5f8ef84293a"
+    },
+    {
+      "path": "Tools/KiasBenchmark/fullgame_contract.json",
+      "patchPostHash": "a4ce942d27",
+      "headBlob": "a4ce942d27fb565ef1f1ab5092eddd174044194a"
+    },
+    {
+      "path": "Tools/KiasBenchmark/fullgame_scenario.py",
+      "patchPostHash": "d98fe3b048",
+      "headBlob": "d98fe3b04800c1706744ed112552387ad5607df4"
+    },
+    {
+      "path": "Tools/KiasBenchmark/instrument_headless_client.py",
+      "patchPostHash": "31e911dd9b",
+      "headBlob": "31e911dd9bf0c591e4641e385455bbc1e96a42d9"
+    },
+    {
+      "path": "Tools/KiasBenchmark/launch.ps1",
+      "patchPostHash": "4d92ec9a56",
+      "headBlob": "4d92ec9a569bd7ec9ba18f3091e2c0ca9224dd43"
+    },
+    {
+      "path": "Tools/KiasBenchmark/native_log_watch.ps1",
+      "patchPostHash": "a12d096094",
+      "headBlob": "a12d096094e3c762f3ea51e6f9309cc8ef073905"
+    },
+    {
+      "path": "Tools/KiasBenchmark/native_proof.py",
+      "patchPostHash": "7270944146",
+      "headBlob": "72709441460b9d26f0bd17766bc84d0f0e292f7b"
+    },
+    {
+      "path": "Tools/KiasBenchmark/native_replay.ps1",
+      "patchPostHash": "e4ccdc2d16",
+      "headBlob": "e4ccdc2d16f327c405d74eb8c47b7a1d115acc63"
+    },
+    {
+      "path": "Tools/KiasBenchmark/native_suite.ps1",
+      "patchPostHash": "d9131b47c6",
+      "headBlob": "d9131b47c6d58670478882a1ae3b03d031c4dbb7"
+    },
+    {
+      "path": "Tools/KiasBenchmark/network_proof.py",
+      "patchPostHash": "7b07d9fc61",
+      "headBlob": "7b07d9fc6146b9d462e1114a41f1b1c5a6ffaadd"
+    },
+    {
+      "path": "Tools/KiasBenchmark/physics_experiment.ps1",
+      "patchPostHash": "7f4e1e88aa",
+      "headBlob": "7f4e1e88aabc06222ac5da8c08c4bdef699d26fa"
+    },
+    {
+      "path": "Tools/KiasBenchmark/physics_experiment.py",
+      "patchPostHash": "fb6b5b0b19",
+      "headBlob": "fb6b5b0b19cbc2dc8bdf326d31dde0f4dec5de99"
+    },
+    {
+      "path": "Tools/KiasBenchmark/prepare_pair.py",
+      "patchPostHash": "1895c86cba",
+      "headBlob": "1895c86cba42f05af9c16446a2b48ba880ad14f5"
+    },
+    {
+      "path": "Tools/KiasBenchmark/readiness.py",
+      "patchPostHash": "c6f715699f",
+      "headBlob": "c6f715699f9b48952d10c25faef05b513366f2c2"
+    },
+    {
+      "path": "Tools/KiasBenchmark/rerun.ps1",
+      "patchPostHash": "bfe44a4d17",
+      "headBlob": "bfe44a4d17afcbfcef8885b00037357d70edc405"
+    },
+    {
+      "path": "Tools/KiasBenchmark/test_fullgame_report.py",
+      "patchPostHash": "4d805711ca",
+      "headBlob": "4d805711ca300abb63ffdb0b1ca8c7340ea6bec5"
+    },
+    {
+      "path": "Tools/KiasBenchmark/test_headless_client.py",
+      "patchPostHash": "baa8190703",
+      "headBlob": "baa8190703ea66860a4c980efe6f2a88fefde190"
+    },
+    {
+      "path": "Tools/KiasBenchmark/test_native_log_watch.ps1",
+      "patchPostHash": "6121f006fe",
+      "headBlob": "6121f006fe895f37f9eeaff658c15f0cdaf7b41f"
+    },
+    {
+      "path": "Tools/KiasBenchmark/test_native_proof.py",
+      "patchPostHash": "32c6a0fcb7",
+      "headBlob": "32c6a0fcb7fa7f0bd4470b92c301e8c026ad1730"
+    },
+    {
+      "path": "Tools/KiasBenchmark/test_network_proof.py",
+      "patchPostHash": "752d222f49",
+      "headBlob": "752d222f496dd0fa98421b18ce159d8f304170b7"
+    },
+    {
+      "path": "Tools/KiasBenchmark/test_physics_experiment.py",
+      "patchPostHash": "4e0608606c",
+      "headBlob": "4e0608606cd4f796054f5c4cc632e271a1879e08"
+    },
+    {
+      "path": "Tools/KiasBenchmark/test_readiness.py",
+      "patchPostHash": "0a0e17ded5",
+      "headBlob": "0a0e17ded5c73ba88e839ca9a2e9d70af886dc31"
+    },
+    {
+      "path": "Tools/KiasBenchmark/world_smoke_scenario.py",
+      "patchPostHash": "cee67620fa",
+      "headBlob": "cee67620fa662b5f90052689614208299a5b94cf"
+    }
+  ],
+  "mismatches": [],
+  "unmatchedCommitFiles": [
+    "01_PERFORMANCE_ATTRIBUTION.md",
+    "02_FIX_AND_PARITY.md",
+    "03_LAUNCH_AND_ACCEPTANCE.md",
+    "Content.IntegrationTests/Tests/_Forge/KIAS/KiasPhaseMeasurementTests.cs",
+    "MANIFEST.json",
+    "Tools/KiasBenchmark/Server/NativeProfiler.cs",
+    "Tools/KiasBenchmark/cost_attribution.py",
+    "Tools/KiasBenchmark/final_cost.py",
+    "Tools/KiasBenchmark/instrument_optimization_probes.py",
+    "Tools/KiasBenchmark/instrument_system_profile.py",
+    "Tools/KiasBenchmark/optimization_compare.ps1",
+    "Tools/KiasBenchmark/optimization_report.py",
+    "Tools/KiasBenchmark/profile.ps1",
+    "Tools/KiasBenchmark/quick_report.py",
+    "Tools/KiasBenchmark/test_cost_attribution.py",
+    "Tools/KiasBenchmark/test_optimization_probes.py"
+  ],
+  "skipped": []
+}

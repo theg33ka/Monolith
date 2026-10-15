@@ -1,0 +1,134 @@
+[
+  {
+    "file": "Content.Client/Content.Client.csproj",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Client/Shuttles/UI/ShuttleNavControl.xaml.cs",
+    "blocks": 2
+  },
+  {
+    "file": "Content.Client/_Mono/FireControl/UI/FireControlWindow.xaml.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Server/Ame/EntitySystems/AmeControllerSystem.cs",
+    "blocks": 2
+  },
+  {
+    "file": "Content.Server/Atmos/EntitySystems/AtmosphereSystem.RoomSafety.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Server/Atmos/Monitor/Systems/AtmosAlarmableSystem.cs",
+    "blocks": 4
+  },
+  {
+    "file": "Content.Server/Content.Server.csproj",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Server/DeviceLinking/Systems/DeviceLinkSystem.cs",
+    "blocks": 5
+  },
+  {
+    "file": "Content.Server/DeviceNetwork/Systems/NetworkConfiguratorSystem.cs",
+    "blocks": 5
+  },
+  {
+    "file": "Content.Server/Power/EntitySystems/PowerMonitoringConsoleSystem.cs",
+    "blocks": 3
+  },
+  {
+    "file": "Content.Server/Power/Nodes/CableNode.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Server/Radio/EntitySystems/JammerSystem.cs",
+    "blocks": 3
+  },
+  {
+    "file": "Content.Server/Shuttles/Systems/ShuttleConsoleLockSystem.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Server/Shuttles/Systems/ShuttleSystem.Impact.cs",
+    "blocks": 6
+  },
+  {
+    "file": "Content.Server/_Mono/FireControl/FireControlSystem.Console.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Server/_Mono/FireControl/FireControlSystem.cs",
+    "blocks": 2
+  },
+  {
+    "file": "Content.Shared/Anomaly/Components/AnomalyComponent.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Shared/Anomaly/SharedAnomalySystem.cs",
+    "blocks": 2
+  },
+  {
+    "file": "Content.Shared/DeviceLinking/Events/DeviceLinkPortInvokedEvent.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Shared/DeviceLinking/Events/SignalReceivedEvent.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Shared/Power/SharedPower.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Shared/Projectiles/SharedProjectileSystem.cs",
+    "blocks": 2
+  },
+  {
+    "file": "Content.Shared/Shuttles/Systems/SharedShuttleSystem.IFF.cs",
+    "blocks": 2
+  },
+  {
+    "file": "Content.Shared/Weapons/Ranged/Systems/SharedGunSystem.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Shared/_Mono/Company/CompanyAccessReaderSystem.cs",
+    "blocks": 4
+  },
+  {
+    "file": "Content.Shared/_Mono/FireControl/FireControlMessages.cs",
+    "blocks": 1
+  },
+  {
+    "file": "Content.Shared/_Mono/Shipyard/ShipAccessReaderSystem.cs",
+    "blocks": 3
+  },
+  {
+    "file": "Resources/Prototypes/Entities/Structures/Machines/lathe.yml",
+    "blocks": 2
+  },
+  {
+    "file": "Resources/Prototypes/Entities/Structures/Power/cables.yml",
+    "blocks": 1
+  },
+  {
+    "file": "Resources/Prototypes/Entities/Structures/Walls/walls.yml",
+    "blocks": 1
+  },
+  {
+    "file": "Resources/Prototypes/Entities/Structures/Windows/window.yml",
+    "blocks": 2
+  },
+  {
+    "file": "Resources/Prototypes/_Mono/Entities/SpaceArtillery/SpaceArtillery/Kinetic/flarelauncher.yml",
+    "blocks": 1
+  },
+  {
+    "file": "Resources/Prototypes/_Mono/Entities/SpaceArtillery/SpaceArtillery/Kinetic/standardlight_kinetic.yml",
+    "blocks": 2
+  }
+]

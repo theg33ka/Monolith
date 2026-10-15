@@ -1,0 +1,325 @@
+{
+  "base": "3226889714d52cad147566c623dd7f18debd21ed",
+  "commonContentFiles": [
+    "Content.Client/_Forge/Radio/Ui/ConfigurableEncryptionKeyMenu.xaml.cs",
+    "Content.Client/_Mono/Audio/AudioEffectSystem.cs",
+    "Content.Client/_NC/Radio/UI/HandheldRadioMenu.xaml.cs",
+    "Content.IntegrationTests/Tests/UserInterface/RadioFrequencyInputTest.cs",
+    "Content.IntegrationTests/Tests/_Forge/StationAi/StationAiPrototypeTests.cs",
+    "Content.Server/Chat/Managers/ChatSanitizationManager.cs",
+    "Content.Server/_Forge/TTS/TTSSystem.cs",
+    "Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs",
+    "Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs",
+    "Content.Shared/_Forge/TTS/TTSComponent.cs",
+    "Resources/Prototypes/Entities/Mobs/Player/silicon.yml"
+  ],
+  "commonContentTree": "9c174387cac1132d08f4588635fdf9461b7e8f99",
+  "standaloneResultTree": "e5eb02592f9ca34e238d2e625ff9719da4992710",
+  "files": 545,
+  "externalFiles": 40,
+  "externalChangedLines": 2629,
+  "newFilesIncluded": [
+    "Content.IntegrationTests/Tests/_Forge/KIAS/KiasReviewRegressionTests.cs",
+    "Docs/KIAS/ArtSources/assets/README.md",
+    "Docs/KIAS/ArtSources/assets/raw/kias_controller_rack.png",
+    "Docs/KIAS/ArtSources/assets/raw/kias_programmable_controller.png",
+    "Docs/KIAS/ArtSources/assets/rsi_ready/KiasControllerRack.rsi/meta.json",
+    "Docs/KIAS/ArtSources/assets/rsi_ready/KiasControllerRack.rsi/rack.png",
+    "Docs/KIAS/ArtSources/assets/rsi_ready/KiasProgrammableController.rsi/controller.png",
+    "Docs/KIAS/ArtSources/assets/rsi_ready/KiasProgrammableController.rsi/meta.json",
+    "Docs/KIAS/ArtSources/references/01_device_tree.png",
+    "Docs/KIAS/ArtSources/references/02_preset_toolbar.png",
+    "Docs/KIAS/ArtSources/references/03_core_in_world.png",
+    "Docs/KIAS/ArtSources/references/ui_graph_current_overview.png",
+    "Docs/KIAS/ArtSources/references/ui_graph_inline_value_reference.png",
+    "Docs/KIAS/ArtSources/references/ui_shuttle_reference.png",
+    "Docs/KIAS/History/01_BASELINE_AND_REPO_MAP.md",
+    "Docs/KIAS/History/01_PERFORMANCE_ATTRIBUTION.md",
+    "Docs/KIAS/History/01_REPO_FINDINGS.md",
+    "Docs/KIAS/History/01_REPO_STATE_AND_HOTSPOTS.md",
+    "Docs/KIAS/History/02_BRIAR_AUDIT_AND_SCANNER_PREP.md",
+    "Docs/KIAS/History/02_FIX_AND_PARITY.md",
+    "Docs/KIAS/History/02_OPTIMIZATION_PLAN.md",
+    "Docs/KIAS/History/02_TARGET_ARCHITECTURE.md",
+    "Docs/KIAS/History/03_DEVICE_PROTOCOL_SPEC.md",
+    "Docs/KIAS/History/03_FUNCTIONAL_GATE.md",
+    "Docs/KIAS/History/03_LAUNCH_AND_ACCEPTANCE.md",
+    "Docs/KIAS/History/03_ROOM_TOPOLOGY.md",
+    "Docs/KIAS/History/04_FULL_GAME_STRESS.md",
+    "Docs/KIAS/History/04_IMPLEMENTATION_PLAN.md",
+    "Docs/KIAS/History/04_PRESET_ACCEPTANCE_MATRIX.md",
+    "Docs/KIAS/History/05_MEASUREMENT_AND_PARITY.md",
+    "Docs/KIAS/History/05_PERFORMANCE_AND_TESTS.md",
+    "Docs/KIAS/History/05_REPLAY_ENGINE.md",
+    "Docs/KIAS/History/06_BAT_ORCHESTRATION.md",
+    "Docs/KIAS/History/06_RELEASE_AB_AND_PARITY.md",
+    "Docs/KIAS/History/06_REPO_SOURCE_MAP.md",
+    "Docs/KIAS/History/07_ACCEPTANCE_AND_DELIVERY.md",
+    "Docs/KIAS/History/07_CONTROLLER_GRAPH_SPEC.md",
+    "Docs/KIAS/History/07_METRICS_PROFILING.md",
+    "Docs/KIAS/History/08_LOAD_SCENARIO.md",
+    "Docs/KIAS/History/08_PROTOCOL_MIGRATION.md",
+    "Docs/KIAS/History/08_SCANNER_ACCEPTANCE_MATRIX.md",
+    "Docs/KIAS/History/09_REPORT_TRIAGE_AND_CRITERIA.md",
+    "Docs/KIAS/History/09_SCANNER_MIGRATION_AND_UI.md",
+    "Docs/KIAS/History/09_THIRD_PARTY_REFERENCES.md",
+    "Docs/KIAS/History/10_RISK_REGISTER.md",
+    "Docs/KIAS/History/10_RUNBOOK.md",
+    "Docs/KIAS/History/10_SCANNER_PERF_AND_REBUILD.md",
+    "Docs/KIAS/History/11_LIVE_SMOKE_CHECKLIST.md",
+    "Docs/KIAS/History/11_SCANNER_REAL_MAP_FIX.md",
+    "Docs/KIAS/History/12_DELIVERY_REPORT_TEMPLATE.md",
+    "Docs/KIAS/History/12_RUNTIME_PHYSICS_EXPERIMENT.md",
+    "Docs/KIAS/History/13_FULL_GAME_FINAL_CONTRACT.md",
+    "Docs/KIAS/History/14_BAT_UX_AND_HANDOFF.md",
+    "Resources/Maps/_Forge/KIAS/Fixtures/briarKIAS.yml",
+    "Tools/KiasBenchmark/test_source_fingerprint.py"
+  ],
+  "applyCheckPassed": true,
+  "realIndexUnchanged": true,
+  "enginePatchRequiredForKias": false,
+  "recoveryPatchesApplyCheckPassed": true,
+  "note": "Standalone KIAS patch applies directly to merge-base; independent engine fix is excluded. No commits, branches or real-index staging were created.",
+  "external": [
+    {
+      "file": ".gitignore",
+      "added": "9",
+      "deleted": "1",
+      "external": true
+    },
+    {
+      "file": "Content.Client/Content.Client.csproj",
+      "added": "11",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Client/Shuttles/UI/ShuttleNavControl.xaml.cs",
+      "added": "7",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Client/_Mono/FireControl/UI/FireControlWindow.xaml.cs",
+      "added": "3",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Ame/EntitySystems/AmeControllerSystem.cs",
+      "added": "6",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Atmos/EntitySystems/AtmosphereSystem.RoomSafety.cs",
+      "added": "32",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Atmos/Monitor/Systems/AtmosAlarmableSystem.cs",
+      "added": "12",
+      "deleted": "2",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Content.Server.csproj",
+      "added": "8",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Server/DeviceLinking/Systems/DeviceLinkSystem.cs",
+      "added": "33",
+      "deleted": "2",
+      "external": true
+    },
+    {
+      "file": "Content.Server/DeviceNetwork/Systems/NetworkConfiguratorSystem.cs",
+      "added": "30",
+      "deleted": "7",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Power/EntitySystems/PowerMonitoringConsoleSystem.cs",
+      "added": "11",
+      "deleted": "2",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Power/Nodes/CableNode.cs",
+      "added": "8",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Radio/EntitySystems/JammerSystem.cs",
+      "added": "27",
+      "deleted": "14",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Shuttles/Systems/ShuttleConsoleLockSystem.cs",
+      "added": "4",
+      "deleted": "25",
+      "external": true
+    },
+    {
+      "file": "Content.Server/Shuttles/Systems/ShuttleSystem.Impact.cs",
+      "added": "33",
+      "deleted": "1",
+      "external": true
+    },
+    {
+      "file": "Content.Server/_Mono/FireControl/FireControlSystem.Console.cs",
+      "added": "4",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Server/_Mono/FireControl/FireControlSystem.cs",
+      "added": "7",
+      "deleted": "1",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/Anomaly/Components/AnomalyComponent.cs",
+      "added": "3",
+      "deleted": "1",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/Anomaly/SharedAnomalySystem.cs",
+      "added": "7",
+      "deleted": "2",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/DeviceLinking/Events/DeviceLinkPortInvokedEvent.cs",
+      "added": "9",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/DeviceLinking/Events/SignalReceivedEvent.cs",
+      "added": "3",
+      "deleted": "1",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/Power/SharedPower.cs",
+      "added": "3",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/Projectiles/SharedProjectileSystem.cs",
+      "added": "12",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/Shuttles/Systems/SharedShuttleSystem.IFF.cs",
+      "added": "22",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/Weapons/Ranged/Systems/SharedGunSystem.cs",
+      "added": "13",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/_Mono/Company/CompanyAccessReaderSystem.cs",
+      "added": "15",
+      "deleted": "12",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/_Mono/FireControl/FireControlMessages.cs",
+      "added": "3",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Content.Shared/_Mono/Shipyard/ShipAccessReaderSystem.cs",
+      "added": "23",
+      "deleted": "14",
+      "external": true
+    },
+    {
+      "file": "Resources/Locale/en-US/_Forge/kias-controller-help.ftl",
+      "added": "198",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Locale/en-US/_Forge/kias.ftl",
+      "added": "888",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Locale/ru-RU/_Forge/kias-controller-help.ftl",
+      "added": "198",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Locale/ru-RU/_Forge/kias.ftl",
+      "added": "855",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Prototypes/Entities/Structures/Machines/lathe.yml",
+      "added": "6",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Prototypes/Entities/Structures/Power/cables.yml",
+      "added": "3",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Prototypes/Entities/Structures/Walls/walls.yml",
+      "added": "3",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Prototypes/Entities/Structures/Windows/window.yml",
+      "added": "6",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Prototypes/_Mono/Entities/SpaceArtillery/SpaceArtillery/Kinetic/flarelauncher.yml",
+      "added": "3",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Resources/Prototypes/_Mono/Entities/SpaceArtillery/SpaceArtillery/Kinetic/standardlight_kinetic.yml",
+      "added": "10",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Run_KIAS_Intermediate_Tests.bat",
+      "added": "3",
+      "deleted": "0",
+      "external": true
+    },
+    {
+      "file": "Run_KIAS_Tests.bat",
+      "added": "13",
+      "deleted": "0",
+      "external": true
+    }
+  ]
+}

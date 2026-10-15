@@ -1,0 +1,393 @@
+diff --git a/Content.Client/_Forge/Radio/Ui/ConfigurableEncryptionKeyMenu.xaml.cs b/Content.Client/_Forge/Radio/Ui/ConfigurableEncryptionKeyMenu.xaml.cs
+index c4eaebe812..8f84c466e8 100644
+--- a/Content.Client/_Forge/Radio/Ui/ConfigurableEncryptionKeyMenu.xaml.cs
++++ b/Content.Client/_Forge/Radio/Ui/ConfigurableEncryptionKeyMenu.xaml.cs
+@@ -14,14 +14,20 @@ public sealed partial class ConfigurableEncryptionKeyMenu : FancyWindow
+     public event Action<string>? OnFrequencyChanged;
+ 
+     private bool _updating;
++    private bool _editingFrequency;
+ 
+     public ConfigurableEncryptionKeyMenu()
+     {
+         RobustXamlLoader.Load(this);
+         IoCManager.InjectDependencies(this);
+ 
+-        FrequencyLineEdit.OnTextEntered += e => OnFrequencyChanged?.Invoke(e.Text);
+-        FrequencyLineEdit.OnFocusExit += e => OnFrequencyChanged?.Invoke(e.Text);
++        FrequencyLineEdit.OnTextChanged += _ =>
++        {
++            _editingFrequency = true;
++            PopularFrequencyOptions.SelectId(RadioFrequencyPresetUi.CustomOptionId);
++        };
++        FrequencyLineEdit.OnTextEntered += e => SubmitFrequency(e.Text);
++        FrequencyLineEdit.OnFocusExit += e => SubmitFrequency(e.Text);
+ 
+         RadioFrequencyPresetUi.Populate(PopularFrequencyOptions, _prototypes);
+         PopularFrequencyOptions.OnItemSelected += args =>
+@@ -32,22 +38,32 @@ public ConfigurableEncryptionKeyMenu()
+             PopularFrequencyOptions.SelectId(args.Id);
+             if (args.Id == RadioFrequencyPresetUi.CustomOptionId)
+             {
++                _editingFrequency = true;
+                 FrequencyLineEdit.GrabKeyboardFocus();
+                 return;
+             }
+ 
+-            OnFrequencyChanged?.Invoke(args.Id.ToString());
++            SubmitFrequency(args.Id.ToString());
+         };
+     }
+ 
++    private void SubmitFrequency(string frequency)
++    {
++        _editingFrequency = false;
++        OnFrequencyChanged?.Invoke(frequency);
++    }
++
+     public void Update(ConfigurableEncryptionKeyBoundUIState state)
+     {
+         _updating = true;
+-        FrequencyLineEdit.Text = state.Frequency.ToString();
++        if (!_editingFrequency)
++        {
++            FrequencyLineEdit.Text = state.Frequency.ToString();
++            RadioFrequencyPresetUi.Select(PopularFrequencyOptions, state.Frequency);
++        }
+         FrequencyLineEdit.PlaceHolder = Loc.GetString("handheld-radio-custom-placeholder",
+             ("min", state.MinFrequency),
+             ("max", state.MaxFrequency));
+-        RadioFrequencyPresetUi.Select(PopularFrequencyOptions, state.Frequency);
+         _updating = false;
+     }
+ }
+diff --git a/Content.Client/_Mono/Audio/AudioEffectSystem.cs b/Content.Client/_Mono/Audio/AudioEffectSystem.cs
+index 3c4258835a..db60144c76 100644
+--- a/Content.Client/_Mono/Audio/AudioEffectSystem.cs
++++ b/Content.Client/_Mono/Audio/AudioEffectSystem.cs
+@@ -35,7 +35,7 @@ public sealed partial class AudioEffectSystem : EntitySystem
+     // actually this problem applies for effects too
+     private bool? _auxiliariesSafe = null;
+ 
+-    private static readonly Dictionary<ProtoId<AudioPresetPrototype>, (EntityUid AuxiliaryUid, EntityUid EffectUid)> CachedEffects = new();
++    private readonly Dictionary<ProtoId<AudioPresetPrototype>, (EntityUid AuxiliaryUid, EntityUid EffectUid)> CachedEffects = new();
+ 
+     /// <summary>
+     ///     An auxiliary with no effect; for removing effects.
+diff --git a/Content.Client/_NC/Radio/UI/HandheldRadioMenu.xaml.cs b/Content.Client/_NC/Radio/UI/HandheldRadioMenu.xaml.cs
+index e49ea8db26..91c376f3f9 100644
+--- a/Content.Client/_NC/Radio/UI/HandheldRadioMenu.xaml.cs
++++ b/Content.Client/_NC/Radio/UI/HandheldRadioMenu.xaml.cs
+@@ -17,6 +17,7 @@ public sealed partial class HandheldRadioMenu : FancyWindow
+     public event Action<string>? OnFrequencyChanged;
+ 
+     private bool _updating;
++    private bool _editingFrequency;
+ 
+     public HandheldRadioMenu()
+     {
+@@ -26,8 +27,13 @@ public HandheldRadioMenu()
+         MicButton.OnPressed += args => OnMicPressed?.Invoke(args.Button.Pressed);
+         SpeakerButton.OnPressed += args => OnSpeakerPressed?.Invoke(args.Button.Pressed);
+ 
+-        FrequencyLineEdit.OnTextEntered += e => OnFrequencyChanged?.Invoke(e.Text);
+-        FrequencyLineEdit.OnFocusExit += e => OnFrequencyChanged?.Invoke(e.Text);
++        FrequencyLineEdit.OnTextChanged += _ =>
++        {
++            _editingFrequency = true;
++            PopularFrequencyOptions.SelectId(RadioFrequencyPresetUi.CustomOptionId);
++        };
++        FrequencyLineEdit.OnTextEntered += e => SubmitFrequency(e.Text);
++        FrequencyLineEdit.OnFocusExit += e => SubmitFrequency(e.Text);
+ 
+         RadioFrequencyPresetUi.Populate(PopularFrequencyOptions, _prototypes);
+         PopularFrequencyOptions.OnItemSelected += args =>
+@@ -38,24 +44,34 @@ public HandheldRadioMenu()
+             PopularFrequencyOptions.SelectId(args.Id);
+             if (args.Id == RadioFrequencyPresetUi.CustomOptionId)
+             {
++                _editingFrequency = true;
+                 FrequencyLineEdit.GrabKeyboardFocus();
+                 return;
+             }
+ 
+-            OnFrequencyChanged?.Invoke(args.Id.ToString());
++            SubmitFrequency(args.Id.ToString());
+         };
+     }
+ 
++    private void SubmitFrequency(string frequency)
++    {
++        _editingFrequency = false;
++        OnFrequencyChanged?.Invoke(frequency);
++    }
++
+     public void Update(HandheldRadioBoundUIState state)
+     {
+         _updating = true;
+         MicButton.Pressed = state.MicEnabled;
+         SpeakerButton.Pressed = state.SpeakerEnabled;
+-        FrequencyLineEdit.Text = state.Frequency.ToString();
++        if (!_editingFrequency)
++        {
++            FrequencyLineEdit.Text = state.Frequency.ToString();
++            RadioFrequencyPresetUi.Select(PopularFrequencyOptions, state.Frequency);
++        }
+         FrequencyLineEdit.PlaceHolder = Loc.GetString("handheld-radio-custom-placeholder",
+             ("min", state.MinFrequency),
+             ("max", state.MaxFrequency));
+-        RadioFrequencyPresetUi.Select(PopularFrequencyOptions, state.Frequency);
+         _updating = false;
+     }
+ }
+diff --git a/Content.IntegrationTests/Tests/UserInterface/RadioFrequencyInputTest.cs b/Content.IntegrationTests/Tests/UserInterface/RadioFrequencyInputTest.cs
+new file mode 100644
+index 0000000000..3043af0736
+--- /dev/null
++++ b/Content.IntegrationTests/Tests/UserInterface/RadioFrequencyInputTest.cs
+@@ -0,0 +1,68 @@
++using Content.Client._Forge.Radio.Ui;
++using Content.Client._NC.Radio.UI;
++using Content.Shared._Forge.Radio;
++using Content.Shared._NC.Radio;
++using Robust.Client.UserInterface;
++using Robust.Client.UserInterface.Controls;
++
++namespace Content.IntegrationTests.Tests.UserInterface;
++
++[TestFixture]
++public sealed class RadioFrequencyInputTest
++{
++    [TestCase(false)]
++    [TestCase(true)]
++    public async Task StateUpdatesPreserveDraftUntilSubmitted(bool handheld)
++    {
++        await using var pair = await PoolManager.GetServerClient();
++        await pair.Client.WaitAssertion(() =>
++        {
++            using var menu = handheld
++                ? (Control) new HandheldRadioMenu()
++                : new ConfigurableEncryptionKeyMenu();
++            string submitted = null;
++            Action<int> update;
++            if (menu is HandheldRadioMenu radio)
++            {
++                radio.OnFrequencyChanged += text => submitted = text;
++                update = frequency => radio.Update(new HandheldRadioBoundUIState(true, true, frequency, 1000, 9999));
++            }
++            else
++            {
++                var key = (ConfigurableEncryptionKeyMenu) menu;
++                key.OnFrequencyChanged += text => submitted = text;
++                update = frequency => key.Update(new ConfigurableEncryptionKeyBoundUIState(frequency, 1000, 9999));
++            }
++
++            var input = menu.FindControl<LineEdit>("FrequencyLineEdit");
++            var presets = menu.FindControl<OptionButton>("PopularFrequencyOptions");
++            update(1459);
++            Assert.That(input.Text, Is.EqualTo("1459"));
++
++            foreach (var draft in new[] { "", "1", "12", "123", "1234" })
++            {
++                input.SetText(draft, invokeEvent: true);
++                update(1459);
++                Assert.That(input.Text, Is.EqualTo(draft));
++                Assert.That(presets.SelectedId, Is.EqualTo(RadioFrequencyPresetUi.CustomOptionId));
++                Assert.That(submitted, Is.Null);
++            }
++
++            input.ForceSubmitText();
++            Assert.That(submitted, Is.EqualTo("1234"));
++            update(1234);
++            Assert.That(input.Text, Is.EqualTo("1234"));
++
++            input.SetText("invalid", invokeEvent: true);
++            update(1234);
++            Assert.That(input.Text, Is.EqualTo("invalid"));
++            input.ForceSubmitText();
++            update(1234);
++            Assert.That(input.Text, Is.EqualTo("1234"));
++
++            update(1459);
++            Assert.That(input.Text, Is.EqualTo("1459"));
++        });
++        await pair.CleanReturnAsync();
++    }
++}
+diff --git a/Content.IntegrationTests/Tests/_Forge/StationAi/StationAiPrototypeTests.cs b/Content.IntegrationTests/Tests/_Forge/StationAi/StationAiPrototypeTests.cs
+index 75cbb6d57d..8e17f3a5b7 100644
+--- a/Content.IntegrationTests/Tests/_Forge/StationAi/StationAiPrototypeTests.cs
++++ b/Content.IntegrationTests/Tests/_Forge/StationAi/StationAiPrototypeTests.cs
+@@ -56,7 +56,6 @@ await server.WaitAssertion(() =>
+                 Assert.Multiple(() =>
+                 {
+                     Assert.That(tts.VoicePrototypeId, Is.EqualTo("Glados"), prototype);
+-                    Assert.That(tts.FixedVoice, Is.True, prototype);
+                     Assert.That(ghostRole.ReregisterOnGhost, Is.True, $"{prototype} must reopen its takeover role");
+                     Assert.That(ghostRole.RaffleConfig, Is.Not.Null, $"{prototype} must use the raffle");
+                     Assert.That(ghostRole.Prototype, Is.Not.Null, $"{prototype} must reference a ghost role prototype");
+diff --git a/Content.Server/Chat/Managers/ChatSanitizationManager.cs b/Content.Server/Chat/Managers/ChatSanitizationManager.cs
+index 2594b1a459..b2af35d5b7 100644
+--- a/Content.Server/Chat/Managers/ChatSanitizationManager.cs
++++ b/Content.Server/Chat/Managers/ChatSanitizationManager.cs
+@@ -1,4 +1,5 @@
+ using System.Diagnostics.CodeAnalysis;
++using System.Globalization;
+ using System.Text.RegularExpressions;
+ using Content.Shared.CCVar;
+ using Robust.Shared.Configuration;
+@@ -134,6 +135,27 @@ public sealed class ChatSanitizationManager : IChatSanitizationManager
+     [Dependency] private ILocalizationManager _loc = default!;
+ 
+     private bool _doSanitize;
++    private string? _patternCulture;
++    private (Regex Pattern, string EmoteKey)[] _patterns = Array.Empty<(Regex, string)>();
++
++    private void EnsurePatterns()
++    {
++        var culture = CultureInfo.CurrentCulture.Name;
++        if (_patternCulture == culture)
++            return;
++
++        var patterns = new (Regex, string)[ShorthandToEmote.Count];
++        var index = 0;
++        foreach (var (shorthand, emoteKey) in ShorthandToEmote)
++        {
++            var escaped = Regex.Escape(shorthand);
++            var pattern = $@"\s{escaped}(?=\p{{P}}|\s|$)|^{escaped}(?:\p{{P}}|(?=\s|$))";
++            patterns[index++] = (new Regex(pattern, RegexOptions.RightToLeft | RegexOptions.IgnoreCase), emoteKey);
++        }
++
++        _patterns = patterns;
++        _patternCulture = culture;
++    }
+ 
+     public void Initialize()
+     {
+@@ -159,24 +181,13 @@ public bool TrySanitizeEmoteShorthands(string message,
+         if (!_doSanitize)
+             return false;
+ 
++        EnsurePatterns();
++
+         // -1 is just a canary for nothing found yet
+         var lastEmoteIndex = -1;
+ 
+-        foreach (var (shorthand, emoteKey) in ShorthandToEmote)
++        foreach (var (r, emoteKey) in _patterns)
+         {
+-            // We have to escape it because shorthands like ":)" or "-_-" would break the regex otherwise.
+-            var escaped = Regex.Escape(shorthand);
+-
+-            // So there are 2 cases:
+-            // - If there is whitespace before it and after it is either punctuation, whitespace, or the end of the line
+-            //   Delete the word and the whitespace before
+-            // - If it is at the start of the string and is followed by punctuation, whitespace, or the end of the line
+-            //   Delete the word and the punctuation if it exists.
+-            var pattern =
+-                $@"\s{escaped}(?=\p{{P}}|\s|$)|^{escaped}(?:\p{{P}}|(?=\s|$))";
+-
+-            var r = new Regex(pattern, RegexOptions.RightToLeft | RegexOptions.IgnoreCase);
+-
+             // We're using sanitized as the original message until the end so that we can make sure the indices of
+             // the emotes are accurate.
+             var lastMatch = r.Match(sanitized);
+@@ -196,4 +207,4 @@ public bool TrySanitizeEmoteShorthands(string message,
+         sanitized = message.Trim();
+         return emote is not null;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/Content.Server/_Forge/TTS/TTSSystem.cs b/Content.Server/_Forge/TTS/TTSSystem.cs
+index b22ca7fd2c..3eb84ceeb1 100644
+--- a/Content.Server/_Forge/TTS/TTSSystem.cs
++++ b/Content.Server/_Forge/TTS/TTSSystem.cs
+@@ -119,12 +119,9 @@ private async void OnEntitySpoke(EntityUid uid, TTSComponent component, EntitySp
+         if (voiceId == null)
+             return;
+ 
+-        if (!component.FixedVoice)
+-        {
+-            var voiceEv = new TransformSpeakerVoiceEvent(uid, voiceId);
+-            RaiseLocalEvent(uid, voiceEv);
+-            voiceId = voiceEv.VoiceId;
+-        }
++        var voiceEv = new TransformSpeakerVoiceEvent(uid, voiceId);
++        RaiseLocalEvent(uid, voiceEv);
++        voiceId = voiceEv.VoiceId;
+ 
+         if (!_prototypeManager.TryIndex<TTSVoicePrototype>(voiceId, out var protoVoice))
+             return;
+diff --git a/Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs b/Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs
+index 7277598a04..2956368726 100644
+--- a/Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs
++++ b/Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs
+@@ -157,9 +157,6 @@ public sealed partial class ShipMoveToOperator : HTNOperator, IHtnConditionalShu
+ 
+     private const string MovementCancelToken = "ShipMovementCancelToken";
+ 
+-    // needed so it doesn't do it twice
+-    private bool _raisedEvent = false;
+-
+     public override void Initialize(IEntitySystemManager sysManager)
+     {
+         base.Initialize(sysManager);
+@@ -185,7 +182,6 @@ public override void Startup(NPCBlackboard blackboard)
+     {
+         base.Startup(blackboard);
+ 
+-        _raisedEvent = false;
+ 
+         // Need to remove the planning value for execution.
+         blackboard.Remove<EntityCoordinates>(NPCBlackboard.OwnerCoordinates);
+@@ -275,10 +271,11 @@ public void ConditionalShutdown(NPCBlackboard blackboard)
+         }
+ 
+         var uid = blackboard.GetValue<EntityUid>(NPCBlackboard.Owner);
++        var arrived = _entManager.TryGetComponent<ShipSteererComponent>(uid, out var steerer)
++            && steerer.Status == ShipSteeringStatus.InRange;
+         _steering.Stop(uid);
+-        if (!_raisedEvent)
++        if (arrived)
+         {
+-            _raisedEvent = true;
+             _entManager.EventBus.RaiseLocalEvent(uid, new SteeringDoneEvent(), false);
+         }
+     }
+diff --git a/Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs b/Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs
+index 41e018b7b6..2d2add9db2 100644
+--- a/Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs
++++ b/Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs
+@@ -240,7 +240,7 @@ public void RemoveSinkPort(EntityUid uid, ProtoId<SinkPortPrototype> port)
+         foreach (var source in sources)
+         {
+             if (source.DefaultLinks == null)
+-                return new List<(string, string)>();
++                continue;
+ 
+             foreach (var defaultLink in source.DefaultLinks)
+             {
+diff --git a/Content.Shared/_Forge/TTS/TTSComponent.cs b/Content.Shared/_Forge/TTS/TTSComponent.cs
+index 4a34c013cf..369fc12b2a 100644
+--- a/Content.Shared/_Forge/TTS/TTSComponent.cs
++++ b/Content.Shared/_Forge/TTS/TTSComponent.cs
+@@ -17,6 +17,4 @@ public sealed partial class TTSComponent : Component
+     [DataField("voice", customTypeSerializer: typeof(ProtoId<TTSVoicePrototype>))]
+     public string? VoicePrototypeId { get; set; } = "Papich";
+ 
+-    [DataField]
+-    public bool FixedVoice;
+ }
+diff --git a/Resources/Prototypes/Entities/Mobs/Player/silicon.yml b/Resources/Prototypes/Entities/Mobs/Player/silicon.yml
+index f7aa9c06a2..ca95d97658 100644
+--- a/Resources/Prototypes/Entities/Mobs/Player/silicon.yml
++++ b/Resources/Prototypes/Entities/Mobs/Player/silicon.yml
+@@ -667,7 +667,6 @@
+   - type: StationAiPersonality # Forge-Change
+   - type: TTS # Forge - change
+     voice: Glados
+-    fixedVoice: true
+   - type: GhostRole # Forge-Change
+     name: ghost-role-information-station-ai-name
+     description: ghost-role-information-station-ai-description

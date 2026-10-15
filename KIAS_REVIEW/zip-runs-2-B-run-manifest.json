@@ -1,0 +1,40 @@
+{
+  "adminLogProbe": 0,
+  "mapSha256": "e96cdea2c377c4876333c0d5981a39fa79fe2d0b0cb268fe64ddc18d9a3c0f68",
+  "telemetrySha256": "b7cd34457ee1b7ed0860fa00ed02f867f503b9b733ab2d0c1ef2f5004fbaf91c",
+  "profiling": false,
+  "clientSandboxEnabled": true,
+  "physicsMode": "B",
+  "metricsEnabled": true,
+  "phaseCounters": true,
+  "testOnlyInactivity": {
+    "afkSeconds": 8100,
+    "pendingClockinMinutes": 135,
+    "guestAfkMinutes": 135,
+    "scope": "Isolated localhost harness; timeout exceeds wall watchdog, production defaults unchanged"
+  },
+  "clientDiscordEnabled": false,
+  "systemCounters": true,
+  "networkClients": 4,
+  "worldgenEnabled": false,
+  "diagnostic": false,
+  "networkHistoryRequired": true,
+  "diagnosticTimeScale": 1.0,
+  "variant": "B",
+  "physicsQueryCountersEnabled": true,
+  "nativeLabSha256": "6582af0b4ada212655b9ac0a805242c7763ed634a25a9b855dddb8e5f22ea477",
+  "performanceEligible": true,
+  "networkAdmission": {
+    "bindAddress": "127.0.0.1",
+    "maxIpConnections": 8,
+    "maxRapidConnections": 8
+  },
+  "ablation": "None",
+  "assemblySha256": "a99844f0be712321fe044c0183cb496016dec7cf72f425441b67ae7cf0f9d83e",
+  "maxWallMinutes": 120,
+  "nativeGameDriversSha256": "9147398e759f045ec7b2f5864f177823b840650401bb2ad9436104f0f47e6118",
+  "nativeNpcPauseWhenNoPlayers": false,
+  "externalGameProcesses": [],
+  "physicsDeviceGroup": "KiasPrototypes",
+  "strictReady": false
+}

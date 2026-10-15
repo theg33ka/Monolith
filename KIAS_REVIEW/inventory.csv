@@ -1,0 +1,573 @@
+﻿file,category,added,deleted,status,notes
+.gitignore,external,9,1,READ,"KEEP: Исключения локальных lab/build/log-артефактов; не влияет на игру; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+00_AGENT_MASTER_PROMPT.md,external,82,0,READ,"REVERT: Файл пакета задания/манифест 00_AGENT_MASTER_PROMPT.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+00_MASTER_PROMPT.md,external,58,0,READ,"REVERT: Файл пакета задания/манифест 00_MASTER_PROMPT.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+01_BASELINE_AND_REPO_MAP.md,external,65,0,READ,"MOVE_TO_KIAS: Спецификация/план 01_BASELINE_AND_REPO_MAP.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+01_PERFORMANCE_ATTRIBUTION.md,external,33,0,READ,"MOVE_TO_KIAS: Спецификация/план 01_PERFORMANCE_ATTRIBUTION.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+01_REPO_FINDINGS.md,external,32,0,READ,"MOVE_TO_KIAS: Спецификация/план 01_REPO_FINDINGS.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+01_REPO_STATE_AND_HOTSPOTS.md,external,46,0,READ,"MOVE_TO_KIAS: Спецификация/план 01_REPO_STATE_AND_HOTSPOTS.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+02_BRIAR_AUDIT_AND_SCANNER_PREP.md,external,88,0,READ,"MOVE_TO_KIAS: Спецификация/план 02_BRIAR_AUDIT_AND_SCANNER_PREP.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+02_FIX_AND_PARITY.md,external,21,0,READ,"MOVE_TO_KIAS: Спецификация/план 02_FIX_AND_PARITY.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+02_OPTIMIZATION_PLAN.md,external,39,0,READ,"MOVE_TO_KIAS: Спецификация/план 02_OPTIMIZATION_PLAN.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+02_TARGET_ARCHITECTURE.md,external,28,0,READ,"MOVE_TO_KIAS: Спецификация/план 02_TARGET_ARCHITECTURE.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+03_DEVICE_PROTOCOL_SPEC.md,external,51,0,READ,"MOVE_TO_KIAS: Спецификация/план 03_DEVICE_PROTOCOL_SPEC.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+03_FUNCTIONAL_GATE.md,external,72,0,READ,"MOVE_TO_KIAS: Спецификация/план 03_FUNCTIONAL_GATE.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+03_LAUNCH_AND_ACCEPTANCE.md,external,35,0,READ,"MOVE_TO_KIAS: Спецификация/план 03_LAUNCH_AND_ACCEPTANCE.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+03_ROOM_TOPOLOGY.md,external,140,0,READ,"MOVE_TO_KIAS: Спецификация/план 03_ROOM_TOPOLOGY.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+04_FULL_GAME_STRESS.md,external,62,0,READ,"MOVE_TO_KIAS: Спецификация/план 04_FULL_GAME_STRESS.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+04_IMPLEMENTATION_PLAN.md,external,45,0,READ,"MOVE_TO_KIAS: Спецификация/план 04_IMPLEMENTATION_PLAN.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+04_PRESET_ACCEPTANCE_MATRIX.md,external,70,0,READ,"MOVE_TO_KIAS: Спецификация/план 04_PRESET_ACCEPTANCE_MATRIX.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+05_MEASUREMENT_AND_PARITY.md,external,43,0,READ,"MOVE_TO_KIAS: Спецификация/план 05_MEASUREMENT_AND_PARITY.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+05_PERFORMANCE_AND_TESTS.md,external,57,0,READ,"MOVE_TO_KIAS: Спецификация/план 05_PERFORMANCE_AND_TESTS.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+05_REPLAY_ENGINE.md,external,63,0,READ,"MOVE_TO_KIAS: Спецификация/план 05_REPLAY_ENGINE.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+06_BAT_ORCHESTRATION.md,external,55,0,READ,"MOVE_TO_KIAS: Спецификация/план 06_BAT_ORCHESTRATION.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+06_RELEASE_AB_AND_PARITY.md,external,54,0,READ,"MOVE_TO_KIAS: Спецификация/план 06_RELEASE_AB_AND_PARITY.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+06_REPO_SOURCE_MAP.md,external,46,0,READ,"MOVE_TO_KIAS: Спецификация/план 06_REPO_SOURCE_MAP.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+07_ACCEPTANCE_AND_DELIVERY.md,external,63,0,READ,"MOVE_TO_KIAS: Спецификация/план 07_ACCEPTANCE_AND_DELIVERY.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+07_CONTROLLER_GRAPH_SPEC.md,external,42,0,READ,"MOVE_TO_KIAS: Спецификация/план 07_CONTROLLER_GRAPH_SPEC.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+07_METRICS_PROFILING.md,external,79,0,READ,"MOVE_TO_KIAS: Спецификация/план 07_METRICS_PROFILING.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+08_LOAD_SCENARIO.md,external,50,0,READ,"MOVE_TO_KIAS: Спецификация/план 08_LOAD_SCENARIO.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+08_PROTOCOL_MIGRATION.md,external,40,0,READ,"MOVE_TO_KIAS: Спецификация/план 08_PROTOCOL_MIGRATION.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+08_SCANNER_ACCEPTANCE_MATRIX.md,external,63,0,READ,"MOVE_TO_KIAS: Спецификация/план 08_SCANNER_ACCEPTANCE_MATRIX.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+09_REPORT_TRIAGE_AND_CRITERIA.md,external,65,0,READ,"MOVE_TO_KIAS: Спецификация/план 09_REPORT_TRIAGE_AND_CRITERIA.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+09_SCANNER_MIGRATION_AND_UI.md,external,42,0,READ,"MOVE_TO_KIAS: Спецификация/план 09_SCANNER_MIGRATION_AND_UI.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+09_THIRD_PARTY_REFERENCES.md,external,31,0,READ,"MOVE_TO_KIAS: Спецификация/план 09_THIRD_PARTY_REFERENCES.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+10_RISK_REGISTER.md,external,43,0,READ,"MOVE_TO_KIAS: Спецификация/план 10_RISK_REGISTER.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+10_RUNBOOK.md,external,54,0,READ,"MOVE_TO_KIAS: Спецификация/план 10_RUNBOOK.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+10_SCANNER_PERF_AND_REBUILD.md,external,49,0,READ,"MOVE_TO_KIAS: Спецификация/план 10_SCANNER_PERF_AND_REBUILD.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+11_LIVE_SMOKE_CHECKLIST.md,external,55,0,READ,"MOVE_TO_KIAS: Спецификация/план 11_LIVE_SMOKE_CHECKLIST.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+11_SCANNER_REAL_MAP_FIX.md,external,22,0,READ,"MOVE_TO_KIAS: Спецификация/план 11_SCANNER_REAL_MAP_FIX.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+12_DELIVERY_REPORT_TEMPLATE.md,external,52,0,READ,"MOVE_TO_KIAS: Спецификация/план 12_DELIVERY_REPORT_TEMPLATE.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+12_RUNTIME_PHYSICS_EXPERIMENT.md,external,17,0,READ,"MOVE_TO_KIAS: Спецификация/план 12_RUNTIME_PHYSICS_EXPERIMENT.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+13_FULL_GAME_FINAL_CONTRACT.md,external,21,0,READ,"MOVE_TO_KIAS: Спецификация/план 13_FULL_GAME_FINAL_CONTRACT.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+14_BAT_UX_AND_HANDOFF.md,external,21,0,READ,"MOVE_TO_KIAS: Спецификация/план 14_BAT_UX_AND_HANDOFF.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+APPLY.md,external,17,0,READ,"REVERT: Файл пакета задания/манифест APPLY.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+CHANGELOG_V2.md,external,11,0,READ,"REVERT: Файл пакета задания/манифест CHANGELOG_V2.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+CHANGELOG_V3.md,external,9,0,READ,"REVERT: Файл пакета задания/манифест CHANGELOG_V3.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+COPYPASTE_PROMPT.md,external,13,0,READ,"REVERT: Файл пакета задания/манифест COPYPASTE_PROMPT.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Content.Client/Content.Client.csproj,external,9,0,ISSUES_FOUND,"MINIMIZE: Три условных Compile Include: KiasLabVisual, KiasLabScannerUi, KiasLabLiveUi; по умолчанию выключены; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Client/Shuttles/UI/ShuttleNavControl.xaml.cs,external,3,0,ISSUES_FOUND,"KEEP: protected virtual DrawSensorCoverage в рендере навигации; базовая реализация пустая; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Client/_Forge/KIAS/Controllers/KiasControllerBoundUserInterface.cs,production,29,0,CROSS_CHECKED,"BUI transport, открытие/закрытие editor и обработка state; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/KIAS/Controllers/KiasControllerLabels.cs,production,64,0,CROSS_CHECKED,"Русские подписи типов, профилей и enum domains; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/KIAS/Controllers/KiasControllerWindow.cs,production,363,0,ISSUES_FOUND,"Палитра, поиск, inspector, pending/revision и WRITE/Eject; исходник и связанный caller/callee просмотрены; KIAS-08 (ограниченный сервером каталог)"
+Content.Client/_Forge/KIAS/Controllers/KiasGraphCanvas.cs,production,236,0,CROSS_CHECKED,"Координаты graph/screen, zoom/pan, hit testing, typed wires; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/KIAS/KiasBoundUserInterface.cs,production,29,0,CROSS_CHECKED,"Основной монитор: state → window, сообщения на сервер; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/KIAS/KiasCoverageNavControl.cs,production,73,0,CROSS_CHECKED,"Отрисовка room coverage, boundary cells и grid pose; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/KIAS/KiasCoverageSystem.cs,production,92,0,CROSS_CHECKED,World overlay и lifecycle UI geometry; исходник и связанный caller/callee просмотрены
+Content.Client/_Forge/KIAS/KiasLocalBoundUserInterface.cs,production,51,0,CROSS_CHECKED,"Локальное BUI устройства, открытие/закрытие; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/KIAS/KiasLocalWindow.cs,production,251,0,CROSS_CHECKED,"Настройки устройств, поля, enum/range, просмотр coverage; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/KIAS/KiasUi.cs,production,45,0,CROSS_CHECKED,Общие клиентские элементы/представление KIAS; исходник и связанный caller/callee просмотрены
+Content.Client/_Forge/KIAS/KiasWindow.xaml,production,33,0,CROSS_CHECKED,Разметка основного монитора; исходник и связанный caller/callee просмотрены
+Content.Client/_Forge/KIAS/KiasWindow.xaml.cs,production,97,0,CROSS_CHECKED,"Основной монитор, списки и действия пользователя; исходник и связанный caller/callee просмотрены"
+Content.Client/_Forge/Radio/Ui/ConfigurableEncryptionKeyMenu.xaml.cs,external,21,5,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Валидация пользовательского ввода радиочастоты; обычные радиоустройства меняют поведение
+Content.Client/_Mono/Audio/AudioEffectSystem.cs,external,1,1,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: CachedEffects из static в поле экземпляра; изоляция миров/IoC
+Content.Client/_Mono/FireControl/UI/FireControlWindow.xaml.cs,external,1,0,ISSUES_FOUND,"MINIMIZE: Подсказка о резервировании орудия KIAS; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Client/_NC/Radio/UI/HandheldRadioMenu.xaml.cs,external,21,5,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Валидация пользовательского ввода радиочастоты; обычные радиоустройства меняют поведение
+Content.IntegrationTests/Tests/UserInterface/RadioFrequencyInputTest.cs,external,68,0,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Регрессия ввода частот для двух нативных окон
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasAccessTests.cs,tests,160,0,READ,Методы и содержательные assertions просмотрены (51 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasActuatorTests.cs,tests,188,0,READ,Методы и содержательные assertions просмотрены (23 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasAnnouncementSanitizationTests.cs,tests,59,0,READ,Методы и содержательные assertions просмотрены (15 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasAutopilotCompletionTests.cs,tests,85,0,READ,Методы и содержательные assertions просмотрены (5 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasBriarCrossGateTests.cs,tests,883,0,READ,Методы и содержательные assertions просмотрены (118 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasBriarLabTests.cs,tests,238,0,READ,Методы и содержательные assertions просмотрены (18 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasBriarPhysicalGateTests.cs,tests,2009,0,READ,Методы и содержательные assertions просмотрены (231 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasBriarRoomTests.cs,tests,173,0,READ,Методы и содержательные assertions просмотрены (29 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerBackpressureTests.cs,tests,90,0,READ,Методы и содержательные assertions просмотрены (10 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerBridgeTests.cs,tests,62,0,READ,Методы и содержательные assertions просмотрены (6 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerCorrectionTests.cs,tests,416,0,READ,Методы и содержательные assertions просмотрены (57 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerEditorTests.cs,tests,142,0,READ,Методы и содержательные assertions просмотрены (40 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerEpochTests.cs,tests,58,0,READ,Методы и содержательные assertions просмотрены (7 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerFeedbackTests.cs,tests,58,0,READ,Методы и содержательные assertions просмотрены (6 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerLayoutTests.cs,tests,185,0,READ,Методы и содержательные assertions просмотрены (37 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerMigrationTests.cs,tests,99,0,READ,Методы и содержательные assertions просмотрены (17 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerPhysicalTests.cs,tests,73,0,READ,Методы и содержательные assertions просмотрены (16 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerRuntimeTests.cs,tests,329,0,READ,Методы и содержательные assertions просмотрены (51 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerSelectorTests.cs,tests,72,0,READ,Методы и содержательные assertions просмотрены (9 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerShutdownTests.cs,tests,64,0,READ,Методы и содержательные assertions просмотрены (5 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasControllerStressTests.cs,tests,164,0,READ,Методы и содержательные assertions просмотрены (9 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasDefenceTests.cs,tests,79,0,READ,Методы и содержательные assertions просмотрены (10 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasDeviceConfigurationTests.cs,tests,130,0,READ,Методы и содержательные assertions просмотрены (20 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasDeviceTests.cs,tests,167,0,READ,Методы и содержательные assertions просмотрены (24 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasEmissionTests.cs,tests,27,0,READ,Методы и содержательные assertions просмотрены (10 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasExpeditionTests.cs,tests,165,0,READ,Методы и содержательные assertions просмотрены (25 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasFaunaTests.cs,tests,85,0,READ,Методы и содержательные assertions просмотрены (9 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasFleetTests.cs,tests,249,0,READ,Методы и содержательные assertions просмотрены (6 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasGraphTests.cs,tests,288,0,READ,Методы и содержательные assertions просмотрены (45 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasGridTests.cs,tests,251,0,READ,Методы и содержательные assertions просмотрены (53 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasHullCompatibilityTests.cs,tests,225,0,READ,Методы и содержательные assertions просмотрены (17 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasHullTests.cs,tests,142,0,READ,Методы и содержательные assertions просмотрены (11 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasOutputMonitorTests.cs,tests,105,0,READ,Методы и содержательные assertions просмотрены (21 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasParityTests.cs,tests,162,0,READ,Методы и содержательные assertions просмотрены (21 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasPersistenceTests.cs,tests,192,0,READ,Методы и содержательные assertions просмотрены (49 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasPhaseMeasurementTests.cs,tests,39,0,READ,Методы и содержательные assertions просмотрены (6 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasProtocolTests.cs,tests,165,0,READ,Методы и содержательные assertions просмотрены (21 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasRelayTests.cs,tests,133,0,READ,Методы и содержательные assertions просмотрены (19 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasRoomGridPoseTests.cs,tests,74,0,READ,Методы и содержательные assertions просмотрены (6 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasRoomLifecycleTests.cs,tests,157,0,READ,Методы и содержательные assertions просмотрены (24 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasRoomTopologyTests.cs,tests,277,0,READ,Методы и содержательные assertions просмотрены (68 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasRuntimeQueueMetricsTests.cs,tests,27,0,READ,Методы и содержательные assertions просмотрены (7 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasScannerReconciliationTests.cs,tests,118,0,READ,Методы и содержательные assertions просмотрены (16 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasServiceTests.cs,tests,250,0,READ,Методы и содержательные assertions просмотрены (46 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasSpeakerTests.cs,tests,129,0,READ,Методы и содержательные assertions просмотрены (11 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasSpriteTests.cs,tests,243,0,READ,Методы и содержательные assertions просмотрены (33 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasTestArtifacts.cs,tests,17,0,READ,Test helper/сохранение артефактов; самостоятельных behavioral assertions нет
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasThreatTests.cs,tests,28,0,READ,Методы и содержательные assertions просмотрены (10 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasTopologyTests.cs,tests,64,0,READ,Методы и содержательные assertions просмотрены (9 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasUiStabilityTests.cs,tests,145,0,READ,Методы и содержательные assertions просмотрены (18 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/KIAS/KiasVentilationTests.cs,tests,45,0,READ,Методы и содержательные assertions просмотрены (8 строк Assert); Release namespace run PASS; не утверждение построчного покрытия
+Content.IntegrationTests/Tests/_Forge/StationAi/StationAiPrototypeTests.cs,external,0,1,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Удалён assertion FixedVoice
+Content.Server/Ame/EntitySystems/AmeControllerSystem.cs,external,2,0,ISSUES_FOUND,"KEEP: Событие InjectionChanged после изменения впрыска AME; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Atmos/EntitySystems/AtmosphereSystem.RoomSafety.cs,external,30,0,ISSUES_FOUND,"MINIMIZE: Публичный ограниченный запрос безопасности комнаты, BFS до 625 клеток; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Atmos/Monitor/Systems/AtmosAlarmableSystem.cs,external,4,2,ISSUES_FOUND,"KEEP: Source в AtmosAlarmEvent и заполнение источника при отправке; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Chat/Managers/ChatSanitizationManager.cs,external,26,15,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Кэш compiled Regex по культуре вместо повторной сборки выражения
+Content.Server/Content.Server.csproj,external,6,0,ISSUES_FOUND,"MINIMIZE: Условное включение серверных ScannerUiLab и LiveUiLab; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/DeviceLinking/Systems/DeviceLinkSystem.cs,external,23,2,ISSUES_FOUND,"MINIMIZE: InvokeSink, событие порта, SourcePort в прямом сигнале; также прямая проверка режима KIAS; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/DeviceNetwork/Systems/NetworkConfiguratorSystem.cs,external,1,8,ISSUES_FOUND,"MINIMIZE: Убрана узкая проверка BoardingTeleport; режим Link доступен всем подходящим DeviceNetwork+DeviceLink устройствам; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Power/EntitySystems/PowerMonitoringConsoleSystem.cs,external,5,2,ISSUES_FOUND,"KEEP: Пропуск CableType.Data в трёхканальном мониторе мощности; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Power/Nodes/CableNode.cs,external,6,0,ISSUES_FOUND,"MINIMIZE: Connectable обращается к KiasRelaySystem; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Radio/EntitySystems/JammerSystem.cs,external,21,14,ISSUES_FOUND,"KEEP: Выделен публичный SetEnabled с прежним изменением нативного состояния; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Shuttles/Systems/ShuttleConsoleLockSystem.cs,external,2,25,ISSUES_FOUND,"MINIMIZE: Использование ShipAccessReaderSystem.HasDeedAccess вместо дублирования поиска ID/deed; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Shuttles/Systems/ShuttleSystem.Impact.cs,external,21,1,ISSUES_FOUND,"MINIMIZE: Два KIAS collision event после принятого столкновения; dedup перенесён после порога; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/Weapons/Ranged/Systems/GunSystem.cs,external,5,0,ISSUES_FOUND,"REPLACE_WITH_NATIVE_API: Дополнительный KiasWeaponFiredEvent после штатного AmmoShotEvent; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/_Forge/KIAS/Controllers/KiasCommandInputs.cs,production,13,0,CROSS_CHECKED,Набор допустимых command inputs; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/Controllers/KiasControllerIoSystem.Commands.cs,production,99,0,ISSUES_FOUND,"Schema, online/grid/Test gates → native command; исходник и связанный caller/callee просмотрены; KIAS-01"
+Content.Server/_Forge/KIAS/Controllers/KiasControllerIoSystem.Sensors.cs,production,105,0,CROSS_CHECKED,Sensor outputs и snapshot текущих значений; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/Controllers/KiasControllerIoSystem.cs,production,219,0,ISSUES_FOUND,"Outputs, topology index, matches/selectors; исходник и связанный caller/callee просмотрены; KIAS-03, KIAS-05"
+Content.Server/_Forge/KIAS/Controllers/KiasControllerPhysicalSystem.cs,production,171,0,CROSS_CHECKED,"Card slots, rack power, lease и узкий CanMapEdit; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/Controllers/KiasControllerRuntimeSystem.Compilations.cs,production,69,0,CROSS_CHECKED,"Compile cache, revisions и faults; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/Controllers/KiasControllerRuntimeSystem.cs,production,548,0,ISSUES_FOUND,"VM lifecycle, epoch, timers, bounded queues и dispatch; исходник и связанный caller/callee просмотрены; KIAS-04, KIAS-05"
+Content.Server/_Forge/KIAS/Controllers/KiasControllerUiSystem.cs,production,309,0,ISSUES_FOUND,"Server authority, draft, palette, revision, edit validation; исходник и связанный caller/callee просмотрены; KIAS-08, KIAS-11"
+Content.Server/_Forge/KIAS/Controllers/KiasRuntimeQueueMetrics.cs,production,28,0,CROSS_CHECKED,Queue age/high-water/histogram counters; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasAccessSystem.cs,production,130,0,CROSS_CHECKED,Ship deed/company/POI/claim и права конфигурации; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasActuatorSystem.cs,production,188,0,CROSS_CHECKED,"Native lighting, suppressant cartridge/foam и DeviceLink; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasAmeAdapterSystem.cs,production,56,0,CROSS_CHECKED,AME injection → native controls/state; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasCountermeasureSystem.cs,production,21,0,CROSS_CHECKED,Native jammer adapter; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasCrewSystem.cs,production,616,0,ISSUES_FOUND,"Registration, crew/threat/fauna, scan coverage, optical cameras; исходник и связанный caller/callee просмотрены; KIAS-02"
+Content.Server/_Forge/KIAS/KiasDefenceSystem.cs,production,405,0,CROSS_CHECKED,"PDC/guns/IFF, ammo, target selection и reservation/gates; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasDeviceIdentitySystem.cs,production,118,0,CROSS_CHECKED,"Сохраняемый ID, collision resolution, room grouping; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasDeviceSystem.cs,production,121,0,CROSS_CHECKED,"Интеракции, схемы/модули, wire setup и local controls; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasDisplaySystem.Audio.cs,production,57,0,CROSS_CHECKED,"Speech/radio, channel и routing; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasDisplaySystem.LocalUi.cs,production,320,0,ISSUES_FOUND,"Local config validation, room/range/settings и state; исходник и связанный caller/callee просмотрены; KIAS-05"
+Content.Server/_Forge/KIAS/KiasDisplaySystem.State.cs,production,68,0,CROSS_CHECKED,Сборка monitor snapshot; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasDisplaySystem.cs,production,245,0,CROSS_CHECKED,"BUI refresh, диагностика, coverage и отображаемые состояния; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasEmissionGate.cs,production,35,0,CROSS_CHECKED,Cooldown/dedup выходящих сигналов; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasExternalSensorSystem.cs,production,170,0,CROSS_CHECKED,"External threats, radiation/anomaly и фильтры; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasGridComponent.cs,production,23,0,CROSS_CHECKED,Grid-local registry/state ownership; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasHullSystem.cs,production,145,0,CROSS_CHECKED,"Damage/healing, collision impact и пороги; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasIntegrationSystem.cs,production,229,0,CROSS_CHECKED,"Direct/scanner handoff, availability/control vs functional power; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasNavigationSystem.cs,production,98,0,CROSS_CHECKED,Shuttle native navigation/FTL → signals; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasPeriodicScheduler.cs,production,34,0,CROSS_CHECKED,Ограниченная периодическая обработка grids; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasPhaseMeasurement.cs,production,72,0,CROSS_CHECKED,Nested inclusive/exclusive time/allocation counters; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasPowerSystem.cs,production,169,0,ISSUES_FOUND,Energy samples/deficit и role lifecycle; исходник и связанный caller/callee просмотрены; KIAS-06
+Content.Server/_Forge/KIAS/KiasProtocolSystem.cs,production,312,0,ISSUES_FOUND,"Protocol conditions, fire/atmos latch, distress и outputs; исходник и связанный caller/callee просмотрены; KIAS-06, KIAS-07"
+Content.Server/_Forge/KIAS/KiasRecorderSystem.cs,production,83,0,CROSS_CHECKED,Ограниченная история/запись событий; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasRelaySystem.cs,production,166,0,CROSS_CHECKED,Управление силовой связностью и reconnect; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasRoomGeometry.cs,production,176,0,CROSS_CHECKED,"Interior/exterior geometry, directional edges и limits; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasRoomTopologySystem.Diagnostics.cs,production,77,0,CROSS_CHECKED,Диагностика room snapshots и revisions; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasRoomTopologySystem.Queries.cs,production,174,0,CROSS_CHECKED,"Coverage queries, tile/door lookup; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasRoomTopologySystem.cs,production,272,0,CROSS_CHECKED,"Invalidation, scheduling и commit room topology; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasSafetySystem.cs,production,145,0,CROSS_CHECKED,Сигналы опасности и штатные пороги; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasServiceSystem.cs,production,292,0,ISSUES_FOUND,"Service modes, Test pulse, expiry и diagnostics; исходник и связанный caller/callee просмотрены; KIAS-01"
+Content.Server/_Forge/KIAS/KiasSystem.CableVisuals.cs,production,26,0,CROSS_CHECKED,Маска DATA cable states при topology rebuild; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasSystem.cs,production,322,0,CROSS_CHECKED,"Device lifecycle, core/roles, DATA graph и availability; исходник и связанный caller/callee просмотрены"
+Content.Server/_Forge/KIAS/KiasTransformSystem.cs,production,22,0,CROSS_CHECKED,Перенос/вращение и invalidation grid membership; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasUpdateMeasurement.cs,production,24,0,CROSS_CHECKED,Update measurement on/off и totals; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/KIAS/KiasVentilationSystem.cs,production,28,0,CROSS_CHECKED,Native vent/pump adapter; исходник и связанный caller/callee просмотрены
+Content.Server/_Forge/TTS/TTSSystem.cs,external,3,6,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Удалена специальная обработка фиксированного голоса Station AI
+Content.Server/_Mono/FireControl/FireControlSystem.Console.cs,external,2,0,ISSUES_FOUND,"MINIMIZE: Заполнение признака резервирования; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/_Mono/FireControl/FireControlSystem.cs,external,3,1,ISSUES_FOUND,"MINIMIZE: AttemptFire спрашивает KIAS и принимает kiasAutomatic; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs,external,3,6,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Удалён singleton completion event; успешный выход только по InRange до Stop
+Content.Server/_Mono/Shuttles/Systems/ShuttleConsoleSystem.Autopilot.cs,external,6,0,ISSUES_FOUND,"MINIMIZE: KiasAutopilotCompletedEvent при достижении target; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/Anomaly/Components/AnomalyComponent.cs,external,1,1,ISSUES_FOUND,"KEEP: PreviousStability у AnomalyStabilityChangedEvent; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/Anomaly/SharedAnomalySystem.cs,external,3,2,ISSUES_FOUND,"KEEP: Заполнение PreviousStability при повышении/снижении; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/Damage/Systems/DamageableSystem.cs,external,12,0,ISSUES_FOUND,"REPLACE_WITH_NATIVE_API: Положительный damage и KiasHullDamageEvent перед штатным DamageChangedEvent; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/DeviceLinking/Events/DeviceLinkPortInvokedEvent.cs,external,7,0,ISSUES_FOUND,"KEEP: Нейтральное событие вызова исходящего порта; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/DeviceLinking/Events/SignalReceivedEvent.cs,external,1,1,ISSUES_FOUND,"KEEP: Optional SourcePort в конструкторе события; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/DeviceLinking/SharedDeviceLinkSystem.cs,external,1,1,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: В подборе default links ранний return заменён continue
+Content.Shared/Power/SharedPower.cs,external,1,0,ISSUES_FOUND,"KEEP: Новый CableType.Data; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/Projectiles/SharedProjectileSystem.cs,external,8,0,ISSUES_FOUND,"MINIMIZE: KiasHullImpactEvent после фактического положительного projectile damage; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/Shuttles/Systems/SharedShuttleSystem.IFF.cs,external,18,0,ISSUES_FOUND,"MINIMIZE: Mayday суффикс в GetLabel и SetKiasMayday с Dirty; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/Weapons/Ranged/Systems/SharedGunSystem.cs,external,11,0,ISSUES_FOUND,"KEEP: Публичный CancelShots сбрасывает RemainingTime, восстанавливает ShootCoordinates и делает Dirty; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/_Forge/KIAS/Controllers/KiasControllerComponents.cs,production,57,0,CROSS_CHECKED,"Card/programmer/rack state, persistence и runtime-only поля; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/Controllers/KiasControllerProgram.cs,production,112,0,CROSS_CHECKED,Serializable graph nodes/wires/types/config/bindings; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/Controllers/KiasControllerUi.cs,production,97,0,CROSS_CHECKED,"Network BUI messages/states, limits и editor views; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/Controllers/KiasGraphCatalog.cs,production,81,0,CROSS_CHECKED,Typed ports внутренних и device nodes; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/Controllers/KiasGraphCompiler.cs,production,152,0,CROSS_CHECKED,"Graph validation, limits, cycles, enum inference и compiled ports; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/Controllers/KiasGraphMachine.cs,production,225,0,CROSS_CHECKED,"Typed execution, timers/state, operations и command sinks; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/Controllers/KiasLegacyGraphTranslator.cs,production,173,0,CROSS_CHECKED,Legacy graph → typed program semantics; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasAccessComponents.cs,production,18,0,CROSS_CHECKED,Claim/deed/company policy data; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasActuatorComponents.cs,production,31,0,CROSS_CHECKED,"Actuator configuration, slots и charge data; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/KiasAudio.cs,production,43,0,CROSS_CHECKED,Audio channels/messages и routing schema; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasComponents.cs,production,87,0,CROSS_CHECKED,Core/device/modules/service state и serialization; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasCoverage.cs,production,22,0,CROSS_CHECKED,"Coverage geometry, room state и client snapshot schema; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/KiasCrewComponents.cs,production,54,0,CROSS_CHECKED,Crew registration/transponder/scanner data; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasDefenceComponents.cs,production,73,0,CROSS_CHECKED,Defence scanner/gun configuration и runtime state; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasDevices.cs,production,55,0,CROSS_CHECKED,Device roles/types и outputs; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasDisplay.cs,production,84,0,CROSS_CHECKED,Monitor state/network schema; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasExternalSensors.cs,production,31,0,CROSS_CHECKED,External sensor data/schema; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasHullComponents.cs,production,29,0,CROSS_CHECKED,"Hull thresholds, impact state и native event contracts; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/KiasLocalUi.cs,production,127,0,CROSS_CHECKED,"Local messages, scanner/config fields и limits; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/KiasNavigationEvents.cs,production,16,0,CROSS_CHECKED,Navigation/FTL bridge event data; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasPowerCableComponent.cs,production,12,0,CROSS_CHECKED,KIAS relay component state; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasProtocols.cs,production,123,0,CROSS_CHECKED,"Protocol definitions, conditions и configuration; исходник и связанный caller/callee просмотрены"
+Content.Shared/_Forge/KIAS/KiasRelayComponent.cs,production,15,0,CROSS_CHECKED,Relay state/configuration; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasSafetyEvents.cs,production,9,0,CROSS_CHECKED,Safety signal event contracts; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/KIAS/KiasTopology.cs,production,89,0,CROSS_CHECKED,Topology/availability events и roles; исходник и связанный caller/callee просмотрены
+Content.Shared/_Forge/TTS/TTSComponent.cs,external,0,2,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Удалено поле FixedVoice
+Content.Shared/_Mono/Company/CompanyAccessReaderSystem.cs,external,7,12,ISSUES_FOUND,"KEEP: IsAllowed выделяет существующее правило доступа компании; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/_Mono/FireControl/FireControlMessages.cs,external,1,0,ISSUES_FOUND,"MINIMIZE: Флаг KIAS reservation в UI записи орудия; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Content.Shared/_Mono/Shipyard/ShipAccessReaderSystem.cs,external,17,14,ISSUES_FOUND,"MINIMIZE: FindAccessibleIdCards/HasDeedAccess; недействительные/null deeds не считаются совпадением; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Docs/KIAS/ARCHITECTURE.md,documentation,32,0,READ,Архитектура/заявленный контракт сопоставлены с текущим кодом; исторические результаты не считаются свежими
+Docs/KIAS/CHECKS_REGISTER.md,documentation,552,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/CONTROLLERS.md,documentation,57,0,READ,Архитектура/заявленный контракт сопоставлены с текущим кодом; исторические результаты не считаются свежими
+Docs/KIAS/CORE_SPRITE.md,documentation,16,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/CORRECTION_REPORT.md,documentation,99,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/DEVICE_IDENTIFICATION.md,documentation,31,0,READ,Архитектура/заявленный контракт сопоставлены с текущим кодом; исторические результаты не считаются свежими
+Docs/KIAS/DEVICE_ROTATION_AUDIT.json,documentation,821,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/FAUNA_MONITOR.md,documentation,33,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/HULL_COMPATIBILITY.md,documentation,23,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/INTERMEDIATE_RUN.md,documentation,32,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/MAPPING_EDITOR.md,documentation,35,0,READ,Архитектура/заявленный контракт сопоставлены с текущим кодом; исторические результаты не считаются свежими
+Docs/KIAS/NIGHT_DIAGNOSTIC_RUN.md,documentation,15,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/PARITY_AUDIT.md,documentation,24,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/PATCH_20261008_REPORT.md,documentation,70,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/PLAYER_GUIDE.md,documentation,52,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/PREFLIGHT_FIXES_20261011.md,documentation,60,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/PULL_REQUEST.md,documentation,54,0,ISSUES_FOUND,Архитектура/заявленный контракт сопоставлены с текущим кодом; исторические результаты не считаются свежими; KIAS-09
+Docs/KIAS/README.md,documentation,30,0,READ,Архитектура/заявленный контракт сопоставлены с текущим кодом; исторические результаты не считаются свежими
+Docs/KIAS/REMAINING_BENCHMARK_WORK.md,documentation,99,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/SPRITE_ATLAS_1.png,documentation,-,-,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/SPRITE_ATLAS_2.png,documentation,-,-,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/SPRITE_ATLAS_3.png,documentation,-,-,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/SPRITE_ATLAS_4.png,documentation,-,-,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/SPRITE_ENTITY_MAP.json,documentation,93,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/SPRITE_PACK.md,documentation,18,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/SPRITE_PROMPTS.json,documentation,551,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/THIRD_PARTY.md,documentation,27,0,READ,Архитектура/заявленный контракт сопоставлены с текущим кодом; исторические результаты не считаются свежими
+Docs/KIAS/UI_STABILITY.md,documentation,33,0,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+Docs/KIAS/VALIDATION.md,documentation,124,0,READ,Просмотр основных заявлений и текущего scope; исторические логи/план не выполнялись повторно
+Docs/KIAS/WALL_DEVICE_PREVIEW.png,documentation,-,-,NOT_READ,Архивный текст/исходный art/preview не проверен целиком; продуктовые исходники и runtime RSI проверены отдельно
+MANIFEST.json,external,33,0,READ,"REVERT: Файл пакета задания/манифест MANIFEST.json; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+MANIFEST.md,external,259,0,READ,"REVERT: Файл пакета задания/манифест MANIFEST.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+PACKAGE_MANIFEST.json,external,23,0,READ,"REVERT: Файл пакета задания/манифест PACKAGE_MANIFEST.json; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+PATCH_PROMPT.md,external,58,0,READ,"REVERT: Файл пакета задания/манифест PATCH_PROMPT.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+README.md,external,5,58,ISSUES_FOUND,"REVERT: Удалены 58 строк README проекта, добавлено 5 строк задания лабораторному агенту; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений; KIAS-09"
+Resources/Locale/en-US/_Forge/KIAS/rooms.ftl,resources,11,0,VERIFIED,Key parity/duplicates и UI label tests; не редактура каждой локализованной строки
+Resources/Locale/en-US/_Forge/kias-controller-help.ftl,external,198,0,READ,"KEEP: Отдельная локализация KIAS EN; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Resources/Locale/en-US/_Forge/kias.ftl,external,886,0,READ,"KEEP: Отдельная локализация KIAS EN; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Resources/Locale/ru-RU/_Forge/KIAS/rooms.ftl,resources,11,0,VERIFIED,Key parity/duplicates и UI label tests; не редактура каждой локализованной строки
+Resources/Locale/ru-RU/_Forge/kias-controller-help.ftl,external,198,0,READ,"KEEP: Отдельная локализация KIAS RU; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Resources/Locale/ru-RU/_Forge/kias.ftl,external,853,0,READ,"KEEP: Отдельная локализация KIAS RU; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Resources/Maps/_Forge/Shuttles/Archive/Mercenary/briarKIAS.yml,external,24762,0,READ,"MOVE_TO_KIAS: Копия карты Briar с KIAS для лаборатории, 24762 добавленных строки; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Resources/Prototypes/Entities/Mobs/Player/silicon.yml,external,0,1,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Удалена настройка FixedVoice у Station AI
+Resources/Prototypes/Entities/Structures/Machines/lathe.yml,external,2,0,ISSUES_FOUND,"KEEP: Добавлены две категории/пакета KIAS recipes в штатные производители; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Resources/Prototypes/Entities/Structures/Power/cables.yml,external,1,0,ISSUES_FOUND,"KEEP: KiasPowerCable на базовом силовом кабеле для relay; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Resources/Prototypes/Entities/Structures/Walls/walls.yml,external,1,0,ISSUES_FOUND,"KEEP: KiasHullStructure на базовой стене; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Resources/Prototypes/Entities/Structures/Windows/window.yml,external,2,0,ISSUES_FOUND,"KEEP: KiasHullStructure на двух базах окон; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Resources/Prototypes/_Forge/KIAS/controller_presets.yml,resources,7576,0,CROSS_CHECKED,Prototype structure/components/parents/ports/recipes и compiler/physical tests; resource-structure/preset-structure
+Resources/Prototypes/_Forge/KIAS/controller_profiles.yml,resources,244,0,CROSS_CHECKED,Prototype structure/components/parents/ports/recipes и compiler/physical tests; resource-structure/preset-structure
+Resources/Prototypes/_Forge/KIAS/controllers.yml,resources,157,0,CROSS_CHECKED,Prototype structure/components/parents/ports/recipes и compiler/physical tests; resource-structure/preset-structure
+Resources/Prototypes/_Forge/KIAS/crafting.yml,resources,602,0,CROSS_CHECKED,Prototype structure/components/parents/ports/recipes и compiler/physical tests; resource-structure/preset-structure
+Resources/Prototypes/_Forge/KIAS/devices.yml,resources,842,0,CROSS_CHECKED,Prototype structure/components/parents/ports/recipes и compiler/physical tests; resource-structure/preset-structure
+Resources/Prototypes/_Forge/KIAS/kias.yml,resources,1040,0,CROSS_CHECKED,Prototype structure/components/parents/ports/recipes и compiler/physical tests; resource-structure/preset-structure
+Resources/Prototypes/_Mono/Entities/SpaceArtillery/SpaceArtillery/Kinetic/flarelauncher.yml,external,1,0,ISSUES_FOUND,"KEEP: KiasDecoyLauncher на штатной flare launcher; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Resources/Prototypes/_Mono/Entities/SpaceArtillery/SpaceArtillery/Kinetic/standardlight_kinetic.yml,external,6,0,ISSUES_FOUND,"KEEP: KiasPdc и KiasDevice на двух штатных лёгких орудиях; KIAS-10: минимизация/маркировка, не утверждение игрового бага во всём файле"
+Resources/Textures/_Forge/KIAS/KiasControllerRack.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/KiasControllerRack.rsi/rack.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/KiasCore.rsi/core.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/KiasCore.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/KiasProgrammableController.rsi/controller.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/KiasProgrammableController.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/adapter.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/adapter.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/advanced-scanner.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/advanced-scanner.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/atmos-server.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/atmos-server.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/board.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/board.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/board.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/board.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_0.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_1.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_10.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_11.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_12.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_13.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_14.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_15.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_2.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_3.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_4.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_5.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_6.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_7.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_8.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_9.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cable.rsi/meta.json,resources,62,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/cartridge.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cartridge.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cartridge.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/cartridge.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/coil.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-10.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-20.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-30.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/coil.rsi/meta.json,resources,31,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/collision-monitor.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/collision-monitor.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/controller-card.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/controller-card.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/controller-card.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/controller-card.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/crew-server.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/crew-server.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/defence-server.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/defence-server.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/display.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/display.rsi/blank.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/display.rsi/meta.json,resources,17,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/docking-sensor.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/docking-sensor.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/emergency-button.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/emergency-button.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/emergency-receiver.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/emergency-receiver.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/flash-detector.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/flash-detector.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/flipflop.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/flipflop.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/horizon.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/horizon.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/hull-sensor.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/hull-sensor.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/iff-receiver.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/iff-receiver.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/integrity-monitor.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/integrity-monitor.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/jammer-low.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer-low.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/jammer-medium.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer-medium.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/jammer-off.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer-off.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/jammer_high_charge.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/jammer_low_charge.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/jammer_medium_charge.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/meta.json,resources,31,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/key-switch.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/key-switch.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/light-broken.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/light-broken.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/light-burned.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/light-burned.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/light-controller.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/light-controller.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/light-empty.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/light-empty.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/light-off.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/light-off.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/management.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/management.rsi/blank.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/management.rsi/meta.json,resources,17,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/master-key.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/master-key.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/master-key.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/master-key.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/mayday.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/mayday.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-biometric.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-biometric.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-biometric.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-biometric.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-connector.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-connector.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-connector.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-connector.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-identity.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-identity.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-identity.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-identity.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-motion.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-motion.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-motion.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-motion.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-optical.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-optical.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-optical.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-optical.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-radiation.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-radiation.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-radiation.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-radiation.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-spectral.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-spectral.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-spectral.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-spectral.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/module-threat.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-threat.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-threat.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/module-threat.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/broken.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/burned.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/empty.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/meta.json,resources,26,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/off.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/navigation-server.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/navigation-server.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/pdc-radar.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/pdc-radar.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/power-server.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/power-server.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/programmer-card.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/programmer-card.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/programmer-empty.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/programmer-empty.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/programmer.rsi/card.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/programmer.rsi/empty.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/programmer.rsi/meta.json,resources,17,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/proximity-sensor.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/proximity-sensor.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/rack.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/rack.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/recorder.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/recorder.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/relay.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/relay.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/resource-monitor.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/resource-monitor.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/rotary-switch.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/rotary-switch.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/scanner.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/scanner.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/service-tool.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/service-tool.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/service-tool.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/service-tool.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/speaker.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/speaker.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/suppression.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/suppression.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/transponder.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/transponder.rsi/inhand-left.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/transponder.rsi/inhand-right.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/transponder.rsi/meta.json,resources,22,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+Resources/Textures/_Forge/KIAS/Pack/wireless.rsi/base.png,resources,-,-,VERIFIED,"RSI dimensions/frames/transparency; просмотр базового кадра на общем contact sheet, не игровая анимация"
+Resources/Textures/_Forge/KIAS/Pack/wireless.rsi/meta.json,resources,14,0,VERIFIED,RSI manifest: state names/directions/delays/frame dimensions; rsi-validation.json
+RobustToolbox,external,1,1,CROSS_CHECKED,INDEPENDENT_UPSTREAM_FIX: Gitlink 96c6bddc → c2fc1375; два файла защиты от decryption failures
+Run_KIAS_Intermediate_Tests.bat,external,3,0,READ,"KEEP: Короткая BAT-точка входа в Tools/KiasBenchmark; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Run_KIAS_Tests.bat,external,13,0,READ,"KEEP: Короткая BAT-точка входа в Tools/KiasBenchmark; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+SHA256SUMS.txt,external,13,0,READ,"REVERT: Файл пакета задания/манифест SHA256SUMS.txt; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+Tools/KiasBenchmark/Client/KiasLabVisualCommand.cs,benchmark,110,0,READ,"Local visual-state fixtures, capture sequencing; не server/network proof"
+Tools/KiasBenchmark/Client/LiveUiLab.cs,benchmark,208,0,READ,Actual network BUI automation и written-card assertions; не запускалось заново
+Tools/KiasBenchmark/Client/ScannerUiLab.cs,benchmark,85,0,READ,Server/client coverage agreement и real UI fixture; не запускалось заново
+Tools/KiasBenchmark/DEFERRED_CHECKS.md,benchmark,15,0,READ,Контракт/ограничения сопоставлены с кодом и run status
+Tools/KiasBenchmark/PHYSICAL_SCENARIOS.md,benchmark,65,0,NOT_READ,Исторический вспомогательный текст; не использован как доказательство PASS
+Tools/KiasBenchmark/ROOM_CONTRACT.md,benchmark,10,0,READ,Контракт/ограничения сопоставлены с кодом и run status
+Tools/KiasBenchmark/RUNBOOK.md,benchmark,203,0,READ,Контракт/ограничения сопоставлены с кодом и run status
+Tools/KiasBenchmark/SOURCE_AUDIT.md,benchmark,67,0,NOT_READ,Исторический вспомогательный текст; не использован как доказательство PASS
+Tools/KiasBenchmark/Server/KiasTelemetry.cs,benchmark,730,0,CROSS_CHECKED,"Snapshot/output queues, measured costs, phase counters и direct lab actions"
+Tools/KiasBenchmark/Server/LiveUiLab.cs,benchmark,133,0,READ,Actual network BUI automation и written-card assertions; не запускалось заново
+Tools/KiasBenchmark/Server/NativeGameDrivers.cs,benchmark,1932,0,CROSS_CHECKED,"Native effects: FTL, docking, weapons, crew, DATA, collision, ventilation и bounded completion"
+Tools/KiasBenchmark/Server/NativeLab.cs,benchmark,482,0,ISSUES_FOUND,"JSON input, tick clock, measured window, callbacks и file evidence; KIAS-12"
+Tools/KiasBenchmark/Server/NativeProfiler.cs,benchmark,171,0,CROSS_CHECKED,Sampling slots и instrumentation boundaries
+Tools/KiasBenchmark/Server/ScannerUiLab.cs,benchmark,115,0,READ,Server/client coverage agreement и real UI fixture; не запускалось заново
+Tools/KiasBenchmark/benchmark.ps1,benchmark,87,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/benchmark_lock.ps1,benchmark,46,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/build_pair.ps1,benchmark,94,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/compare_native.py,benchmark,116,0,READ,Legacy synchronous trace schema; не подменяет async fullgame/native_proof
+Tools/KiasBenchmark/cost_attribution.py,benchmark,127,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/deferred_smoke_scenario.py,benchmark,33,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/diagnostic_report.py,benchmark,105,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/expanded_scenario.py,benchmark,45,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/final_cost.py,benchmark,92,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/fullgame_contract.json,benchmark,89,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/fullgame_report.py,benchmark,247,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/fullgame_scenario.py,benchmark,103,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/hull_capabilities.py,benchmark,44,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/instrument_headless_client.py,benchmark,63,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/instrument_optimization_probes.py,benchmark,43,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/instrument_physics_queries.py,benchmark,48,0,READ,Instrumented source changes: caller изолирует checkout; самостоятельный root guard требует усиления
+Tools/KiasBenchmark/instrument_system_profile.py,benchmark,101,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/lab.py,benchmark,613,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/launch.ps1,benchmark,45,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/live_ui.ps1,benchmark,49,0,READ,"Build flags, real desktop orchestration/restore; нет общего benchmark lease"
+Tools/KiasBenchmark/load_report.py,benchmark,120,0,READ,"Legacy seven-pair ABBA, minute snapshots; не текущий fullgame reporter"
+Tools/KiasBenchmark/load_series.ps1,benchmark,115,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/native_log_watch.ps1,benchmark,17,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/native_proof.py,benchmark,127,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/native_replay.ps1,benchmark,266,0,CROSS_CHECKED,"Isolated binaries, hashes, processes, environment, clients, watchdogs и metrics"
+Tools/KiasBenchmark/native_smoke_scenario.py,benchmark,35,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/native_suite.ps1,benchmark,76,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/network_proof.py,benchmark,89,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/optimization_compare.ps1,benchmark,57,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/optimization_report.py,benchmark,38,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/package_analysis.py,benchmark,117,0,READ,Legacy archive manifest/checksums; README описывает прежние семь driver pairs
+Tools/KiasBenchmark/partial_archive.py,benchmark,38,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/physics_experiment.ps1,benchmark,50,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/physics_experiment.py,benchmark,150,0,CROSS_CHECKED,"Replicated plan, B/C/D2 inventory, counter calibration и recovery windows"
+Tools/KiasBenchmark/physics_narrow_smoke.ps1,benchmark,36,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/physics_report.py,benchmark,176,0,CROSS_CHECKED,"Diagnostic scope, nested metrics, narrow smoke и ограничения причинности"
+Tools/KiasBenchmark/prepare_pair.py,benchmark,184,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/profile.ps1,benchmark,84,0,READ,Counterbalanced A/B + calibration/ablation; запуск не выполнялся
+Tools/KiasBenchmark/quick_report.py,benchmark,41,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/readiness.py,benchmark,66,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/requirements.txt,benchmark,1,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/rerun.ps1,benchmark,221,0,CROSS_CHECKED,"Strict preflight/readiness, build pair, modes и ABBA orchestration; не запускалось"
+Tools/KiasBenchmark/room_previews.py,benchmark,63,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/scaling_smoke_report.py,benchmark,46,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/scanner_ui.ps1,benchmark,62,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/source_fingerprint.py,benchmark,36,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/test_availability.py,benchmark,35,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_benchmark_lock.ps1,benchmark,75,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Отдельно PowerShell test script не запускался
+Tools/KiasBenchmark/test_build_progress.ps1,benchmark,21,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Отдельно PowerShell test script не запускался
+Tools/KiasBenchmark/test_compare_native.py,benchmark,97,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_cost_attribution.py,benchmark,48,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_diagnostic_report.py,benchmark,87,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_expanded_scenario.py,benchmark,31,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_fullgame_report.py,benchmark,115,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_headless_client.py,benchmark,39,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_lab.py,benchmark,91,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_live_ui_evidence.py,benchmark,61,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_metric_scrape.ps1,benchmark,38,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Отдельно PowerShell test script не запускался
+Tools/KiasBenchmark/test_native_log_watch.ps1,benchmark,59,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Отдельно PowerShell test script не запускался
+Tools/KiasBenchmark/test_native_proof.py,benchmark,210,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_network_proof.py,benchmark,116,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_optimization_probes.py,benchmark,25,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_partial_archive.py,benchmark,29,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_physics_experiment.py,benchmark,181,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_readiness.py,benchmark,63,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_scanner_ui_evidence.py,benchmark,55,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/test_validate_hulls.py,benchmark,55,0,READ,Просмотр назначения/методов и выбранных assertion paths; не полный построчный аудит fixtures. Python suite 107/107 PASS
+Tools/KiasBenchmark/validate_adminlog_probe.py,benchmark,35,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/validate_hulls.py,benchmark,71,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/validate_physical_cards.py,benchmark,43,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/validate_scanner_ui.py,benchmark,42,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/wave_scenario.py,benchmark,58,0,READ,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+Tools/KiasBenchmark/world_smoke_scenario.py,benchmark,93,0,CROSS_CHECKED,Логика инструмента прочитана; запуск/измерение не приписывается статическому чтению
+assets/README.md,external,13,0,READ,"MOVE_TO_KIAS: Исходный/референсный арт README.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+assets/raw/kias_controller_rack.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+assets/raw/kias_programmable_controller.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+assets/rsi_ready/KiasControllerRack.rsi/meta.json,external,12,0,READ,"MOVE_TO_KIAS: Исходный/референсный арт meta.json; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+assets/rsi_ready/KiasControllerRack.rsi/rack.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+assets/rsi_ready/KiasProgrammableController.rsi/controller.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+assets/rsi_ready/KiasProgrammableController.rsi/meta.json,external,12,0,READ,"MOVE_TO_KIAS: Исходный/референсный арт meta.json; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+history/00_INITIAL_MASTER_PROMPT_APPLIED.md,external,58,0,READ,"REVERT: Архив ранее применённого задания 00_INITIAL_MASTER_PROMPT_APPLIED.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+history/01_FIRST_PATCH_PROMPT_APPLIED.md,external,784,0,READ,"REVERT: Архив ранее применённого задания 01_FIRST_PATCH_PROMPT_APPLIED.md; просмотр diff/назначения для состава PR, не сертификация всех исторических утверждений"
+references/01_device_tree.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+references/02_preset_toolbar.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+references/03_core_in_world.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+references/ui_graph_current_overview.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+references/ui_graph_inline_value_reference.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью
+references/ui_shuttle_reference.png,external,-,-,NOT_READ,MOVE_TO_KIAS: бинарный исходный арт/пакет классифицирован по пути и потребителям; внутреннее содержимое не проверено полностью

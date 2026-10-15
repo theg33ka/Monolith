@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>..\bin\Content.Client\</OutputPath>
+    <OutputType Condition="'$(FullRelease)' != 'True'">Exe</OutputType>
+    <WarningsAsErrors>RA0032;nullable</WarningsAsErrors>
+  </PropertyGroup>
+  <Import Project="../MSBuild/Content.props" />
+  <ItemGroup>
+    <PackageReference Include="Nett" />
+    <PackageReference Include="JetBrains.Annotations" PrivateAssets="All" />
+    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="Pidgin" />
+    <PackageReference Include="Robust.Shared.AuthLib" />
+  </ItemGroup>
+
+  <Import Project="..\RobustToolbox\Imports\Lidgren.props" />
+  <Import Project="..\RobustToolbox\Imports\Client.props" />
+  <Import Project="..\RobustToolbox\Imports\Shared.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KiasLabVisual)' == 'true'">
+    <Compile Include="../Tools/KiasBenchmark/Client/KiasLabVisualCommand.cs" Link="KiasLabVisualCommand.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KiasLabScannerUi)' == 'true'">
+    <Compile Include="../Tools/KiasBenchmark/Client/ScannerUiLab.cs" Link="ScannerUiLab.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KiasLabLiveUi)' == 'true'">
+    <Compile Include="../Tools/KiasBenchmark/Client/LiveUiLab.cs" Link="LiveUiLab.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="_Mono\Research\UI\" />
+  </ItemGroup>
+  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+  <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
+</Project>

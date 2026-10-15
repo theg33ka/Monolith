@@ -1,0 +1,1034 @@
+{
+  "rsiCount": 65,
+  "stateCount": 128,
+  "errors": [
+    "empty: Resources\\Textures\\_Forge\\KIAS\\Pack\\display.rsi\\blank.png",
+    "empty: Resources\\Textures\\_Forge\\KIAS\\Pack\\management.rsi\\blank.png"
+  ],
+  "states": [
+    {
+      "file": "Resources/Textures/_Forge/KIAS/KiasControllerRack.rsi/rack.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "8c960ff9fdef5daf6e59626dc499f3bb4127e6b0c4837b0bf6277513d0580676"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/KiasCore.rsi/core.png",
+      "width": 32,
+      "height": 64,
+      "frames": 1,
+      "required": 1,
+      "sha256": "28fc877ad76c654ab7b8eae17bead91532373864cbc5839b4db947c90ce86dcf"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/KiasProgrammableController.rsi/controller.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "c1e73b471f59bd62fefedea8d07fd300254d815e000d26227a4d23c86d518d6f"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/adapter.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "f30edefb713cb9dac3f8fd4dbec7c23c6094f549656e549b5c2a6bccdf376eb8"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/advanced-scanner.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e5fb078f877b8813c41b7eb584f7463f9aa2fa0c7fd10fb90add2f92dbb7e2d1"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/atmos-server.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "1a7e161aea1c69908ea1bbde3b5c94b47e532fa6130bb14a19a22c996bb69f65"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/board.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e61b53052e8117b8c84995d289e95e820ce1ee7b0a16716cde0f3548ff6967f0"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/board.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "a7ae287460acf06ff70f95a57409826156c6ff89cd97b24a913a96f36cbd7ff9"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/board.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "514c9a9439a06d3086928d56ba9674fe39ad10d553afc5a07249538f9ed7b351"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "1be5ade63c1b39e61df435adeeb1bc2addebeddc4f00a08b0766557847c545c1"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_0.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "8138e160fec96de4996f98c2ac5626d815a274ab2b4cd1e50891f3f3a39ad050"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_1.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "daa712131cc516345e8471afe7ced051feff038e1f6ca75bb43e199ce0e41416"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_2.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "45a6d782c0a30c7e3356ea2b13fd4b580cba4d75fc91adedad6e81f21c856520"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_3.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "68e3a1ea9611f3c1eb684c4ea81e7a20697d9c20baa4f55b0ed1792fa10ab153"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_4.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "2b6682b92bb8eab59949aabbac050bd4f303b22931c6767aa28ba10c09d4401f"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_5.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "f1dada585a168fa35add78f04355c17d927324152534a85623a48c623d9c805f"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_6.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "ad65071537bb33145705e3e25f7627563b69e0bd57b8740d247361ecdbcd9cb6"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_7.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "ec41ecb4b4d0029f84fd568b75c1feb3691e953363365c1c7c67469c266da09e"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_8.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "090bd91f70a5e41e90b0cf268641912c42fe892a7cd705c0e6ad34cb31142ac4"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_9.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "2f9caffb4571ead9dafc83cd42d6544b5b0a52e1ce56240daad8015ae9e84a3a"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_10.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "92687d04f20682c55069f84627b5d3268ad866cbbbf44ce0ea0a55c445997f88"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_11.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "f39eb94f0c3caae6d20e73c888c08c835785fff39b1f49cadc00b38e9c9c3552"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_12.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "589fe31d0fc4ee5a4cc105b099f4f9d3ba84272644f676ba36b5c74b7b3e774c"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_13.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "771cde7da361de1dc8ccdc01e0463553f1c0f99f6f657781b4d75fd6db340ad9"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_14.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "38affa1bbcd16dcbf460b17df3193c5a1bd33ed721b5207ca4bef60afe76ba22"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cable.rsi/data_15.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "1be5ade63c1b39e61df435adeeb1bc2addebeddc4f00a08b0766557847c545c1"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cartridge.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "24aea8a5ed5136494b79de7359f058685f28fba9421f6a7e06bc8fa996f25c22"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cartridge.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "1c2c70a3332e10bc2fd23b315bae188a859aac3c0e8e094dccb38af086ffd88c"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/cartridge.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "95a104ebac2db80f07b9a6eb1beb5f9fd7f093b11413927f5f4457790739c4cf"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/coil.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "6717f5396b799af51aac2347396c7ec18bece74434fe4565a3119dea720cb157"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "12069a04162cd75a001d31f71a4080edfe6d01606a5d799182c9ed34b8f8058d"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "b902de2059fe1f9741c929dac750b19aec2a75b0819f790921cc163196d218e9"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-10.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "6717f5396b799af51aac2347396c7ec18bece74434fe4565a3119dea720cb157"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-20.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "6717f5396b799af51aac2347396c7ec18bece74434fe4565a3119dea720cb157"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/coil.rsi/coilmv-30.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "6717f5396b799af51aac2347396c7ec18bece74434fe4565a3119dea720cb157"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/collision-monitor.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "0f8f7425c4a538a557e2dc0b7ed29c390f8c608ece6de3fa55c2d281bafeac19"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/controller-card.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "91a641b34f851654aa8e29c837d778ce4a16385101f434c5c5ee8003f94f70ef"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/controller-card.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "878fbb9de34e48f048e21282054cb844400449b5cabc507f3b29b269b1c960e2"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/controller-card.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "a575debd4f4ea62f2282afd6a30ee603679f3259f92a0a826d50a11ffdf31b87"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/crew-server.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "18f8e637184a12abb8a97e0e105be7ea45a9035e0333377764b2561615981a5b"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/defence-server.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "439e2827b475d9438e24516f4256098264fcf7052806b3dfcea471438153330d"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/display.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e1935fe7ad6d67c36d86bce42eeacd3dc4cf1a2c8c83019c0f321e2b0e535bad"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/display.rsi/blank.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "b0775cba09eadf2fde241b35daa28cdcd03af6d23e99e0decd32b42f13f6d220"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/docking-sensor.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "70c832e5b66a4fcce373f1bc534db5ffbfc689b57fca15e3a790db79bda4ed08"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/emergency-button.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "4e49e7a9e45b53cab339d857bddb7c3c937c9ab941e1f8076e59eaa3f19bc77c"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/emergency-receiver.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "62170a5b634769f5ba6cb915f96905acf57b927f8bbf378421a3809ab0401cee"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/flash-detector.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e55ae7915f1440b0db16c869f629024c60780dd13b6b93b2af20053e39804ff9"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/flipflop.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "be76d587d87f3beb3c6d2c381c2cc0cdef7fded77b7b2ed2897b23c380a999aa"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/horizon.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "0135f3da317f81a47aadcc4ea2ff8dd4f09ee8a670c280f287de625d57ccd890"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/hull-sensor.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "911cebfec34dbd55e2cd0eabd3f93597ab324db3f5d106c7140cae3508cdd80f"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/iff-receiver.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "c49b95e422eb4483f2a9cba308f563ebfc72eee610101581d567a95247b994ea"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "2720328f6064cbc8770225f2b6b33dbbac1dbff81530ccbc0ecbf76bfd048582"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "af993cfedfa2c1adffd3650e9ed1cd609e24c4fa07d324eec3711bf6e081643f"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/integration-kit.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "e2458a6072889f2df731b6a6b73bc8cfa0781b3303f08a27a6c795d840b33dfb"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/integrity-monitor.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "d641ade9c8fbfc74c5306039c84f29e29956dde5078087fca7a6bd100fc4fee2"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer-low.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "c7929a09f49f83a01d18f6635385cf756d6ecddb81dd519d8b1bd3956ec76409"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer-medium.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "fc35f3cc91b2a50896224e3270ad419184190b6ca43f49d36ae0f002ab48f924"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer-off.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e654f6688c2c08eea8577f0b153a49ab16d84ae8a3355510bddb2d82a3ae0bbf"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e654f6688c2c08eea8577f0b153a49ab16d84ae8a3355510bddb2d82a3ae0bbf"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "410a81b439d6a3f33da5c475e6e0410d33faae05c2f61e0d97df100b7051ca00"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "5c62e6fd613453818530f730ba4c12319d304cf28b1af3d27f143e2dfa66ca7e"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/jammer_high_charge.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e65d310b5367b2211a8738753f4cb711ddeeb285006e95284faa3bdb491f7c5b"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/jammer_low_charge.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "c7929a09f49f83a01d18f6635385cf756d6ecddb81dd519d8b1bd3956ec76409"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/jammer.rsi/jammer_medium_charge.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "fc35f3cc91b2a50896224e3270ad419184190b6ca43f49d36ae0f002ab48f924"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/key-switch.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "b70d1e7c36e94141a1ce130dbee21711f3687055a558571f7802264d949a5cc8"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/light-broken.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "f6bcbe36bd212ac62e78c891b683a581019e2e0025a9920547483d4a3fadf27a"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/light-burned.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "a8ad03aac235004f1e3c5617f1e0903ee187a3b215bff4b8c12df1ff61768410"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/light-controller.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "28485a6f3d4effb79beb2023e287ec72361fe409d65bcd7ed2cf6332087a49a5"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/light-empty.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "8efcf283d23cff8bbccf420e86648727e2ca21fbce1ac671e462c877f79be074"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/light-off.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "503584d416c789d9b444e47cac2fdaa76c0b667de579c389ec76dc29b433b9f5"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/management.rsi/base.png",
+      "width": 64,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "b4a910116e954fafe96702b414b55c545b5a1335340f977c82b06d981f180291"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/management.rsi/blank.png",
+      "width": 64,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "1b9383be2f6dda80636e7cd49f432b7ad4e7aa886a6a4f37cb8887124a659ea7"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/master-key.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "120fc0940e878265384590dd3116efca685d0408e2cfb893c03ade9cb4a79e33"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/master-key.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "a90f4261d36ba8d102d379eeb8907dde7c9ebb65a3c035e1761cafad32b82eb7"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/master-key.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "b72d4a73f5b68633a9e66990ba2b97b8ad17ec17af2beb20e73cfed80b79e131"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/mayday.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "4912ac1cc3dbe5288e20733432bcb429dc913ef9680fa2c5c22c840642027076"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-biometric.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "f2edf50bb06086453690bb549e62c2fd58b1a0304d1cce101c5230424aae9ec3"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-biometric.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "690048b7552b8c4fdd37ae1c62b7864c0ba0098505a54b41b38f2d924b81f6e8"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-biometric.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "d8a19cc5c6f727b67922183e783b68b893f890b5e05ce49397c18d0168491309"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-connector.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "4edd9634fb8ca27c2103147804933a9d1829c08a47854907a389cd3553ce33b2"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-connector.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "fffccc602f87105f377a3f8820f2c11bf0556f77686caacbefbec355f86b4a87"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-connector.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "ec9a7f714ba575c077bce5a35285709dbc815431a749894c0b6bd6fb47fa0724"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-identity.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "10de8102a492c0fae32afeccde4a3690f401ada4a5fc48cb49cb446462ad3dc7"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-identity.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "da4d670fff6e08774b582784bef4e7f09dc1d69dfbd74ae18d6409f818f93ba4"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-identity.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "402d44cafa5af3b89cc5513a0d6bdbd14e6574d0e3711e31f944b195e0c1c2ed"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-motion.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "9cd61105c7d8461308dd2416e5b17e3a532516339f507792637e048cf7c01e84"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-motion.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "ff20510175dba2a7b84478de445f8fb423e524165129401107518edcf7e3b55b"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-motion.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "8ee1a9b8cccdb17140f968778e93ef01bff667b7ad817d2ce632aea435924ca5"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-optical.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "7db3375be11e9fefeb9f3878a8a319cf99910477dd99d9fb5415b1d2eaff657e"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-optical.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "6a965f19374ed7f2ceba3266e1d470c7c763387267be338c2306e0f95a35742c"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-optical.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "b698983ca9c6f7d2dd8ae28b39dfb4d5d4a84de505dbbce44d529eb98ea9131a"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-radiation.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "628dffb2ed9be0b306131dc6d676e22dd0fcee1fb711575f9d827db47ee2fa74"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-radiation.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "9df13ed82cd86f8511e3c7327555d063b7120ad4b06f72bedef4aa83dffa4f23"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-radiation.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "0e628ceb9a40ebaea872531c3a9e92698ede7fe005a92f7de76a36a9b2f35b55"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-spectral.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "e5735c45346c11a6c2bcb83c56851271ac13febe5656cc5c2d498a0c16682b25"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-spectral.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "180d2b8a6c4f96fbb2d72d77dc74a910fc729f9ba0a9c7158317a7af95cbf3f7"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-spectral.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "dab5ddd1de4c096cf84db862d9f904e7fc371053274bd158d12cda813acb4820"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-threat.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "4b8929c7c6113e0668e3af8c2bff33ad94e7c1854ce6395e9d74643ab9e9ce9d"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-threat.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "67b01fff8b54f3140846e7c5a54634945c57ec7b3c10118bea84ffef3e137436"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/module-threat.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "048597c5809cccf73eb93f8aa669b28d61fb3abb72c2c69316fbe3b1eb6f62d0"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "7d8aa32c36cf7096dcc3552ad28d6b5f0c6f542fd276941166e5334e6ba8e440"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/off.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "503584d416c789d9b444e47cac2fdaa76c0b667de579c389ec76dc29b433b9f5"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/empty.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "8efcf283d23cff8bbccf420e86648727e2ca21fbce1ac671e462c877f79be074"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/broken.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "f6bcbe36bd212ac62e78c891b683a581019e2e0025a9920547483d4a3fadf27a"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/navigation-light.rsi/burned.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "a8ad03aac235004f1e3c5617f1e0903ee187a3b215bff4b8c12df1ff61768410"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/navigation-server.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "80f687f7eaa46e952bf467fbf7d65e0d6ffae04c028533e5a390c296a689323a"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/pdc-radar.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "c82cef6a7c8ee8d9bd37a9c9b0e54de3b43c5fb59bad42b505cbf80731a1a1fe"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/power-server.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "9ce92502638222b5005a614d27ab6d9d0543d08f663482c3659138d79df82a2b"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/programmer-card.rsi/base.png",
+      "width": 64,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "423b3afcce27143d1a856dff4a474ef51dd9c32c7ee8e8837a3ff3e3040ea4f5"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/programmer-empty.rsi/base.png",
+      "width": 64,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "3f6a960e38bcf5d2be5806824b111e069221673bc486dd338ea50d28b5057aa8"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/programmer.rsi/empty.png",
+      "width": 64,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "3f6a960e38bcf5d2be5806824b111e069221673bc486dd338ea50d28b5057aa8"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/programmer.rsi/card.png",
+      "width": 64,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "423b3afcce27143d1a856dff4a474ef51dd9c32c7ee8e8837a3ff3e3040ea4f5"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/proximity-sensor.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "d40502c59293deffa0f462c5d6c65071b01e71aa23c96082508d8208393a1204"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/rack.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "d0690fbf01714d4977a5485af6ba55a718ffdeb8f7617f709a572e63a36aeaf6"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/recorder.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "0285a89e6d25f07211c1f5686466b8f44f5caf6432dd39c14c36da8c5e9765f3"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/relay.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "3bed1c86c28c557e2b68650034bfd913968a5d0747dca474b625cd4fe29885e4"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/resource-monitor.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "996ab0df8bd9da385b2ca5a0690198426fa423b5a79327973b25acbe227eb88b"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/rotary-switch.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "37556b1b926cb2feb8940520d164ed2894ed926a6c5b088932d6e284fdaaccc5"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/scanner.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "3c41ee3d31864c7fee6dc97961e6ce5006a9fc16bc21d3371b44c2757cef6a24"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/service-tool.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "a77a0a8dbb0fe8e84cf40883c735137fa8808c64d11a231f054fda2395bf6d46"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/service-tool.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "c29446957625bc395e9efcfb2c1d467969faa892ad29054bc02a15830089ab7b"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/service-tool.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "e31ec65f0817077ae5d6350f959216fb4e35c462656e4bf7b829536f3e85d59f"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/speaker.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "6a753c02a0e5cc20f54ea681cdb0874abf5722676a7bfe42f0a60fec68cf3f61"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/suppression.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "49c33967a638971cfe809cf1d9aa25c4c7b1b95f1a0056d357d4d86225abd3ca"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/transponder.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "45bf016402d9d15910ef6e260abe28c32ff36d2681cdacde3eb5deca15302de6"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/transponder.rsi/inhand-left.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "d5bedc02d79f671a1279931547ebbce423a6c713b7a2bc08c02321011c8882ae"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/transponder.rsi/inhand-right.png",
+      "width": 128,
+      "height": 32,
+      "frames": 4,
+      "required": 4,
+      "sha256": "743111104aea44e81414bcb005d938e3c9c0e1b4a35c15632fb554d222481936"
+    },
+    {
+      "file": "Resources/Textures/_Forge/KIAS/Pack/wireless.rsi/base.png",
+      "width": 32,
+      "height": 32,
+      "frames": 1,
+      "required": 1,
+      "sha256": "9c2790fe7689009f11075f23eefb9e9bccd1bab9346e34c59274b98c4e2b26df"
+    }
+  ]
+}

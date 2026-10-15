@@ -1,0 +1,1471 @@
+{
+  "archive": "D:\\Workspace\\ss14_lua\\corvax\\Monolith\\.kias-benchmark\\rerun\\20261014-023045-ca39336a\\KIAS_web-agent.zip",
+  "archiveSha256": "4f6723d74055899672b024bb0c100ef8a7c5e63552468c51a5def2c436c4cca9",
+  "runs": {
+    "1-A": {
+      "whole_tick_ms": {
+        "n": 108000,
+        "mean": 5.556808774074074,
+        "p50": 3.7438,
+        "p95": 8.500559999999986,
+        "p99": 19.616769999999963,
+        "p999": 152.65943140000667,
+        "max": 5188.3297,
+        "over1667": 1301
+      },
+      "content_engine_ms": {
+        "n": 108000,
+        "mean": 4.053101873148148,
+        "p50": 3.3862,
+        "p95": 7.704089999999979,
+        "p99": 13.06595599999997,
+        "p999": 39.083535500000515,
+        "max": 857.4134,
+        "over1667": 713
+      },
+      "physics_ms": {
+        "n": 108000,
+        "mean": 1.7509623685185185,
+        "p50": 1.51355,
+        "p95": 3.5619,
+        "p99": 5.771914999999992,
+        "p999": 14.647505700000023,
+        "max": 854.1622,
+        "over1667": 78
+      },
+      "driver_ms": {
+        "n": 108000,
+        "mean": 1.0364603240740742,
+        "p50": 0.0032,
+        "p95": 0.0043,
+        "p99": 1.0720029999999985,
+        "p999": 78.13227660000068,
+        "max": 5181.4599,
+        "over1667": 431
+      },
+      "observer_ms": {
+        "n": 108000,
+        "mean": 0.08446012314814814,
+        "p50": 0.0002,
+        "p95": 0.0709,
+        "p99": 0.13480099999999948,
+        "p999": 2.401129200000112,
+        "max": 587.9071,
+        "over1667": 37
+      },
+      "working_set_bytes": {
+        "n": 108000,
+        "mean": 3967798904.6044445,
+        "p50": 4073062400.0,
+        "p95": 4154964991.999975,
+        "p99": 4162211840.0,
+        "p999": 4168335360.0,
+        "max": 4168335360.0,
+        "over1667": 108000
+      },
+      "whole_allocated_bytes": {
+        "n": 108000,
+        "mean": 258170.37762962963,
+        "p50": 108032.0,
+        "p95": 821654.7999999649,
+        "p99": 2709292.3999999976,
+        "p999": 13421286.192000238,
+        "max": 183416656.0,
+        "over1667": 95215
+      },
+      "gcCollections": {
+        "gc0": 45,
+        "gc1": 25,
+        "gc2": 1
+      },
+      "gcPauseMs": 899.615,
+      "manifest": {
+        "adminLogProbe": 0,
+        "mapSha256": "8277191a8100414e9cc4e1ce9194b645fd2a9ef77dce53d1fc9c5b9b37032636",
+        "telemetrySha256": null,
+        "profiling": false,
+        "clientSandboxEnabled": true,
+        "physicsMode": "A",
+        "metricsEnabled": true,
+        "phaseCounters": true,
+        "testOnlyInactivity": {
+          "afkSeconds": 8100,
+          "pendingClockinMinutes": 135,
+          "guestAfkMinutes": 135,
+          "scope": "Isolated localhost harness; timeout exceeds wall watchdog, production defaults unchanged"
+        },
+        "clientDiscordEnabled": false,
+        "systemCounters": true,
+        "networkClients": 4,
+        "worldgenEnabled": false,
+        "diagnostic": false,
+        "networkHistoryRequired": true,
+        "diagnosticTimeScale": 1.0,
+        "variant": "A",
+        "physicsQueryCountersEnabled": true,
+        "nativeLabSha256": "6582af0b4ada212655b9ac0a805242c7763ed634a25a9b855dddb8e5f22ea477",
+        "performanceEligible": true,
+        "networkAdmission": {
+          "bindAddress": "127.0.0.1",
+          "maxIpConnections": 8,
+          "maxRapidConnections": 8
+        },
+        "ablation": "None",
+        "assemblySha256": "8a5f0f20abe29ee3eee8382e9b22354a63807aab4fce74e2e11fb0d016666cdd",
+        "maxWallMinutes": 120,
+        "nativeGameDriversSha256": "9147398e759f045ec7b2f5864f177823b840650401bb2ad9436104f0f47e6118",
+        "nativeNpcPauseWhenNoPlayers": false,
+        "externalGameProcesses": [],
+        "physicsDeviceGroup": "KiasPrototypes",
+        "strictReady": false
+      },
+      "completed": {
+        "status": "PARTIAL_NATIVE_DRY_RUN_COMPLETE",
+        "measuredTicks": 108000,
+        "deliveredEvents": 10880,
+        "ships": 40,
+        "nativeCompleted": 9320
+      }
+    },
+    "2-B": {
+      "whole_tick_ms": {
+        "n": 108000,
+        "mean": 7.745761017592592,
+        "p50": 4.2586,
+        "p95": 11.22004499999999,
+        "p99": 55.89156199999965,
+        "p999": 242.2962625000018,
+        "max": 6384.0813,
+        "over1667": 3482
+      },
+      "content_engine_ms": {
+        "n": 108000,
+        "mean": 5.343475723148148,
+        "p50": 3.8855,
+        "p95": 9.989514999999995,
+        "p99": 26.34323099999998,
+        "p999": 160.99051790000007,
+        "max": 3846.6545,
+        "over1667": 2485
+      },
+      "physics_ms": {
+        "n": 108000,
+        "mean": 1.9207072935185185,
+        "p50": 1.6317,
+        "p95": 3.813704999999999,
+        "p99": 6.221622999999988,
+        "p999": 15.08561830000007,
+        "max": 935.7679,
+        "over1667": 80
+      },
+      "driver_ms": {
+        "n": 108000,
+        "mean": 1.292943637037037,
+        "p50": 0.0033,
+        "p95": 0.0045,
+        "p99": 1.0863009999999995,
+        "p999": 104.82908470001723,
+        "max": 5058.5851,
+        "over1667": 420
+      },
+      "observer_ms": {
+        "n": 108000,
+        "mean": 0.7078822796296296,
+        "p50": 0.0002,
+        "p95": 0.1026,
+        "p99": 6.301552999999972,
+        "p999": 129.39482670000163,
+        "max": 6362.3605,
+        "over1667": 767
+      },
+      "working_set_bytes": {
+        "n": 108000,
+        "mean": 4739962154.097777,
+        "p50": 4731400192.0,
+        "p95": 5385284403.199871,
+        "p99": 5447094558.72,
+        "p999": 5450014720.0,
+        "max": 5450022912.0,
+        "over1667": 108000
+      },
+      "whole_allocated_bytes": {
+        "n": 108000,
+        "mean": 318255.7528148148,
+        "p50": 108040.0,
+        "p95": 1313368.7999999998,
+        "p99": 2914979.3599999854,
+        "p999": 13188795.96800023,
+        "max": 202701040.0,
+        "over1667": 93565
+      },
+      "gcCollections": {
+        "gc0": 54,
+        "gc1": 21,
+        "gc2": 2
+      },
+      "gcPauseMs": 1696.188,
+      "manifest": {
+        "adminLogProbe": 0,
+        "mapSha256": "e96cdea2c377c4876333c0d5981a39fa79fe2d0b0cb268fe64ddc18d9a3c0f68",
+        "telemetrySha256": "b7cd34457ee1b7ed0860fa00ed02f867f503b9b733ab2d0c1ef2f5004fbaf91c",
+        "profiling": false,
+        "clientSandboxEnabled": true,
+        "physicsMode": "B",
+        "metricsEnabled": true,
+        "phaseCounters": true,
+        "testOnlyInactivity": {
+          "afkSeconds": 8100,
+          "pendingClockinMinutes": 135,
+          "guestAfkMinutes": 135,
+          "scope": "Isolated localhost harness; timeout exceeds wall watchdog, production defaults unchanged"
+        },
+        "clientDiscordEnabled": false,
+        "systemCounters": true,
+        "networkClients": 4,
+        "worldgenEnabled": false,
+        "diagnostic": false,
+        "networkHistoryRequired": true,
+        "diagnosticTimeScale": 1.0,
+        "variant": "B",
+        "physicsQueryCountersEnabled": true,
+        "nativeLabSha256": "6582af0b4ada212655b9ac0a805242c7763ed634a25a9b855dddb8e5f22ea477",
+        "performanceEligible": true,
+        "networkAdmission": {
+          "bindAddress": "127.0.0.1",
+          "maxIpConnections": 8,
+          "maxRapidConnections": 8
+        },
+        "ablation": "None",
+        "assemblySha256": "a99844f0be712321fe044c0183cb496016dec7cf72f425441b67ae7cf0f9d83e",
+        "maxWallMinutes": 120,
+        "nativeGameDriversSha256": "9147398e759f045ec7b2f5864f177823b840650401bb2ad9436104f0f47e6118",
+        "nativeNpcPauseWhenNoPlayers": false,
+        "externalGameProcesses": [],
+        "physicsDeviceGroup": "KiasPrototypes",
+        "strictReady": false
+      },
+      "completed": {
+        "status": "PARTIAL_NATIVE_DRY_RUN_COMPLETE",
+        "measuredTicks": 108000,
+        "deliveredEvents": 10880,
+        "ships": 40,
+        "nativeCompleted": 9320
+      },
+      "telemetry": {
+        "activeGrids": 40,
+        "runningCards": 1040,
+        "activeMachines": 1040,
+        "faultedCards": 0,
+        "queues": {
+          "_events": 0,
+          "_work": 0,
+          "_commands": 0,
+          "_boots": 0,
+          "_finalEvents": 0,
+          "_finalCommands": 0,
+          "pendingDispatch": 0
+        }
+      },
+      "queueLatency": [
+        {
+          "name": "events",
+          "Enqueued": 68294,
+          "Consumed": 68294,
+          "Rejected": 0,
+          "HighWater": 1127,
+          "BackloggedTicks": 5052,
+          "MaxAgeTicks": 59,
+          "p50Ticks": 0,
+          "p95Ticks": 13,
+          "p99Ticks": 53,
+          "scope": "enqueue to dequeue; includes cancelled or invalidated work; bucket 4096 includes overflow"
+        },
+        {
+          "name": "work",
+          "Enqueued": 848361,
+          "Consumed": 848361,
+          "Rejected": 0,
+          "HighWater": 4096,
+          "BackloggedTicks": 1701,
+          "MaxAgeTicks": 15,
+          "p50Ticks": 0,
+          "p95Ticks": 15,
+          "p99Ticks": 15,
+          "scope": "enqueue to dequeue; includes cancelled or invalidated work; bucket 4096 includes overflow"
+        },
+        {
+          "name": "commands",
+          "Enqueued": 71858,
+          "Consumed": 71858,
+          "Rejected": 0,
+          "HighWater": 464,
+          "BackloggedTicks": 60,
+          "MaxAgeTicks": 3,
+          "p50Ticks": 0,
+          "p95Ticks": 1,
+          "p99Ticks": 3,
+          "scope": "enqueue to dequeue; includes cancelled or invalidated work; bucket 4096 includes overflow"
+        }
+      ],
+      "actuatorDispatchLatency": [
+        {
+          "profile": "Speaker",
+          "port": "Alarm",
+          "count": 53981,
+          "p50Ticks": 2,
+          "p95Ticks": 39,
+          "p99Ticks": 69,
+          "maxTicks": 74
+        },
+        {
+          "profile": "Recorder",
+          "port": "Record",
+          "count": 5430,
+          "p50Ticks": 1,
+          "p95Ticks": 38,
+          "p99Ticks": 69,
+          "maxTicks": 74
+        },
+        {
+          "profile": "Automation",
+          "port": "EscalateAlert",
+          "count": 1667,
+          "p50Ticks": 4,
+          "p95Ticks": 48,
+          "p99Ticks": 68,
+          "maxTicks": 74
+        },
+        {
+          "profile": "NavigationComms",
+          "port": "MedicalHelp",
+          "count": 30,
+          "p50Ticks": 0,
+          "p95Ticks": 5,
+          "p99Ticks": 5,
+          "maxTicks": 5
+        },
+        {
+          "profile": "Lighting",
+          "port": "On",
+          "count": 10434,
+          "p50Ticks": 10,
+          "p95Ticks": 23,
+          "p99Ticks": 30,
+          "maxTicks": 30
+        },
+        {
+          "profile": "DefenceController",
+          "port": "Enable",
+          "count": 282,
+          "p50Ticks": 10,
+          "p95Ticks": 23,
+          "p99Ticks": 30,
+          "maxTicks": 30
+        },
+        {
+          "profile": "NavigationComms",
+          "port": "Mayday",
+          "count": 34,
+          "p50Ticks": 68,
+          "p95Ticks": 71,
+          "p99Ticks": 74,
+          "maxTicks": 74
+        }
+      ],
+      "phases": [
+        {
+          "name": "CrewUpdate",
+          "metrics": {
+            "Calls": 118801,
+            "milliseconds": 15733.277,
+            "AllocatedBytes": 318182896,
+            "exclusiveMilliseconds": 193.4283,
+            "exclusiveAllocatedBytes": 3060040,
+            "maxMilliseconds": 10.8875,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewCoverage",
+          "metrics": {
+            "Calls": 15160,
+            "milliseconds": 42833.465,
+            "AllocatedBytes": 359144056,
+            "exclusiveMilliseconds": 1853.9794,
+            "exclusiveAllocatedBytes": 255779952,
+            "maxMilliseconds": 96.032,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewScan",
+          "metrics": {
+            "Calls": 76501,
+            "milliseconds": 15539.8487,
+            "AllocatedBytes": 315122856,
+            "exclusiveMilliseconds": 3432.8149,
+            "exclusiveAllocatedBytes": 6401656,
+            "maxMilliseconds": 5.9647,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewPeople",
+          "metrics": {
+            "Calls": 8567000,
+            "milliseconds": 4199.5394,
+            "AllocatedBytes": 73760688,
+            "exclusiveMilliseconds": 4198.2159,
+            "exclusiveAllocatedBytes": 73691432,
+            "maxMilliseconds": 1.533,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewFauna",
+          "metrics": {
+            "Calls": 590448,
+            "milliseconds": 1387.9663,
+            "AllocatedBytes": 150170752,
+            "exclusiveMilliseconds": 1383.9288,
+            "exclusiveAllocatedBytes": 150023288,
+            "maxMilliseconds": 2.157,
+            "Items": 4670544,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewRegistration",
+          "metrics": {
+            "Calls": 76501,
+            "milliseconds": 7907.4944,
+            "AllocatedBytes": 234960512,
+            "exclusiveMilliseconds": 6364.9828,
+            "exclusiveAllocatedBytes": 56926832,
+            "maxMilliseconds": 2.9645,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeUpdate",
+          "metrics": {
+            "Calls": 118801,
+            "milliseconds": 29681.0636,
+            "AllocatedBytes": 2015954112,
+            "exclusiveMilliseconds": 130.8998,
+            "exclusiveAllocatedBytes": 0,
+            "maxMilliseconds": 77.552,
+            "Items": 0,
+            "MaxQueue": 4989
+          }
+        },
+        {
+          "name": "RuntimeBoot",
+          "metrics": {
+            "Calls": 18351,
+            "milliseconds": 1464.8952,
+            "AllocatedBytes": 778482640,
+            "exclusiveMilliseconds": 1436.302,
+            "exclusiveAllocatedBytes": 778420480,
+            "maxMilliseconds": 77.4814,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeTimers",
+          "metrics": {
+            "Calls": 0,
+            "milliseconds": 0,
+            "AllocatedBytes": 0,
+            "exclusiveMilliseconds": 0,
+            "exclusiveAllocatedBytes": 0,
+            "maxMilliseconds": 0,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeEvents",
+          "metrics": {
+            "Calls": 74773,
+            "milliseconds": 505.766,
+            "AllocatedBytes": 591840,
+            "exclusiveMilliseconds": 505.766,
+            "exclusiveAllocatedBytes": 591840,
+            "maxMilliseconds": 2.2068,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeWork",
+          "metrics": {
+            "Calls": 848361,
+            "milliseconds": 1523.0256,
+            "AllocatedBytes": 54141360,
+            "exclusiveMilliseconds": 1517.8787,
+            "exclusiveAllocatedBytes": 54141360,
+            "maxMilliseconds": 1.0448,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeCommands",
+          "metrics": {
+            "Calls": 71858,
+            "milliseconds": 26056.477,
+            "AllocatedBytes": 1182738272,
+            "exclusiveMilliseconds": 238.2896,
+            "exclusiveAllocatedBytes": 17366536,
+            "maxMilliseconds": 67.3321,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IntegrationReconcile",
+          "metrics": {
+            "Calls": 7170,
+            "milliseconds": 46866.4426,
+            "AllocatedBytes": 120060816,
+            "exclusiveMilliseconds": 22963.4387,
+            "exclusiveAllocatedBytes": 15752456,
+            "maxMilliseconds": 95.4758,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IntegrationControl",
+          "metrics": {
+            "Calls": 90182141,
+            "milliseconds": 33177.0756,
+            "AllocatedBytes": 108970560,
+            "exclusiveMilliseconds": 33177.0756,
+            "exclusiveAllocatedBytes": 108970560,
+            "maxMilliseconds": 51.1266,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RoomGeometry",
+          "metrics": {
+            "Calls": 14979,
+            "milliseconds": 14181.3577,
+            "AllocatedBytes": 445610672,
+            "exclusiveMilliseconds": 2104.1539,
+            "exclusiveAllocatedBytes": 362186096,
+            "maxMilliseconds": 33.0084,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IoEmit",
+          "metrics": {
+            "Calls": 315368,
+            "milliseconds": 464.3092,
+            "AllocatedBytes": 49958368,
+            "exclusiveMilliseconds": 448.7773,
+            "exclusiveAllocatedBytes": 49958368,
+            "maxMilliseconds": 3.9865,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IoCommand",
+          "metrics": {
+            "Calls": 71938,
+            "milliseconds": 25819.5276,
+            "AllocatedBytes": 1165376536,
+            "exclusiveMilliseconds": 22132.8112,
+            "exclusiveAllocatedBytes": 1165130296,
+            "maxMilliseconds": 58.6472,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "ProtocolTrigger",
+          "metrics": {
+            "Calls": 18390,
+            "milliseconds": 397.35,
+            "AllocatedBytes": 27896408,
+            "exclusiveMilliseconds": 224.5603,
+            "exclusiveAllocatedBytes": 12435608,
+            "maxMilliseconds": 10.1512,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        }
+      ],
+      "acceptedCommandLatency": {
+        "count": 71858,
+        "p50Ticks": 2,
+        "p95Ticks": 30,
+        "p99Ticks": 69,
+        "maxTicks": 74,
+        "CancelledCommands": 0,
+        "FeedbackRejectedCommands": 0,
+        "ActuatorExceptions": 0,
+        "scope": "Root external emission (or timer/boot command creation) to accepted IO dispatch; physical completion is observed by native scenario drivers separately."
+      }
+    },
+    "3-B": {
+      "whole_tick_ms": {
+        "n": 108000,
+        "mean": 7.744943586111111,
+        "p50": 4.27425,
+        "p95": 11.374324999999994,
+        "p99": 57.0131649999997,
+        "p999": 239.60681340000428,
+        "max": 6213.3539,
+        "over1667": 3480
+      },
+      "content_engine_ms": {
+        "n": 108000,
+        "mean": 5.3620814333333335,
+        "p50": 3.8926,
+        "p95": 10.141109999999998,
+        "p99": 26.264440999999977,
+        "p999": 163.26369350000112,
+        "max": 899.0582,
+        "over1667": 2503
+      },
+      "physics_ms": {
+        "n": 108000,
+        "mean": 1.9250671287037038,
+        "p50": 1.6123,
+        "p95": 3.8080049999999988,
+        "p99": 6.360329999999984,
+        "p999": 14.35673920000015,
+        "max": 896.3819,
+        "over1667": 77
+      },
+      "driver_ms": {
+        "n": 108000,
+        "mean": 1.4057429601851852,
+        "p50": 0.0033,
+        "p95": 0.0044,
+        "p99": 1.0934019999999989,
+        "p999": 113.56762920002662,
+        "max": 6198.4796,
+        "over1667": 427
+      },
+      "observer_ms": {
+        "n": 108000,
+        "mean": 0.5749301037037037,
+        "p50": 0.0003,
+        "p95": 0.10720499999999884,
+        "p99": 6.189570999999963,
+        "p999": 122.3676824000007,
+        "max": 5439.9655,
+        "over1667": 766
+      },
+      "working_set_bytes": {
+        "n": 108000,
+        "mean": 4904326735.644444,
+        "p50": 4995145728.0,
+        "p95": 5446851788.799999,
+        "p99": 5553112678.39999,
+        "p999": 5570387968.0,
+        "max": 5571788800.0,
+        "over1667": 108000
+      },
+      "whole_allocated_bytes": {
+        "n": 108000,
+        "mean": 321140.7185925926,
+        "p50": 111136.0,
+        "p95": 1321539.999999999,
+        "p99": 2986236.8799999934,
+        "p999": 12380368.73600025,
+        "max": 204618728.0,
+        "over1667": 90945
+      },
+      "gcCollections": {
+        "gc0": 51,
+        "gc1": 18,
+        "gc2": 2
+      },
+      "gcPauseMs": 1506.215,
+      "manifest": {
+        "adminLogProbe": 0,
+        "mapSha256": "e96cdea2c377c4876333c0d5981a39fa79fe2d0b0cb268fe64ddc18d9a3c0f68",
+        "telemetrySha256": "b7cd34457ee1b7ed0860fa00ed02f867f503b9b733ab2d0c1ef2f5004fbaf91c",
+        "profiling": false,
+        "clientSandboxEnabled": true,
+        "physicsMode": "B",
+        "metricsEnabled": true,
+        "phaseCounters": true,
+        "testOnlyInactivity": {
+          "afkSeconds": 8100,
+          "pendingClockinMinutes": 135,
+          "guestAfkMinutes": 135,
+          "scope": "Isolated localhost harness; timeout exceeds wall watchdog, production defaults unchanged"
+        },
+        "clientDiscordEnabled": false,
+        "systemCounters": true,
+        "networkClients": 4,
+        "worldgenEnabled": false,
+        "diagnostic": false,
+        "networkHistoryRequired": true,
+        "diagnosticTimeScale": 1.0,
+        "variant": "B",
+        "physicsQueryCountersEnabled": true,
+        "nativeLabSha256": "6582af0b4ada212655b9ac0a805242c7763ed634a25a9b855dddb8e5f22ea477",
+        "performanceEligible": true,
+        "networkAdmission": {
+          "bindAddress": "127.0.0.1",
+          "maxIpConnections": 8,
+          "maxRapidConnections": 8
+        },
+        "ablation": "None",
+        "assemblySha256": "a99844f0be712321fe044c0183cb496016dec7cf72f425441b67ae7cf0f9d83e",
+        "maxWallMinutes": 120,
+        "nativeGameDriversSha256": "9147398e759f045ec7b2f5864f177823b840650401bb2ad9436104f0f47e6118",
+        "nativeNpcPauseWhenNoPlayers": false,
+        "externalGameProcesses": [],
+        "physicsDeviceGroup": "KiasPrototypes",
+        "strictReady": false
+      },
+      "completed": {
+        "status": "PARTIAL_NATIVE_DRY_RUN_COMPLETE",
+        "measuredTicks": 108000,
+        "deliveredEvents": 10880,
+        "ships": 40,
+        "nativeCompleted": 9320
+      },
+      "telemetry": {
+        "activeGrids": 40,
+        "runningCards": 1040,
+        "activeMachines": 1040,
+        "faultedCards": 0,
+        "queues": {
+          "_events": 0,
+          "_work": 0,
+          "_commands": 0,
+          "_boots": 0,
+          "_finalEvents": 0,
+          "_finalCommands": 0,
+          "pendingDispatch": 0
+        }
+      },
+      "queueLatency": [
+        {
+          "name": "events",
+          "Enqueued": 69463,
+          "Consumed": 69463,
+          "Rejected": 0,
+          "HighWater": 1187,
+          "BackloggedTicks": 5193,
+          "MaxAgeTicks": 62,
+          "p50Ticks": 0,
+          "p95Ticks": 13,
+          "p99Ticks": 54,
+          "scope": "enqueue to dequeue; includes cancelled or invalidated work; bucket 4096 includes overflow"
+        },
+        {
+          "name": "work",
+          "Enqueued": 863657,
+          "Consumed": 863657,
+          "Rejected": 0,
+          "HighWater": 4096,
+          "BackloggedTicks": 1707,
+          "MaxAgeTicks": 15,
+          "p50Ticks": 0,
+          "p95Ticks": 15,
+          "p99Ticks": 15,
+          "scope": "enqueue to dequeue; includes cancelled or invalidated work; bucket 4096 includes overflow"
+        },
+        {
+          "name": "commands",
+          "Enqueued": 71919,
+          "Consumed": 71919,
+          "Rejected": 0,
+          "HighWater": 464,
+          "BackloggedTicks": 60,
+          "MaxAgeTicks": 3,
+          "p50Ticks": 0,
+          "p95Ticks": 1,
+          "p99Ticks": 3,
+          "scope": "enqueue to dequeue; includes cancelled or invalidated work; bucket 4096 includes overflow"
+        }
+      ],
+      "actuatorDispatchLatency": [
+        {
+          "profile": "Speaker",
+          "port": "Alarm",
+          "count": 54242,
+          "p50Ticks": 2,
+          "p95Ticks": 40,
+          "p99Ticks": 70,
+          "maxTicks": 77
+        },
+        {
+          "profile": "Recorder",
+          "port": "Record",
+          "count": 5452,
+          "p50Ticks": 2,
+          "p95Ticks": 39,
+          "p99Ticks": 70,
+          "maxTicks": 77
+        },
+        {
+          "profile": "Automation",
+          "port": "EscalateAlert",
+          "count": 1675,
+          "p50Ticks": 4,
+          "p95Ticks": 50,
+          "p99Ticks": 70,
+          "maxTicks": 77
+        },
+        {
+          "profile": "NavigationComms",
+          "port": "MedicalHelp",
+          "count": 28,
+          "p50Ticks": 0,
+          "p95Ticks": 0,
+          "p99Ticks": 0,
+          "maxTicks": 0
+        },
+        {
+          "profile": "Lighting",
+          "port": "On",
+          "count": 10212,
+          "p50Ticks": 10,
+          "p95Ticks": 23,
+          "p99Ticks": 30,
+          "maxTicks": 34
+        },
+        {
+          "profile": "DefenceController",
+          "port": "Enable",
+          "count": 276,
+          "p50Ticks": 10,
+          "p95Ticks": 23,
+          "p99Ticks": 30,
+          "maxTicks": 34
+        },
+        {
+          "profile": "NavigationComms",
+          "port": "Mayday",
+          "count": 34,
+          "p50Ticks": 70,
+          "p95Ticks": 73,
+          "p99Ticks": 77,
+          "maxTicks": 77
+        }
+      ],
+      "phases": [
+        {
+          "name": "CrewUpdate",
+          "metrics": {
+            "Calls": 118801,
+            "milliseconds": 16177.7691,
+            "AllocatedBytes": 318280808,
+            "exclusiveMilliseconds": 197.5814,
+            "exclusiveAllocatedBytes": 3060000,
+            "maxMilliseconds": 10.9544,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewCoverage",
+          "metrics": {
+            "Calls": 15160,
+            "milliseconds": 43455.9677,
+            "AllocatedBytes": 353391384,
+            "exclusiveMilliseconds": 1907.4587,
+            "exclusiveAllocatedBytes": 255779952,
+            "maxMilliseconds": 66.5897,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewScan",
+          "metrics": {
+            "Calls": 76500,
+            "milliseconds": 15980.1877,
+            "AllocatedBytes": 315220808,
+            "exclusiveMilliseconds": 3745.4775,
+            "exclusiveAllocatedBytes": 6401576,
+            "maxMilliseconds": 6.0753,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewPeople",
+          "metrics": {
+            "Calls": 8566880,
+            "milliseconds": 4347.9179,
+            "AllocatedBytes": 73814864,
+            "exclusiveMilliseconds": 4346.5194,
+            "exclusiveAllocatedBytes": 73747344,
+            "maxMilliseconds": 3.5023,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewFauna",
+          "metrics": {
+            "Calls": 590440,
+            "milliseconds": 1423.6845,
+            "AllocatedBytes": 150176128,
+            "exclusiveMilliseconds": 1419.2368,
+            "exclusiveAllocatedBytes": 150026656,
+            "maxMilliseconds": 1.6125,
+            "Items": 4670544,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "CrewRegistration",
+          "metrics": {
+            "Calls": 76500,
+            "milliseconds": 7886.7923,
+            "AllocatedBytes": 235004368,
+            "exclusiveMilliseconds": 6307.8731,
+            "exclusiveAllocatedBytes": 56965272,
+            "maxMilliseconds": 3.325,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeUpdate",
+          "metrics": {
+            "Calls": 118801,
+            "milliseconds": 30198.3323,
+            "AllocatedBytes": 2018748808,
+            "exclusiveMilliseconds": 126.3926,
+            "exclusiveAllocatedBytes": 0,
+            "maxMilliseconds": 82.4531,
+            "Items": 0,
+            "MaxQueue": 5049
+          }
+        },
+        {
+          "name": "RuntimeBoot",
+          "metrics": {
+            "Calls": 18293,
+            "milliseconds": 1394.8583,
+            "AllocatedBytes": 775500760,
+            "exclusiveMilliseconds": 1365.2876,
+            "exclusiveAllocatedBytes": 775447480,
+            "maxMilliseconds": 69.8553,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeTimers",
+          "metrics": {
+            "Calls": 0,
+            "milliseconds": 0,
+            "AllocatedBytes": 0,
+            "exclusiveMilliseconds": 0,
+            "exclusiveAllocatedBytes": 0,
+            "maxMilliseconds": 0,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeEvents",
+          "metrics": {
+            "Calls": 76093,
+            "milliseconds": 507.459,
+            "AllocatedBytes": 591840,
+            "exclusiveMilliseconds": 507.459,
+            "exclusiveAllocatedBytes": 591840,
+            "maxMilliseconds": 2.9553,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeWork",
+          "metrics": {
+            "Calls": 863657,
+            "milliseconds": 1471.319,
+            "AllocatedBytes": 54878256,
+            "exclusiveMilliseconds": 1465.9298,
+            "exclusiveAllocatedBytes": 54878256,
+            "maxMilliseconds": 8.3242,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RuntimeCommands",
+          "metrics": {
+            "Calls": 71919,
+            "milliseconds": 26698.3034,
+            "AllocatedBytes": 1187777952,
+            "exclusiveMilliseconds": 235.3418,
+            "exclusiveAllocatedBytes": 17373192,
+            "maxMilliseconds": 53.4083,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IntegrationReconcile",
+          "metrics": {
+            "Calls": 7170,
+            "milliseconds": 47895.3261,
+            "AllocatedBytes": 114380864,
+            "exclusiveMilliseconds": 23425.9811,
+            "exclusiveAllocatedBytes": 15752024,
+            "maxMilliseconds": 73.6529,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IntegrationControl",
+          "metrics": {
+            "Calls": 90212038,
+            "milliseconds": 33905.2779,
+            "AllocatedBytes": 102903320,
+            "exclusiveMilliseconds": 33905.2779,
+            "exclusiveAllocatedBytes": 102903320,
+            "maxMilliseconds": 29.9187,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "RoomGeometry",
+          "metrics": {
+            "Calls": 14980,
+            "milliseconds": 14332.3286,
+            "AllocatedBytes": 445658840,
+            "exclusiveMilliseconds": 2199.2658,
+            "exclusiveAllocatedBytes": 362234360,
+            "maxMilliseconds": 55.6483,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IoEmit",
+          "metrics": {
+            "Calls": 316872,
+            "milliseconds": 493.8842,
+            "AllocatedBytes": 50205464,
+            "exclusiveMilliseconds": 477.9093,
+            "exclusiveAllocatedBytes": 50205464,
+            "maxMilliseconds": 11.1865,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "IoCommand",
+          "metrics": {
+            "Calls": 71999,
+            "milliseconds": 26464.2097,
+            "AllocatedBytes": 1170409560,
+            "exclusiveMilliseconds": 22704.2276,
+            "exclusiveAllocatedBytes": 1170190680,
+            "maxMilliseconds": 53.4043,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        },
+        {
+          "name": "ProtocolTrigger",
+          "metrics": {
+            "Calls": 18614,
+            "milliseconds": 428.2647,
+            "AllocatedBytes": 28316048,
+            "exclusiveMilliseconds": 230.2161,
+            "exclusiveAllocatedBytes": 12631912,
+            "maxMilliseconds": 16.5993,
+            "Items": 0,
+            "MaxQueue": 0
+          }
+        }
+      ],
+      "acceptedCommandLatency": {
+        "count": 71919,
+        "p50Ticks": 2,
+        "p95Ticks": 32,
+        "p99Ticks": 70,
+        "maxTicks": 77,
+        "CancelledCommands": 0,
+        "FeedbackRejectedCommands": 0,
+        "ActuatorExceptions": 0,
+        "scope": "Root external emission (or timer/boot command creation) to accepted IO dispatch; physical completion is observed by native scenario drivers separately."
+      }
+    },
+    "4-A": {
+      "whole_tick_ms": {
+        "n": 108000,
+        "mean": 5.587505987037037,
+        "p50": 3.7263,
+        "p95": 8.441824999999994,
+        "p99": 18.956052999999972,
+        "p999": 142.86678970001955,
+        "max": 6219.2412,
+        "over1667": 1246
+      },
+      "content_engine_ms": {
+        "n": 108000,
+        "mean": 4.022323752777778,
+        "p50": 3.364,
+        "p95": 7.6304299999999925,
+        "p99": 12.728732999999982,
+        "p999": 37.92245060000096,
+        "max": 1175.5984,
+        "over1667": 695
+      },
+      "physics_ms": {
+        "n": 108000,
+        "mean": 1.7232883092592592,
+        "p50": 1.4971,
+        "p95": 3.5295199999999953,
+        "p99": 5.628801999999999,
+        "p999": 13.994540100000538,
+        "max": 1172.0604,
+        "over1667": 67
+      },
+      "driver_ms": {
+        "n": 108000,
+        "mean": 1.1058805898148147,
+        "p50": 0.0033,
+        "p95": 0.0045,
+        "p99": 1.0758009999999996,
+        "p999": 72.74002410000202,
+        "max": 6211.0896,
+        "over1667": 427
+      },
+      "observer_ms": {
+        "n": 108000,
+        "mean": 0.08367796111111112,
+        "p50": 0.0002,
+        "p95": 0.0747,
+        "p99": 0.13590099999999947,
+        "p999": 2.829700600000002,
+        "max": 523.3315,
+        "over1667": 35
+      },
+      "working_set_bytes": {
+        "n": 108000,
+        "mean": 4013128339.911111,
+        "p50": 4087435264.0,
+        "p95": 4231807385.599998,
+        "p99": 4245123072.0,
+        "p999": 4246495232.0,
+        "max": 4246495232.0,
+        "over1667": 108000
+      },
+      "whole_allocated_bytes": {
+        "n": 108000,
+        "mean": 274165.66140740743,
+        "p50": 111168.0,
+        "p95": 983017.599999994,
+        "p99": 2658033.0399999996,
+        "p999": 13408731.144000197,
+        "max": 176948904.0,
+        "over1667": 100168
+      },
+      "gcCollections": {
+        "gc0": 46,
+        "gc1": 22,
+        "gc2": 2
+      },
+      "gcPauseMs": 802.9,
+      "manifest": {
+        "adminLogProbe": 0,
+        "mapSha256": "8277191a8100414e9cc4e1ce9194b645fd2a9ef77dce53d1fc9c5b9b37032636",
+        "telemetrySha256": null,
+        "profiling": false,
+        "clientSandboxEnabled": true,
+        "physicsMode": "A",
+        "metricsEnabled": true,
+        "phaseCounters": true,
+        "testOnlyInactivity": {
+          "afkSeconds": 8100,
+          "pendingClockinMinutes": 135,
+          "guestAfkMinutes": 135,
+          "scope": "Isolated localhost harness; timeout exceeds wall watchdog, production defaults unchanged"
+        },
+        "clientDiscordEnabled": false,
+        "systemCounters": true,
+        "networkClients": 4,
+        "worldgenEnabled": false,
+        "diagnostic": false,
+        "networkHistoryRequired": true,
+        "diagnosticTimeScale": 1.0,
+        "variant": "A",
+        "physicsQueryCountersEnabled": true,
+        "nativeLabSha256": "6582af0b4ada212655b9ac0a805242c7763ed634a25a9b855dddb8e5f22ea477",
+        "performanceEligible": true,
+        "networkAdmission": {
+          "bindAddress": "127.0.0.1",
+          "maxIpConnections": 8,
+          "maxRapidConnections": 8
+        },
+        "ablation": "None",
+        "assemblySha256": "8a5f0f20abe29ee3eee8382e9b22354a63807aab4fce74e2e11fb0d016666cdd",
+        "maxWallMinutes": 120,
+        "nativeGameDriversSha256": "9147398e759f045ec7b2f5864f177823b840650401bb2ad9436104f0f47e6118",
+        "nativeNpcPauseWhenNoPlayers": false,
+        "externalGameProcesses": [],
+        "physicsDeviceGroup": "KiasPrototypes",
+        "strictReady": false
+      },
+      "completed": {
+        "status": "PARTIAL_NATIVE_DRY_RUN_COMPLETE",
+        "measuredTicks": 108000,
+        "deliveredEvents": 10880,
+        "ships": 40,
+        "nativeCompleted": 9320
+      }
+    }
+  },
+  "pooled": {
+    "A": {
+      "whole_tick_ms": {
+        "n": 216000,
+        "mean": 5.572157380555556,
+        "p50": 3.7352,
+        "p95": 8.476,
+        "p99": 19.19154900000023,
+        "p999": 147.95313519998143,
+        "max": 6219.2412,
+        "over1667": 2547
+      },
+      "content_engine_ms": {
+        "n": 216000,
+        "mean": 4.037712812962963,
+        "p50": 3.3748,
+        "p95": 7.6687,
+        "p99": 12.849704000000004,
+        "p999": 38.40173959999957,
+        "max": 1175.5984,
+        "over1667": 1408
+      },
+      "physics_ms": {
+        "n": 216000,
+        "mean": 1.737125338888889,
+        "p50": 1.5057,
+        "p95": 3.543404999999999,
+        "p99": 5.700003000000003,
+        "p999": 14.447237399999599,
+        "max": 1172.0604,
+        "over1667": 145
+      },
+      "driver_ms": {
+        "n": 216000,
+        "mean": 1.0711704569444445,
+        "p50": 0.0033,
+        "p95": 0.0044,
+        "p99": 1.074101000000001,
+        "p999": 74.91133899999744,
+        "max": 6211.0896,
+        "over1667": 858
+      },
+      "observer_ms": {
+        "n": 216000,
+        "mean": 0.08406904212962962,
+        "p50": 0.0002,
+        "p95": 0.0724,
+        "p99": 0.1354,
+        "p999": 2.572308199999912,
+        "max": 587.9071,
+        "over1667": 72
+      },
+      "whole_allocated_bytes": {
+        "n": 216000,
+        "mean": 266168.01951851853,
+        "p50": 108040.0,
+        "p95": 895224.7999999998,
+        "p99": 2663991.360000007,
+        "p999": 13421262.599999586,
+        "max": 183416656.0,
+        "over1667": 195383
+      },
+      "working_set_bytes": {
+        "n": 216000,
+        "mean": 3990463622.2577777,
+        "p50": 4077996032.0,
+        "p95": 4219848089.5999994,
+        "p99": 4244140032.0,
+        "p999": 4246429696.0,
+        "max": 4246495232.0,
+        "over1667": 216000
+      }
+    },
+    "B": {
+      "whole_tick_ms": {
+        "n": 216000,
+        "mean": 7.7453523018518515,
+        "p50": 4.2664,
+        "p95": 11.294314999999996,
+        "p99": 56.37218000000017,
+        "p999": 240.8707469999931,
+        "max": 6384.0813,
+        "over1667": 6962
+      },
+      "content_engine_ms": {
+        "n": 216000,
+        "mean": 5.35277857824074,
+        "p50": 3.889,
+        "p95": 10.0691,
+        "p99": 26.309937000000033,
+        "p999": 161.9785956999979,
+        "max": 3846.6545,
+        "over1667": 4988
+      },
+      "physics_ms": {
+        "n": 216000,
+        "mean": 1.922887211111111,
+        "p50": 1.6218,
+        "p95": 3.809719999999995,
+        "p99": 6.285604000000004,
+        "p999": 14.768633099999645,
+        "max": 935.7679,
+        "over1667": 157
+      },
+      "driver_ms": {
+        "n": 216000,
+        "mean": 1.3493432986111111,
+        "p50": 0.0033,
+        "p95": 0.0045,
+        "p99": 1.090001000000001,
+        "p999": 112.56753419999858,
+        "max": 6198.4796,
+        "over1667": 847
+      },
+      "observer_ms": {
+        "n": 216000,
+        "mean": 0.6414061916666667,
+        "p50": 0.0003,
+        "p95": 0.1048,
+        "p99": 6.205141000000132,
+        "p999": 125.7963228999869,
+        "max": 6362.3605,
+        "over1667": 1533
+      },
+      "whole_allocated_bytes": {
+        "n": 216000,
+        "mean": 319698.2357037037,
+        "p50": 108040.0,
+        "p95": 1316155.5999999954,
+        "p99": 2957241.5200000014,
+        "p999": 12523102.687994359,
+        "max": 204618728.0,
+        "over1667": 184510
+      },
+      "working_set_bytes": {
+        "n": 216000,
+        "mean": 4822144444.871111,
+        "p50": 4833660928.0,
+        "p95": 5431123968.0,
+        "p99": 5536092733.440001,
+        "p999": 5567123456.0,
+        "max": 5571788800.0,
+        "over1667": 216000
+      }
+    }
+  },
+  "deltaMean": {
+    "whole_tick_ms": 2.1731949212962958,
+    "content_engine_ms": 1.3150657652777777,
+    "physics_ms": 0.18576187222222207,
+    "driver_ms": 0.27817284166666667,
+    "observer_ms": 0.5573371495370371,
+    "whole_allocated_bytes": 53530.216185185185,
+    "working_set_bytes": 831680822.6133332,
+    "residual_ms": 0.022619164814814408
+  },
+  "pair/BASELINE_MANIFEST.json": {
+    "status": "MATCHED_RELEASE_BUILDS_COMPLETE_RUNTIME_NOT_TESTED",
+    "base": "8ea71cec189dec70c6e40da91e23648cdc4e12cb",
+    "branchHead": "00a6e937126b01f2e49cbbc36de2d17666791724",
+    "engine": "c2fc1375fc8647f4a29d2e9c8a8ae86dfb35d66e",
+    "runtimeParity": "NOT_TESTED",
+    "sharedSourceOverrides": {
+      "Content.Client/_Mono/Audio/AudioEffectSystem.cs": "b28b8e1e21f0cfbc8b871ae01898cc7b5460a615ea015e333e5be82290d4be55",
+      "Content.Server/_Mono/NPC/HTN/Operators/ShipMoveToOperator.cs": "2f4272938f155e7c9d35721b4f1ff80a5c3ba1f5eefd6edbfbd0bad4144db4e6",
+      "Content.Server/Chat/Managers/ChatSanitizationManager.cs": "540db4e9d39f25c944231fbb8a687d4f9e8fe5087bda725d3b7e6f0263e1a208"
+    },
+    "commonImpactFix": {
+      "A": {
+        "sourceSha256": "21d54ad618d1c19176b0bada02f22d5221a9b1fad5d7a118ebb371b961d3be2e",
+        "neutralBodySha256": "21d54ad618d1c19176b0bada02f22d5221a9b1fad5d7a118ebb371b961d3be2e",
+        "difference": "B-only KIAS collision event emission; accepted-impact deduplication identical"
+      },
+      "B": {
+        "sourceSha256": "de33282b3d2b31da741adaeeb045ce3ee9b929752e2e76dbc90f4030fffa22a1",
+        "neutralBodySha256": "21d54ad618d1c19176b0bada02f22d5221a9b1fad5d7a118ebb371b961d3be2e",
+        "difference": "B-only KIAS collision event emission; accepted-impact deduplication identical"
+      }
+    },
+    "overlaySha256": "1fbeb4a81d450e29145b9e8e4783dfc5c5b1e52463d55c67e5ad605fa5f30df5",
+    "currentFixesSha256": "a133afb81458149c2907ecc61cb62e2a0614e07264cb887d5a368dc9399e6c4d",
+    "staticParity": {
+      "status": "STATIC_VANILLA_PARITY_PASS_RUNTIME_NOT_TESTED",
+      "nativeEntityCount": 2112,
+      "removedKiasEntities": 382,
+      "nonKiasMapSha256": "43fb19cef60e447979da962456c82187d6be43f4c6b1c9435931c45da2c3458c",
+      "aMapSha256": "8277191a8100414e9cc4e1ce9194b645fd2a9ef77dce53d1fc9c5b9b37032636",
+      "bMapSha256": "e96cdea2c377c4876333c0d5981a39fa79fe2d0b0cb268fe64ddc18d9a3c0f68"
+    },
+    "sourceFingerprint": "f8266343385de329e490db1a1607f3e0b07d9443d19f62e9bad1a3a4eb3a4413",
+    "sdk": "10.0.101"
+  },
+  "series/results.json": {
+    "status": "NATIVE_FULLGAME_ABBA_COMPLETE",
+    "fullGameplayCoverage": false,
+    "scope": "Native schedule and completion evidence; network, scaling, visuals and physics acceptance require separate preflight proofs",
+    "deferredChecks": [],
+    "scenarioSha256": "2404daf7e2b3bcd92944e5b412874e928d2c8d27183647e6430d37172ab3c3ae",
+    "performanceEligible": true,
+    "attributionLimits": "Tick/physics/driver/observer timings overlap; they must not be summed as independent costs"
+  },
+  "series/status.json": {
+    "warmupTicks": 10800,
+    "currentRun": 4,
+    "fullGameplayCoverage": false,
+    "fullGame": true,
+    "completedUtc": "2026-10-13T23:35:30.4386843Z",
+    "measuredTicksPerRun": 108000,
+    "diagnostic": false,
+    "currentVariant": "A",
+    "ships": 40,
+    "status": "NATIVE_FULLGAME_ABBA_COMPLETE",
+    "tickRate": 60,
+    "collectorPid": 48688,
+    "quick": false,
+    "strictReady": false,
+    "legacy": false,
+    "seed": 20261010,
+    "startedUtc": "2026-10-13T21:07:18.2389332Z",
+    "seriesEtaSeconds": 2242.410540433333,
+    "scenarioSha256": "2404daf7e2b3bcd92944e5b412874e928d2c8d27183647e6430d37172ab3c3ae",
+    "order": [
+      "A",
+      "B",
+      "B",
+      "A"
+    ]
+  },
+  "fingerprintMismatches": []
+}
