@@ -7,9 +7,9 @@
   - type: Sprite
     sprite: _Forge/Objects/Specific/Medical/HME/tactical_medipen_case.rsi
     layers:
-    - state: icon
+    - state: closed
       map: [ "closeLayer" ]
-    - state: icon
+    - state: open
       map: [ "openLayer" ]
       visible: false
   - type: Storage
@@ -22,6 +22,7 @@
       components:
       - Hypospray
   - type: Item
+    sprite: _Forge/Objects/Specific/Medical/HME/tactical_medipen_case.rsi
     size: Small
     shape:
     - 0,0,1,1
@@ -44,15 +45,44 @@
     drawdepth: SmallObjects
     sprite: _Forge/Objects/Specific/Medical/HME/smart_infusion_stand.rsi
     layers:
-    - state: empty
-      map: [ "enum.HmeInfusionStandVisuals.State" ]
+    - state: "off"
+      map: [ "base" ]
+    - state: beaker-1
+      visible: false
+      map: [ "beaker1" ]
+    - state: beaker-2
+      visible: false
+      map: [ "beaker2" ]
+    - state: beaker-3
+      visible: false
+      map: [ "beaker3" ]
+  - type: Icon
+    sprite: _Forge/Objects/Specific/Medical/HME/smart_infusion_stand.rsi
+    state: "off"
   - type: GenericVisualizer
     visuals:
       enum.HmeInfusionStandVisuals.State:
-        Empty: { state: empty }
-        Idle: { state: icon }
-        Filled: { state: filled }
-        Active: { state: active }
+        base:
+          Empty: { state: "off" }
+          Idle: { state: "off" }
+          Filled: { state: "off" }
+          Active: { state: active }
+      enum.HmeInfusionStandVisuals.BeakerCount:
+        beaker1:
+          0: { visible: false }
+          1: { visible: true }
+          2: { visible: true }
+          3: { visible: true }
+        beaker2:
+          0: { visible: false }
+          1: { visible: false }
+          2: { visible: true }
+          3: { visible: true }
+        beaker3:
+          0: { visible: false }
+          1: { visible: false }
+          2: { visible: false }
+          3: { visible: true }
   - type: Appearance
   - type: Storage
     grid:
@@ -110,24 +140,14 @@
     layers:
     - state: compact
       map: [ "base" ]
-    - state: attached-screen
+    - state: active-screen
       shader: unshaded
       visible: false
       map: [ "screen" ]
   - type: Icon
     sprite: _Forge/Objects/Specific/Medical/HME/stasis_blossom_unit.rsi
     state: compact
-  - type: GenericVisualizer
-    visuals:
-      enum.HmeStasisBlossomVisuals.State:
-        base:
-          Compact: { state: compact }
-          Attached: { state: attached }
-          Deployed: { state: deployed, loop: false }
-        screen:
-          Compact: { visible: false }
-          Attached: { state: attached-screen, visible: true }
-          Deployed: { state: deployed-screen, visible: true, loop: false }
+  - type: HmeStasisBlossomVisuals
   - type: Appearance
   - type: Item
     size: Small
@@ -176,6 +196,16 @@
       - state: equipped-ARMBANDLEFT
       rightarmband:
       - state: equipped-ARMBANDRIGHT
+      leftarmband-vox:
+      - state: equipped-ARMBANDLEFT-vox
+      rightarmband-vox:
+      - state: equipped-ARMBANDRIGHT-vox
+      leftarmband-hydrakin:
+      - state: equipped-ARMBANDLEFT-hydrakin
+      rightarmband-hydrakin:
+      - state: equipped-ARMBANDRIGHT-hydrakin
+  - type: Item
+    sprite: _Forge/Objects/Specific/Medical/HME/rescue_beacon.rsi
   - type: HmeRescueBeacon
   - type: StaticPrice
     price: 2500

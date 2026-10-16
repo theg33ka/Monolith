@@ -43,6 +43,7 @@ public sealed partial class HmeSmartInfusionStandComponent : Component
 public enum HmeInfusionStandVisuals : byte
 {
     State,
+    BeakerCount,
 }
 
 [Serializable, NetSerializable]

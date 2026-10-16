@@ -324,7 +324,6 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         _blossomByTarget[target] = ent.Owner;
         _transform.SetCoordinates(ent.Owner, new EntityCoordinates(target, Vector2.Zero));
         SetBlossomVisual(ent.Owner, HmeStasisBlossomVisualState.Attached);
-        Dirty(ent);
     }
 
     private bool TryToggleBlossom(Entity<HmeStasisBlossomComponent> ent, EntityUid user)
@@ -364,7 +363,6 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         SetBlossomVisual(ent.Owner, HmeStasisBlossomVisualState.Deployed);
         _actions.SetToggled(ent.Comp.ToggleActionEntity, true);
         _deployedBlossoms.Add(ent.Owner);
-        Dirty(ent);
         _popup.PopupEntity(Loc.GetString("hme-stasis-blossom-deployed"), target, user);
         return true;
     }
@@ -377,7 +375,6 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         SetBlossomMetabolism(ent, false);
         SetBlossomVisual(ent.Owner, ent.Comp.AttachedTarget == null ? HmeStasisBlossomVisualState.Compact : HmeStasisBlossomVisualState.Attached);
         _actions.SetToggled(ent.Comp.ToggleActionEntity, false);
-        Dirty(ent);
     }
 
     private void DetachBlossom(Entity<HmeStasisBlossomComponent> ent, EntityUid user)
@@ -398,7 +395,6 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         _deployedBlossoms.Remove(ent.Owner);
         _transform.SetMapCoordinates(ent.Owner, coords);
         SetBlossomVisual(ent.Owner, HmeStasisBlossomVisualState.Compact);
-        Dirty(ent);
 
         if (!_hands.TryPickupAnyHand(user, ent.Owner, checkActionBlocker: false, animate: false))
         {
@@ -467,8 +463,6 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
             SetBlossomVisual(ent.Owner, HmeStasisBlossomVisualState.Compact);
             _actions.SetToggled(ent.Comp.ToggleActionEntity, false);
         }
-
-        Dirty(ent);
     }
 
     private void RemoveTargetMapping(EntityUid target, EntityUid blossom)
@@ -524,7 +518,6 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         }
 
         _physics.ResetMassData(target, manager: fixtures);
-        Dirty(ent);
     }
 
     private void RestoreBlossomTransportAssist(Entity<HmeStasisBlossomComponent> ent)
@@ -553,7 +546,6 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
 
         ent.Comp.TransportAdjustedTarget = null;
         ent.Comp.TransportFixtureDensityChanges.Clear();
-        Dirty(ent);
     }
 
     private void SetBlossomVisual(EntityUid uid, HmeStasisBlossomVisualState state)

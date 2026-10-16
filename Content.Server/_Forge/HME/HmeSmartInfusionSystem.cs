@@ -68,6 +68,7 @@ public sealed class HmeSmartInfusionSystem : EntitySystem
     private void OnInfusionInit(Entity<HmeSmartInfusionStandComponent> ent, ref ComponentInit args)
     {
         SetInfusionVisual(ent.Owner, HmeInfusionStandVisualState.Empty);
+        _appearance.SetData(ent.Owner, HmeInfusionStandVisuals.BeakerCount, 0);
     }
 
     private void OnInfusionMapInit(Entity<HmeSmartInfusionStandComponent> ent, ref MapInitEvent args)
@@ -109,6 +110,9 @@ public sealed class HmeSmartInfusionSystem : EntitySystem
             SetInfusionVisual(ent.Owner, HmeInfusionStandVisualState.Empty);
             return;
         }
+
+        _appearance.SetData(ent.Owner, HmeInfusionStandVisuals.BeakerCount,
+            Math.Min(storage.Container.ContainedEntities.Count, 3));
 
         if (HasAnyInfusionSource(ent.Comp, storage))
         {

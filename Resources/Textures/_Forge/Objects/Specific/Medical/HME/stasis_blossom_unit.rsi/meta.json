@@ -23,29 +23,29 @@
       "directions": 4
     },
     {
-      "name": "attached",
+      "name": "active",
       "delays": [
         [
-          0.15,
-          0.15,
-          0.15,
-          0.15
+          0.1,
+          0.1,
+          0.1,
+          0.1
         ]
       ]
     },
     {
-      "name": "attached-screen",
+      "name": "active-screen",
       "delays": [
         [
-          0.15,
-          0.15,
-          0.15,
-          0.15
+          0.1,
+          0.1,
+          0.1,
+          0.1
         ]
       ]
     },
     {
-      "name": "deployed",
+      "name": "deploying",
       "delays": [
         [
           0.1,
@@ -65,7 +65,7 @@
       ]
     },
     {
-      "name": "deployed-screen",
+      "name": "deploying-screen",
       "delays": [
         [
           0.1,

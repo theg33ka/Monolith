@@ -11,11 +11,35 @@
       "name": "icon"
     },
     {
+      "name": "inhand-left",
+      "directions": 4
+    },
+    {
+      "name": "inhand-right",
+      "directions": 4
+    },
+    {
       "name": "equipped-ARMBANDLEFT",
       "directions": 4
     },
     {
       "name": "equipped-ARMBANDRIGHT",
+      "directions": 4
+    },
+    {
+      "name": "equipped-ARMBANDLEFT-vox",
+      "directions": 4
+    },
+    {
+      "name": "equipped-ARMBANDRIGHT-vox",
+      "directions": 4
+    },
+    {
+      "name": "equipped-ARMBANDLEFT-hydrakin",
+      "directions": 4
+    },
+    {
+      "name": "equipped-ARMBANDRIGHT-hydrakin",
       "directions": 4
     }
   ]
