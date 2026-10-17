@@ -18,10 +18,15 @@ public sealed partial class HmeStasisBlossomVisualizerSystem : VisualizerSystem<
 
     private void OnAnimationCompleted(Entity<HmeStasisBlossomVisualsComponent> ent, ref AnimationCompletedEvent args)
     {
-        if (args.Key != DeployAnimationKey || !args.Finished ||
-            ent.Comp.LastState != HmeStasisBlossomVisualState.Deployed ||
-            !TryComp(ent, out SpriteComponent? sprite))
+        if (args.Key != DeployAnimationKey || !args.Finished || !TryComp(ent, out SpriteComponent? sprite))
             return;
+
+        if (ent.Comp.LastState != HmeStasisBlossomVisualState.Deployed)
+        {
+            SpriteSystem.LayerSetRsiState((ent.Owner, sprite), "base", "compact");
+            SpriteSystem.LayerSetVisible((ent.Owner, sprite), "screen", false);
+            return;
+        }
 
         SpriteSystem.LayerSetRsiState((ent.Owner, sprite), "base", "active");
         SpriteSystem.LayerSetRsiState((ent.Owner, sprite), "screen", "active-screen");
@@ -37,10 +42,12 @@ public sealed partial class HmeStasisBlossomVisualizerSystem : VisualizerSystem<
                 out HmeStasisBlossomVisualState state, args.Component) || component.LastState == state)
             return;
 
+        var previousState = component.LastState;
         component.LastState = state;
         _animation.Stop(uid, DeployAnimationKey);
 
-        if (state != HmeStasisBlossomVisualState.Deployed)
+        var folding = state != HmeStasisBlossomVisualState.Deployed;
+        if (folding && previousState != HmeStasisBlossomVisualState.Deployed)
         {
             SpriteSystem.LayerSetRsiState((uid, args.Sprite), "base", "compact");
             SpriteSystem.LayerSetVisible((uid, args.Sprite), "screen", false);
@@ -58,7 +65,7 @@ public sealed partial class HmeStasisBlossomVisualizerSystem : VisualizerSystem<
                     LayerKey = "base",
                     KeyFrames =
                     {
-                        new AnimationTrackSpriteFlick.KeyFrame("deploying", 0f),
+                        new AnimationTrackSpriteFlick.KeyFrame(folding ? "folding" : "deploying", 0f),
                     },
                 },
                 new AnimationTrackSpriteFlick
@@ -66,7 +73,7 @@ public sealed partial class HmeStasisBlossomVisualizerSystem : VisualizerSystem<
                     LayerKey = "screen",
                     KeyFrames =
                     {
-                        new AnimationTrackSpriteFlick.KeyFrame("deploying-screen", 0f),
+                        new AnimationTrackSpriteFlick.KeyFrame(folding ? "folding-screen" : "deploying-screen", 0f),
                     },
                 },
             },

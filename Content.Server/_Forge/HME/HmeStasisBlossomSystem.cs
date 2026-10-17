@@ -1,29 +1,36 @@
 using System.Numerics;
 using Content.Server.Body.Systems;
 using Content.Server.Hands.Systems;
+using Content.Server.IdentityManagement;
+using Content.Server.Medical;
+using Content.Server.Medical.Components;
 using Content.Server.Popups;
 using Content.Server.PowerCell;
-using Content.Shared._Forge.HME;
 using Content.Shared.Actions;
 using Content.Shared.Body.Components;
+using Content.Shared.Chemistry.Components;
+using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Damage;
 using Content.Shared.DoAfter;
-using Content.Shared.Examine;
-using Content.Shared.Interaction;
 using Content.Shared.Interaction.Events;
+using Content.Shared.Interaction;
 using Content.Shared.Item;
+using Content.Shared.Labels.Components;
+using Content.Shared.Labels.EntitySystems;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs.Systems;
+using Content.Shared.MedicalScanner;
 using Content.Shared.Movement.Pulling.Events;
 using Content.Shared.Movement.Pulling.Systems;
-using Content.Shared.PowerCell.Components;
 using Content.Shared.Popups;
 using Content.Shared.Standing;
 using Content.Shared.Verbs;
+using Content.Shared._Forge.HME;
 using Robust.Shared.Map;
-using Robust.Shared.Physics;
 using Robust.Shared.Physics.Systems;
+using Robust.Shared.Physics;
 using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 
 namespace Content.Server._Forge.HME;
 
@@ -42,6 +49,13 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
     [Dependency] private readonly PowerCellSystem _powerCell = default!;
     [Dependency] private readonly PullingSystem _pulling = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
+
+    [Dependency] private SharedInteractionSystem _interaction = default!;
+    [Dependency] private SharedLabelSystem _labels = default!;
+    [Dependency] private IdentitySystem _identity = default!;
+    [Dependency] private HealthAnalyzerSystem _analyzer = default!;
+    [Dependency] private SharedUserInterfaceSystem _ui = default!;
+    [Dependency] private SharedPointLightSystem _light = default!;
 
     private readonly HashSet<EntityUid> _deployedBlossoms = new();
     private readonly Dictionary<EntityUid, EntityUid> _blossomByTarget = new();
@@ -63,7 +77,7 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         SubscribeLocalEvent<HmeStasisBlossomComponent, HmeStasisBlossomDoAfterEvent>(OnBlossomDoAfter);
         SubscribeLocalEvent<HmeStasisBlossomComponent, ComponentShutdown>(OnBlossomShutdown);
         SubscribeLocalEvent<HmeStasisBlossomComponent, GetVerbsEvent<InteractionVerb>>(OnBlossomInteractionVerbs);
-        SubscribeLocalEvent<HmeStasisBlossomComponent, ExaminedEvent>(OnBlossomExamined);
+        SubscribeLocalEvent<HmeStasisBlossomComponent, InteractUsingEvent>(OnBlossomInteractUsing, before: new[] { typeof(ItemSlotsSystem) });
         SubscribeLocalEvent<HmeStasisBlossomComponent, GettingPickedUpAttemptEvent>(OnBlossomGettingPickedUpAttempt);
         SubscribeLocalEvent<HmeStasisBlossomComponent, PullAttemptEvent>(OnBlossomPullAttempt);
         SubscribeLocalEvent<StandingStateComponent, StandAttemptEvent>(OnStandingAttempt);
@@ -135,18 +149,14 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
 
     private void OnBlossomInteractHand(Entity<HmeStasisBlossomComponent> ent, ref InteractHandEvent args)
     {
-        if (args.Handled || ent.Comp.AttachedTarget == null)
+        if (args.Handled || ent.Comp.AttachedTarget is not { } patient || !Exists(patient))
             return;
 
         args.Handled = true;
 
-        if (ent.Comp.Deployed)
-        {
-            _popup.PopupEntity(Loc.GetString("hme-stasis-blossom-detach-deployed"), ent.Owner, args.User, PopupType.SmallCaution);
-            return;
-        }
-
-        DetachBlossom(ent, args.User);
+        var analyzer = EnsureComp<HealthAnalyzerComponent>(ent);
+        _ui.OpenUi(ent.Owner, HealthAnalyzerUiKey.Key, args.User);
+        _analyzer.BeginAnalyzingEntity((ent.Owner, analyzer), patient);
     }
 
     private void OnBlossomUseInHand(Entity<HmeStasisBlossomComponent> ent, ref UseInHandEvent args)
@@ -237,13 +247,70 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         }
     }
 
-    private void OnBlossomExamined(Entity<HmeStasisBlossomComponent> ent, ref ExaminedEvent args)
+    private void OnBlossomInteractUsing(Entity<HmeStasisBlossomComponent> ent, ref InteractUsingEvent args)
     {
-        var charge = 0f;
-        if (_powerCell.TryGetBatteryFromSlot(ent.Owner, out var battery) && battery.MaxCharge > 0f)
-            charge = battery.CurrentCharge / battery.MaxCharge * 100f;
+        if (args.Handled || !ent.Comp.Deployed ||
+            ent.Comp.AttachedTarget is not { } patient || !Exists(patient) ||
+            (!HasComp<InjectorComponent>(args.Used) && !HasComp<HyposprayComponent>(args.Used)))
+            return;
 
-        args.PushMarkup(Loc.GetString("hme-stasis-blossom-battery-examine", ("charge", $"{charge:F0}")));
+        args.Handled = _interaction.InteractUsing(args.User, args.Used, patient, args.ClickLocation);
+    }
+
+    private void SetPatientHidden(Entity<HmeStasisBlossomComponent> ent, bool hidden)
+    {
+        if (ent.Comp.AttachedTarget is not { } patient || TerminatingOrDeleted(patient))
+            return;
+
+        if (hidden)
+        {
+            var visuals = EnsureComp<HmeStasisPatientComponent>(patient);
+            visuals.Hidden = true;
+            Dirty(patient, visuals);
+        }
+        else
+        {
+            RemComp<HmeStasisPatientComponent>(patient);
+        }
+    }
+
+    private void UpdatePatientLabel(Entity<HmeStasisBlossomComponent> ent)
+    {
+        if (ent.Comp.AttachedTarget is not { } patient || !Exists(patient))
+            return;
+
+        if (!ent.Comp.PatientLabelApplied)
+        {
+            var original = CompOrNull<LabelComponent>(ent)?.CurrentLabel;
+            ent.Comp.OriginalLabel = original == null ? null : FormattedMessage.RemoveMarkupPermissive(original);
+            ent.Comp.PatientLabelApplied = true;
+        }
+
+        var label = Loc.GetString("hme-stasis-blossom-patient-label", ("patient", _identity.GetEntityIdentity(patient)));
+        if (CompOrNull<LabelComponent>(ent)?.CurrentLabel != FormattedMessage.EscapeText(label))
+            _labels.Label(ent.Owner, label);
+    }
+
+    private void RestorePatientLabel(Entity<HmeStasisBlossomComponent> ent)
+    {
+        if (!ent.Comp.PatientLabelApplied)
+            return;
+
+        if (!TerminatingOrDeleted(ent.Owner))
+            _labels.Label(ent.Owner, ent.Comp.OriginalLabel);
+        ent.Comp.PatientLabelApplied = false;
+        ent.Comp.OriginalLabel = null;
+    }
+
+    private void StopPatientScan(EntityUid uid)
+    {
+        if (!TryComp(uid, out HealthAnalyzerComponent? analyzer))
+            return;
+
+        if (analyzer.ScannedEntity is { } patient && !TerminatingOrDeleted(patient))
+            _analyzer.StopAnalyzingEntity((uid, analyzer), patient);
+        _ui.CloseUi(uid, HealthAnalyzerUiKey.Key);
+        RemComp<HealthAnalyzerComponent>(uid);
     }
 
     private void OnBlossomGettingPickedUpAttempt(Entity<HmeStasisBlossomComponent> ent, ref GettingPickedUpAttemptEvent args)
@@ -296,6 +363,7 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
 
         ForceBlossomTargetDown(target);
         ApplyBlossomTransportAssist(ent, target);
+        UpdatePatientLabel(ent);
 
         if (now >= ent.Comp.NextPowerUse)
         {
@@ -324,6 +392,7 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
         _blossomByTarget[target] = ent.Owner;
         _transform.SetCoordinates(ent.Owner, new EntityCoordinates(target, Vector2.Zero));
         SetBlossomVisual(ent.Owner, HmeStasisBlossomVisualState.Attached);
+        UpdatePatientLabel(ent);
     }
 
     private bool TryToggleBlossom(Entity<HmeStasisBlossomComponent> ent, EntityUid user)
@@ -356,6 +425,8 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
 
         ForceBlossomTargetDown(target);
         ent.Comp.Deployed = true;
+        SetPatientHidden(ent, true);
+        UpdatePatientLabel(ent);
         ent.Comp.NextHealTime = _timing.CurTime;
         ent.Comp.NextPowerUse = _timing.CurTime + ent.Comp.PowerUseInterval;
         SetBlossomMetabolism(ent, true);
@@ -370,6 +441,7 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
     private void FoldBlossom(Entity<HmeStasisBlossomComponent> ent)
     {
         ent.Comp.Deployed = false;
+        SetPatientHidden(ent, false);
         _deployedBlossoms.Remove(ent.Owner);
         RestoreBlossomTransportAssist(ent);
         SetBlossomMetabolism(ent, false);
@@ -390,7 +462,10 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
 
         var coords = _transform.GetMapCoordinates(ent.Owner);
         SetBlossomMetabolism(ent, false);
+        SetPatientHidden(ent, false);
+        RestorePatientLabel(ent);
         RemoveTargetMapping(target, ent.Owner);
+        StopPatientScan(ent.Owner);
         ent.Comp.AttachedTarget = null;
         _deployedBlossoms.Remove(ent.Owner);
         _transform.SetMapCoordinates(ent.Owner, coords);
@@ -454,8 +529,12 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
 
         RestoreBlossomTransportAssist(ent);
         SetBlossomMetabolism(ent, false);
+        SetPatientHidden(ent, false);
+        RestorePatientLabel(ent);
+        StopPatientScan(ent.Owner);
         ent.Comp.AttachedTarget = null;
         ent.Comp.Deployed = false;
+        SetPatientHidden(ent, false);
         _deployedBlossoms.Remove(ent.Owner);
 
         if (fold && Exists(ent.Owner))
@@ -551,6 +630,7 @@ public sealed class HmeStasisBlossomSystem : EntitySystem
     private void SetBlossomVisual(EntityUid uid, HmeStasisBlossomVisualState state)
     {
         _appearance.SetData(uid, HmeStasisBlossomVisuals.State, state);
+        _light.SetEnabled(uid, state == HmeStasisBlossomVisualState.Deployed);
     }
 
     private static HmeStasisBlossomVisualState GetBlossomVisualState(HmeStasisBlossomComponent component)

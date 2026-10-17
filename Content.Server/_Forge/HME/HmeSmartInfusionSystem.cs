@@ -263,9 +263,13 @@ public sealed class HmeSmartInfusionSystem : EntitySystem
         if (!_solutions.TryGetInjectableSolution(target, out var targetSolutionEnt, out var targetSolution))
             return false;
 
-        var remainingCapacity = targetSolution.AvailableVolume;
-        if (remainingCapacity <= FixedPoint2.Zero)
+        if (targetSolution.AvailableVolume <= FixedPoint2.Zero)
             return false;
+
+        var injected = false;
+        var critical = _mobState.IsCritical(target);
+        if (critical)
+            injected |= TryInjectMedication("Epinephrine", targetSolutionEnt.Value, targetSolution, component);
 
         GetPositiveDamageTypesDescending(damageable);
         foreach (var (damageType, _) in _damageBuffer)
@@ -275,33 +279,43 @@ public sealed class HmeSmartInfusionSystem : EntitySystem
 
             foreach (var reagent in reagents)
             {
-                var currentDose = targetSolution.GetTotalPrototypeQuantity(reagent);
-                var dosageRoom = component.TransferAmount - currentDose;
-                if (dosageRoom <= FixedPoint2.Zero)
+                if (reagent == "Epinephrine" && !critical)
                     continue;
 
-                if (!_reagentSources.TryGetValue(reagent, out var sources))
+                if (!_reagentSources.TryGetValue(reagent, out var sources) ||
+                    !sources.Exists(source => source.Solution.GetTotalPrototypeQuantity(reagent) > FixedPoint2.Zero))
                     continue;
 
-                foreach (var source in sources)
-                {
-                    var available = source.Solution.GetTotalPrototypeQuantity(reagent);
-                    var amount = FixedPoint2.Min(available, FixedPoint2.Min(remainingCapacity, dosageRoom));
-                    if (amount <= FixedPoint2.Zero)
-                        continue;
-
-                    if (!_solutions.RemoveReagent(source.SolutionEnt, reagent, amount))
-                        continue;
-
-                    if (_solutions.TryAddSolution(targetSolutionEnt.Value, new Solution(reagent, amount)))
-                        return true;
-
-                    _solutions.TryAddSolution(source.SolutionEnt, new Solution(reagent, amount));
-                }
+                injected |= TryInjectMedication(reagent, targetSolutionEnt.Value, targetSolution, component);
+                break;
             }
         }
 
-        return false;
+        return injected;
+    }
+
+    private bool TryInjectMedication(string reagent, Entity<SolutionComponent> targetSolutionEnt,
+        Solution targetSolution, HmeSmartInfusionStandComponent component)
+    {
+        if (!_reagentSources.TryGetValue(reagent, out var sources))
+            return false;
+
+        var injected = false;
+        foreach (var source in sources)
+        {
+            var dosageRoom = component.TransferAmount - targetSolution.GetTotalPrototypeQuantity(reagent);
+            var amount = FixedPoint2.Min(source.Solution.GetTotalPrototypeQuantity(reagent),
+                FixedPoint2.Min(targetSolution.AvailableVolume, dosageRoom));
+            if (amount <= FixedPoint2.Zero || !_solutions.RemoveReagent(source.SolutionEnt, reagent, amount))
+                continue;
+
+            if (_solutions.TryAddSolution(targetSolutionEnt, new Solution(reagent, amount)))
+                injected = true;
+            else
+                _solutions.TryAddSolution(source.SolutionEnt, new Solution(reagent, amount));
+        }
+
+        return injected;
     }
 
     private bool BuildStoredReagentIndex(StorageComponent storage)
@@ -346,7 +360,15 @@ public sealed class HmeSmartInfusionSystem : EntitySystem
                 _damageBuffer.Add(damage);
         }
 
-        _damageBuffer.Sort((a, b) => b.Value.CompareTo(a.Value));
+        _damageBuffer.Sort((a, b) =>
+        {
+            if (a.Key == "Asphyxiation" && b.Key != "Asphyxiation")
+                return -1;
+            if (b.Key == "Asphyxiation" && a.Key != "Asphyxiation")
+                return 1;
+            var severity = b.Value.CompareTo(a.Value);
+            return severity != 0 ? severity : string.CompareOrdinal(a.Key, b.Key);
+        });
     }
 
     private void SetInfusionVisual(EntityUid uid, HmeInfusionStandVisualState state)

@@ -31,7 +31,7 @@ hme-stasis-blossom-detach-hand-required = Чтобы отсоединить ст
 hme-stasis-blossom-verb-deploy = Развернуть стазис-поле
 hme-stasis-blossom-verb-fold = Свернуть стазис-поле
 hme-stasis-blossom-verb-detach = Отсоединить бутон
-hme-stasis-blossom-battery-examine = Индикатор заряда батареи показывает {$charge}%.
+hme-stasis-blossom-patient-label = Пациент: {$patient}
 
 hme-rescue-beacon-armed = Спасательный маяк активирован.
 hme-rescue-beacon-disarmed = Спасательный маяк деактивирован.

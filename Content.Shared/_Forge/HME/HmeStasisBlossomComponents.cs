@@ -54,6 +54,12 @@ public sealed partial class HmeStasisBlossomComponent : Component
     public bool Deployed;
 
     [ViewVariables]
+    public string? OriginalLabel;
+
+    [ViewVariables]
+    public bool PatientLabelApplied;
+
+    [ViewVariables]
     public bool MetabolismApplied;
 
     [ViewVariables]

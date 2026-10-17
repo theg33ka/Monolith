@@ -31,7 +31,7 @@ hme-stasis-blossom-detach-hand-required = You need a free hand to detach the sta
 hme-stasis-blossom-verb-deploy = Deploy stasis field
 hme-stasis-blossom-verb-fold = Fold stasis field
 hme-stasis-blossom-verb-detach = Detach blossom
-hme-stasis-blossom-battery-examine = The battery charge indicator reads {$charge}%.
+hme-stasis-blossom-patient-label = Patient: {$patient}
 
 hme-rescue-beacon-armed = The rescue beacon arms.
 hme-rescue-beacon-disarmed = The rescue beacon disarms.

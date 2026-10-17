@@ -158,6 +158,17 @@
     slots:
     - back
   - type: HmeStasisBlossom
+  - type: ItemToggle
+    onUse: false
+  - type: UserInterface
+    interfaces:
+      enum.HealthAnalyzerUiKey.Key:
+        type: HealthAnalyzerBoundUserInterface
+  - type: PointLight
+    enabled: false
+    radius: 2.5
+    energy: 1
+    color: "#80DFFF"
   - type: StaticPrice
     price: 900
 

@@ -53,6 +53,9 @@ public sealed class HmeFieldSupportVisualsTest
             Assert.That(sprite[screen].AutoAnimated, Is.True);
 
             SetState(HmeStasisBlossomVisualState.Attached);
+            Assert.That(sprite[baseLayer].RsiState.Name, Is.EqualTo("folding"));
+            Assert.That(sprite[screen].RsiState.Name, Is.EqualTo("folding-screen"));
+            animation.FrameUpdate(1.4f);
             Assert.That(sprite[baseLayer].RsiState.Name, Is.EqualTo("compact"));
             Assert.That(sprite[screen].Visible, Is.False);
             SetState(HmeStasisBlossomVisualState.Deployed);
