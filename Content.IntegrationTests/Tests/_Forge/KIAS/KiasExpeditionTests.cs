@@ -129,6 +129,8 @@ public sealed class KiasExpeditionTests
             Assert.That(proximitySensors, Is.Not.Empty);
             var foreign = maps.CreateGridEntity(em.GetComponent<TransformComponent>(ship).MapID);
             nearbyGrid = foreign.Owner;
+            em.EnsureComponent<Content.Server.Shuttles.Components.ShuttleComponent>(nearbyGrid);
+            em.EnsureComponent<Content.Shared.Shuttles.Components.IFFComponent>(nearbyGrid);
             var shipMap = em.GetComponent<Robust.Shared.Map.Components.MapGridComponent>(ship);
             var floor = maps.GetAllTiles(ship, shipMap);
             Assert.That(floor.MoveNext(out var tile), Is.True);

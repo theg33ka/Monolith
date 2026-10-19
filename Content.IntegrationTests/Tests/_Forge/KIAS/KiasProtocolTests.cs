@@ -13,6 +13,10 @@ using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
+using Robust.Shared.Timing;
+using System.Numerics;
+using Content.Shared.Power;
+using Content.Shared.Mobs.Components;
 
 namespace Content.IntegrationTests.Tests._Forge.KIAS;
 
@@ -36,6 +40,62 @@ public sealed class KiasProtocolTests
         em.System<KiasSystem>().Rebuild(grid);
         Assert.That(em.System<ItemSlotsSystem>().TryInsert(rack, KiasControllerRackComponent.SlotId(0), card, null), Is.True);
         return card;
+    }
+
+    [Test]
+    public async Task MissingBiometryOfLivingCrewDoesNotDeclareVesselCritical()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var map = await pair.CreateTestMap();
+        var em = pair.Server.ResolveDependency<IEntityManager>();
+        EntityUid core = default, body = default;
+        await pair.Server.WaitAssertion(() =>
+        {
+            for (var x = 0; x < 5; x++)
+            {
+                em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(x, 0), map.Tile.Tile);
+                Spawn(em, map.Grid, "KiasDataCable", x);
+            }
+            core = Spawn(em, map.Grid, "KiasCore");
+            var crew = Spawn(em, map.Grid, "KiasCrewServer", 1);
+            var scanner = Spawn(em, map.Grid, "KiasRoomScanner", 2);
+            em.System<SharedMapSystem>().SetTile(map.Grid, map.Grid.Comp, new Vector2i(2, 1), map.Tile.Tile);
+            em.System<SharedTransformSystem>().SetLocalRotation(scanner, Angle.FromDegrees(180));
+            var containers = em.System<SharedContainerSystem>();
+            var slot = containers.GetContainer(scanner, "kias-module-3");
+            foreach (var module in slot.ContainedEntities.ToArray()) em.DeleteEntity(module);
+            Assert.That(containers.Insert(Spawn(em, map.Grid, "KiasBiometricModule", 2), slot), Is.True);
+            body = Spawn(em, map.Grid, "MobHuman", 2);
+            em.AddComponent<KiasTrackedEntityComponent>(body);
+            var token = Spawn(em, map.Grid, "KiasCrewTransponder", 2);
+            var transponder = em.GetComponent<KiasTransponderComponent>(token);
+            transponder.Core = core;
+            em.GetComponent<KiasCrewServerComponent>(crew).Registered.Add(transponder.Serial);
+            Assert.That(containers.Insert(token, containers.EnsureContainer<Container>(body, "kias-test-token")), Is.True);
+            em.System<KiasSystem>().Rebuild(map.Grid);
+        });
+        await pair.RunTicksSync(40);
+        await pair.Server.WaitAssertion(() =>
+        {
+            Assert.That(em.System<KiasCrewSystem>().CrewUnavailable(map.Grid), Is.False);
+            em.System<SharedTransformSystem>().SetCoordinates(body, new EntityCoordinates(map.Grid, 100.5f, 100.5f));
+            Assert.That(em.System<KiasCrewSystem>().CrewUnavailable(map.Grid), Is.True);
+            var now = pair.Server.ResolveDependency<IGameTiming>().CurTime;
+            var state = em.GetComponent<KiasProtocolComponent>(core);
+            state.DamageEvidenceUntil = now + TimeSpan.FromSeconds(60);
+            state.CrewUnavailableSince = now - TimeSpan.FromSeconds(31);
+            state.CriticalSince = now - TimeSpan.FromSeconds(16);
+            var deficit = new KiasPowerDeficitEvent(map.Grid, CableType.Apc, 0, 10);
+            em.EventBus.RaiseLocalEvent(map.Grid, ref deficit, true);
+        });
+        await pair.RunTicksSync(70);
+        await pair.Server.WaitAssertion(() =>
+        {
+            Assert.That(em.GetComponent<MobStateComponent>(body).CurrentState, Is.EqualTo(MobState.Alive));
+            Assert.That(em.GetComponent<KiasProtocolComponent>(core).CrewDistressUntil, Is.EqualTo(TimeSpan.Zero));
+            Assert.That(em.GetComponent<KiasProtocolComponent>(core).CriticalLatched, Is.False);
+        });
+        await pair.CleanReturnAsync();
     }
 
     [Test]
@@ -152,9 +212,20 @@ public sealed class KiasProtocolTests
             Assert.That(em.GetComponent<KiasRelayComponent>(relay).Closed, Is.False);
             Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Log, Has.Count.EqualTo(2));
             em.System<KiasSystem>().Rebuild(map.Grid);
+            em.System<SharedTransformSystem>().SetWorldPosition(map.Grid, new Vector2(123, -456));
+            var protocols = em.GetComponent<KiasProtocolComponent>(core);
+            protocols.DamageEvidenceUntil = pair.Server.ResolveDependency<IGameTiming>().CurTime + TimeSpan.FromSeconds(60);
             Assert.That(engine.Mayday(map.Grid, "Test distress"), Is.True);
             Assert.That(engine.Mayday(map.Grid, "Repeat"), Is.False);
+            Assert.That(em.HasComponent<KiasMaydayComponent>(map.Grid), Is.False);
+            protocols.CrewResponseDeadline = pair.Server.ResolveDependency<IGameTiming>().CurTime - TimeSpan.FromSeconds(1);
+        });
+        await pair.RunTicksSync(70);
+        await pair.Server.WaitAssertion(() =>
+        {
             Assert.That(em.System<SharedShuttleSystem>().GetIFFLabel(map.Grid), Does.Contain("[MAYDAY]"));
+            Assert.That(em.GetComponent<KiasGridComponent>(map.Grid).Log,
+                Has.Some.Matches<string>(line => line.Contains("Test distress") && line.Contains("123") && line.Contains("-456")));
             em.System<KiasSystem>().SetEnabled(core, false);
             Assert.That(em.System<KiasControllerRuntimeSystem>().Running(card), Is.False);
             engine.Trigger(map.Grid, KiasTrigger.Manual, eventKey: "off");

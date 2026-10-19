@@ -44,6 +44,7 @@ public sealed class KiasPersistenceTests
                 return uid;
             }
             var core = Spawn("KiasCore", 0);
+            em.EnsureComponent<KiasGridOriginComponent>(map.Grid).Origin = map.Grid;
             var recorder = Spawn("KiasRecorder", 1);
             var tool = Spawn("KiasServiceTool", 1);
             var service = em.GetComponent<KiasServiceToolComponent>(tool);
@@ -111,6 +112,7 @@ public sealed class KiasPersistenceTests
         {
             Assert.That(loader.TryLoadMap(path, out _, out var grids), Is.True);
             loadedGrid = grids!.Single();
+            Assert.That(em.HasComponent<KiasGridOriginComponent>(loadedGrid), Is.False);
         });
         await pair.RunTicksSync(3);
         await server.WaitAssertion(() =>

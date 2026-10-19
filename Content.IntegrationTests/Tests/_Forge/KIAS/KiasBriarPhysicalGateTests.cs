@@ -478,6 +478,7 @@ public sealed class KiasBriarPhysicalGateTests
                     var position = em.System<SharedTransformSystem>().GetMapCoordinates(sensor).Position;
                     var range = em.GetComponent<KiasProximityComponent>(sensor).Range;
                     CreateForeignGrid(position + new Vector2(range + 5, 0));
+                    em.EnsureComponent<IFFComponent>(externalGrid);
                     em.System<SharedPhysicsSystem>().SetLinearVelocity(externalGrid, new Vector2(-20, 0));
                     inputConfirmed = em.GetComponent<PhysicsComponent>(externalGrid).LinearVelocity.X < 0;
                     inputEvidence.Add($"Native moving shuttle fixture {externalGrid} crosses sensor {sensor} range {range}.");
@@ -529,10 +530,11 @@ public sealed class KiasBriarPhysicalGateTests
                 }
                 else if (presetId == "power-lost")
                 {
-                    var device = powerTarget = OnGrid<KiasRoomScannerComponent>().First(uid => em.System<KiasSystem>().IsOnline(uid));
+                    var device = powerTarget = OnGrid<KiasControllerRackComponent>().First(uid => em.System<KiasSystem>().IsOnline(uid)
+                        && em.System<KiasControllerRuntimeSystem>().RunningCount(uid) == 0);
                     Assert.That(em.System<SharedPowerReceiverSystem>().TogglePower(device, playSwitchSound: false, user: actor), Is.False);
                     inputConfirmed = em.GetComponent<Content.Server.Power.Components.ApcPowerReceiverComponent>(device).PowerDisabled;
-                    inputEvidence.Add($"Native power button disabled online scanner {device}; waiting for power network update.");
+                    inputEvidence.Add($"Native power button disabled an online spare controller rack {device}; peripheral power loss is diagnostic-only.");
                 }
                 else if (presetId == "local-threat")
                 {
@@ -602,16 +604,17 @@ public sealed class KiasBriarPhysicalGateTests
                         }
                         if (presetId == "vessel-critical")
                         {
+                            var applied = 0f;
+                            var protocol = em.GetComponent<KiasProtocolComponent>(core);
                             foreach (var wall in OnGrid<KiasHullStructureComponent>().Where(uid => em.TryGetComponent<DamageableComponent>(uid, out var d) && d.Damage.DamageDict.ContainsKey("Structural")))
                             {
                                 var structural = new DamageSpecifier(); structural.DamageDict.Add("Structural", 50);
-                                em.System<DamageableSystem>().TryChangeDamage(wall, structural);
-                                var accumulated = em.GetComponent<KiasProtocolComponent>(core);
-                                if (accumulated.RecentDamage >= accumulated.CriticalDamageThreshold) break;
+                                var changed = em.System<DamageableSystem>().TryChangeDamage(wall, structural);
+                                if (changed != null) applied += (float) changed.GetTotal();
+                                if (applied >= protocol.CriticalDamageThreshold) break;
                             }
-                            var protocol = em.GetComponent<KiasProtocolComponent>(core);
-                            Assert.That(protocol.RecentDamage, Is.GreaterThanOrEqualTo(protocol.CriticalDamageThreshold));
-                            inputEvidence.Add($"Real structure damage accumulated {protocol.RecentDamage} within the native evidence window.");
+                            Assert.That(applied, Is.GreaterThanOrEqualTo(protocol.CriticalDamageThreshold));
+                            inputEvidence.Add($"Real structure damage applied {applied}; KIAS delivery waits for the native damage batch.");
                         }
                     }
                     var thresholds = em.GetComponent<MobThresholdsComponent>(actor).Thresholds;
@@ -677,12 +680,18 @@ public sealed class KiasBriarPhysicalGateTests
                 });
             }
             // Берём реальные выходы динамиков после каждого тика, затем проверяем состояние устройств.
-            for (var step = 0; step < (presetId is "medical-assistance" or "vessel-critical" ? 2100 : presetId is "arrival" or "contact" ? 1800 : presetId == "power-deficit" ? 600 : presetId == "radiation" ? 120 : 240); step++)
+            for (var step = 0; step < (presetId == "vessel-critical" ? (int) timing.TickRate * 85 : presetId == "medical-assistance" ? 2100 : presetId is "arrival" or "contact" ? 1800 : presetId == "power-deficit" ? 600 : presetId == "radiation" ? 120 : 240); step++)
             {
                 await pair.RunTicksSync(1);
                 await server.WaitAssertion(() =>
                 {
                     ObserveSound();
+                    if (presetId == "vessel-critical" && step == (int) timing.TickRate)
+                    {
+                        var protocol = em.GetComponent<KiasProtocolComponent>(core);
+                        Assert.That(protocol.RecentDamage, Is.GreaterThanOrEqualTo(protocol.CriticalDamageThreshold));
+                        inputEvidence.Add($"Real structure damage accumulated {protocol.RecentDamage} after native batch delivery.");
+                    }
                     if (presetId is "medical-assistance" or "vessel-critical" && timing.CurTick.Value - stimulusTick < timing.TickRate * 29)
                         Assert.That(commands, Is.Empty, "MedicalHelp/Mayday must wait for actual crew unavailability; no early broadcast.");
                     if (presetId == "battle-impact" && step is 0 or 4 or 10 or 60)
@@ -727,6 +736,9 @@ public sealed class KiasBriarPhysicalGateTests
                 await pair.Client.WaitAssertion(() =>
                 {
                     Assert.That(receivedRadio.Count(message => message.Channel == ChatChannel.Radio), Is.EqualTo(1), "The actual client must receive exactly one native distress broadcast.");
+                    if (presetId == "vessel-critical")
+                        Assert.That(receivedRadio.Single(message => message.Channel == ChatChannel.Radio).Message,
+                            Does.Match(@"(?:Coordinates|Координаты): -?\d+, -?\d+"));
                     crossChecks["nativeRadioBroadcastDeliveredToConnectedClient"] = true;
                 });
             await server.WaitAssertion(() =>
@@ -1137,7 +1149,7 @@ public sealed class KiasBriarPhysicalGateTests
                     Assert.That(commands.Count, Is.EqualTo(firstCommands), "Same structure within cooldown must not actuate again.");
                     crossChecks["repeatInsideCooldownSuppressed"] = true;
                 });
-                await pair.RunTicksSync(660);
+                await pair.RunTicksSync(1860);
                 await server.WaitAssertion(() =>
                 {
                     var damage = new DamageSpecifier(); damage.DamageDict.Add("Structural", 50);
@@ -1942,8 +1954,8 @@ public sealed class KiasBriarPhysicalGateTests
                     }
                 }
                 var initialCommands = commands.Count;
-                await AdvancePowered(5600);
-                await server.WaitAssertion(() => Assert.That(commands.Count, Is.GreaterThan(initialCommands), "The native armed clock must issue another command after 180 seconds."));
+                await AdvancePowered((int) timing.TickRate * 365);
+                await server.WaitAssertion(() => Assert.That(commands.Count, Is.GreaterThan(initialCommands), "A later native clock request must pass the radio cooldown and crew-response delay."));
                 await pair.Client.WaitAssertion(() =>
                 {
                     Assert.That(receivedRadio.Count(message => message.Channel == ChatChannel.Radio), Is.EqualTo(2), "The native clock must deliver the second actual MAYDAY.");
@@ -1983,7 +1995,7 @@ public sealed class KiasBriarPhysicalGateTests
                                 && container.ContainedEntities.Contains(card)));
                         Assert.That(em.System<SharedContainerSystem>().RemoveEntity(rack, card), Is.True);
                     });
-                await AdvancePowered(5600);
+                await AdvancePowered((int) timing.TickRate * 365);
                 await server.WaitAssertion(() =>
                 {
                     Assert.That(em.System<KiasSystem>().IsOnline(core), Is.True, "Timer cleanup must be checked with the core still powered.");
